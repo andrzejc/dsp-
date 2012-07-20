@@ -6,14 +6,15 @@
 #ifndef DSP_OVERLAPP_ADD_H_INCLUDED
 #define DSP_OVERLAPP_ADD_H_INCLUDED
 
+#include <dsp++/config.h>
 #include <dsp++/fft.h>
 #include <dsp++/pow2.h>
 #include <dsp++/algorithm.h>
+#include <dsp++/noncopyable.h>
 
 #include <algorithm>
 #include <functional>
 
-#include <boost/noncopyable.hpp>
 #include <boost/concept/requires.hpp>
 #include <boost/concept_check.hpp>
 
@@ -27,7 +28,7 @@ namespace dsp {
  * @see http://en.wikipedia.org/wiki/Overlap-add_method
  */
 template<class Real, template<class, class> class DFT = dsp::fft>
-class overlap_add: private boost::noncopyable
+class overlap_add: private noncopyable
 {
 public:
 	typedef Real value_type;

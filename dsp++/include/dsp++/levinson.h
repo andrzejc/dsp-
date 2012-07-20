@@ -1,12 +1,13 @@
 /*!
  * @file dsp++/levinson.h
- * 
+ * @brief Algorithms for Levinson-Durbin recursion.
  * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
  */
 
 #ifndef DSP_LEVINSON_H_INCLUDED
 #define DSP_LEVINSON_H_INCLUDED
 
+#include <dsp++/config.h>
 #include <dsp++/complex.h>
 #include <dsp++/trivial_array.h>
 
@@ -16,27 +17,33 @@
 #include <cmath>
 #include <iterator>
 
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 #include <boost/concept/requires.hpp>
 #include <boost/concept_check.hpp>
+#endif
 
 namespace dsp {
 
 /*!
  * @brief Calculate P'th order prediction polynomial Acur based on P+1'th order prediction polynomial, Anxt.
- * @param P [in] order of the prediction polynomial to calculate.
- * @param Anxt [in] sequence of coefficients of P+1'th order prediction polynomial (of length P+2).
- * @param Acur [out] sequence of coefficients of P'th order prediction polynomial (of length P+1);
- * @param Kcur [out] P+1'th order reflection coefficient.
- * @param Enxt [in] P+1'th order prediction error used for calculation of Ecur (set both to NULL if not needed).
- * @param Ecur [out] P'th order prediction error, based on given P+1'th order prediction error Enxt.
+ * @param[in] P order of the prediction polynomial to calculate.
+ * @param[in] Anxt sequence of coefficients of P+1'th order prediction polynomial (of length P+2).
+ * @param[out] Acur sequence of coefficients of P'th order prediction polynomial (of length P+1);
+ * @param[out] Kcur P+1'th order reflection coefficient.
+ * @param[in] Enxt P+1'th order prediction error used for calculation of Ecur (set both to NULL if not needed).
+ * @param[out] Ecur P'th order prediction error, based on given P+1'th order prediction error Enxt.
  * @throw std::domain_error if last (P+1'th) element of input sequence Anxt is equal 1.
  * @tparam ANxtIter type of iterator used to pass input sequence Anxt (bidirectional iterator).
  * @tparam ACurIter type of iterator used to pass output sequence Acur (output iterator).
  */
 template<class ANxtIter, class ACurIter>
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 BOOST_CONCEPT_REQUIRES(((boost::BidirectionalIterator<ANxtIter>))
 		((boost::OutputIterator<ACurIter, typename std::iterator_traits<ANxtIter>::value_type>)),
 		(void)) inline
+#else
+		void inline
+#endif
 levdown(size_t P, ANxtIter Anxt, ACurIter Acur,
 		typename std::iterator_traits<ANxtIter>::value_type* Kcur = NULL,
 		const typename std::iterator_traits<ANxtIter>::value_type* Enxt = NULL,
@@ -65,19 +72,23 @@ levdown(size_t P, ANxtIter Anxt, ACurIter Acur,
 
 /*!
  * @brief Calculate P+1'th order prediction polynomial Anxt based on P'th order prediction polynomial, Acur.
- * @param P [in] order of the prediction polynomial to base calculations on.
- * @param Acur [in] sequence of coefficients of P'th order prediction polynomial (of length P+1).
- * @param Anxt [out] sequence of coefficients of P+1'th order prediction polynomial (of length P+2);
- * @param Knxt [out] P+1'th order reflection coefficient.
- * @param Ecur [in] P'th order prediction error.
- * @param Enxt [out] P+1'th order prediction error based on Enxt (set both to NULL if not needed).
+ * @param[in] P order of the prediction polynomial to base calculations on.
+ * @param[in] Acur sequence of coefficients of P'th order prediction polynomial (of length P+1).
+ * @param[out] Anxt sequence of coefficients of P+1'th order prediction polynomial (of length P+2);
+ * @param[out] Knxt P+1'th order reflection coefficient.
+ * @param[in] Ecur P'th order prediction error.
+ * @param[out] Enxt P+1'th order prediction error based on Enxt (set both to NULL if not needed).
  * @tparam ANxtIter type of iterator used to pass input sequence Anxt (bidirectional iterator).
  * @tparam ACurIter type of iterator used to pass output sequence Acur (output iterator).
  */
 template<class ACurIter, class ANxtIter>
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 BOOST_CONCEPT_REQUIRES(((boost::BidirectionalIterator<ACurIter>))
 		((boost::OutputIterator<ANxtIter, typename std::iterator_traits<ACurIter>::value_type>)),
 		(void)) inline
+#else
+		void inline
+#endif
 levup(size_t P, ACurIter Acur, ANxtIter Anxt,
 		typename std::iterator_traits<ACurIter>::value_type Knxt,
 		const typename std::iterator_traits<ACurIter>::value_type* Ecur = NULL,
@@ -106,17 +117,25 @@ public:
 	size_t input_length() const {return L_;}
 
 	template<class RIterator, class AIterator>
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_REQUIRES(((boost::BidirectionalIterator<RIterator>))
 			((boost::OutputIterator<AIterator, typename std::iterator_traits<RIterator>::value_type>)),
 			(Sample))
+#else
+			Sample
+#endif
 	operator()(RIterator r_begin, AIterator a_begin)
 	{return do_calc(r_begin, a_begin, static_cast<AIterator*>(NULL));}
 
 	template<class RIterator, class AIterator, class KIterator>
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_REQUIRES(((boost::BidirectionalIterator<RIterator>))
 			((boost::OutputIterator<AIterator, typename std::iterator_traits<RIterator>::value_type>))
 			((boost::OutputIterator<KIterator, typename std::iterator_traits<RIterator>::value_type>)),
 			(Sample))
+#else
+			Sample
+#endif
 	operator()(RIterator r_begin, AIterator a_begin, KIterator k_begin)
 	{return do_calc(r_begin, a_begin, &k_begin);}
 
@@ -136,10 +155,14 @@ private:
 	trivial_array<Sample> a_;
 
 	template<class RIterator, class AIterator, class KIterator>
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_REQUIRES(((boost::BidirectionalIterator<RIterator>))
 			((boost::OutputIterator<AIterator, typename std::iterator_traits<RIterator>::value_type>))
 			((boost::OutputIterator<KIterator, typename std::iterator_traits<RIterator>::value_type>)),
 			(Sample))
+#else
+			Sample
+#endif
 	do_calc(RIterator r_begin, AIterator a_begin, KIterator* k_begin)
 	{
 		const Sample zero = Sample();
