@@ -11,10 +11,7 @@
 #if !DSP_SNDFILE_DISABLED
 
 #include <dsp++/export.h>
-#include <boost/noncopyable.hpp>
-#include <boost/scoped_ptr.hpp>
-
-
+#include <dsp++/noncopyable.h>
 
 typedef	struct SNDFILE_tag	SNDFILE;	//!< Forward declaration from libsndfile.
 
@@ -166,7 +163,7 @@ protected:
 	void throw_last_error();
 
 private:
-	boost::scoped_ptr<base_impl> impl_;
+	base_impl* impl_;
 };
 
 /*!

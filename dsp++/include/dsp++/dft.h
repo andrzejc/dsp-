@@ -1,6 +1,6 @@
 /*!
  * @file dsp++/dft.h
- * 
+ * @brief Constants types etc common to various DFT implementations.
  * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
  */
 

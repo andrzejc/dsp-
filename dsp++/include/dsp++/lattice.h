@@ -6,6 +6,7 @@
 #ifndef DSP_LATTICE_H_INCLUDED
 #define DSP_LATTICE_H_INCLUDED
 
+#include <dsp++/config.h>
 #include <dsp++/trivial_array.h>
 #include <dsp++/utility.h>
 #include <dsp++/algorithm.h>
@@ -13,10 +14,10 @@
 #include <algorithm>
 #include <functional>
 
-#include <boost/noncopyable.hpp>
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 #include <boost/concept/requires.hpp>
 #include <boost/concept_check.hpp>
-#include <boost/scoped_array.hpp>
+#endif
 
 namespace dsp {
 
@@ -25,7 +26,7 @@ namespace dsp {
  * @see http://www.cs.tut.fi/~tabus/course/ASP/LectureNew8.pdf
  */
 template<class Sample>
-class lattice_fir: public sample_based_transform<Sample>, private boost::noncopyable
+class lattice_fir: public sample_based_transform<Sample>
 {
 public:
 	Sample operator()(Sample x, Sample* eb = NULL);
@@ -72,7 +73,10 @@ lattice_fir<Sample>::lattice_fir(Iterator k_begin, Iterator k_end)
  ,	k_(buffer_.get())
  ,	b_(k_ + M_)
 {
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_ASSERT((boost::OutputIterator<Iterator, Sample>));
+#endif
+
 	std::copy(k_begin, k_end, k_);
 }
 
@@ -84,7 +88,10 @@ lattice_fir<Sample>::lattice_fir(const KSample* k_vec, size_t k_len)
  ,	k_(buffer_.get())
  ,	b_(k_ + M_)
 {
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_ASSERT((boost::Convertible<KSample, Sample>));
+#endif
+
 	std::copy(k_vec, k_vec + k_len, k_);
 }
 
@@ -95,7 +102,7 @@ lattice_fir<Sample>::lattice_fir(const KSample* k_vec, size_t k_len)
  * @see http://web.eecs.utk.edu/~roberts/ECE506/PresentationSlides/LatticeLadder.pdf
  */
 template<class Sample>
-class lattice_iir: public sample_based_transform<Sample>, private boost::noncopyable
+class lattice_iir: public sample_based_transform<Sample>
 {
 public:
 	Sample operator()(Sample x, Sample* eb = NULL);
@@ -140,7 +147,10 @@ lattice_iir<Sample>::lattice_iir(Iterator k_begin, Iterator k_end)
  ,	k_(buffer_.get())
  ,	g_(k_ + N_)
 {
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_ASSERT((boost::OutputIterator<Iterator, Sample>));
+#endif
+
 	std::copy(k_begin, k_end, k_);
 }
 
@@ -152,7 +162,10 @@ lattice_iir<Sample>::lattice_iir(const KSample* k_vec, size_t k_len)
  ,	k_(buffer_.get())
  ,	g_(k_ + N_)
 {
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_ASSERT((boost::Convertible<KSample, Sample>));
+#endif
+
 	std::copy(k_vec, k_vec + k_len, k_);
 }
 
@@ -161,7 +174,7 @@ lattice_iir<Sample>::lattice_iir(const KSample* k_vec, size_t k_len)
  * @see http://web.eecs.utk.edu/~roberts/ECE506/PresentationSlides/LatticeLadder.pdf
  */
 template<class Sample>
-class lattice_ladder: public sample_based_transform<Sample>, private boost::noncopyable
+class lattice_ladder: public sample_based_transform<Sample>
 {
 public:
 	Sample operator()(Sample x, Sample* eb = NULL);
@@ -212,8 +225,11 @@ lattice_ladder<Sample>::lattice_ladder(KIterator k_begin, KIterator k_end, VIter
  ,	v_(k_ + N_)
  ,	g_(v_ + N_ + 1)
 {
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_ASSERT((boost::OutputIterator<KIterator, Sample>));
 	BOOST_CONCEPT_ASSERT((boost::OutputIterator<VIterator, Sample>));
+#endif
+
 	std::copy(k_begin, k_end, k_);
 	std::copy(v_begin, v_end, v_);
 }
@@ -227,8 +243,11 @@ lattice_ladder<Sample>::lattice_ladder(const KSample* k_vec, size_t k_len, const
  ,	v_(k_ + N_)
  ,	g_(v_ + N_ + 1)
 {
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_ASSERT((boost::Convertible<KSample, Sample>));
 	BOOST_CONCEPT_ASSERT((boost::Convertible<VSample, Sample>));
+#endif
+
 	std::copy(k_vec, k_vec + k_len, k_);
 	std::copy(v_vec, v_vec + v_len, v_);
 }

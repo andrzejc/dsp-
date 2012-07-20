@@ -381,7 +381,7 @@ iobase::iobase(bool read)
 
 iobase::~iobase()
 {
-	impl_.reset();
+	delete impl_;
 }
 
 void iobase::open(const char* path, dsp::snd::file_format* fmt, void* native_info)

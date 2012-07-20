@@ -6,6 +6,7 @@
 #ifndef DSP_FILTER_H_INCLUDED
 #define DSP_FILTER_H_INCLUDED
 
+#include <dsp++/config.h>
 #include <dsp++/utility.h>
 #include <dsp++/trivial_array.h>
 #include <dsp++/algorithm.h>
@@ -13,11 +14,10 @@
 #include <algorithm>
 #include <functional>
 
-#include <boost/noncopyable.hpp>
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 #include <boost/concept/requires.hpp>
 #include <boost/concept_check.hpp>
-#include <boost/type_traits.hpp>
-#include <boost/utility/enable_if.hpp>
+#endif
 
 namespace dsp {
 
@@ -47,8 +47,19 @@ Sample filter_sample_df2(Sample x, Sample* w, const size_t P, const Sample* b, c
 	return x;
 }
 
-const size_t sos_length = 3;
+const size_t sos_length = 3; //!< Length of coefficient vector of a single second-order-section (SOS) filter.
 
+/*!
+ * @brief Filter a single sample x with a bank of N second-order-section IIR filters.
+ * @param[in] x input signal sample.
+ * @param[in] N number of second-order-sections and the length of w, b, blens, a and alens arrays.
+ * @param[in,out] w delay line buffers for each SOS (N).
+ * @param[in] b MA (FIR) coefficients of each SOS (N).
+ * @param[in] blens number of important samples for each row of b array (N).
+ * @param[in] a AR (IIR) coefficients of each SOS (N).
+ * @param[in] alens number of important samples for each row of a array (N).
+ * @return filtered sample.
+ */
 template<class Sample> inline
 Sample filter_sample_sos_df2(Sample x, size_t N, Sample (*w)[sos_length], const Sample (*b)[sos_length], const size_t* blens, const Sample (*a)[sos_length], const size_t* alens)
 {
@@ -62,7 +73,7 @@ Sample filter_sample_sos_df2(Sample x, size_t N, Sample (*w)[sos_length], const 
  * @brief Implementation of Direct-Form II digital filter.
  */
 template<class Sample>
-class filter: public sample_based_transform<Sample>, private boost::noncopyable
+class filter: public sample_based_transform<Sample>
 {
 public:
 	Sample operator()(Sample x);
@@ -110,8 +121,11 @@ filter<Sample>::filter(BIterator b_begin, BIterator b_end, AIterator a_begin, AI
  ,	a_(w_ + P_)
  ,	b_(a_ + N_)
 {
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_ASSERT((boost::OutputIterator<AIterator, Sample>));
 	BOOST_CONCEPT_ASSERT((boost::OutputIterator<BIterator, Sample>));
+#endif
+
 	std::copy(a_begin, a_end, a_);
 	std::copy(b_begin, b_end, b_);
 	std::transform(a_, a_ + N_, a_, std::bind2nd(std::divides<Sample>(), *a_));
@@ -129,7 +143,10 @@ filter<Sample>::filter(BIterator b_begin, BIterator b_end)
  ,	a_(w_ + P_)
  ,	b_(a_ + N_)
 {
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_ASSERT((boost::OutputIterator<BIterator, Sample>));
+#endif
+
 	std::copy(b_begin, b_end, b_);
 }
 
@@ -144,8 +161,11 @@ filter<Sample>::filter(const BSample* b_vec, size_t b_len, const ASample* a_vec,
  ,	a_(w_ + P_)
  ,	b_(a_ + N_)
 {
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_ASSERT((boost::Convertible<BSample, Sample>));
 	BOOST_CONCEPT_ASSERT((boost::Convertible<ASample, Sample>));
+#endif
+
 	std::copy(a_vec, a_vec + a_len, a_);
 	std::copy(b_vec, b_vec + b_len, b_);
 	Sample a = (0 != a_len ? *a_vec : Sample(1));
@@ -164,12 +184,15 @@ filter<Sample>::filter(const BSample* b_vec, size_t b_len)
  ,	a_(w_ + P_)
  ,	b_(a_ + N_)
 {
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_ASSERT((boost::Convertible<BSample, Sample>));
+#endif
+
 	std::copy(b_vec, b_vec + b_len, b_);
 }
 
 template<class Sample>
-class filter_sos: public sample_based_transform<Sample>, private boost::noncopyable
+class filter_sos: public sample_based_transform<Sample>
 {
 public:
 	static const size_t section_length = sos_length;

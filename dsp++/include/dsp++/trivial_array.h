@@ -1,6 +1,6 @@
 /*!
  * @file dsp++/trivial_array.h
- * 
+ * @brief Implementation of a simple noncopyable array template capable of using custom memory allocator.
  * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
  */
 
@@ -8,11 +8,11 @@
 #define DSP_TRIVIAL_ARRAY_H_INCLUDED
 
 #include <dsp++/export.h>
+#include <dsp++/noncopyable.h>
 
 #include <memory>
 #include <cstddef>
 
-#include <boost/noncopyable.hpp>
 
 namespace dsp {
 
@@ -20,7 +20,7 @@ struct uninitialized_t {};
 extern DSPXX_API const uninitialized_t uninitialized;
 
 template<class Elem, class Alloc = std::allocator<Elem> >
-class trivial_array: private boost::noncopyable
+class trivial_array: private noncopyable
 {
 	typedef typename Alloc::template rebind<Elem>::other this_allocator;
 
@@ -81,7 +81,6 @@ private:
 	size_type size_;
 	bool init_;
 };
-
 
 }
 

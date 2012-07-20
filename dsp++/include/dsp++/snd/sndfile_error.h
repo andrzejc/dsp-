@@ -3,43 +3,43 @@
  * @brief Definition of @c sndfile_error exception class.
  * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
  */
-#ifndef SNDFILE_ERROR_H_
-#define SNDFILE_ERROR_H_
+#ifndef DSP_SNDFILE_ERROR_H_INCLUDED
+#define DSP_SNDFILE_ERROR_H_INCLUDED
 
 #include <dsp++/export.h>
 #include <stdexcept>
 
 namespace dsp { namespace snd {
 
+/*!
+ * @brief Wrapper for libsndfile error codes (@c SF_ERR_* constants from <sndfile.h>).
+ * @see http://www.mega-nerd.com/libsndfile/
+ * @see @c sf_error()
+ * @see @c sf_error_number()
+ */
+class DSPXX_API sndfile_error: public std::runtime_error {
+public:
 	/*!
-	 * @brief Wrapper for libsndfile error codes (@c SF_ERR_* constants from <sndfile.h>).
-	 * @see http://www.mega-nerd.com/libsndfile/
-	 * @see @c sf_error()
-	 * @see @c sf_error_number()
+	 * @brief Construct exception based on given error code and text message.
+	 * @param code libsndfile error code.
+	 * @param msg textual representation of the error obtained through @c sf_error_number().
 	 */
-	class DSPXX_API sndfile_error: public std::runtime_error {
-	public:
-		/*!
-		 * @brief Construct exception based on given error code and text message.
-		 * @param code libsndfile error code.
-		 * @param msg textual representation of the error obtained through @c sf_error_number().
-		 */
-		sndfile_error(int code, const std::string& msg)
-		 :	runtime_error(msg)
-		 ,	code_(code)
-		{
-		}
-		/*!
-		 * @brief Query error code.
-		 * @return libsndfile error code.
-		 */
-		int code() const {return code_;}
+	sndfile_error(int code, const std::string& msg)
+	 :	runtime_error(msg)
+	 ,	code_(code)
+	{
+	}
+	/*!
+	 * @brief Query error code.
+	 * @return libsndfile error code.
+	 */
+	int code() const {return code_;}
 
-		~sndfile_error() throw();
-	private:
-		int code_;
-	};
+	~sndfile_error() throw();
+private:
+	int code_;
+};
 
 } }
 
-#endif /* SNDFILE_ERROR_H_ */
+#endif /* DSP_SNDFILE_ERROR_H_INCLUDED */

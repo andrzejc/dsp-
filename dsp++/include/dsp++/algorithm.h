@@ -6,11 +6,15 @@
 #ifndef DSP_ALGORITHM_H_INCLUDED
 #define DSP_ALGORITHM_H_INCLUDED
 
+#include <dsp++/config.h>
+
 #include <iterator>
 #include <functional>
 
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 #include <boost/concept/requires.hpp>
 #include <boost/concept_check.hpp>
+#endif // DSP_BOOST_CONCEPT_CHECKS_DISABLED
 
 namespace dsp {
 
@@ -27,9 +31,13 @@ namespace dsp {
  * and its value type must be convertible to the value type of InputIterator.
  */
 template<class InputIterator, class OutputIterator> inline
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 BOOST_CONCEPT_REQUIRES(((boost::InputIterator<InputIterator>))
 		((boost::OutputIterator<OutputIterator, typename std::iterator_traits<InputIterator>::value_type>)),
 		(size_t))
+#else
+	size_t
+#endif
 copy_at_most_n(InputIterator src_begin, InputIterator src_end, OutputIterator dest, size_t n)
 {
 	size_t i;
@@ -39,9 +47,13 @@ copy_at_most_n(InputIterator src_begin, InputIterator src_end, OutputIterator de
 }
 
 template<class InputIterator, class OutputIterator> inline
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 BOOST_CONCEPT_REQUIRES(((boost::InputIterator<InputIterator>))
 		((boost::OutputIterator<OutputIterator, typename std::iterator_traits<InputIterator>::value_type>)),
 		(OutputIterator))
+#else
+	OutputIterator
+#endif
 copy_n(InputIterator src, size_t n, OutputIterator dest)
 {
 	for (size_t i = 0; i < n; ++i, ++dest, ++src)
