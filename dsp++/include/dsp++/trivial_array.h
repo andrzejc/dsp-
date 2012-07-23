@@ -1,9 +1,8 @@
 /*!
  * @file dsp++/trivial_array.h
- * @brief Implementation of a simple noncopyable array template capable of using custom memory allocator.
+ * @brief Implementation of a simple, noncopyable array template capable of using custom memory allocator.
  * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
  */
-
 #ifndef DSP_TRIVIAL_ARRAY_H_INCLUDED
 #define DSP_TRIVIAL_ARRAY_H_INCLUDED
 
@@ -17,7 +16,7 @@
 namespace dsp {
 
 struct uninitialized_t {};
-extern DSPXX_API const uninitialized_t uninitialized;
+extern const uninitialized_t uninitialized;
 
 template<class Elem, class Alloc = std::allocator<Elem> >
 class trivial_array: private noncopyable

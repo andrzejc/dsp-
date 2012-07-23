@@ -4,28 +4,24 @@
 #ifndef DSP_XCORR_H_INCLUDED
 #define DSP_XCORR_H_INCLUDED
 
+#include <dsp++/config.h>
 #include <dsp++/fft.h>
 #include <dsp++/complex.h>
 #include <dsp++/trivial_array.h>
 #include <dsp++/pow2.h>
 #include <dsp++/algorithm.h>
-#include <dsp++/export.h>
 
 #include <algorithm>
+#include <stdexcept>
 
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 #include <boost/concept/requires.hpp>
 #include <boost/concept_check.hpp>
-
+#endif
 
 namespace dsp {
 
-class DSPXX_API xcorr_base
-{
-	static size_t verify_input_length(size_t M);
-	size_t verify_transform_length(const size_t dft_size, const size_t idft_size);
-
-public:
-
+struct xcorr_base {
 	enum mode_type {
 		mode_autocorrelation,
 		mode_crosscorrelation,
@@ -37,30 +33,6 @@ public:
 		scaling_unbiased,
 		scaling_coeff,
 	};
-
-	mode_type mode() const {return (0 == L_ ? mode_autocorrelation : mode_crosscorrelation);}
-	size_t x_length() const {return M_;}
-	size_t y_length() const {return L_;}
-	size_t length() const {return 2 * std::max(M_, L_) - 1;}
-
-protected:
-	xcorr_base(size_t M, size_t L)
-	 :	M_(verify_input_length(M))
-	 ,	L_(L)
-	 ,	N_(dsp::nextpow2(std::max(M_, L_) * 2 - 1))
-	{
-	}
-
-	xcorr_base(size_t M, size_t L, size_t dft_size, size_t idft_size)
-	 :	M_(verify_input_length(M))
-	 ,	L_(L)
-	 ,	N_(verify_transform_length(dft_size, idft_size))
-	{
-	}
-
-	size_t M_; 			//!< length of input sequence x, must be > 0
-	size_t L_;			//!< length of input sequence y (if 0 this is autocorrelation).
-	size_t N_;			//!< transform length (nextpow2(max(M_, L_) * 2 - 1));
 };
 
 template<class Sample, template <class, class> class DFT = dsp::fft>
@@ -72,11 +44,20 @@ class xcorr: public xcorr_base
 	typedef DFT<complex_t, Sample> idft_t;
 	typedef dsp::trivial_array<Sample, typename dft_t::input_allocator> sample_buffer_t;
 	typedef dsp::trivial_array<complex_t, typename dft_t::output_allocator> complex_buffer_t;
+
+	static size_t verify_input_length(size_t M);
+	size_t verify_transform_length(const size_t dft_size, const size_t idft_size);
+
 public:
 	typedef Sample value_type;
 	typedef Sample* iterator;
 	typedef const Sample* const_iterator;
 
+
+	mode_type mode() const {return (0 == L_ ? mode_autocorrelation : mode_crosscorrelation);}
+	size_t x_length() const {return M_;}
+	size_t y_length() const {return L_;}
+	size_t length() const {return 2 * std::max(M_, L_) - 1;}
 
 	iterator x_begin() {return x_.get();}
 	const_iterator x_begin() const {return x_.get();}
@@ -93,17 +74,25 @@ public:
 
 
 	template<class XIterator, class OutputIterator>
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_REQUIRES(((boost::InputIterator<XIterator>))
 			((boost::OutputIterator<OutputIterator, Sample>)),
 			(void))
+#else
+			void
+#endif
 	operator()(XIterator x, OutputIterator out, scaling_type scaling)
 	{do_calc(&x, static_cast<XIterator*>(NULL), &out, scaling);}
 
 	template<class XIterator, class YIterator, class OutputIterator>
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_REQUIRES(((boost::InputIterator<XIterator>))
 			((boost::InputIterator<YIterator>))
 			((boost::OutputIterator<OutputIterator, Sample>)),
 			(void))
+#else
+			void
+#endif
 	operator()(XIterator x, YIterator y, OutputIterator out, scaling_type scaling)
 	{do_calc(&x, &y, &out, scaling);}
 
@@ -115,16 +104,23 @@ public:
 	xcorr(size_t M, size_t L, const dft_t& dft, const idft_t& idft);
 
 private:
+	size_t M_; 			//!< length of input sequence x, must be > 0
+	size_t L_;			//!< length of input sequence y (if 0 this is autocorrelation).
+	size_t N_;			//!< transform length (nextpow2(max(M_, L_) * 2 - 1));
 	sample_buffer_t x_;	//!< input/output buffer (2 * N_ if crosscorrelation, N_ + M - 1 if autocorrelation)
 	complex_buffer_t X_;	//!< intermediate DFT buffer (2 * N_ if crosscorrelation, N_ if autocorrelation)
 	dft_t dft_;
 	idft_t idft_;
 
 	template<class XIterator, class YIterator, class OutputIterator>
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_REQUIRES(((boost::InputIterator<XIterator>))
 			((boost::InputIterator<YIterator>))
 			((boost::OutputIterator<OutputIterator, Sample>)),
 			(void))
+#else
+			void
+#endif
 	do_calc(XIterator* x, YIterator* y, OutputIterator* out, scaling_type scaling)
 	{
 		const Sample zero = Sample();
@@ -206,9 +202,30 @@ private:
 
 };
 
-template<class Sample, template <class, class> class DFT>
+template<class Sample, template <class, class> class DFT> inline
+size_t xcorr<Sample, DFT>::verify_input_length(size_t M)
+{
+	if (0 == M)
+		throw std::domain_error("dsp::xcorr input sequence length must be greater than 0");
+	return M;
+}
+
+template<class Sample, template <class, class> class DFT> inline
+size_t xcorr<Sample, DFT>::verify_transform_length(const size_t dft_size, const size_t idft_size)
+{
+	if (dft_size != idft_size)
+		throw std::logic_error("dsp::xcorr forward/inverse DFT transform size mismatch");
+	if (dft_size < M_)
+		throw std::domain_error("dsp:xcorr DFT transform length too short for given input frame size");
+	return dft_size;
+}
+
+
+template<class Sample, template <class, class> class DFT> inline
 xcorr<Sample, DFT>::xcorr(size_t M, size_t L)
- :	xcorr_base(M, L)
+ :	M_(verify_input_length(M))
+ ,	L_(L)
+ ,	N_(dsp::nextpow2(std::max(M_, L_) * 2 - 1))
  ,	x_(L_ == 0 ? N_ + M_ - 1 : 2 * N_)
  ,	X_(L_ == 0 ? N_ : 2 * N_)
  ,	dft_(N_, x_.get(), X_.get(), dsp::dft_sign_forward)
@@ -216,9 +233,11 @@ xcorr<Sample, DFT>::xcorr(size_t M, size_t L)
 {
 }
 
-template<class Sample, template <class, class> class DFT>
+template<class Sample, template <class, class> class DFT> inline
 xcorr<Sample, DFT>::xcorr(size_t M, size_t L, const dft_t& dft, const idft_t& idft)
- :	xcorr_base(M, L, dft.size(), idft.size())
+ :	M_(verify_input_length(M))
+ ,	L_(L)
+ ,	N_(verify_transform_length(dft.size(), idft.size()))
  ,	x_(L_ == 0 ? N_ + M_ - 1 : 2 * N_)
  ,	X_(L_ == 0 ? N_ : 2 * N_)
  ,	dft_(dft)
