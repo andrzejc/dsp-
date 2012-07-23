@@ -7,49 +7,22 @@
 #ifndef DSP_LPC_H_INCLUDED
 #define DSP_LPC_H_INCLUDED
 
+#include <dsp++/config.h>
 #include <dsp++/fft.h>
 #include <dsp++/complex.h>
 #include <dsp++/trivial_array.h>
 #include <dsp++/levinson.h>
 #include <dsp++/pow2.h>
 #include <dsp++/algorithm.h>
-#include <dsp++/export.h>
 
+#include <stdexcept>
+
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 #include <boost/concept/requires.hpp>
 #include <boost/concept_check.hpp>
+#endif //DSP_BOOST_CONCEPT_CHECKS_DISABLED
 
 namespace dsp {
-
-class DSPXX_API lpc_base
-{
-	static size_t verify_length(const size_t L);
-	size_t verify_order(const size_t P);
-	size_t verify_dft_length(const size_t dft_size, const size_t idft_size);
-public:
-
-	size_t input_length() const {return L_;}
-	size_t output_length() const {return P_ + 1;}
-
-protected:
-	const size_t L_;					//!< input sequence length
-	const size_t N_;		 			//!< DFT/IDFT transform length (nextpow2(L_ * 2 - 1))
-	const size_t P_;					//!< prediction order
-
-	lpc_base(size_t L, size_t P)
-	 :	L_(verify_length(L))
-	 ,	N_(dsp::nextpow2(L_ * 2 - 1))
-	 ,	P_(verify_order(P))
-	{
-	}
-
-	lpc_base(size_t L, size_t P, size_t dft_size, size_t idft_size)
-	 :	L_(verify_length(L))
-	 ,	N_(verify_dft_length(dft_size, idft_size))
-	 ,	P_(verify_order(P))
-	{
-	}
-
-};
 
 /*!
  * @brief Linear Predictive Coding implementation.
@@ -64,7 +37,7 @@ protected:
  * @see http://www.mathworks.com/help/toolbox/signal/ref/lpc.html
  */
 template<class Sample, template <class, class> class DFT = dsp::fft>
-class lpc: public lpc_base
+class lpc
 {
 	typedef typename dsp::remove_complex<Sample>::type real_t;
 	typedef typename std::complex<real_t> complex_t;
@@ -72,10 +45,17 @@ class lpc: public lpc_base
 	typedef DFT<complex_t, Sample> idft_t;
 	typedef dsp::trivial_array<Sample, typename dft_t::input_allocator> sample_buffer_t;
 	typedef dsp::trivial_array<complex_t, typename dft_t::output_allocator> complex_buffer_t;
+
+	static size_t verify_length(const size_t L);
+	size_t verify_order(const size_t P);
+	size_t verify_dft_length(const size_t dft_size, const size_t idft_size);
 public:
 	typedef Sample value_type;
 	typedef Sample* iterator;
 	typedef const Sample* const_iterator;
+
+	size_t input_length() const {return L_;}
+	size_t output_length() const {return P_ + 1;}
 
 	/*!
 	 * @brief Initialize LPC algorithm for operation on input signal frame of length L and the linear predictor of order P.
@@ -94,17 +74,25 @@ public:
 	explicit lpc(size_t L, const dft_t& dft, const idft_t& idft, size_t P = 0);
 
 	template<class XIterator, class AIterator>
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_REQUIRES(((boost::InputIterator<XIterator>))
 			((boost::OutputIterator<AIterator, Sample>)),
 			(Sample))
+#else
+			Sample
+#endif
 	operator()(XIterator x, AIterator a)
 	{return do_calc(&x, a, static_cast<AIterator*>(NULL));}
 
 	template<class XIterator, class AIterator, class KIterator>
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_REQUIRES(((boost::InputIterator<XIterator>))
 			((boost::OutputIterator<AIterator, Sample>))
 			((boost::OutputIterator<KIterator, Sample>)),
 			(Sample))
+#else
+			Sample
+#endif
 	operator()(XIterator x, AIterator a, KIterator k)
 	{return do_calc(&x, a, &k);}
 
@@ -113,10 +101,14 @@ public:
 
 private:
 	template<class XIterator, class AIterator, class KIterator>
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_REQUIRES(((boost::InputIterator<XIterator>))
 			((boost::OutputIterator<AIterator, Sample>))
 			((boost::OutputIterator<KIterator, Sample>)),
 			(Sample))
+#else
+			Sample
+#endif
 	do_calc(XIterator* x_begin, AIterator a_begin, KIterator* k_begin)
 	{
 		const Sample zero = Sample();
@@ -136,7 +128,9 @@ private:
 			return lev_(x, a_begin);
 	}
 
-
+	const size_t L_;					//!< input sequence length
+	const size_t N_;		 			//!< DFT/IDFT transform length (nextpow2(L_ * 2 - 1))
+	const size_t P_;					//!< prediction order
 	sample_buffer_t in_out_;
 	complex_buffer_t interm_;
 	dft_t dft_;
@@ -146,8 +140,38 @@ private:
 };
 
 template<class Sample, template <class, class> class DFT> inline
+size_t lpc<Sample, DFT>::verify_length(const size_t L)
+{
+	if (0 == L)
+		throw std::domain_error("dsp::lpc input length must be positive");
+	return L;
+}
+
+template<class Sample, template <class, class> class DFT> inline
+size_t lpc<Sample, DFT>::verify_order(const size_t P)
+{
+	if (0 == P)
+		return L_ - 1;
+	if (P >= L_)
+		throw std::domain_error("dsp::lpc prediction order must not be greater than input length");
+	return P;
+}
+
+template<class Sample, template <class, class> class DFT> inline
+size_t lpc<Sample, DFT>::verify_dft_length(const size_t dft_size, const size_t idft_size)
+{
+	if (dft_size != idft_size)
+		throw std::logic_error("dsp::lpc forward/inverse DFT transform size mismatch");
+	if (dft_size < 2 * L_ - 1)
+		throw std::domain_error("dsp:lpc DFT transform length too short for given input frame size");
+	return dft_size;
+}
+
+template<class Sample, template <class, class> class DFT> inline
 lpc<Sample, DFT>::lpc(size_t L, size_t P)
- :	lpc_base(L, P)
+ :	L_(verify_length(L))
+ ,	N_(dsp::nextpow2(L_ * 2 - 1))
+ ,	P_(verify_order(P))
  ,	in_out_(N_)
  ,	interm_(N_)
  ,	dft_(N_, in_out_.get(), interm_.get(), dsp::dft_sign_forward)
@@ -158,7 +182,9 @@ lpc<Sample, DFT>::lpc(size_t L, size_t P)
 
 template<class Sample, template <class, class> class DFT> inline
 lpc<Sample, DFT>::lpc(size_t L, const dft_t& dft, const idft_t& idft, size_t P)
- :	lpc_base(L, P, dft.size(), idft.size())
+ :	L_(verify_length(L))
+ ,	N_(verify_dft_length(dft.size(), idft.size()))
+ ,	P_(verify_order(P))
  ,	in_out_(N_)
  ,	interm_(N_)
  ,	dft_(dft)
