@@ -7,6 +7,14 @@
 #ifndef DSP_CONFIG_H_INCLUDED
 #define DSP_CONFIG_H_INCLUDED
 
+#ifndef DSP_USE_CUSTOM_CONFIG
+/*!
+ * @brief Controls the inclusion of project-specific dsp_custom_config.h file which allows to refine
+ * configuration options for a particular usage environment.
+ */
+#define DSP_USE_CUSTOM_CONFIG 0
+#endif // DSP_USE_CUSTOM_CONFIG
+
 #if DSP_USE_CUSTOM_CONFIG
 #include "dsp_custom_config.h"
 #endif // DSP_USE_CUSTOM_CONFIG
@@ -27,7 +35,7 @@
 #endif // DSP_BOOST_DISABLED
 
 #ifndef DSP_BOOST_CONCEPT_CHECKS_DISABLED
-//! @brief Set to 1 to disable use of Boost Concept Check Library
+//! @brief Set to 1 to disable use of Boost Concept Check Library {@see http://www.boost.org/libs/concept_check/}
 #define DSP_BOOST_CONCEPT_CHECKS_DISABLED (DSP_BOOST_DISABLED)
 #endif // DSP_BOOST_CONCEPT_CHECKS_DISABLED
 

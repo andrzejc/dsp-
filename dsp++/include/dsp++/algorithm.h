@@ -20,6 +20,7 @@ namespace dsp {
 
 /*!
  * @brief Copy at most n elements from the [src_begin, src_end) sequence into sequence starting at dest.
+ * The source and destination sequences must not overlap.
  * @param src_begin start of sequence to copy.
  * @param src_end end of sequence to copy.
  * @param dest the destination of copy operation.
@@ -46,6 +47,18 @@ copy_at_most_n(InputIterator src_begin, InputIterator src_end, OutputIterator de
 	return i;
 }
 
+/*!
+ * @brief Copy n elements from the [src, src + n) sequence into [dest, dest + n). The source and destination
+ * sequences must not overlap.
+ * @param src start of sequence to copy.
+ * @param n number of elements to copy.
+ * @param dest the destination of copy operation.
+ * @return dest + n.
+ * @tparam InputIterator type of the src iterator, which must conform to
+ * input iterator concept.
+ * @tparam OutputIterator type of the dest iterator, which must conform to output iterator concept
+ * and its value type must be convertible to the value type of InputIterator.
+ */
 template<class InputIterator, class OutputIterator> inline
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 BOOST_CONCEPT_REQUIRES(((boost::InputIterator<InputIterator>))
@@ -67,9 +80,17 @@ copy_n(InputIterator src, size_t n, OutputIterator dest)
 //	Sample*
 //}
 
+/*!
+ * @brief Base class for simple, sample-based algorithms which work by transforming input samples into
+ * output samples in one-to-one manner. Such algorithm will have an <tt>sample_type operator()(sample_type in)</tt>
+ * function which takes input sample and returns transformed output sample. This class is a specialization
+ * of <tt>std::unary_function</tt> with input and output types being the same - {@link sample_type}.
+ * @tparam Sample type of input and output sample.
+ */
 template<class Sample>
 struct sample_based_transform: public std::unary_function<Sample, Sample>
 {
+	//!@brief Type of input/output sample.
 	typedef Sample sample_type;
 };
 

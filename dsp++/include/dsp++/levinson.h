@@ -108,14 +108,30 @@ levup(size_t P, ACurIter Acur, ANxtIter Anxt,
 		*Enxt = *Ecur * (Real(1) - std::pow(std::abs(Knxt), 2));
 }
 
-
+/*!
+ * @brief Levinson-Durbin recursion functor operating on generic sample types.
+ * @see http://en.wikipedia.org/wiki/Levinson_recursion
+ */
 template<class Sample>
 class levinson
 {
 public:
+	//! @return the order of the recursion N (and the number of calculated reflection coefficients k).
 	size_t recursion_order() const {return N_;}
+	//! @return length of input autocorrelation sequence.
 	size_t input_length() const {return L_;}
 
+	/*!
+	 * @brief Perform Levinson-Durbin recursion on input autocorrelation sequence (of length input_length())
+	 * starting at r_begin and place the solution (polynomial coefficients) into sequence starting at a_begin
+	 * (of length recursion_order() + 1).
+	 * @param[in] r_begin start of input autocorrelation sequence.
+	 * @param[out] a_begin start of output polynomial coeficients sequence.
+	 * @return final prediction error.
+	 * @tparam RIterator type of iterator used to specify input sequence.
+	 * @tparam AIterator type of iterator used to receive output sequence. Its value type must be assignable
+	 * from Sample.
+	 */
 	template<class RIterator, class AIterator>
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_REQUIRES(((boost::BidirectionalIterator<RIterator>))
@@ -127,6 +143,12 @@ public:
 	operator()(RIterator r_begin, AIterator a_begin)
 	{return do_calc(r_begin, a_begin, static_cast<AIterator*>(NULL));}
 
+	/*!
+	 * @copydoc operator()(RIterator,AIterator)
+	 * @param[out] k_begin start of output reflection coefficients sequence of length recursion_order().
+	 * @tparam KIterator type of iterator used to receive reflection coefficients sequence. Its value type must
+	 * be assignable from Sample.
+	 */
 	template<class RIterator, class AIterator, class KIterator>
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_REQUIRES(((boost::BidirectionalIterator<RIterator>))
@@ -140,7 +162,8 @@ public:
 	{return do_calc(r_begin, a_begin, &k_begin);}
 
 	/*!
-	 * @brief Initialize Levinson-Durbin functor to perform N'th order recursion on the input autocorrelation sequence of length r_len.
+	 * @brief Initialize Levinson-Durbin functor to perform N'th order recursion on the input autocorrelation
+	 * sequence of length r_len.
 	 * @param r_len length of input autocorrelation sequence.
 	 * @param N recursion order (must be less than r_len, if set to 0, r_len - 1 is assumed).
 	 * The length of output polynomial coefficients sequence a will be N + 1, and the number of output reflection
@@ -150,7 +173,7 @@ public:
 	explicit levinson(size_t r_len, size_t N = 0);
 
 private:
-	size_t L_;						//!< length of input autocorrelation sequence r_
+	size_t L_;						//!< length of input autocorrelation sequence r
 	size_t N_;						//!< recursion order
 	trivial_array<Sample> a_;
 
