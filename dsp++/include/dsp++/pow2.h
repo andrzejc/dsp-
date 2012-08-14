@@ -7,9 +7,16 @@
 #ifndef DSP_POW2_H_INCLUDED
 #define DSP_POW2_H_INCLUDED
 
+#include <dsp++/config.h>
+
 #include <limits>
 #include <climits>
 #include <cstddef>
+
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
+#include <boost/concept/requires.hpp>
+#include <boost/concept_check.hpp>
+#endif // !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 
 namespace dsp {
 
@@ -19,7 +26,12 @@ namespace dsp {
  * @return the least power of that is not less than k.
  */
 template<class T>
-T nextpow2(T k)
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
+	BOOST_CONCEPT_REQUIRES(((boost::Integer<T>)),(T))
+#else
+	T
+#endif
+nextpow2(T k)
 {
 	if (k <= 0)
 		return 1;
@@ -29,8 +41,18 @@ T nextpow2(T k)
 	return k + 1;
 }
 
+/*!
+ * @brief Fast check whether the number is an integer power of two.
+ * @param k number to test.
+ * @return true if k is an integer power of two.
+ */
 template<class T>
-bool ispow2(T k)
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
+	BOOST_CONCEPT_REQUIRES(((boost::Integer<T>)),(bool))
+#else
+	bool
+#endif
+ispow2(T k)
 {
 	if (std::numeric_limits<T>::is_signed)
 		return (k) && ((k & -k) == k);

@@ -9,6 +9,7 @@
 
 #include <utility>
 
+// TODO make dependecny on boost::circular_buffer configurable with DSP_BOOST_DISABLED
 #include <boost/circular_buffer.hpp>
 
 namespace dsp {

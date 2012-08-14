@@ -34,9 +34,13 @@ std::complex<Real> conj(const std::complex<Real>& cplx) {return std::conj(cplx);
  * generic algorithms working on complex as well as on real numbers.
  */
 template<class Real> struct remove_complex {typedef Real type;};
+//! @copydoc remove_complex
 template<class Real> struct remove_complex<std::complex<Real> > {typedef Real type;};
+//! @copydoc remove_complex
 template<class Real> struct remove_complex<std::complex<Real> const> {typedef Real type;};
+//! @copydoc remove_complex
 template<class Real> struct remove_complex<std::complex<Real> volatile> {typedef Real type;};
+//! @copydoc remove_complex
 template<class Real> struct remove_complex<std::complex<Real> const volatile> {typedef Real type;};
 
 }

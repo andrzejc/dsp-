@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <dsp++/pow2.h>
+#include <dsp++/const.h>
 
 namespace {
 
@@ -28,7 +29,7 @@ struct sin_cos_series
 {
 	static double value()
 	{
-		return 1 - (A * M_PI / B) * (A * M_PI / B) / M / (M + 1) * sin_cos_series<M + 2, N, B, A>::value();
+		return 1 - (A * DSP_M_PI / B) * (A * DSP_M_PI / B) / M / (M + 1) * sin_cos_series<M + 2, N, B, A>::value();
 	}
 };
 
@@ -51,7 +52,7 @@ struct sin<B, A, float>
 {
 	static float value()
 	{
-		return (A * M_PI / B) * sin_cos_series < 2, 24, B, A > ::value();
+		return (A * DSP_M_PI / B) * sin_cos_series < 2, 24, B, A > ::value();
 	}
 };
 template<unsigned B, unsigned A>
@@ -59,7 +60,7 @@ struct sin<B, A, double>
 {
 	static double value()
 	{
-		return (A * M_PI / B) * sin_cos_series < 2, 34, B, A > ::value();
+		return (A * DSP_M_PI / B) * sin_cos_series < 2, 34, B, A > ::value();
 	}
 };
 

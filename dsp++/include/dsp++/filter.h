@@ -47,7 +47,7 @@ Sample filter_sample_df2(Sample x, Sample* w, const size_t P, const Sample* b, c
 	return x;
 }
 
-const size_t sos_length = 3; //!< Length of coefficient vector of a single second-order-section (SOS) filter.
+const size_t sos_length = 3; //!< Length of coefficient vector of a single second-order-section (SOS) filter (3).
 
 /*!
  * @brief Filter a single sample x with a bank of N second-order-section IIR filters.
@@ -76,23 +76,57 @@ template<class Sample>
 class filter: public sample_based_transform<Sample>
 {
 public:
+	/*!
+	 * @brief Apply filtering to a single input sample x.
+	 * @param x input sample to filter.
+	 * @return filtered sample.
+	 */
 	Sample operator()(Sample x);
 
+	/*!
+	 * @brief Construct filter given coefficients vectors as iterator ranges [b_begin, b_end) and [a_begin, a_end).
+	 * @param b_begin start of numerator coefficients sequence.
+	 * @param b_end end of numerator coefficients sequence.
+	 * @param a_begin start of denominator coefficients sequence.
+	 * @param a_end end of denominator coefficients sequence.
+	 * @tparam BIterator type of iterator used to denote numerator sequence, must adhere to OutputIterator concept
+	 * with value type convertible to Sample.
+	 * @tparam AIterator type of iterator used to denote denominator sequence, must adhere to OutputIterator concept
+	 * with value type convertible to Sample.
+	 */
 	template<class BIterator, class AIterator>
 	filter(BIterator b_begin, BIterator b_end, AIterator a_begin, AIterator a_end);
 
+	/*!
+	 * @brief Construct all-zero filter given coefficients vector as iterator range [b_begin, b_end).
+	 * @param b_begin start of numerator coefficients sequence.
+	 * @param b_end end of numerator coefficients sequence.
+	 * @tparam BIterator type of iterator used to denote numerator sequence, must adhere to OutputIterator concept
+	 * with value type convertible to Sample.
+	 */
 	template<class BIterator>
 	filter(BIterator b_begin, BIterator b_end);
 
+	/*!
+	 * @brief Construct filter given coefficients vectors as C arrays.
+	 * @param b_vec start of numerator coefficients sequence.
+	 * @param b_len length numerator coefficients sequence.
+	 * @param a_vec start of denominator coefficients sequence.
+	 * @param a_len length of denominator coefficients sequence.
+	 */
 	template<class BSample, class ASample>
 	filter(const BSample* b_vec, size_t b_len, const ASample* a_vec, size_t a_len);
 
 	/*!
+	 * @brief Construct all-zero filter given coefficients vector as C array.
 	 * @param b_vec vector of b_len FIR filter coefficients.
 	 * @param b_len number of FIR filter coefficients.
 	 */
 	template<class BSample>
 	filter(const BSample* b_vec, size_t b_len);
+
+	//! @return order of the implemented filter.
+	size_t order() const {return P_ - 1;}
 
 private:
 	const size_t N_; 				//!< Number of AR coefficients.
@@ -191,22 +225,40 @@ filter<Sample>::filter(const BSample* b_vec, size_t b_len)
 	std::copy(b_vec, b_vec + b_len, b_);
 }
 
+/*!
+ * @brief Implementation of Direct-Form II digital filter realized as a bank of second-order-sections (SOS).
+ * @tparam Sample type of samples this filter operates on.
+ */
 template<class Sample>
 class filter_sos: public sample_based_transform<Sample>
 {
 public:
-	static const size_t section_length = sos_length;
-	typedef Sample second_order_section[section_length];
+	static const size_t section_length = sos_length; 		//!< Length of coefficient vector of a single second-order-section (SOS) filter (3).
+	typedef Sample second_order_section[section_length];	//!< Array used to store SOS samples.
 
+	/*!
+	 * @brief Apply filtering to a single input sample x.
+	 * @param x input sample to filter.
+	 * @return filtered sample.
+	 */
 	Sample operator()(Sample x);
 
+	/*!
+	 * @brief Construct SOS-bank filter given coefficients provided as a matrix in a form compatible with
+	 * MATLAB fdatool output.
+	 * @param N number of second-order-sections (rows in num, numl, den and denl arrays).
+	 * @param num @f$N{\times}section\_length@f$ matrix with N rows of numerator coefficients.
+	 * @param numl N-row array with lengths of each coefficient vector in matrix num.
+	 * @param den @f$N{\times}section\_length@f$ matrix with N rows of denominator coefficients.
+	 * @param denl N-row array with lengths of each coefficient vector in matrix den.
+	 */
 	template<class CoeffSample, class CoeffSize>
 	filter_sos(size_t N, const CoeffSample (*num)[section_length], const CoeffSize* numl, const CoeffSample (*den)[section_length], const CoeffSize* denl);
 
 private:
-	const size_t N_;	//!< number of second-order sections
+	const size_t N_;				//!< number of second-order sections
 	trivial_array<Sample> rbuf_;
-	trivial_array<size_t> 				lbuf_;
+	trivial_array<size_t> lbuf_;
 	second_order_section* const num_;
 	second_order_section* const den_;
 	second_order_section* const w_;

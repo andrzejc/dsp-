@@ -15,9 +15,10 @@
 #include <algorithm>
 #include <functional>
 
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 #include <boost/concept/requires.hpp>
 #include <boost/concept_check.hpp>
-
+#endif // !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 
 namespace dsp {
 
@@ -97,7 +98,11 @@ public:
 	 * (which must conform to bidirectional iterator concept).
 	 */
 	template<class Iterator>
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_REQUIRES(((boost::InputIterator<Iterator>)),(void))
+#else
+	void
+#endif
 	set_impulse_response(Iterator begin, Iterator end)
 	{
 		size_t n = dsp::copy_at_most_n(begin, end, rbuf_, M_);
@@ -114,7 +119,11 @@ public:
 	 * @tparam Sample type convertible to value_type, which represents impulse response vector elements.
 	 */
 	template<class Sample>
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_REQUIRES(((boost::Convertible<Sample, Real>)),(void))
+#else
+	void
+#endif
 	set_impulse_response(const Sample* ir, size_t ir_length = impulse_response_length())
 	{
 		ir_length = std::min(M_, ir_length);
@@ -135,8 +144,12 @@ private:
 	 * @param end end of impulse response samples sequence.
 	 * @return length of non-zero portion of input sequence.
 	 */
-	template<class Iterator>
-	static BOOST_CONCEPT_REQUIRES(((boost::BidirectionalIterator<Iterator>)),(size_t))
+	template<class Iterator> static
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
+	BOOST_CONCEPT_REQUIRES(((boost::BidirectionalIterator<Iterator>)),(size_t))
+#else
+	size_t
+#endif
 	nonzero_length(Iterator begin, Iterator end)
 	{
 		size_t length = 0;
@@ -204,7 +217,9 @@ overlap_add<Real, DFT>::overlap_add(size_t frame_length, Iterator ir_begin, Iter
  ,	dft_(N_, rbuf_, cbuf_)
  , 	idft_(N_, cbuf_, rbuf_)
 {
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_ASSERT((boost::BidirectionalIterator<Iterator>));
+#endif
 	std::copy(ir_begin, ir_end, rbuf_); 		// copy impulse response to rbuf to calculate its DFT
 	prepare_ir_dft(true);
 }
@@ -220,7 +235,9 @@ overlap_add<Real, DFT>::overlap_add(size_t frame_length, const Sample* ir, size_
  ,	dft_(N_, rbuf_, cbuf_)
  ,	idft_(N_, cbuf_, rbuf_)
 {
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_ASSERT((boost::Convertible<Sample, Real>));
+#endif
 	std::copy(ir, ir + ir_length, rbuf_); 		// copy impulse response to rbuf to calculate its DFT
 	prepare_ir_dft(true);
 }

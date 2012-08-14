@@ -365,26 +365,69 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.MachO64" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
-					<extension id="org.eclipse.cdt.core.GNU_ELF" point="org.eclipse.cdt.core.BinaryParser"/>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.VCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.MakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.linuxtools.internal.cdt.autotools.core.ErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 				<configuration artifactExtension="dll" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.sharedLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.sharedLib" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.921189489" name="Debug-MSVC" parent="cdt.managedbuild.config.macosx.so.debug">
 					<folderInfo id="cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.921189489." name="/" resourcePath="">
-						<toolChain id="org.eclipse.cdt.msvc.toolchain.dll.debug.2028409820" name="Microsoft Visual C++">
-							<targetPlatform binaryParser="org.eclipse.cdt.core.MachO64;org.eclipse.cdt.core.PE;org.eclipse.cdt.core.GNU_ELF;org.eclipse.cdt.core.ELF" id="org.eclipse.cdt.msvc.targetPlatform.dll.debug.1862330628"/>
-							<builder buildPath="${workspace_loc:/dsp++/Debug-MSVC}" id="org.eclipse.cdt.msvc.builder.726441637" keepEnvironmentInBuildfile="false" name="CDT Internal Builder" parallelBuildOn="true" parallelizationNumber="-1"/>
+						<toolChain id="org.eclipse.cdt.msvc.toolchain.dll.debug.1445409914" name="Microsoft Visual C++" superClass="org.eclipse.cdt.msvc.toolchain.dll.debug">
+							<targetPlatform id="org.eclipse.cdt.msvc.targetPlatform.dll.debug.1263668460" superClass="org.eclipse.cdt.msvc.targetPlatform.dll.debug"/>
+							<builder buildPath="${workspace_loc:/dsp++/Debug-MSVC}" id="org.eclipse.cdt.msvc.builder.199677470" keepEnvironmentInBuildfile="false" name="CDT Internal Builder" parallelBuildOn="true" superClass="org.eclipse.cdt.msvc.builder"/>
+							<tool id="org.eclipse.cdt.msvc.cl.c.dll.debug.516446391" name="C Compiler (cl)" superClass="org.eclipse.cdt.msvc.cl.c.dll.debug">
+								<option id="org.eclipse.cdt.msvc.cl.option.optimization.1798535616" name="Optimization" superClass="org.eclipse.cdt.msvc.cl.option.optimization" value="org.eclipse.cdt.msvc.cl.option.optimization.default" valueType="enumerated"/>
+								<option id="org.eclipse.cdt.msvc.cl.option.debugFormat.737020534" name="Debug Information Format" superClass="org.eclipse.cdt.msvc.cl.option.debugFormat" value="org.eclipse.cdt.msvc.cl.option.debugFormat.complete" valueType="enumerated"/>
+								<option id="org.eclipse.cdt.msvc.cl.option.includes.1160926096" name="Include Path (/I)" superClass="org.eclipse.cdt.msvc.cl.option.includes" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dsp++/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${LIBSNDFILE_HOME}/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${FFTW3_HOME}&quot;"/>
+								</option>
+								<option id="org.eclipse.cdt.msvc.cl.option.macros.271483071" name="Defines (/D)" superClass="org.eclipse.cdt.msvc.cl.option.macros" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="_DEBUG"/>
+									<listOptionValue builtIn="false" value="DSPXX_EXPORTS"/>
+								</option>
+								<inputType id="org.eclipse.cdt.msvc.cl.inputType.c.1730523018" superClass="org.eclipse.cdt.msvc.cl.inputType.c"/>
+							</tool>
+							<tool id="org.eclipse.cdt.msvc.cl.dll.debug.2053108989" name="C++ Compiler (cl)" superClass="org.eclipse.cdt.msvc.cl.dll.debug">
+								<option id="org.eclipse.cdt.msvc.cl.option.optimization.1894187454" name="Optimization" superClass="org.eclipse.cdt.msvc.cl.option.optimization" value="org.eclipse.cdt.msvc.cl.option.optimization.default" valueType="enumerated"/>
+								<option id="org.eclipse.cdt.msvc.cl.option.debugFormat.530763525" name="Debug Information Format" superClass="org.eclipse.cdt.msvc.cl.option.debugFormat" value="org.eclipse.cdt.msvc.cl.option.debugFormat.complete" valueType="enumerated"/>
+								<option id="org.eclipse.cdt.msvc.cl.option.includes.675644820" name="Include Path (/I)" superClass="org.eclipse.cdt.msvc.cl.option.includes" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dsp++/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${BOOST_ROOT}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${LIBSNDFILE_HOME}/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${FFTW3_HOME}&quot;"/>
+								</option>
+								<option id="org.eclipse.cdt.msvc.cl.option.macros.105398901" name="Defines (/D)" superClass="org.eclipse.cdt.msvc.cl.option.macros" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="_DEBUG"/>
+									<listOptionValue builtIn="false" value="DSPXX_EXPORTS"/>
+								</option>
+								<inputType id="org.eclipse.cdt.msvc.cl.inputType.2057896838" superClass="org.eclipse.cdt.msvc.cl.inputType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.msvc.rc.dll.debug.548039182" name="Resource Compiler (rc)" superClass="org.eclipse.cdt.msvc.rc.dll.debug">
+								<option id="org.eclipse.cdt.msvc.rc.option.includes.160348936" name="Include Path (/I)" superClass="org.eclipse.cdt.msvc.rc.option.includes" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dsp++/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${LIBSNDFILE_HOME}/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${FFTW3_HOME}&quot;"/>
+								</option>
+								<option id="org.eclipse.cdt.msvc.rc.option.defines.1274238196" name="Defines (/D)" superClass="org.eclipse.cdt.msvc.rc.option.defines" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="_DEBUG"/>
+									<listOptionValue builtIn="false" value="DSPXX_EXPORTS"/>
+								</option>
+								<inputType id="org.eclipse.cdt.msvc.rc.inputType.2119090153" superClass="org.eclipse.cdt.msvc.rc.inputType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.msvc.link.dll.debug.1030501404" name="Linker (link)" superClass="org.eclipse.cdt.msvc.link.dll.debug">
+								<option defaultValue="true" id="org.eclipse.cdt.msvc.link.option.dll.1379723280" name="Build a DLL" superClass="org.eclipse.cdt.msvc.link.option.dll" valueType="boolean"/>
+								<option id="org.eclipse.cdt.msvc.link.option.debug.315355206" name="Generate Debug Info (/debug)" superClass="org.eclipse.cdt.msvc.link.option.debug" value="true" valueType="boolean"/>
+								<option id="org.eclipse.cdt.msvc.link.option.libraries.1567733686" name="Libraries" superClass="org.eclipse.cdt.msvc.link.option.libraries" valueType="libs">
+									<listOptionValue builtIn="false" value="&quot;${LIBSNDFILE_HOME}/lib/libsndfile-1.lib&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${FFTW3_HOME}/libfftw3-3.lib&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${FFTW3_HOME}/libfftw3f-3.lib&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${FFTW3_HOME}/libfftw3l-3.lib&quot;"/>
+								</option>
+								<inputType id="org.eclipse.cdt.msvc.link.inputType.1492418834" superClass="org.eclipse.cdt.msvc.link.inputType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.msvc.lib.723056166" name="Library Manager (lib)" superClass="org.eclipse.cdt.msvc.lib"/>
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
@@ -406,26 +449,69 @@
 					</externalSetting>
 				</externalSettings>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.MachO64" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
-					<extension id="org.eclipse.cdt.core.GNU_ELF" point="org.eclipse.cdt.core.BinaryParser"/>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.VCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.MakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.linuxtools.internal.cdt.autotools.core.ErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 				<configuration artifactExtension="dll" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.sharedLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.sharedLib" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.921189489.1325268385" name="Release-MSVC" parent="cdt.managedbuild.config.macosx.so.debug">
 					<folderInfo id="cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.921189489.1325268385." name="/" resourcePath="">
-						<toolChain id="org.eclipse.cdt.msvc.toolchain.dll.debug.243762291" name="Microsoft Visual C++">
-							<targetPlatform binaryParser="org.eclipse.cdt.core.MachO64;org.eclipse.cdt.core.PE;org.eclipse.cdt.core.GNU_ELF;org.eclipse.cdt.core.ELF" id="org.eclipse.cdt.msvc.targetPlatform.dll.debug.2089734711"/>
-							<builder buildPath="${workspace_loc:/dsp++/Debug-MSVC}" id="org.eclipse.cdt.msvc.builder.757811374" keepEnvironmentInBuildfile="false" name="CDT Internal Builder" parallelBuildOn="true" parallelizationNumber="-1"/>
+						<toolChain id="org.eclipse.cdt.msvc.toolchain.dll.debug.866225537" name="Microsoft Visual C++" superClass="org.eclipse.cdt.msvc.toolchain.dll.debug">
+							<targetPlatform id="org.eclipse.cdt.msvc.targetPlatform.dll.debug.235803514" superClass="org.eclipse.cdt.msvc.targetPlatform.dll.debug"/>
+							<builder buildPath="${workspace_loc:/dsp++/Release-MSVC}" id="org.eclipse.cdt.msvc.builder.70462838" keepEnvironmentInBuildfile="false" name="CDT Internal Builder" parallelBuildOn="true" superClass="org.eclipse.cdt.msvc.builder"/>
+							<tool id="org.eclipse.cdt.msvc.cl.c.dll.debug.999132770" name="C Compiler (cl)" superClass="org.eclipse.cdt.msvc.cl.c.dll.debug">
+								<option id="org.eclipse.cdt.msvc.cl.option.optimization.2087587487" name="Optimization" superClass="org.eclipse.cdt.msvc.cl.option.optimization" value="org.eclipse.cdt.msvc.cl.option.optimization.default" valueType="enumerated"/>
+								<option id="org.eclipse.cdt.msvc.cl.option.debugFormat.1000429245" name="Debug Information Format" superClass="org.eclipse.cdt.msvc.cl.option.debugFormat" value="org.eclipse.cdt.msvc.cl.option.debugFormat.complete" valueType="enumerated"/>
+								<option id="org.eclipse.cdt.msvc.cl.option.includes.1973425304" name="Include Path (/I)" superClass="org.eclipse.cdt.msvc.cl.option.includes" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dsp++/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${LIBSNDFILE_HOME}/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${FFTW3_HOME}&quot;"/>
+								</option>
+								<option id="org.eclipse.cdt.msvc.cl.option.macros.1243401493" name="Defines (/D)" superClass="org.eclipse.cdt.msvc.cl.option.macros" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="NDEBUG"/>
+									<listOptionValue builtIn="false" value="DSPXX_EXPORTS"/>
+								</option>
+								<inputType id="org.eclipse.cdt.msvc.cl.inputType.c.1153110497" superClass="org.eclipse.cdt.msvc.cl.inputType.c"/>
+							</tool>
+							<tool id="org.eclipse.cdt.msvc.cl.dll.debug.1480055920" name="C++ Compiler (cl)" superClass="org.eclipse.cdt.msvc.cl.dll.debug">
+								<option id="org.eclipse.cdt.msvc.cl.option.optimization.940817122" name="Optimization" superClass="org.eclipse.cdt.msvc.cl.option.optimization" value="org.eclipse.cdt.msvc.cl.option.optimization.default" valueType="enumerated"/>
+								<option id="org.eclipse.cdt.msvc.cl.option.debugFormat.2018215584" name="Debug Information Format" superClass="org.eclipse.cdt.msvc.cl.option.debugFormat" value="org.eclipse.cdt.msvc.cl.option.debugFormat.complete" valueType="enumerated"/>
+								<option id="org.eclipse.cdt.msvc.cl.option.includes.659620877" name="Include Path (/I)" superClass="org.eclipse.cdt.msvc.cl.option.includes" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dsp++/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${LIBSNDFILE_HOME}/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${FFTW3_HOME}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${BOOST_ROOT}&quot;"/>
+								</option>
+								<option id="org.eclipse.cdt.msvc.cl.option.macros.812341360" name="Defines (/D)" superClass="org.eclipse.cdt.msvc.cl.option.macros" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="NDEBUG"/>
+									<listOptionValue builtIn="false" value="DSPXX_EXPORTS"/>
+								</option>
+								<inputType id="org.eclipse.cdt.msvc.cl.inputType.1889034259" superClass="org.eclipse.cdt.msvc.cl.inputType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.msvc.rc.dll.debug.1340676338" name="Resource Compiler (rc)" superClass="org.eclipse.cdt.msvc.rc.dll.debug">
+								<option id="org.eclipse.cdt.msvc.rc.option.includes.814262797" name="Include Path (/I)" superClass="org.eclipse.cdt.msvc.rc.option.includes" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dsp++/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${LIBSNDFILE_HOME}/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${FFTW3_HOME}&quot;"/>
+								</option>
+								<option id="org.eclipse.cdt.msvc.rc.option.defines.205839557" name="Defines (/D)" superClass="org.eclipse.cdt.msvc.rc.option.defines" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="NDEBUG"/>
+									<listOptionValue builtIn="false" value="DSPXX_EXPORTS"/>
+								</option>
+								<inputType id="org.eclipse.cdt.msvc.rc.inputType.1957653175" superClass="org.eclipse.cdt.msvc.rc.inputType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.msvc.link.dll.debug.378425432" name="Linker (link)" superClass="org.eclipse.cdt.msvc.link.dll.debug">
+								<option defaultValue="true" id="org.eclipse.cdt.msvc.link.option.dll.729251780" name="Build a DLL" superClass="org.eclipse.cdt.msvc.link.option.dll" valueType="boolean"/>
+								<option id="org.eclipse.cdt.msvc.link.option.debug.1066492661" name="Generate Debug Info (/debug)" superClass="org.eclipse.cdt.msvc.link.option.debug" value="true" valueType="boolean"/>
+								<option id="org.eclipse.cdt.msvc.link.option.libraries.310538580" superClass="org.eclipse.cdt.msvc.link.option.libraries" valueType="libs">
+									<listOptionValue builtIn="false" value="&quot;${LIBSNDFILE_HOME}/lib/libsndfile-1.lib&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${FFTW3_HOME}/libfftw3-3.lib&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${FFTW3_HOME}/libfftw3f-3.lib&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${FFTW3_HOME}/libfftw3l-3.lib&quot;"/>
+								</option>
+								<inputType id="org.eclipse.cdt.msvc.link.inputType.36243453" superClass="org.eclipse.cdt.msvc.link.inputType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.msvc.lib.1174531511" name="Library Manager (lib)" superClass="org.eclipse.cdt.msvc.lib"/>
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
@@ -616,9 +702,6 @@
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.release.915104392.1810360792;cdt.managedbuild.config.macosx.so.release.915104392.1810360792.;cdt.managedbuild.tool.gnu.cpp.compiler.macosx.so.release.510620875;cdt.managedbuild.tool.gnu.cpp.compiler.input.2144363706">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
-		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.debug.428674351;cdt.managedbuild.config.macosx.so.debug.428674351.;cdt.managedbuild.tool.gnu.c.compiler.macosx.so.debug.898492047;cdt.managedbuild.tool.gnu.c.compiler.input.807098834">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
@@ -628,17 +711,47 @@
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.debug.428674351;cdt.managedbuild.config.macosx.so.debug.428674351.;cdt.managedbuild.tool.gnu.cpp.compiler.macosx.so.debug.176371117;cdt.managedbuild.tool.gnu.cpp.compiler.input.1948073065">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.921189489.1325268385;cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.921189489.1325268385.;org.eclipse.cdt.msvc.cl.dll.debug.94486616;org.eclipse.cdt.msvc.cl.inputType.1303024593">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.msw.build.clScannerInfo"/>
-		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.release.915104392;cdt.managedbuild.config.macosx.so.release.915104392.;cdt.managedbuild.tool.gnu.cpp.compiler.macosx.so.release.193329177;cdt.managedbuild.tool.gnu.cpp.compiler.input.873561099">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.release.915104392;cdt.managedbuild.config.macosx.so.release.915104392.;cdt.managedbuild.tool.gnu.c.compiler.macosx.so.release.1279513639;cdt.managedbuild.tool.gnu.c.compiler.input.286738460">
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.release.915104392.1810360792;cdt.managedbuild.config.macosx.so.release.915104392.1810360792.;cdt.managedbuild.tool.gnu.c.compiler.base.2063756191;cdt.managedbuild.tool.gnu.c.compiler.input.1670435176">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.debug.428674351.2101117628;cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.;cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base.1048102264;cdt.managedbuild.tool.gnu.cpp.compiler.input.1442774072">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.921189489.1325268385;cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.921189489.1325268385.;org.eclipse.cdt.msvc.cl.c.dll.debug.999132770;org.eclipse.cdt.msvc.cl.inputType.c.1153110497">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.msw.build.clScannerInfo"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.921189489.1325268385;cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.921189489.1325268385.;org.eclipse.cdt.msvc.cl.dll.debug.1480055920;org.eclipse.cdt.msvc.cl.inputType.1889034259">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.msw.build.clScannerInfo"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.921189489;cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.921189489.;org.eclipse.cdt.msvc.cl.c.dll.debug.516446391;org.eclipse.cdt.msvc.cl.inputType.c.1730523018">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.msw.build.clScannerInfo"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.debug.428674351.2101117628;cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.;cdt.managedbuild.tool.gnu.c.compiler.mingw.base.898042150;cdt.managedbuild.tool.gnu.c.compiler.input.1787459975">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.release.915104392.1810360792;cdt.managedbuild.config.macosx.so.release.915104392.1810360792.;cdt.managedbuild.tool.gnu.c.compiler.macosx.so.release.1160969029;cdt.managedbuild.tool.gnu.c.compiler.input.256535809">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.debug.428674351.2101117628;cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.;cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base.996748425;cdt.managedbuild.tool.gnu.cpp.compiler.input.1414951768">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.debug.428674351.1797277979;cdt.managedbuild.config.macosx.so.debug.428674351.1797277979.;cdt.managedbuild.tool.gnu.cpp.compiler.base.1069308045;cdt.managedbuild.tool.gnu.cpp.compiler.input.1667387593">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.release.915104392.1810360792;cdt.managedbuild.config.macosx.so.release.915104392.1810360792.;cdt.managedbuild.tool.gnu.cpp.compiler.macosx.so.release.510620875;cdt.managedbuild.tool.gnu.cpp.compiler.input.2144363706">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.921189489.1325268385;cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.921189489.1325268385.;org.eclipse.cdt.msvc.cl.dll.debug.94486616;org.eclipse.cdt.msvc.cl.inputType.1303024593">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.msw.build.clScannerInfo"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.release.915104392.1810360792;cdt.managedbuild.config.macosx.so.release.915104392.1810360792.;cdt.managedbuild.tool.gnu.cpp.compiler.base.1650171882;cdt.managedbuild.tool.gnu.cpp.compiler.input.2115826039">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.release.915104392;cdt.managedbuild.config.macosx.so.release.915104392.;cdt.managedbuild.tool.gnu.c.compiler.macosx.so.release.1279513639;cdt.managedbuild.tool.gnu.c.compiler.input.286738460">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.release.915104392.1875253180;cdt.managedbuild.config.macosx.so.release.915104392.1875253180.;cdt.managedbuild.tool.gnu.c.compiler.mingw.base.1239641879;cdt.managedbuild.tool.gnu.c.compiler.input.965643918">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
@@ -652,23 +765,14 @@
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.debug.428674351.1797277979;cdt.managedbuild.config.macosx.so.debug.428674351.1797277979.;cdt.managedbuild.tool.gnu.c.compiler.base.1182402494;cdt.managedbuild.tool.gnu.c.compiler.input.1146675857">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.debug.428674351.2101117628;cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.;cdt.managedbuild.tool.gnu.c.compiler.mingw.base.898042150;cdt.managedbuild.tool.gnu.c.compiler.input.1787459975">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
-		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.921189489.1325268385;cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.921189489.1325268385.;org.eclipse.cdt.msvc.cl.c.dll.debug.1610069621;org.eclipse.cdt.msvc.cl.inputType.c.1148886471">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.msw.build.clScannerInfo"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.release.915104392.1810360792;cdt.managedbuild.config.macosx.so.release.915104392.1810360792.;cdt.managedbuild.tool.gnu.c.compiler.macosx.so.release.1160969029;cdt.managedbuild.tool.gnu.c.compiler.input.256535809">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.debug.428674351.2101117628;cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.;cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base.996748425;cdt.managedbuild.tool.gnu.cpp.compiler.input.1414951768">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.921189489;cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.921189489.;org.eclipse.cdt.msvc.cl.dll.debug.2053108989;org.eclipse.cdt.msvc.cl.inputType.2057896838">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.msw.build.clScannerInfo"/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.921189489;cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.921189489.;org.eclipse.cdt.msvc.cl.dll.debug.1686138175;org.eclipse.cdt.msvc.cl.inputType.1721875422">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.msw.build.clScannerInfo"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.debug.428674351.1797277979;cdt.managedbuild.config.macosx.so.debug.428674351.1797277979.;cdt.managedbuild.tool.gnu.cpp.compiler.base.1069308045;cdt.managedbuild.tool.gnu.cpp.compiler.input.1667387593">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
 		</scannerConfigBuildInfo>
 	</storageModule>
 </cproject>

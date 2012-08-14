@@ -38,18 +38,24 @@ DSPXX_API bool firpm(
 		size_t max_iterations = 32 	//!< [in] max iteration count.
 		);
 
+/*!
+ * @brief Specifies type of biquad sectuion to design.
+ */
 enum biquad_type
 {
-	biquad_type_lowpass,
-	biquad_type_highpass,
-	biquad_type_bandpass,
-	biquad_type_notch,
-	biquad_type_allpass,
-	biquad_type_peaking_eq,
-	biquad_type_low_shelf_eq,
-	biquad_type_high_shelf_eq,
+	biquad_type_lowpass,      //!< Lowpass biquad filter.
+	biquad_type_highpass,     //!< Highpass biquad filter.
+	biquad_type_bandpass,     //!< Bandpass biquad filter.
+	biquad_type_notch,        //!< Notch biquad filter.
+	biquad_type_allpass,      //!< Allpass biquad filter.
+	biquad_type_peaking_eq,   //!< Peaking equalizer.
+	biquad_type_low_shelf_eq, //!< Low shelf equalizer.
+	biquad_type_high_shelf_eq,//!< High shelf equalizer.
 };
 
+/*!
+ * @brief Biquad section design.
+ */
 DSPXX_API void biquad_design(
 		double b[],				//!< [out] difference equation numerator (FIR) polynomial coefficients [3].
 		double a[], 			//!< [out] difference equation denominator (IIR) polynomial coefficients [3].

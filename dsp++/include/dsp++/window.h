@@ -7,14 +7,17 @@
 #ifndef DSP_WINDOW_H_INCLUDED
 #define DSP_WINDOW_H_INCLUDED
 
+#include <dsp++/config.h>
 #include <dsp++/export.h>
 
 #include <functional>
 #include <cmath>
+#include <iterator>
 
+#if !DSP_BOOST_DISABLED
 #include <boost/math/special_functions/sinc.hpp>
 #include <boost/math/special_functions/bessel.hpp>
-#include <boost/iterator.hpp>
+#endif
 
 namespace dsp { namespace wnd {
 
@@ -61,7 +64,7 @@ protected:
  */
 template<class Window>
 class window_iterator
- :	public boost::iterator<std::random_access_iterator_tag, typename Window::result_type, ptrdiff_t, void, void>
+ :	public std::iterator<std::random_access_iterator_tag, typename Window::result_type, ptrdiff_t, void, void>
 {
 public:
 	//! Just a typedef to save some keystrokes.
@@ -595,6 +598,8 @@ window<Result>* create_gausswin(size_t length, window_type type = symmetric,
 		Result sigma = gausswin<Result>::sigma_default)
 {return new window_adapter<Result, gausswin>(gausswin<Result>(length, type, sigma));}
 
+#if !DSP_BOOST_DISABLED // boost special math functions are required to calculate Kaiser window
+
 /*!
  * @brief Kaiser window generator.
  * Kaiser window is given by the formula:
@@ -645,6 +650,8 @@ template<class Result>
 window<Result>* create_kaiser(size_t length, window_type type = symmetric,
 		Result alpha = kaiser<Result>::alpha_default)
 {return new window_adapter<Result, kaiser>(kaiser<Result>(length, type, alpha));}
+
+#endif //!DSP_BOOST_DISABLED
 
 }}
 

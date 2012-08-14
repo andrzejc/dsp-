@@ -7,6 +7,7 @@
 
 #include <stdexcept>
 #include <cmath>
+#include <dsp++/const.h>
 
 using namespace dsp;
 
@@ -45,7 +46,7 @@ void dsp::biquad_design(double b[], double a[], biquad_type type, double norm_fr
 	if (norm_freq < 0. || norm_freq > 0.5)
 		throw std::domain_error("dsp::biquad_design(): norm_freq outside [0, 0.5]");
 
-	double w0 = M_PI * 2. * norm_freq; 	// 2 * pi * f0 / Fs
+	double w0 = DSP_M_PI * 2. * norm_freq; 	// 2 * pi * f0 / Fs
 	double cw0 = std::cos(w0);
 
 	double A, 	// sqrt(10^(gain_db/20))
@@ -75,7 +76,7 @@ void dsp::biquad_design(double b[], double a[], biquad_type type, double norm_fr
 	if (NULL != q)
 		alpha = sw0 / 2 * (*q);
 	else if (NULL != bw)
-		alpha = sw0 * std::sinh(M_LN2 / 2 * (*bw) * w0/sw0);
+		alpha = sw0 * std::sinh(DSP_M_LN2 / 2 * (*bw) * w0/sw0);
 	else if (is_eq && NULL != s)
 		alpha = sw0 / 2 * std::sqrt((A + 1/A) * (1/(*s) -1) + 2);
 	else
