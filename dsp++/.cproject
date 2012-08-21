@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?fileVersion 4.0.0?>
-
-<cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
 		<cconfiguration id="cdt.managedbuild.config.macosx.so.debug.428674351">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.macosx.so.debug.428674351" moduleId="org.eclipse.cdt.core.settings" name="Debug-MacOSX">
@@ -9,7 +7,7 @@
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/dsp++"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/dsp++/Debug-MacOSX"/>
-						<entry flags="RESOLVED" kind="libraryFile" name="dsp++"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="dsp++" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
 				<extensions>
@@ -106,7 +104,7 @@
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/dsp++"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/dsp++/Release"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/dsp++/Release-MacOSX"/>
-						<entry flags="RESOLVED" kind="libraryFile" name="dsp++"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="dsp++" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
 				<extensions>
@@ -148,6 +146,9 @@
 								</inputType>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.macosx.so.release.1578397012" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.macosx.so.release">
+								<option id="gnu.both.asm.option.include.paths.246472371" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dsp++/include}&quot;"/>
+								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1464094537" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.archiver.macosx.base.551934239" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.macosx.base"/>
@@ -173,6 +174,9 @@
 									<listOptionValue builtIn="false" value="DSPXX_EXPORTS"/>
 									<listOptionValue builtIn="false" value="NDEBUG"/>
 								</option>
+								<option id="gnu.c.compiler.option.include.paths.1179395075" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dsp++/include}&quot;"/>
+								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.286738460" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 						</toolChain>
@@ -192,7 +196,7 @@
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/dsp++"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/dsp++/Debug-MinGW"/>
-						<entry flags="RESOLVED" kind="libraryFile" name="dsp++"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="dsp++" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
 				<extensions>
@@ -212,7 +216,7 @@
 					<folderInfo id="cdt.managedbuild.config.macosx.so.debug.428674351.2101117628." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.mingw.base.400051579" name="MinGW GCC" superClass="cdt.managedbuild.toolchain.gnu.mingw.base">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.MachO64;org.eclipse.cdt.core.PE;org.eclipse.cdt.core.GNU_ELF;org.eclipse.cdt.core.ELF" id="cdt.managedbuild.target.gnu.platform.mingw.base.81936264" name="Debug Platform" osList="win32" superClass="cdt.managedbuild.target.gnu.platform.mingw.base"/>
-							<builder buildPath="${workspace_loc:/dsp++/Debug-MinGW}" id="cdt.managedbuild.target.gnu.builder.base.913114394" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" parallelBuildOn="true" parallelizationNumber="-1" superClass="cdt.managedbuild.target.gnu.builder.base"/>
+							<builder buildPath="${workspace_loc:/dsp++/Debug-MinGW}" id="cdt.managedbuild.target.gnu.builder.base.913114394" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.mingw.base.1436380085" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.mingw.base">
 								<option id="gnu.both.asm.option.include.paths.2100722237" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dsp++/include}&quot;"/>
@@ -252,9 +256,7 @@
 									<listOptionValue builtIn="false" value="fftw3"/>
 									<listOptionValue builtIn="false" value="sndfile"/>
 									<listOptionValue builtIn="false" value="fftw3f"/>
-									<listOptionValue builtIn="false" value="fftw3_threads"/>
-									<listOptionValue builtIn="false" value="fftw3f_threads"/>
-									<listOptionValue builtIn="false" value="pthread"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="fftw3l"/>
 								</option>
 								<option defaultValue="true" id="gnu.cpp.link.option.shared.950226561" name="Shared (-shared)" superClass="gnu.cpp.link.option.shared" valueType="boolean"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.341105813" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
@@ -279,7 +281,7 @@
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/dsp++"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/dsp++/Release-MinGW"/>
-						<entry flags="RESOLVED" kind="libraryFile" name="dsp++"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="dsp++" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
 				<extensions>
@@ -299,8 +301,11 @@
 					<folderInfo id="cdt.managedbuild.config.macosx.so.release.915104392.1875253180." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.mingw.base.731303291" name="MinGW GCC" superClass="cdt.managedbuild.toolchain.gnu.mingw.base">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.MachO64;org.eclipse.cdt.core.PE;org.eclipse.cdt.core.GNU_ELF;org.eclipse.cdt.core.ELF" id="cdt.managedbuild.target.gnu.platform.mingw.base.774556324" name="Debug Platform" osList="win32" superClass="cdt.managedbuild.target.gnu.platform.mingw.base"/>
-							<builder buildPath="${workspace_loc:/dsp++/Release-MinGW}" id="cdt.managedbuild.target.gnu.builder.base.1371695263" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" parallelBuildOn="true" parallelizationNumber="-1" superClass="cdt.managedbuild.target.gnu.builder.base"/>
+							<builder buildPath="${workspace_loc:/dsp++/Release-MinGW}" id="cdt.managedbuild.target.gnu.builder.base.1371695263" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.mingw.base.898391136" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.mingw.base">
+								<option id="gnu.both.asm.option.include.paths.1128950352" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dsp++/include}&quot;"/>
+								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1754703549" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.archiver.mingw.base.680813662" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.mingw.base"/>
@@ -323,6 +328,9 @@
 								</option>
 								<option defaultValue="gnu.c.optimization.level.most" id="gnu.c.compiler.option.optimization.level.1220542652" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.debugging.level.1284697101" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" value="gnu.c.debugging.level.none" valueType="enumerated"/>
+								<option id="gnu.c.compiler.option.include.paths.141454095" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dsp++/include}&quot;"/>
+								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.965643918" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.mingw.base.1540861898" name="MinGW C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.mingw.base">
@@ -333,9 +341,7 @@
 									<listOptionValue builtIn="false" value="fftw3"/>
 									<listOptionValue builtIn="false" value="sndfile"/>
 									<listOptionValue builtIn="false" value="fftw3f"/>
-									<listOptionValue builtIn="false" value="fftw3_threads"/>
-									<listOptionValue builtIn="false" value="fftw3f_threads"/>
-									<listOptionValue builtIn="false" value="pthread"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="fftw3l"/>
 								</option>
 								<option id="gnu.cpp.link.option.paths.2145515410" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths"/>
 								<option defaultValue="true" id="gnu.cpp.link.option.shared.1890200839" name="Shared (-shared)" superClass="gnu.cpp.link.option.shared" valueType="boolean"/>
@@ -361,7 +367,7 @@
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/dsp++"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/dsp++/Debug-MSVC"/>
-						<entry flags="RESOLVED" kind="libraryFile" name="dsp++"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="dsp++" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
 				<extensions>
@@ -372,9 +378,9 @@
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 				<configuration artifactExtension="dll" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.sharedLib" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.sharedLib" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.921189489" name="Debug-MSVC" parent="cdt.managedbuild.config.macosx.so.debug">
 					<folderInfo id="cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.921189489." name="/" resourcePath="">
-						<toolChain id="org.eclipse.cdt.msvc.toolchain.dll.debug.1445409914" name="Microsoft Visual C++" superClass="org.eclipse.cdt.msvc.toolchain.dll.debug">
+						<toolChain id="org.eclipse.cdt.msvc.toolchain.dll.debug.1445409914" name="Microsoft Visual C++" nonInternalBuilderId="cdt.managedbuild.builder.gnu.cross" superClass="org.eclipse.cdt.msvc.toolchain.dll.debug">
 							<targetPlatform id="org.eclipse.cdt.msvc.targetPlatform.dll.debug.1263668460" superClass="org.eclipse.cdt.msvc.targetPlatform.dll.debug"/>
-							<builder buildPath="${workspace_loc:/dsp++/Debug-MSVC}" id="org.eclipse.cdt.msvc.builder.199677470" keepEnvironmentInBuildfile="false" name="CDT Internal Builder" parallelBuildOn="true" superClass="org.eclipse.cdt.msvc.builder"/>
+							<builder autoBuildTarget="all" buildPath="${workspace_loc:/dsp++/Debug-MSVC}" cleanBuildTarget="clean" id="org.eclipse.cdt.build.core.internal.builder.29112987" incrementalBuildTarget="all" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="CDT Internal Builder" superClass="org.eclipse.cdt.build.core.internal.builder"/>
 							<tool id="org.eclipse.cdt.msvc.cl.c.dll.debug.516446391" name="C Compiler (cl)" superClass="org.eclipse.cdt.msvc.cl.c.dll.debug">
 								<option id="org.eclipse.cdt.msvc.cl.option.optimization.1798535616" name="Optimization" superClass="org.eclipse.cdt.msvc.cl.option.optimization" value="org.eclipse.cdt.msvc.cl.option.optimization.default" valueType="enumerated"/>
 								<option id="org.eclipse.cdt.msvc.cl.option.debugFormat.737020534" name="Debug Information Format" superClass="org.eclipse.cdt.msvc.cl.option.debugFormat" value="org.eclipse.cdt.msvc.cl.option.debugFormat.complete" valueType="enumerated"/>
@@ -445,7 +451,7 @@
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/dsp++"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/dsp++/Release-MSVC"/>
-						<entry flags="RESOLVED" kind="libraryFile" name="dsp++"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="dsp++" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
 				<extensions>
@@ -458,7 +464,7 @@
 					<folderInfo id="cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.921189489.1325268385." name="/" resourcePath="">
 						<toolChain id="org.eclipse.cdt.msvc.toolchain.dll.debug.866225537" name="Microsoft Visual C++" superClass="org.eclipse.cdt.msvc.toolchain.dll.debug">
 							<targetPlatform id="org.eclipse.cdt.msvc.targetPlatform.dll.debug.235803514" superClass="org.eclipse.cdt.msvc.targetPlatform.dll.debug"/>
-							<builder buildPath="${workspace_loc:/dsp++/Release-MSVC}" id="org.eclipse.cdt.msvc.builder.70462838" keepEnvironmentInBuildfile="false" name="CDT Internal Builder" parallelBuildOn="true" superClass="org.eclipse.cdt.msvc.builder"/>
+							<builder buildPath="${workspace_loc:/dsp++/Release-MSVC}" id="org.eclipse.cdt.msvc.builder.70462838" keepEnvironmentInBuildfile="false" name="CDT Internal Builder" superClass="org.eclipse.cdt.msvc.builder"/>
 							<tool id="org.eclipse.cdt.msvc.cl.c.dll.debug.999132770" name="C Compiler (cl)" superClass="org.eclipse.cdt.msvc.cl.c.dll.debug">
 								<option id="org.eclipse.cdt.msvc.cl.option.optimization.2087587487" name="Optimization" superClass="org.eclipse.cdt.msvc.cl.option.optimization" value="org.eclipse.cdt.msvc.cl.option.optimization.default" valueType="enumerated"/>
 								<option id="org.eclipse.cdt.msvc.cl.option.debugFormat.1000429245" name="Debug Information Format" superClass="org.eclipse.cdt.msvc.cl.option.debugFormat" value="org.eclipse.cdt.msvc.cl.option.debugFormat.complete" valueType="enumerated"/>
@@ -503,7 +509,7 @@
 							<tool id="org.eclipse.cdt.msvc.link.dll.debug.378425432" name="Linker (link)" superClass="org.eclipse.cdt.msvc.link.dll.debug">
 								<option defaultValue="true" id="org.eclipse.cdt.msvc.link.option.dll.729251780" name="Build a DLL" superClass="org.eclipse.cdt.msvc.link.option.dll" valueType="boolean"/>
 								<option id="org.eclipse.cdt.msvc.link.option.debug.1066492661" name="Generate Debug Info (/debug)" superClass="org.eclipse.cdt.msvc.link.option.debug" value="true" valueType="boolean"/>
-								<option id="org.eclipse.cdt.msvc.link.option.libraries.310538580" superClass="org.eclipse.cdt.msvc.link.option.libraries" valueType="libs">
+								<option id="org.eclipse.cdt.msvc.link.option.libraries.310538580" name="Libraries" superClass="org.eclipse.cdt.msvc.link.option.libraries" valueType="libs">
 									<listOptionValue builtIn="false" value="&quot;${LIBSNDFILE_HOME}/lib/libsndfile-1.lib&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${FFTW3_HOME}/libfftw3-3.lib&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${FFTW3_HOME}/libfftw3f-3.lib&quot;"/>
@@ -529,7 +535,7 @@
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/dsp++"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/dsp++/Debug"/>
-						<entry flags="RESOLVED" kind="libraryFile" name="dsp++"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="dsp++" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
 				<extensions>
@@ -549,7 +555,7 @@
 					<folderInfo id="cdt.managedbuild.config.macosx.so.debug.428674351.1797277979." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.base.812479315" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.base">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.MachO64;org.eclipse.cdt.core.PE;org.eclipse.cdt.core.GNU_ELF;org.eclipse.cdt.core.ELF" id="cdt.managedbuild.target.gnu.platform.base.1516252770" name="Debug Platform" osList="linux,hpux,aix,qnx" superClass="cdt.managedbuild.target.gnu.platform.base"/>
-							<builder buildPath="${workspace_loc:/dsp++/Debug}" id="cdt.managedbuild.target.gnu.builder.base.1916326491" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" parallelBuildOn="true" parallelizationNumber="-1" superClass="cdt.managedbuild.target.gnu.builder.base"/>
+							<builder buildPath="${workspace_loc:/dsp++/Debug}" id="cdt.managedbuild.target.gnu.builder.base.1916326491" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.archiver.base.85673749" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.1069308045" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
 								<option id="gnu.cpp.compiler.option.include.paths.1632230326" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
@@ -618,7 +624,7 @@
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/dsp++"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/dsp++/Release"/>
-						<entry flags="RESOLVED" kind="libraryFile" name="dsp++"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="dsp++" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
 				<extensions>
@@ -635,7 +641,7 @@
 					<folderInfo id="cdt.managedbuild.config.macosx.so.release.915104392.1810360792." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.base.717303611" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.base">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="cdt.managedbuild.target.gnu.platform.base.970630" name="Debug Platform" osList="linux,hpux,aix,qnx" superClass="cdt.managedbuild.target.gnu.platform.base"/>
-							<builder buildPath="${workspace_loc:/dsp++/Release}" id="cdt.managedbuild.target.gnu.builder.base.1008527949" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" parallelBuildOn="true" parallelizationNumber="-1" superClass="cdt.managedbuild.target.gnu.builder.base"/>
+							<builder buildPath="${workspace_loc:/dsp++/Release}" id="cdt.managedbuild.target.gnu.builder.base.1008527949" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.archiver.base.765684584" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.1650171882" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
 								<option id="gnu.cpp.compiler.option.include.paths.337863037" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
@@ -658,6 +664,9 @@
 								<option defaultValue="gnu.c.optimization.level.most" id="gnu.c.compiler.option.optimization.level.549341161" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.debugging.level.1128105503" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" value="gnu.c.debugging.level.none" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.misc.other.878361001" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -fvisibility=hidden" valueType="string"/>
+								<option id="gnu.c.compiler.option.include.paths.1381363010" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dsp++/include}&quot;"/>
+								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1670435176" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.1262002556" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base">
@@ -678,6 +687,9 @@
 								</inputType>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.base.1751230268" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base">
+								<option id="gnu.both.asm.option.include.paths.1426002106" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dsp++/include}&quot;"/>
+								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.212287970" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
 						</toolChain>
@@ -695,8 +707,31 @@
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 		<project id="dsp++.cdt.managedbuild.target.macosx.so.2131314094" name="Shared Library" projectType="cdt.managedbuild.target.macosx.so"/>
 	</storageModule>
-	<storageModule moduleId="refreshScope" versionNumber="1">
-		<resource resourceType="PROJECT" workspacePath="/dsp++"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Release">
+			<resource resourceType="PROJECT" workspacePath="/dsp++"/>
+		</configuration>
+		<configuration configurationName="Release-MacOSX">
+			<resource resourceType="PROJECT" workspacePath="/dsp++"/>
+		</configuration>
+		<configuration configurationName="Release-MinGW">
+			<resource resourceType="PROJECT" workspacePath="/dsp++"/>
+		</configuration>
+		<configuration configurationName="Debug-MacOSX">
+			<resource resourceType="PROJECT" workspacePath="/dsp++"/>
+		</configuration>
+		<configuration configurationName="Debug-MinGW">
+			<resource resourceType="PROJECT" workspacePath="/dsp++"/>
+		</configuration>
+		<configuration configurationName="Debug">
+			<resource resourceType="PROJECT" workspacePath="/dsp++"/>
+		</configuration>
+		<configuration configurationName="Debug-MSVC">
+			<resource resourceType="PROJECT" workspacePath="/dsp++"/>
+		</configuration>
+		<configuration configurationName="Release-MSVC">
+			<resource resourceType="PROJECT" workspacePath="/dsp++"/>
+		</configuration>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
@@ -775,4 +810,5 @@
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.msw.build.clScannerInfo"/>
 		</scannerConfigBuildInfo>
 	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 </cproject>

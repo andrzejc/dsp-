@@ -51,7 +51,7 @@
 
 #ifndef DSP_FFTW_HAVE_LONG_DOUBLE
 //! @brief Set to 1 if libfftwl is available
-#define DSP_FFTW_HAVE_LONG_DOUBLE 	0
+#define DSP_FFTW_HAVE_LONG_DOUBLE 	1
 #endif // DSP_FFTW_HAVE_LONG_DOUBLE
 
 #ifndef DSP_FFTW_HAVE_QUAD

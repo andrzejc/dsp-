@@ -1,5 +1,5 @@
 /*!
- * @file dsp++/consts.h
+ * @file dsp++/const.h
  * @brief Common mathematical constants
  * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
  */
