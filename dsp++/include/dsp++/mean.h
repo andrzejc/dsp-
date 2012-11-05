@@ -37,6 +37,7 @@ public:
 	 :	buffer_(L, ((Exponent() == p) ? std::log(ic) : std::pow(ic, p)) / L)
 	 ,	pmean_(L * buffer_[0])
 	 ,	p_(p)
+	 ,	ip_(std::pow(p, -1))
      , 	L_(L)
  	 , 	n_(0)
 	{
@@ -51,13 +52,13 @@ public:
 		buffer_[n_] = p;
 		++n_;
 		n_ %= L_;
-		return (geo ? std::exp(pmean_), std::pow(pmean_, Exponent(1) / p_));
+		return (geo ? std::exp(pmean_), std::pow(pmean_, ip_));
 	}
 
 private:
 	trivial_array<Sample> buffer_;
 	Sample pmean_;
-	Exponent p_;
+	Exponent p_, ip_;
 	ssize_t L_, n_;
 };
 
@@ -72,7 +73,7 @@ template<class Sample>
 class geometric_mean: public generalized_mean<Sample, int>
 {
 public:
-	geometric_mean(size_t L, Sample ic = Sample()): generalized_mean(L, 0, ic) {}
+	geometric_mean(size_t L, Sample ic = Sample(1)): generalized_mean(L, 0, ic) {}
 };
 
 template<class Sample>
