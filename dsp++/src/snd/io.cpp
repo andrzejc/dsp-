@@ -4,6 +4,10 @@
  * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
  */
 //#include "pch.h"
+#define _FILE_OFFSET_BITS 64
+#define _LARGEFILE_SOURCE
+#define _LARGEFILE64_SOURCE
+
 #include <dsp++/config.h>
 #include <dsp++/snd/sndfile_error.h>
 
@@ -34,8 +38,8 @@ io::~io()
 }
 
 #ifdef _WIN32
-#ifdef _MSC_VER
-#define off_t  long long
+#if defined(_MSC_VER) || (__MSVCRT_VERSION__ >= 0x800)
+#define off_t  __int64
 #define ftello _ftelli64
 #define fseeko _fseeki64
 #else
