@@ -7,6 +7,8 @@
 #ifndef DSP_EXPORT_H_INCLUDED
 #define DSP_EXPORT_H_INCLUDED
 
+#if !defined(DSPXX_API)
+
 #if defined _WIN32 || defined __CYGWIN__
   #ifdef DSPXX_EXPORTS
     #ifdef __GNUC__
@@ -28,5 +30,7 @@
     #define DSPXX_API
   #endif
 #endif
+
+#endif // DSPXX_API
 
 #endif /* DSP_EXPORT_H_INCLUDED */

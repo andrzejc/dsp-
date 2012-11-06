@@ -60,7 +60,7 @@ private:
 	trivial_array<Sample> buffer_;
 	Sample pmean_;
 	Exponent p_, ip_;
-	ssize_t L_, n_;
+	size_t L_, n_;
 };
 
 template<class Sample>
