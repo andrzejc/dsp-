@@ -39,7 +39,7 @@ DSPXX_API bool firpm(
 		);
 
 /*!
- * @brief Specifies type of biquad sectuion to design.
+ * @brief Specifies type of biquad section to design.
  */
 enum biquad_type
 {
@@ -55,6 +55,8 @@ enum biquad_type
 
 /*!
  * @brief Biquad section design.
+ * @note The params q, bw and s are interchangable (s may be used for eq filters only, though). Nevertheless one of
+ * them must be set. The param gain_db is used only for eq filters too, it its required then.
  */
 DSPXX_API void biquad_design(
 		double b[],				//!< [out] difference equation numerator (FIR) polynomial coefficients [3].
