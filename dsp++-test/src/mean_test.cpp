@@ -12,25 +12,36 @@ using namespace dsp::test;
 
 void mean_test::test_arithmetic()
 {
-	// TODO implement me!
-	dsp::arithmetic_mean<float> am(128);
-
+	float y[150];
+	dsp::arithmetic_mean<float> am(150);
+	for (int i = 0; i < 150; ++i)
+		y[i] = am(i + 1.f);
+	CPPUNIT_ASSERT(y[149] = 75.5f);
 }
 
 void mean_test::test_quadratic()
 {
-	// TODO implement me!
-	dsp::quadratic_mean<float> am(128);
+	float y[150];
+	dsp::quadratic_mean<float> am(150);
+	for (int i = 0; i < 150; ++i)
+		y[i] = am(i + 1.f);
+	CPPUNIT_ASSERT(y[149] = 87.035433397362169f);
 }
 
 void mean_test::test_geometric()
 {
-	// TODO implement me!
-	dsp::geometric_mean<float> am(128);
+	float y[150];
+	dsp::geometric_mean<float> am(150);
+	for (int i = 0; i < 150; ++i)
+		y[i] = am(i + 1.f);
+	CPPUNIT_ASSERT(y[149] = 56.456327368458709f);
 }
 
 void mean_test::test_harmonic()
 {
-	// TODO implement me!
-	dsp::harmonic_mean<float> am(128);
+	float y[150];
+	dsp::harmonic_mean<float> am(150);
+	for (int i = 0; i < 150; ++i)
+		y[i] = am(i + 1.f);
+	CPPUNIT_ASSERT(y[149] = 26.827965511373677f);
 }

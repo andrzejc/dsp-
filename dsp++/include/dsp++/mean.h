@@ -11,12 +11,13 @@
 #include <dsp++/trivial_array.h>
 #include <dsp++/algorithm.h>
 
+#include <cmath>
 #include <stdexcept>
 
-#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
-#include <boost/concept/requires.hpp>
-#include <boost/concept_check.hpp>
-#endif //DSP_BOOST_CONCEPT_CHECKS_DISABLED
+//#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
+//#include <boost/concept/requires.hpp>
+//#include <boost/concept_check.hpp>
+//#endif //DSP_BOOST_CONCEPT_CHECKS_DISABLED
 
 namespace dsp {
 
@@ -52,7 +53,7 @@ public:
 		buffer_[n_] = p;
 		++n_;
 		n_ %= L_;
-		return (geo ? std::exp(pmean_), std::pow(pmean_, ip_));
+		return (geo ? std::exp(pmean_) : std::pow(pmean_, ip_));
 	}
 
 private:
@@ -66,28 +67,28 @@ template<class Sample>
 class arithmetic_mean: public generalized_mean<Sample, int>
 {
 public:
-	arithmetic_mean(size_t L, Sample ic = Sample()): generalized_mean(L, 1, ic) {}
+	arithmetic_mean(size_t L, Sample ic = Sample()): generalized_mean<Sample, int>(L, 1, ic) {}
 };
 
 template<class Sample>
 class geometric_mean: public generalized_mean<Sample, int>
 {
 public:
-	geometric_mean(size_t L, Sample ic = Sample(1)): generalized_mean(L, 0, ic) {}
+	geometric_mean(size_t L, Sample ic = Sample(1)): generalized_mean<Sample, int>(L, 0, ic) {}
 };
 
 template<class Sample>
 class harmonic_mean: public generalized_mean<Sample, int>
 {
 public:
-	harmonic_mean(size_t L, Sample ic = Sample()): generalized_mean(L, -1, ic) {}
+	harmonic_mean(size_t L, Sample ic = Sample(1)): generalized_mean<Sample, int>(L, -1, ic) {}
 };
 
 template<class Sample>
 class quadratic_mean: public generalized_mean<Sample, int>
 {
 public:
-	quadratic_mean(size_t L, Sample ic = Sample()): generalized_mean(L, 2, ic) {}
+	quadratic_mean(size_t L, Sample ic = Sample()): generalized_mean<Sample, int>(L, 2, ic) {}
 };
 
 }
