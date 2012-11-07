@@ -74,6 +74,9 @@ public:
 
     ~trivial_array() {destroy();}
 
+    size_type size() const {return size_;}
+    size_type length() const {return size_;}
+
 private:
     allocator_type alloc_;
 	pointer	arr_;

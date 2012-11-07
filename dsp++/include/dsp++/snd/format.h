@@ -184,7 +184,10 @@ public:
 
 	static const format format_audio_cd;
 
-	explicit format(const char* sample_format, unsigned sample_rate, unsigned channel_mask);
+	format(const char* sample_format, unsigned sample_rate, unsigned channel_mask);
+	format(const std::string& sample_format, unsigned sample_rate, unsigned channel_mask);
+
+	format();
 
 private:
 	std::string sample_format_;
@@ -200,6 +203,10 @@ public:
 	const std::string& type() const {return type_;}
 	void set_type(const char* type) {type_ = type;}
 	const char* const extension() const {return file_type::extension_for(type_.c_str());}
+
+	file_format();
+	file_format(const char* sample_format, unsigned sample_rate, unsigned channel_mask, const char* type);
+	file_format(const std::string& sample_format, unsigned sample_rate, unsigned channel_mask, const std::string& type);
 
 private:
 	std::string type_;

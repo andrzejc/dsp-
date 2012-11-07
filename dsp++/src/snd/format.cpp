@@ -107,10 +107,25 @@ unsigned sample::bit_size_of(const char* sf)
 }
 
 format::format(const char* sample_format, unsigned sample_rate, unsigned channel_mask)
+ :	sample_format_(NULL != sample_format ? sample_format : "")
+ ,	channel_layout_(channel_mask)
+ ,	sample_rate_(sample_rate)
+ ,	channel_count_(channel_layout_.count())
+{
+}
+
+format::format(const std::string& sample_format, unsigned sample_rate, unsigned channel_mask)
  :	sample_format_(sample_format)
  ,	channel_layout_(channel_mask)
  ,	sample_rate_(sample_rate)
  ,	channel_count_(channel_layout_.count())
+{
+}
+
+format::format()
+ :	channel_layout_(channel::mask_unknown)
+ ,	sample_rate_(0)
+ ,	channel_count_(0)
 {
 }
 
@@ -127,3 +142,18 @@ unsigned format::channel_index(channel::type ch) const
 	return c;
 }
 
+file_format::file_format()
+{
+}
+
+file_format::file_format(const char* sample_format, unsigned sample_rate, unsigned channel_mask, const char* type)
+ :	format(sample_format, sample_rate, channel_mask)
+ ,	type_(NULL != type ? type : "")
+{
+}
+
+file_format::file_format(const std::string& sample_format, unsigned sample_rate, unsigned channel_mask, const std::string& type)
+:	format(sample_format, sample_rate, channel_mask)
+,	type_(type)
+{
+}

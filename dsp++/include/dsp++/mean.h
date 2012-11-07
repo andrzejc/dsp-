@@ -37,8 +37,8 @@ public:
 	generalized_mean(size_t L, Exponent p, Sample ic = Sample())
 	 :	buffer_(L, ((Exponent() == p) ? std::log(ic) : std::pow(ic, p)) / L)
 	 ,	pmean_(L * buffer_[0])
-	 ,	p_(p)
 	 ,	ip_(std::pow(Sample(p), Sample(-1)))
+	 ,	p_(p)
      , 	L_(L)
  	 , 	n_(0)
 	{
