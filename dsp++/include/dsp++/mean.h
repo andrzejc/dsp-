@@ -38,7 +38,7 @@ public:
 	 :	buffer_(L, ((Exponent() == p) ? std::log(ic) : std::pow(ic, p)) / L)
 	 ,	pmean_(L * buffer_[0])
 	 ,	p_(p)
-	 ,	ip_(std::pow(p, -1))
+	 ,	ip_(1/p)
      , 	L_(L)
  	 , 	n_(0)
 	{
