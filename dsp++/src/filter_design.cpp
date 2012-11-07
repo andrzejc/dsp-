@@ -113,11 +113,11 @@ void dsp::biquad_design(double b[], double a[], biquad_type type, double norm_fr
 		break;
 	case biquad_type_low_shelf_eq:
 		b[0] = A * (Ap1 - Am1c + sqAa2); b[1] = 2 * A * (Am1 - Ap1c); b[2] = A * (Ap1 - Am1c - sqAa2);
-		a[0] = (Ap1 + Am1c + sqAa2); b[1] = -2 * (Am1 + Ap1c); b[2] = Ap1 + Am1c - sqAa2;
+		a[0] = (Ap1 + Am1c + sqAa2); a[1] = -2 * (Am1 + Ap1c); a[2] = Ap1 + Am1c - sqAa2;
 		break;
 	case biquad_type_high_shelf_eq:
 		b[0] = A * (Ap1 + Am1c + sqAa2); b[1] = -2 * A * (Am1 + Ap1c); b[2] = A * (Ap1 + Am1c - sqAa2);
-		a[0] = (Ap1 - Am1c + sqAa2); b[1] = 2 * (Am1 - Ap1c); b[2] = Ap1 - Am1c - sqAa2;
+		a[0] = (Ap1 - Am1c + sqAa2); a[1] = 2 * (Am1 - Ap1c); a[2] = Ap1 - Am1c - sqAa2;
 		break;
 	}
 }
