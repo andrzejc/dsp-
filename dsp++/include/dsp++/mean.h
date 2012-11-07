@@ -38,7 +38,7 @@ public:
 	 :	buffer_(L, ((Exponent() == p) ? std::log(ic) : std::pow(ic, p)) / L)
 	 ,	pmean_(L * buffer_[0])
 	 ,	p_(p)
-	 ,	ip_(1/p)
+	 ,	ip_(std::pow(Sample(p), Sample(-1)))
      , 	L_(L)
  	 , 	n_(0)
 	{
@@ -58,8 +58,8 @@ public:
 
 private:
 	trivial_array<Sample> buffer_;
-	Sample pmean_;
-	Exponent p_, ip_;
+	Sample pmean_, ip_;
+	Exponent p_;
 	size_t L_, n_;
 };
 
