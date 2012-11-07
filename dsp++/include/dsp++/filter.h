@@ -284,10 +284,25 @@ filter_sos<Sample>::filter_sos(size_t N, const CoeffSample (*num)[section_length
  ,	numl_(lbuf_.get())
  ,	denl_(numl_ + N_)
 {
+#ifdef _MSC_VER
+	for (size_t i = 0; i < N; ++i) {
+		CoeffSample (&nto)[section_length] = num_[i];
+		const CoeffSample (&nfrom)[section_length] = num[i];
+		std::copy(nfrom, nfrom + section_length, nto);
+
+		CoeffSample (&dto)[section_length] = den_[i];
+		const CoeffSample (&dfrom)[section_length] = den[i];
+		std::copy(dfrom, dfrom + section_length, dto);
+
+		numl_[i] = numl[i];
+		denl_[i] = denl[i];
+	}
+#else
 	std::copy(num, num + N, num_);
 	std::copy(den, den + N, den_);
 	std::copy(numl, numl + N, numl_);
 	std::copy(denl, denl + N, denl_);
+#endif
 }
 
 }
