@@ -24,7 +24,10 @@ enum filter_type
  * @brief FIR filter design with Parks-McClellan algorithm.
  * @return false if max iteration count was reached (results may be imprecise).
  * @throw std::bad_alloc if unable to allocate memory for internal arrays.
+ * @throw std::domain_error if any frequency in freqs is outside [0, 0.5] range or any weight in weights is not greater than 0.
+ * @throw std::invalid_argument if freqs is not a monotonically increasing sequence.
  * @note this function is named after MATLAB counterpart.
+ * TODO provide additional documentation for this non-trivial task.
  */
 DSPXX_API bool firpm(
 		size_t order, 				//!< [in] filter order, number of coefficients will be order + 1.
@@ -39,7 +42,7 @@ DSPXX_API bool firpm(
 		);
 
 /*!
- * @brief Specifies type of biquad section to design.
+ * @brief Specifies type of biquad section to design with biquad_design().
  */
 enum biquad_type
 {
@@ -57,6 +60,8 @@ enum biquad_type
  * @brief Biquad section design.
  * @note The params q, bw and s are interchangable (s may be used for eq filters only, though). Nevertheless one of
  * them must be set. The param gain_db is used only for eq filters too, it its required then.
+ * @throw std::domain_error if norm_freq is outside [0, 0.5] range
+ * @throw std::invalid_argument if gain_db or one of q, bw, s is not provided for equalizer filter.
  */
 DSPXX_API void biquad_design(
 		double b[],				//!< [out] difference equation numerator (FIR) polynomial coefficients [3].
