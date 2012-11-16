@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+<?fileVersion 4.0.0?>
+
+<cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
 		<cconfiguration id="cdt.managedbuild.config.macosx.so.debug.428674351">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.macosx.so.debug.428674351" moduleId="org.eclipse.cdt.core.settings" name="Debug-MacOSX">
@@ -216,7 +218,7 @@
 					<folderInfo id="cdt.managedbuild.config.macosx.so.debug.428674351.2101117628." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.mingw.base.400051579" name="MinGW GCC" nonInternalBuilderId="cdt.managedbuild.target.gnu.builder.base" superClass="cdt.managedbuild.toolchain.gnu.mingw.base">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.MachO64;org.eclipse.cdt.core.PE;org.eclipse.cdt.core.GNU_ELF;org.eclipse.cdt.core.ELF" id="cdt.managedbuild.target.gnu.platform.mingw.base.81936264" name="Debug Platform" osList="win32" superClass="cdt.managedbuild.target.gnu.platform.mingw.base"/>
-							<builder buildPath="${workspace_loc:/dsp++/Debug-MinGW}" id="cdt.managedbuild.target.gnu.builder.base.1968992375" managedBuildOn="true" name="Gnu Make Builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="cdt.managedbuild.target.gnu.builder.base"/>
+							<builder buildPath="${workspace_loc:/dsp++/Debug-MinGW}" id="cdt.managedbuild.target.gnu.builder.base.1968992375" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="cdt.managedbuild.target.gnu.builder.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.mingw.base.1436380085" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.mingw.base">
 								<option id="gnu.both.asm.option.include.paths.2100722237" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dsp++/include}&quot;"/>
@@ -393,6 +395,7 @@
 									<listOptionValue builtIn="false" value="_DEBUG"/>
 									<listOptionValue builtIn="false" value="DSPXX_EXPORTS"/>
 								</option>
+								<option id="org.eclipse.cdt.msvc.cl.option.runtime.1484643747" name="Run-Time Library" superClass="org.eclipse.cdt.msvc.cl.option.runtime" value="org.eclipse.cdt.msvc.cl.option.runtime.mdd" valueType="enumerated"/>
 								<inputType id="org.eclipse.cdt.msvc.cl.inputType.c.1730523018" superClass="org.eclipse.cdt.msvc.cl.inputType.c"/>
 							</tool>
 							<tool id="org.eclipse.cdt.msvc.cl.dll.debug.2053108989" name="C++ Compiler (cl)" superClass="org.eclipse.cdt.msvc.cl.dll.debug">
@@ -408,6 +411,7 @@
 									<listOptionValue builtIn="false" value="_DEBUG"/>
 									<listOptionValue builtIn="false" value="DSPXX_EXPORTS"/>
 								</option>
+								<option id="org.eclipse.cdt.msvc.cl.option.runtime.214881273" name="Run-Time Library" superClass="org.eclipse.cdt.msvc.cl.option.runtime" value="org.eclipse.cdt.msvc.cl.option.runtime.mdd" valueType="enumerated"/>
 								<inputType id="org.eclipse.cdt.msvc.cl.inputType.2057896838" superClass="org.eclipse.cdt.msvc.cl.inputType"/>
 							</tool>
 							<tool id="org.eclipse.cdt.msvc.rc.dll.debug.548039182" name="Resource Compiler (rc)" superClass="org.eclipse.cdt.msvc.rc.dll.debug">
@@ -430,6 +434,9 @@
 									<listOptionValue builtIn="false" value="&quot;${FFTW3_HOME}/libfftw3-3.lib&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${FFTW3_HOME}/libfftw3f-3.lib&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${FFTW3_HOME}/libfftw3l-3.lib&quot;"/>
+								</option>
+								<option id="org.eclipse.cdt.msvc.link.option.others.925441650" name="Other Options" superClass="org.eclipse.cdt.msvc.link.option.others" valueType="stringList">
+									<listOptionValue builtIn="false" value="/nodefaultlib:msvcrt"/>
 								</option>
 								<inputType id="org.eclipse.cdt.msvc.link.inputType.1492418834" superClass="org.eclipse.cdt.msvc.link.inputType"/>
 							</tool>
