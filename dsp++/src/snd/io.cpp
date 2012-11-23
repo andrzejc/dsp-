@@ -11,9 +11,6 @@
 #include <dsp++/config.h>
 #include <dsp++/snd/sndfile_error.h>
 
-// emit vtable and type_info in this translation unit
-dsp::snd::sndfile_error::~sndfile_error() throw() {}
-
 #if !DSP_SNDFILE_DISABLED
 
 #include <dsp++/snd/reader.h>

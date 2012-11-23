@@ -6,8 +6,7 @@
 #ifndef DSP_SNDFILE_ERROR_H_INCLUDED
 #define DSP_SNDFILE_ERROR_H_INCLUDED
 
-#include <dsp++/export.h>
-#include <stdexcept>
+#include <dsp++/io_error.h>
 
 namespace dsp { namespace snd {
 
@@ -17,7 +16,7 @@ namespace dsp { namespace snd {
  * @see @c sf_error()
  * @see @c sf_error_number()
  */
-class DSPXX_API sndfile_error: public std::runtime_error {
+class DSPXX_API sndfile_error: public io_error {
 public:
 	/*!
 	 * @brief Construct exception based on given error code and text message.
@@ -25,7 +24,7 @@ public:
 	 * @param msg textual representation of the error obtained through @c sf_error_number().
 	 */
 	sndfile_error(int code, const std::string& msg)
-	 :	runtime_error(msg)
+	 :	io_error(msg)
 	 ,	code_(code)
 	{
 	}
@@ -35,7 +34,6 @@ public:
 	 */
 	int code() const {return code_;}
 
-	~sndfile_error() throw();
 private:
 	int code_;
 };
