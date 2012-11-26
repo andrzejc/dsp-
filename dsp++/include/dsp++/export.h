@@ -9,6 +9,10 @@
 
 #if !defined(DSPXX_API)
 
+#if defined(DSPXX_STATIC)
+# define DSPXX_API
+#else
+
 #if defined _WIN32 || defined __CYGWIN__
   #ifdef DSPXX_EXPORTS
     #ifdef __GNUC__
@@ -30,6 +34,8 @@
     #define DSPXX_API
   #endif
 #endif
+
+#endif // !DSPXX_STATIC
 
 #endif // DSPXX_API
 

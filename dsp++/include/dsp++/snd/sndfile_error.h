@@ -6,7 +6,7 @@
 #ifndef DSP_SNDFILE_ERROR_H_INCLUDED
 #define DSP_SNDFILE_ERROR_H_INCLUDED
 
-#include <dsp++/io_error.h>
+#include <dsp++/snd/io_error.h>
 
 namespace dsp { namespace snd {
 
