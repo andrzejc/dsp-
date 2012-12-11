@@ -58,6 +58,8 @@ enum biquad_type
 
 /*!
  * @brief Biquad section design.
+ * This code is based on "Cookbook formulae for audio EQ biquad filter coefficients" by Robert Bristow-Johnson.
+ * @see http://www.musicdsp.org/files/Audio-EQ-Cookbook.txt
  * @note The params q, bw and s are interchangable (s may be used for eq filters only, though). Nevertheless one of
  * them must be set. The param gain_db is used only for eq filters too, it its required then.
  * @throw std::domain_error if norm_freq is outside [0, 0.5] range
