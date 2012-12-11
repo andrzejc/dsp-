@@ -41,6 +41,18 @@ nextpow2(T k)
 	return k + 1;
 }
 
+namespace detail {
+	template<class T, bool is_signed = std::numeric_limits<T>::is_signed> struct ispow2_impl;
+
+	template<class T> struct ispow2_impl<T, true> {
+		static bool value(T k) {return (k) && ((k & -k) == k);}
+	};
+
+	template<class T> struct ispow2_impl<T, false> {
+		static bool value(T k) {return (k) && (0 == (k & (k - 1)));}
+	};
+}
+
 /*!
  * @brief Fast check whether the number is an integer power of two.
  * @param k number to test.
@@ -52,13 +64,7 @@ template<class T>
 #else
 	bool
 #endif
-ispow2(T k)
-{
-	if (std::numeric_limits<T>::is_signed)
-		return (k) && ((k & -k) == k);
-	else
-		return (k) && (0 == (k & (k - 1)));
-}
+	ispow2(T k) {return dsp::detail::ispow2_impl<T>::value(k);}
 
 }
 

@@ -52,7 +52,7 @@ struct sin<B, A, float>
 {
 	static float value()
 	{
-		return (A * DSP_M_PI / B) * sin_cos_series < 2, 24, B, A > ::value();
+		return static_cast<float>((A * DSP_M_PI / B) * sin_cos_series < 2, 24, B, A > ::value());
 	}
 };
 template<unsigned B, unsigned A>
@@ -102,7 +102,7 @@ public:
 		//    Change dynamic calculation to the static one
 		//      wtemp = sin(M_PI/N);
 		wtemp = -sin < N, 1, T > ::value();
-		wpr = -2.0 * wtemp * wtemp;
+		wpr = static_cast<T>(-2.0) * wtemp * wtemp;
 		//      wpi = -sin(2*M_PI/N);
 		wpi = -sin < N, 2, T > ::value();
 		wr = 1.0;
@@ -172,7 +172,6 @@ public:
 	}
 };
 
-////// template class GFFT
 // generic fast Fourier transform main class
 template<unsigned P, typename T = double>
 class fft_impl: public dsp::detail::fft_impl<T>
@@ -234,7 +233,7 @@ public:
 	FFT_IMPL_INST(13, type) FFT_IMPL_INST(14, type) FFT_IMPL_INST(15, type) FFT_IMPL_INST(16, type) \
 	FFT_IMPL_INST(17, type) FFT_IMPL_INST(18, type) FFT_IMPL_INST(19, type) FFT_IMPL_INST(20, type) \
 	FFT_IMPL_INST(21, type) FFT_IMPL_INST(22, type) FFT_IMPL_INST(23, type) FFT_IMPL_INST(24, type) \
-	FFT_IMPL_INST(25, type) FFT_IMPL_INST(26, type) FFT_IMPL_INST(27, type) FFT_IMPL_INST(28, type)
+	FFT_IMPL_INST(25, type) FFT_IMPL_INST(26, type) 
 
 	FFT_IMPL_TYPE(float);
 	FFT_IMPL_TYPE(double);
@@ -257,8 +256,8 @@ static size_t fft_impl_index(size_t size)
 {
 	if (!dsp::ispow2(size))
 		throw std::domain_error("dsp::fft only allows transform size of integer powers of 2");
-	if (size < 2 || size > 268435456)
-		throw std::out_of_range("transform size outside [2^1, 2^28]");
+	if (size < 2 || size > 67108864)
+		throw std::out_of_range("transform size outside [2^1, 2^26]");
 	for (size_t u = 2, i = 0; ; ++i, u<<=1)
 		if (u == size)
 			return i;

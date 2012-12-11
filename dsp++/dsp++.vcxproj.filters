@@ -1,0 +1,165 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{127f985e-5b40-441a-9a75-ec8d19e91429}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\snd">
+      <UniqueIdentifier>{bc59d4bc-70ef-4751-b849-caf2b12dfe77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\remez">
+      <UniqueIdentifier>{9fc5b80d-2586-4b00-a262-e398376d78b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\fftw">
+      <UniqueIdentifier>{ac2eaded-1f33-4ab3-aeaf-78190dd3da83}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{3698c281-bc42-4701-823e-14660a8b2597}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\dsp++">
+      <UniqueIdentifier>{d60959c5-fa56-4fb2-a555-cd6a9975f5e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\dsp++\fft">
+      <UniqueIdentifier>{f761b69d-2b95-4e86-beaf-78bd209fd411}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\dsp++\fftw">
+      <UniqueIdentifier>{85bee594-839f-4fcb-8810-986ccd495fd8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\dsp++\snd">
+      <UniqueIdentifier>{5c79b755-ffdf-4446-8567-2a5887fcf711}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\fft.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\filter_design.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\snd\format.cpp">
+      <Filter>src\snd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\snd\io.cpp">
+      <Filter>src\snd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\remez\remez.c">
+      <Filter>src\remez</Filter>
+    </ClCompile>
+    <ClCompile Include="src\fftw\traits.cpp">
+      <Filter>src\fftw</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\pch.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utility.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\remez\remez.h">
+      <Filter>src\remez</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\algorithm.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\buffer.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\complex.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\config.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\const.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\dft.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\doc.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\export.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\fft.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\filter.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\filter_design.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\float.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\lattice.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\levinson.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\lpc.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\mean.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\noncopyable.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\overlap_add.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\pow2.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\trivial_array.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\utility.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\window.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\xcorr.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\fft\detail.h">
+      <Filter>include\dsp++\fft</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\fftw\allocator.h">
+      <Filter>include\dsp++\fftw</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\fftw\dft.h">
+      <Filter>include\dsp++\fftw</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\fftw\plan_unavailable.h">
+      <Filter>include\dsp++\fftw</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\fftw\traits.h">
+      <Filter>include\dsp++\fftw</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\snd\format.h">
+      <Filter>include\dsp++\snd</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\snd\io_error.h">
+      <Filter>include\dsp++\snd</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\snd\iobase.h">
+      <Filter>include\dsp++\snd</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\snd\reader.h">
+      <Filter>include\dsp++\snd</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\snd\sndfile_error.h">
+      <Filter>include\dsp++\snd</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\snd\writer.h">
+      <Filter>include\dsp++\snd</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

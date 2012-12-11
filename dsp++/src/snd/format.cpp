@@ -108,7 +108,7 @@ unsigned sample::bit_size_of(const char* sf)
 
 format::format(const char* sample_format, unsigned sample_rate, unsigned channel_mask)
  :	sample_format_(NULL != sample_format ? sample_format : "")
- ,	channel_layout_(channel_mask)
+ ,	channel_layout_(static_cast<int>(channel_mask))
  ,	sample_rate_(sample_rate)
  ,	channel_count_(channel_layout_.count())
 {
@@ -116,7 +116,7 @@ format::format(const char* sample_format, unsigned sample_rate, unsigned channel
 
 format::format(const std::string& sample_format, unsigned sample_rate, unsigned channel_mask)
  :	sample_format_(sample_format)
- ,	channel_layout_(channel_mask)
+ ,	channel_layout_(static_cast<int>(channel_mask))
  ,	sample_rate_(sample_rate)
  ,	channel_count_(channel_layout_.count())
 {

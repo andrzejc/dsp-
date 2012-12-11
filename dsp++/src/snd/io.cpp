@@ -21,6 +21,7 @@
 #include <cstring>
 #include <functional>
 #include <algorithm>
+#include <limits>
 
 #include <boost/scoped_array.hpp>
 
@@ -75,12 +76,12 @@ sz_t stdio::seek(sz_t offset, int whence)
 	return ftello(file_);
 }
 
-sz_t stdio::read(void* buf, sz_t size)
+sz_t stdio::read(void* buf, size_t size)
 {
 	return fread(buf, size, 1, file_);
 }
 
-sz_t stdio::write(const void* buf, sz_t size)
+sz_t stdio::write(const void* buf, size_t size)
 {
 	return fwrite(buf, size, 1, file_);
 }
@@ -342,9 +343,19 @@ struct dsp::snd::base_impl
 	static sf_count_t io_seek(sf_count_t offset, int whence, void* p)
 	{return static_cast<io*>(p)->seek(offset, whence);}
 	static sf_count_t io_read(void* buf, sf_count_t count, void* p)
-	{return static_cast<io*>(p)->read(buf, count);}
+	{
+		if (count < 0 || count > std::numeric_limits<unsigned>::max())
+			return -1;
+		return static_cast<io*>(p)->read(buf, static_cast<size_t>(count));
+	}
+
 	static sf_count_t io_write(const void* buf, sf_count_t count, void* p)
-	{return static_cast<io*>(p)->write(buf, count);}
+	{
+		if (count < 0 || count > std::numeric_limits<size_t>::max())
+			return -1;
+		return static_cast<io*>(p)->write(buf, static_cast<size_t>(count));
+	}
+
 	static sf_count_t io_tell(void* p) {return static_cast<io*>(p)->position();}
 
 	static const SF_VIRTUAL_IO sf_vio;

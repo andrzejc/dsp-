@@ -23,20 +23,38 @@ namespace dsp {
 
 /*!
  * @brief Implementation of FIR (all-zero) Lattice filter structure.
+ * This filter structure realizes direct linear predictor.
  * @see http://www.cs.tut.fi/~tabus/course/ASP/LectureNew8.pdf
  */
 template<class Sample>
 class lattice_fir: public sample_based_transform<Sample>
 {
 public:
+	/*!
+	 * @brief Filter single input sample x, return single output sample (forward prediction error)
+	 * and optionally backward prediction error.
+	 * @param[in]  x input sample
+	 * @param[out]  eb pointer to optional backward prediction error result
+	 * @return output sample (forward prediction error)
+	 */
 	Sample operator()(Sample x, Sample* eb = NULL);
 
+	/*!
+	 * @brief Construct lattice FIR filter with reflection coefficients provided as a sequence
+	 * of iterators [k_begin, k_end).
+	 */
 	template<class Iterator>
 	lattice_fir(Iterator k_begin, Iterator k_end);
 
+	/*!
+	 * @brief Construct lattice FIR filter with reflection coefficients provided as a vector.
+	 */
 	template<class KSample>
 	lattice_fir(const KSample* k_vec, size_t k_len);
 
+	/*!
+	 * @return order of the filter
+	 */
 	size_t order() const {return M_;}
 private:
 	const size_t M_;			//!< Number of MA coefficients.

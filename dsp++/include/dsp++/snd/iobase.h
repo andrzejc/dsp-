@@ -194,14 +194,14 @@ public:
 	 * @param size number of bytes to read.
 	 * @return number of bytes read or -1 on error.
 	 */
-	virtual size_type read(void* buf, size_type size) = 0;
+	virtual size_type read(void* buf, size_t size) = 0;
 	/*!
 	 * @brief Write size bytes from buf to the stream.
 	 * @param buf buffer holding the data to write.
 	 * @param size number of bytes to write.
 	 * @return number of bytes written or -1 on error.
 	 */
-	virtual size_type write(const void* buf, size_type size) = 0;
+	virtual size_type write(const void* buf, size_t size) = 0;
 	/*!
 	 * @brief Query actual stream position.
 	 * @return stream position or -1 if stream non-seekable or error occured.
@@ -233,8 +233,8 @@ public:
 
 	size_type size();
 	size_type seek(size_type offset, int whence);
-	size_type read(void* buf, size_type size);
-	size_type write(const void* buf, size_type size);
+	size_type read(void* buf, size_t size);
+	size_type write(const void* buf, size_t size);
 	size_type position();
 	/*!
 	 * @brief Closes the associated FILE stream with a call to fclose()
