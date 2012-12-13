@@ -162,4 +162,7 @@
       <Filter>include\dsp++\snd</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="doxyfile" />
+  </ItemGroup>
 </Project>
