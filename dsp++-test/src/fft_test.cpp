@@ -5,6 +5,8 @@
  */
 
 #include <dsp++/float.h>
+#include <dsp++/const.h>
+
 #include "fft_test.h"
 #include <stdexcept>
 #include <dsp++/fftw/dft.h>
@@ -44,7 +46,7 @@ void fft_test::test_fft_equals_fftw()
 	dsp::fftw::dft<std::complex<float>, std::complex<float> > dft(64, in2, out2, dsp::dft_sign_forward);
 
 	for (size_t i = 0; i < 64; ++i)
-		in1[i] = in2[i] = sin(20 * M_PI * i / 64);
+		in1[i] = in2[i] = sin(20 * DSP_M_PI * i / 64);
 
 	fft();
 	dft();
