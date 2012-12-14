@@ -179,7 +179,7 @@ public:
 	}
 
 	//! @brief Invoke the FFT algorithm for the input & output vectors set up in the constructor.
-	void operator()() const	{operator()(&fft_.input_->real(), fft_.output_);}
+	void operator()() const	{operator()(const_cast<input_type*>(reinterpret_cast<const input_type*>(fft_.input_)), fft_.output_);}
 
 	//! @return the transform size (N in the equation above).
 	size_t size() const {return fft_.size();}
@@ -244,7 +244,7 @@ public:
 
 	//! @brief Invoke the FFT algorithm for the input & output vectors set up in the constructor.
 	void operator()() const
-	{operator()(fft_.input_, &fft_.output_->real());}
+	{operator()(fft_.input_, const_cast<output_type*>(reinterpret_cast<const output_type*>(fft_.output_)));}
 
 	//! @return the transform size (N in the equation above).
 	size_t size() const {return fft_.size();}

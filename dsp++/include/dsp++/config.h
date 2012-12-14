@@ -19,6 +19,8 @@
 #include "dsp_custom_config.h"
 #endif // DSP_USE_CUSTOM_CONFIG
 
+#define DSP_CONFORM_CPP0X (__cplusplus >= 201103L)
+
 #ifndef DSP_SNDFILE_DISABLED
 //! @brief Set to 1 to disable audio reading/writing through libsndfile.
 #define DSP_SNDFILE_DISABLED 	0

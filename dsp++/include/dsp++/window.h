@@ -9,6 +9,7 @@
 
 #include <dsp++/config.h>
 #include <dsp++/export.h>
+#include <dsp++/const.h>
 
 #include <functional>
 #include <cmath>
@@ -105,7 +106,7 @@ public:
 	ptrdiff_t operator-(const window_iterator& other) const {return n_ - other.n_;}
 	bool operator==(const window_iterator& other) const {return (window_ == other.window_) && (n_ == other.n_);}
 	bool operator!=(const window_iterator& other) const {return !operator==(other);}
-
+	bool operator<(const window_iterator& other) const {return (n_ < other.n_);}
 private:
 	const Window* window_;
 	ptrdiff_t n_;
@@ -312,7 +313,7 @@ struct hamming: public window_function<Result>
 	//! @copydoc unspecified::operator()(size_t) const
 	Result operator()(size_t n) const
 	{
-		return 0.54 - 0.46 * cos(Result(2 * M_PI) * n / (window_function<Result>::l_ - 1));
+		return 0.54 - 0.46 * cos(Result(2 * DSP_M_PI) * n / (window_function<Result>::l_ - 1));
 	}
 
 	/*! @typedef const_iterator
@@ -349,7 +350,7 @@ struct hann: public window_function<Result>
 	//! @copydoc unspecified::operator()(size_t) const
 	Result operator()(size_t n) const
 	{
-		return 0.5 * (1 - cos(Result(2 * M_PI) * n / (window_function<Result>::l_ - 1)));
+		return 0.5 * (1 - cos(Result(2 * DSP_M_PI) * n / (window_function<Result>::l_ - 1)));
 	}
 
 	/*! @typedef const_iterator
@@ -370,6 +371,7 @@ template<class Result>
 window<Result>* create_hann(size_t length, window_type type = symmetric)
 {return new window_adapter<Result, hann>(hann<Result>(length, type));}
 
+#define DSP_WND_BLACKMAN_ALPHA_DEFAULT (0.16)
 /*!
  * @brief Blackman window generator.
  * Blackman window is given by the formula:
@@ -387,13 +389,15 @@ window<Result>* create_hann(size_t length, window_type type = symmetric)
 template<class Result>
 struct blackman: public window_function<Result>
 {
+#if DSP_CONFORM_CPP0X
 	//! Default value of alpha parameter.
-	static const Result alpha_default = 0.16;
+	static const Result alpha_default = DSP_WND_BLACKMAN_ALPHA_DEFAULT;
+#endif // DSP_CONFORM_CPP0X
 	/*!
 	 * @copydoc window_function::window_function()
 	 * @param alpha \f$\alpha\f$ parameter in the equation above.
 	 */
-	blackman(size_t length, window_type type = symmetric, Result alpha = alpha_default)
+	blackman(size_t length, window_type type = symmetric, Result alpha = DSP_WND_BLACKMAN_ALPHA_DEFAULT)
 	 : 	window_function<Result>(length, type)
 	 ,	alpha_(alpha)
 	 ,	a0_((1 - alpha) / 2)
@@ -403,8 +407,8 @@ struct blackman: public window_function<Result>
 	//! @copydoc unspecified::operator()(size_t) const
 	Result operator()(size_t n) const
 	{
-		return a0_ - a1_ * cos(Result(2 * M_PI) * n / (window_function<Result>::l_ - 1)) +
-				a2_ * cos(Result(4 * M_PI) * n / (window_function<Result>::l_ - 1));
+		return a0_ - a1_ * cos(Result(2 * DSP_M_PI) * n / (window_function<Result>::l_ - 1)) +
+				a2_ * cos(Result(4 * DSP_M_PI) * n / (window_function<Result>::l_ - 1));
 	}
 	//! @return value of \f$\alpha\f$ parameter.
 	Result alpha() const {return alpha_;}
@@ -449,7 +453,7 @@ struct cosine: public window_function<Result>
 	//!@copydoc unspecified::operator()(size_t) const
 	Result operator()(size_t n) const
 	{
-		return cos(Result(M_PI) * n / (window_function<Result>::l_ - 1) - Result(M_PI_2));
+		return cos(Result(DSP_M_PI) * n / (window_function<Result>::l_ - 1) - Result(DSP_M_PI_2));
 	}
 
 	/*! @typedef const_iterator
@@ -549,6 +553,7 @@ template<class Result>
 window<Result>* create_triang(size_t length, window_type type = symmetric)
 {return new window_adapter<Result, triang>(triang<Result>(length, type));}
 
+#define DSP_WND_GAUSSWIN_SIGMA_DEFAULT (0.4)
 /*!
  * @brief Gaussian window generator.
  * Gaussian window is given by the formula:
@@ -560,11 +565,13 @@ window<Result>* create_triang(size_t length, window_type type = symmetric)
 template<class Result>
 struct gausswin: public window_function<Result>
 {
+#if DSP_CONFORM_CPP0X
 	//! @brief Default value of @f$\sigma@f$ parameter.
-	static const Result sigma_default = 0.4;
+	static const Result sigma_default = DSP_WND_GAUSSWIN_SIGMA_DEFAULT;
+#endif 
 	//! @copydoc window_function::window_function()
 	//! @param sigma \f$\sigma\f$ parameter in the equation above.
-	gausswin(size_t length, window_type type = symmetric, Result sigma = sigma_default)
+	gausswin(size_t length, window_type type = symmetric, Result sigma = DSP_WND_GAUSSWIN_SIGMA_DEFAULT)
 	 : 	window_function<Result>(length, type)
 	 ,	sigma_(sigma){}
 	//! @copydoc unspecified::operator()(size_t) const
@@ -600,6 +607,7 @@ window<Result>* create_gausswin(size_t length, window_type type = symmetric,
 
 #if !DSP_BOOST_DISABLED // boost special math functions are required to calculate Kaiser window
 
+#define DSP_WND_KAISER_ALPHA_DEFAULT (3)
 /*!
  * @brief Kaiser window generator.
  * Kaiser window is given by the formula:
@@ -612,19 +620,21 @@ window<Result>* create_gausswin(size_t length, window_type type = symmetric,
 template<class Result>
 struct kaiser: public window_function<Result>
 {
+#if DSP_CONFORM_CPP0X
 	//! Default value of @f$\alpha@f$ parameter.
-	static const Result alpha_default = 3;
+	static const Result alpha_default = DSP_WND_KAISER_ALPHA_DEFAULT;
+#endif
 	//! @copydoc window_function::window_function()
 	//! @param alpha @f$\alpha@f$ parameter in the equation above.
-	kaiser(size_t length, window_type type = symmetric, Result alpha = alpha_default)
+	kaiser(size_t length, window_type type = symmetric, Result alpha = DSP_WND_KAISER_ALPHA_DEFAULT)
 	 : 	window_function<Result>(length, type)
 	 ,	alpha_(alpha){}
 	//! @copydoc unspecified::operator()(size_t) const
 	Result operator()(size_t n) const
 	{
 		const size_t N = window_function<Result>::l_;
-		return boost::math::cyl_bessel_i(0, Result(M_PI) * alpha_ * std::sqrt(1 - std::pow(Result(2*n)/(N-1) - 1, 2))) /
-				boost::math::cyl_bessel_i(0, Result(M_PI) * alpha_);
+		return boost::math::cyl_bessel_i(0, Result(DSP_M_PI) * alpha_ * std::sqrt(1 - std::pow(Result(2*n)/(N-1) - 1, 2))) /
+				boost::math::cyl_bessel_i(0, Result(DSP_M_PI) * alpha_);
 	}
 	//! @return value of @f$\alpha@f$ parameter.
 	Result alpha() const {return alpha_;}

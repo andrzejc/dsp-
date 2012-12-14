@@ -7,10 +7,27 @@
 #ifndef DSP_FLOAT_H_INCLUDED
 #define DSP_FLOAT_H_INCLUDED
 
+#include <dsp++/config.h>
 #include <cmath>
 #include <functional>
 #include <limits>
 #include <complex>
+#include <cfloat>
+
+#if defined(_MSC_VER) && !(__cplusplus >= 201103L)
+# if !DSP_BOOST_DISABLED
+# include <boost/math/special_functions/fpclassify.hpp>
+namespace std { 
+using boost::math::isnan;
+using boost::math::isinf;
+}
+# else // DSP_BOOST_DISABLED
+namespace std { 
+template<class Real> bool isnan(Real x) {return _isnan(x) != 0;} 
+template<class Real> bool isinf(Real x) {return _finite(x) == 0;}
+}
+# endif // DSP_BOOST_DISABLED
+#endif 
 
 namespace dsp {
 
