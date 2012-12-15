@@ -10,6 +10,8 @@
 
 #if !DSP_SNDFILE_DISABLED
 
+#include <cstdio> // for FILE
+
 #include <dsp++/export.h>
 #include <dsp++/noncopyable.h>
 

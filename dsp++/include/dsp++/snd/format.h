@@ -189,6 +189,14 @@ public:
 
 	format();
 
+	template<class TimeMs> 
+	unsigned time_ms_to_samples(TimeMs ms) const 
+	{return static_cast<unsigned>(sample_rate_ * ms / static_cast<TimeMs>(1000.) + static_cast<TimeMs>(.5));}
+
+	template<class TimeS> 
+	unsigned time_to_samples(TimeS s) const 
+	{return static_cast<unsigned>(sample_rate_ * s + static_cast<TimeS>(.5));}
+
 private:
 	std::string sample_format_;
 	channel::layout channel_layout_;

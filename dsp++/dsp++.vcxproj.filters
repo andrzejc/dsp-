@@ -161,6 +161,9 @@
     <ClInclude Include="include\dsp++\snd\writer.h">
       <Filter>include\dsp++\snd</Filter>
     </ClInclude>
+    <ClInclude Include="include\dsp++\dynamics.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="doxyfile" />
