@@ -56,8 +56,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(CPPUNIT_ROOT)/lib;$(OutDir)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>dsp++.lib;cppunitd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(CPPUNIT_ROOT)/lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>cppunitd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -77,8 +77,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(CPPUNIT_ROOT)/lib;$(OutDir)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>dsp++.lib;cppunit.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(CPPUNIT_ROOT)/lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>cppunit.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -108,6 +108,11 @@
     <ClInclude Include="src\utils.h" />
     <ClInclude Include="src\window_test.h" />
     <ClInclude Include="src\xcorr_test.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\dsp++\dsp++.vcxproj">
+      <Project>{5c1a077c-1bec-49cc-948f-d5ad282c89bc}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

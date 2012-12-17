@@ -45,7 +45,7 @@ int main(int argc, const char* argv[]) {
 	const float attack_ms = 15; 
 	const float release_ms = 60;
 	const float threshold_dB = -20.f;
-	const float gain_dB = 7.f;
+	const float gain_dB = 10.f;
 	const float ratio = 3.f;
 
 	dsp::compressor<float> comp(inf.time_ms_to_samples(rms_period_ms));
@@ -54,7 +54,8 @@ int main(int argc, const char* argv[]) {
 	comp.set_threshold_dB(threshold_dB);
 	comp.set_gain_dB(gain_dB);
 	comp.set_ratio(ratio);
-	comp.set_limiter(true);
+
+	dsp::limiter<float> lim;
 
 	const size_t buf_size = 512;
 	float buffer[buf_size];
@@ -63,7 +64,7 @@ int main(int argc, const char* argv[]) {
 		size_t read = r.read_samples(buffer, buf_size);
 		//float comp_dB;
 		for (size_t i = 0; i < read; ++i) {
-			buffer[i] = comp(buffer[i]/*, &comp_dB*/);
+			buffer[i] = lim(comp(buffer[i]/*, &comp_dB*/));
 			//dbuf[i] = 0.5f * std::pow(10.f, comp_dB / 20.f);
 		}
 

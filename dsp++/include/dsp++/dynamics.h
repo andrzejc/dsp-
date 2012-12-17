@@ -27,7 +27,6 @@ public:
 	 ,	attack_delta_(1.)
 	 ,	release_delta_(1.)
 	 ,	transition_(0)
-	 ,	limiter_(false)
 	{
 	}
 
@@ -46,9 +45,6 @@ public:
 
 	void set_attack(size_t sample_count) {attack_delta_ = 1. / sample_count;}
 	void set_release(size_t sample_count) {release_delta_ = 1. / sample_count;}
-
-	bool is_limiter() const {return limiter_;}
-	void set_limiter(bool l) {limiter_ = l;}
 
 	Sample operator()(Sample x, float* compression_dB = NULL) 
 	{
@@ -75,8 +71,6 @@ public:
 
 		gain *= gain_;							// apply additional gain set as param
 		x = static_cast<Sample>(gain * x);		// amplify the sample
-		if (limiter_)							// apply the limiter if needed
-			x = std::max(static_cast<Sample>(-1), std::min(static_cast<Sample>(1), x));
 		return x;
 	}
 
@@ -88,7 +82,41 @@ private:
 	double attack_delta_;
 	double release_delta_;
 	double transition_;
-	bool limiter_;
+};
+
+template<class In> 
+struct tanh: public sample_based_transform<In> {
+	In operator()(In x) const {return std::tanh(x);}
+};
+
+template<class Sample, class Functor = dsp::tanh<Sample> >
+class limiter: public sample_based_transform<Sample> {
+public:
+
+	limiter(const Functor& fun = Functor())
+	 :	functor_(fun) 
+	{set_threshold_dB(-1);}
+
+	float threshold_dB() const {return 20.f * std::log10(threshold_);}
+	float threshold() const {return threshold_;}
+	void set_threshold_dB(float t) {set_threshold(std::pow(10.f, t/20.f));}
+	void set_threshold(float t) {threshold_ = t; swing_ = 1.f - threshold_;}
+
+	Sample operator()(Sample x) 
+	{
+		float a = static_cast<float>(std::abs(x));
+		if (a <= threshold_)
+			return x;
+		float in = (a - threshold_)/swing_;
+		float out = functor_(in);
+		float gain = (threshold_ + out * swing_) / a;
+		return static_cast<Sample>(x * gain);
+	}
+
+private:
+	Functor functor_;
+	float threshold_;
+	float swing_;
 };
 
 }
