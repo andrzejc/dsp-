@@ -38,6 +38,8 @@ public:
 	typedef DFT<complex_type, value_type> inverse_transform_type;
 	typedef typename transform_type::input_allocator real_allocator;
 	typedef typename transform_type::output_allocator complex_allocator;
+	typedef value_type* iterator;
+	typedef const value_type* const_iterator;
 
 	/*!
 	 * @brief Construct Overlap-Add algorithm functor with the specified operation frame length
@@ -76,13 +78,13 @@ public:
 	size_t impulse_response_length() const {return M_;}
 
 	//! @return pointer (serving as an iterator) to the first sample of the input/output frame.
-	value_type* begin() {return rbuf_;}
+	iterator begin() {return rbuf_;}
 	//! @return pointer (serving as an iterator) to the first sample of the input/output frame.
-	const value_type* begin() const {return rbuf_;}
+	const_iterator begin() const {return rbuf_;}
 	//! @return pointer (serving as an iterator) to the one-past-last sample of the input/output frame.
-	value_type* end() {return rbuf_ + L_;}
+	iterator end() {return rbuf_ + L_;}
 	//! @return pointer (serving as an iterator) to the one-past-last sample of the input/output frame.
-	const value_type* end() const {return rbuf_ + L_;}
+	const_iterator end() const {return rbuf_ + L_;}
 	/*!
 	 * @brief Perform filtration of the current input frame, represented as samples in the range [begin(), end()),
 	 * and store the result in the same sequence.
