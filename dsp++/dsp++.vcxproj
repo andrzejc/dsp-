@@ -71,6 +71,9 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;DSPXX_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>./include;$(BOOST_ROOT);$(LIBSNDFILE_ROOT)/include;$(FFTW3_ROOT)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4251;4275</DisableSpecificWarnings>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -85,6 +88,8 @@
     <ClCompile Include="src\fft.cpp" />
     <ClCompile Include="src\fftw\traits.cpp" />
     <ClCompile Include="src\filter_design.cpp" />
+    <ClCompile Include="src\mkfilter\complex.cpp" />
+    <ClCompile Include="src\mkfilter\mkfilter.cpp" />
     <ClCompile Include="src\remez\remez.c" />
     <ClCompile Include="src\snd\format.cpp" />
     <ClCompile Include="src\snd\io.cpp" />
@@ -125,6 +130,8 @@
     <ClInclude Include="include\dsp++\utility.h" />
     <ClInclude Include="include\dsp++\window.h" />
     <ClInclude Include="include\dsp++\xcorr.h" />
+    <ClInclude Include="src\mkfilter\complex.h" />
+    <ClInclude Include="src\mkfilter\mkfilter.h" />
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\remez\remez.h" />
     <ClInclude Include="src\utility.h" />

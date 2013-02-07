@@ -28,6 +28,9 @@
     <Filter Include="include\dsp++\snd">
       <UniqueIdentifier>{5c79b755-ffdf-4446-8567-2a5887fcf711}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\mkfilter">
+      <UniqueIdentifier>{ff1c6181-850e-41d9-a75d-899448c6fcbb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\fft.cpp">
@@ -47,6 +50,12 @@
     </ClCompile>
     <ClCompile Include="src\fftw\traits.cpp">
       <Filter>src\fftw</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mkfilter\complex.cpp">
+      <Filter>src\mkfilter</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mkfilter\mkfilter.cpp">
+      <Filter>src\mkfilter</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -163,6 +172,12 @@
     </ClInclude>
     <ClInclude Include="include\dsp++\dynamics.h">
       <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mkfilter\mkfilter.h">
+      <Filter>src\mkfilter</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mkfilter\complex.h">
+      <Filter>src\mkfilter</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
