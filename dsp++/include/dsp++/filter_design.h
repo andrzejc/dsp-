@@ -76,6 +76,44 @@ DSPXX_API void biquad_design(
 		const double* s			//!< [in] shelf slope, if set to 1 - as steep as it can be, proportional to slope in dB/octave.
 );
 
+//! @brief Specifies type of filter and design flags to filter design design with iir_design()
+enum iir_type 
+{	
+	iir_butterworth		=	0,	//!< Design Butterworth LP, HP, BP or BS filter
+	iir_bessel			=	1,	//!< Design Bessel LP, HP, BP or BS filter
+	iir_chebyshev		=	2,	//!< Design Chebyshev LP, HP, BP or BS filter
+
+	iir_lowpass			=  16,	//!< Lowpass characteristic
+	iir_highpass		=  32,	//!< Highpass characteristic
+	iir_bandpass		=  64,	//!< Bandpass characteristic
+	iir_bandstop		= 128,	//!< Bandstop characteristic
+	iir_allpass			= 256,	//!< Allpass characteristic, only in conjunction with {@link iir_resonator}
+
+	iir_prewrap			= 512,	//!< 
+	iir_matched_z		=1024,	//!< Use matched Z-transform instead of bilinear transform
+};
+
+//! @brief Design IIR resonator filter in the z-plane
+// XXX check number of coefficients
+DSPXX_API void iir_resonator_design(
+	double b[],					//!< [out] difference equation numerator (FIR) polynomial coefficients
+	double a[],					//!< [out] difference equation numerator (FIR) polynomial coefficients
+	iir_type characteristic,	//!< [in] filter characteristic ({@link iir_bandstop} (notch), {@link iir_bandpass} or {@link iir_allpass})
+	double fc,					//!< [in] normalized centre frequency (0, 0.5) range
+	double q					//!< [in] quality factor
+);
+
+DSPXX_API void iir_filter_design(
+	size_t order,				//!< [in] filter order
+	double b[],					//!< [out] difference equation numerator (FIR) polynomial coefficients (order + 1) or (2 * order + 1) in case of BP, BS
+	double a[],					//!< [out] difference equation numerator (FIR) polynomial coefficients (order + 1) or (2 * order + 1) in case of BP, BS
+	iir_type type,				//!< [in] filter type, characteristic and flags
+	double* fc,					//!< [in] normalized conrner frequency/ies (0, 0.5) range
+	double* cheb_rip = NULL,	//!< [in] Chebyshev ripple in dB
+	double* zero_freq = NULL,	//!< [in] put additional zero at specified normalized frequency
+	unsigned pole_mask = 0		//!< [in] Use only specified poles
+);
+
 }
 
 #endif /* DSP_FILTER_DESIGN_H_INCLUDED */

@@ -4,9 +4,11 @@
  */
 #include <dsp++/filter_design.h>
 #include "remez/remez.h"
+#include "mkfilter/mkfltif.h"
 
 #include <stdexcept>
 #include <cmath>
+#include <memory>
 #include <dsp++/const.h>
 
 using namespace dsp;
@@ -120,4 +122,77 @@ void dsp::biquad_design(double b[], double a[], biquad_type type, double norm_fr
 		a[0] = (Ap1 - Am1c + sqAa2); a[1] = 2 * (Am1 - Ap1c); a[2] = Ap1 - Am1c - sqAa2;
 		break;
 	}
+}
+
+
+void dsp::iir_filter_design(size_t order, double b[], double a[], dsp::iir_type type, double* fc, double* cheb_rip, double* zero_freq, unsigned pole_mask)
+{
+	std::auto_ptr<mkfilter::inout> io(new mkfilter::inout);
+	memset(io.get(), 0, sizeof(mkfilter::inout));
+	size_t sz = order;
+
+	const unsigned type_mask = 0x0003;
+	switch (type & type_mask) {
+	case iir_bessel: 
+		io->options |= mkfilter_opt_be; 
+		break;
+	case iir_chebyshev: 
+		io->options |= mkfilter_opt_ch; 
+		io->chebrip = (NULL == cheb_rip ? 3. : *cheb_rip);
+		break;
+	case iir_butterworth: 
+		io->options |= mkfilter_opt_bu; 
+		break;
+	default:
+		throw std::invalid_argument("invalid filter type specification");
+	}
+
+	const unsigned char_mask = 0x01f0;
+	switch (type & char_mask) {
+	case iir_lowpass: 
+		io->options |= mkfilter_opt_lp;
+		io->raw_alpha1 = *fc;
+		break;
+	case iir_highpass:
+		io->options |= mkfilter_opt_hp;
+		io->raw_alpha1 = *fc;
+		break;
+	case iir_bandpass:
+		io->options |= mkfilter_opt_bp;
+		io->raw_alpha1 = fc[0];
+		io->raw_alpha2 = fc[1];
+		sz = 2 * order;
+		break;
+	case iir_bandstop:
+		io->options |= mkfilter_opt_bs;
+		io->raw_alpha1 = fc[0];
+		io->raw_alpha2 = fc[1];
+		sz = 2 * order;
+		break;
+	case iir_allpass:
+		io->options |= mkfilter_opt_ap;
+		io->raw_alpha1 = *fc;
+		break;
+	default:
+		throw std::invalid_argument("missing filter type specification");
+	}
+
+	if (NULL != zero_freq) {
+		io->options |= mkfilter_opt_Z;
+		io->raw_alphaz = *zero_freq;
+	}
+	if (0 != pole_mask) {
+		io->options |= mkfilter_opt_p;
+		io->polemask = pole_mask;
+	}
+	if (type & iir_prewrap)
+		io->options |= mkfilter_opt_w;
+	if (type & iir_matched_z)
+		io->options |= mkfilter_opt_z;
+	io->order = order;
+	io->options |= mkfilter_opt_o;
+
+	mkfilter::design(*io);
+	std::copy_n(io->xcoeffs_r, sz + 1, b);
+	std::copy_n(io->ycoeffs_r, sz + 1, a);
 }

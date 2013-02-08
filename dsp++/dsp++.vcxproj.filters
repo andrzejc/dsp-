@@ -179,6 +179,9 @@
     <ClInclude Include="src\mkfilter\complex.h">
       <Filter>src\mkfilter</Filter>
     </ClInclude>
+    <ClInclude Include="src\mkfilter\mkfltif.h">
+      <Filter>src\mkfilter</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="doxyfile" />

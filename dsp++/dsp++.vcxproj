@@ -132,6 +132,7 @@
     <ClInclude Include="include\dsp++\xcorr.h" />
     <ClInclude Include="src\mkfilter\complex.h" />
     <ClInclude Include="src\mkfilter\mkfilter.h" />
+    <ClInclude Include="src\mkfilter\mkfltif.h" />
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\remez\remez.h" />
     <ClInclude Include="src\utility.h" />
