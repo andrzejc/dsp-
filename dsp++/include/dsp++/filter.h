@@ -13,6 +13,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <stdexcept>
 
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 #include <boost/concept/requires.hpp>
@@ -127,6 +128,69 @@ public:
 
 	//! @return order of the implemented filter.
 	size_t order() const {return P_ - 1;}
+
+	template<class BIterator>
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
+	BOOST_CONCEPT_REQUIRES(((boost::OutputIterator<BIterator, Sample>)),(void))
+#else
+	void
+#endif
+	set(BIterator b_begin, BIterator b_end)
+	{
+		size_t m = std::distance(b_begin, b_end);
+		if (m > M_)
+			throw std::length_error("filter length exceeds previous one");
+		std::copy(b_begin, b_end, b_);
+		M_ = m;
+	}
+
+	template<class BIterator, class AIterator>
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
+	BOOST_CONCEPT_REQUIRES(((boost::OutputIterator<BIterator, Sample>))((boost::OutputIterator<AIterator, Sample>)),(void))
+#else
+	void
+#endif
+	set(BIterator b_begin, BIterator b_end, AIterator a_begin, AIterator a_end)
+	{
+		size_t m = std::distance(b_begin, b_end), n = std::distance(a_begin, a_end);
+		if (m > M_ || n > N_)
+			throw std::length_error("filter length exceeds previous one");
+		std::copy(b_begin, b_end, b_);
+		std::copy(a_begin, a_end, a_);
+		M_ = m;
+		N_ = n;
+	}
+
+	template<class BSample, class ASample>
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
+	BOOST_CONCEPT_REQUIRES(((boost::Convertible<BSample, Sample>))((boost::Convertible<ASample, Sample>)),(void))
+#else
+	void
+#endif
+	set(const BSample* b_vec, size_t b_len, const ASample* a_vec, size_t a_len)
+	{
+		if (b_len > M_ || a_len > N_)
+			throw std::length_error("filter length exceeds previous one");
+
+		std::copy(a_vec, a_vec + a_len, a_);
+		std::copy(b_vec, b_vec + b_len, b_);
+		Sample a = (0 != a_len ? *a_vec : Sample(1));
+		std::transform(a_, a_ + N_, a_, std::bind2nd(std::divides<Sample>(), a));
+		std::transform(b_, b_ + M_, b_, std::bind2nd(std::divides<Sample>(), a));
+	}
+
+	template<class BSample>
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
+	BOOST_CONCEPT_REQUIRES(((boost::Convertible<BSample, Sample>)),(void))
+#else
+	void
+#endif
+	set(const BSample* b_vec, size_t b_len)
+	{
+		if (b_len > M_)
+			throw std::length_error("filter length exceeds previous one");
+		std::copy(b_vec, b_vec + b_len, b_);
+	}
 
 private:
 	const size_t N_; 				//!< Number of AR coefficients.

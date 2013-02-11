@@ -125,7 +125,7 @@ void dsp::biquad_design(double b[], double a[], biquad_type type, double norm_fr
 }
 
 
-void dsp::iir_filter_design(size_t order, double b[], double a[], dsp::iir_type type, double* fc, double* cheb_rip, double* zero_freq, unsigned pole_mask)
+void dsp::iir_filter_design(size_t order, double b[], double a[], unsigned type, double* fc, double* cheb_rip, double* zero_freq, unsigned pole_mask)
 {
 	std::auto_ptr<mkfilter::inout> io(new mkfilter::inout);
 	memset(io.get(), 0, sizeof(mkfilter::inout));
@@ -150,27 +150,27 @@ void dsp::iir_filter_design(size_t order, double b[], double a[], dsp::iir_type 
 	const unsigned char_mask = 0x01f0;
 	switch (type & char_mask) {
 	case iir_lowpass: 
-		io->options |= mkfilter_opt_lp;
+		io->options |= mkfilter_opt_lp | mkfilter_opt_a;
 		io->raw_alpha1 = *fc;
 		break;
 	case iir_highpass:
-		io->options |= mkfilter_opt_hp;
+		io->options |= mkfilter_opt_hp | mkfilter_opt_a;
 		io->raw_alpha1 = *fc;
 		break;
 	case iir_bandpass:
-		io->options |= mkfilter_opt_bp;
+		io->options |= mkfilter_opt_bp | mkfilter_opt_a;
 		io->raw_alpha1 = fc[0];
 		io->raw_alpha2 = fc[1];
 		sz = 2 * order;
 		break;
 	case iir_bandstop:
-		io->options |= mkfilter_opt_bs;
+		io->options |= mkfilter_opt_bs | mkfilter_opt_a;
 		io->raw_alpha1 = fc[0];
 		io->raw_alpha2 = fc[1];
 		sz = 2 * order;
 		break;
 	case iir_allpass:
-		io->options |= mkfilter_opt_ap;
+		io->options |= mkfilter_opt_ap | mkfilter_opt_a;
 		io->raw_alpha1 = *fc;
 		break;
 	default:

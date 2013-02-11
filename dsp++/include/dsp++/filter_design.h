@@ -107,7 +107,7 @@ DSPXX_API void iir_filter_design(
 	size_t order,				//!< [in] filter order
 	double b[],					//!< [out] difference equation numerator (FIR) polynomial coefficients (order + 1) or (2 * order + 1) in case of BP, BS
 	double a[],					//!< [out] difference equation numerator (FIR) polynomial coefficients (order + 1) or (2 * order + 1) in case of BP, BS
-	iir_type type,				//!< [in] filter type, characteristic and flags
+	unsigned type,				//!< [in] filter type, characteristic and flags (combination of reasonable {@link iir_type} values)
 	double* fc,					//!< [in] normalized conrner frequency/ies (0, 0.5) range
 	double* cheb_rip = NULL,	//!< [in] Chebyshev ripple in dB
 	double* zero_freq = NULL,	//!< [in] put additional zero at specified normalized frequency
