@@ -69,7 +69,6 @@ Sample filter_sample_sos_df2(Sample x, size_t N, Sample (*w)[sos_length], const 
 	return x;
 }
 
-
 /*!
  * @brief Implementation of Direct-Form II digital filter.
  */
@@ -197,9 +196,9 @@ private:
 	const size_t M_;				//!< Number of MA coefficients.
 	const size_t P_;				//!< filter order + 1 (max(N_, M_))
 	trivial_array<Sample> buffer_;	//!< Buffer of size P_ + N_ + M_
-	Sample* const w_;				//!< delay line (P_)
 	Sample* const a_;				//!< AR coefficients
 	Sample* const b_;				//!< MA coefficients
+	Sample* const w_;				//!< delay line (P_)
 };
 
 template<class Sample>
@@ -215,9 +214,9 @@ filter<Sample>::filter(BIterator b_begin, BIterator b_end, AIterator a_begin, AI
  ,	M_(std::distance(b_begin, b_end))
  ,	P_(std::max(N_, M_))
  ,	buffer_(P_ + N_ + M_)
- ,	w_(buffer_.get())
- ,	a_(w_ + P_)
+ ,	a_(buffer_.get())
  ,	b_(a_ + N_)
+ ,	w_(b_ + M_)
 {
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_ASSERT((boost::OutputIterator<AIterator, Sample>));
@@ -237,9 +236,9 @@ filter<Sample>::filter(BIterator b_begin, BIterator b_end)
  ,	M_(std::distance(b_begin, b_end))
  ,	P_(std::max(N_, M_))
  ,	buffer_(P_ + N_ + M_)
- ,	w_(buffer_.get())
- ,	a_(w_ + P_)
+ ,	a_(buffer_.get())
  ,	b_(a_ + N_)
+ ,	w_(b_ + M_)
 {
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_ASSERT((boost::OutputIterator<BIterator, Sample>));
@@ -255,9 +254,9 @@ filter<Sample>::filter(const BSample* b_vec, size_t b_len, const ASample* a_vec,
  ,	M_(b_len)
  ,	P_(std::max(N_, M_))
  ,	buffer_(P_ + N_ + M_)
- ,	w_(buffer_.get())
- ,	a_(w_ + P_)
+ ,	a_(buffer_.get())
  ,	b_(a_ + N_)
+ ,	w_(b_ + M_)
 {
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_ASSERT((boost::Convertible<BSample, Sample>));
@@ -278,9 +277,9 @@ filter<Sample>::filter(const BSample* b_vec, size_t b_len)
  ,	M_(b_len)
  ,	P_(std::max(N_, M_))
  ,	buffer_(P_ + N_ + M_)
- ,	w_(buffer_.get())
- ,	a_(w_ + P_)
+ ,	a_(buffer_.get())
  ,	b_(a_ + N_)
+ ,	w_(b_ + M_)
 {
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_ASSERT((boost::Convertible<BSample, Sample>));
@@ -368,6 +367,133 @@ filter_sos<Sample>::filter_sos(size_t N, const CoeffSample (*num)[section_length
 	std::copy(denl, denl + N, denl_);
 #endif
 }
+
+/*!
+ * @brief Implementation of Direct-Form II digital filter.
+ */
+template<class Sample>
+class block_filter
+{
+public:
+
+	/*!
+	 * @brief Construct filter given coefficients vectors as iterator ranges [b_begin, b_end) and [a_begin, a_end).
+	 * @param b_begin start of numerator coefficients sequence.
+	 * @param b_end end of numerator coefficients sequence.
+	 * @param a_begin start of denominator coefficients sequence.
+	 * @param a_end end of denominator coefficients sequence.
+	 * @tparam BIterator type of iterator used to denote numerator sequence, must adhere to OutputIterator concept
+	 * with value type convertible to Sample.
+	 * @tparam AIterator type of iterator used to denote denominator sequence, must adhere to OutputIterator concept
+	 * with value type convertible to Sample.
+	 */
+	template<class BIterator, class AIterator>
+	block_filter(BIterator b_begin, BIterator b_end, AIterator a_begin, AIterator a_end);
+
+	/*!
+	 * @brief Construct all-zero filter given coefficients vector as iterator range [b_begin, b_end).
+	 * @param b_begin start of numerator coefficients sequence.
+	 * @param b_end end of numerator coefficients sequence.
+	 * @tparam BIterator type of iterator used to denote numerator sequence, must adhere to OutputIterator concept
+	 * with value type convertible to Sample.
+	 */
+	template<class BIterator>
+	block_filter(BIterator b_begin, BIterator b_end);
+
+	/*!
+	 * @brief Construct filter given coefficients vectors as C arrays.
+	 * @param b_vec start of numerator coefficients sequence.
+	 * @param b_len length numerator coefficients sequence.
+	 * @param a_vec start of denominator coefficients sequence.
+	 * @param a_len length of denominator coefficients sequence.
+	 */
+	template<class BSample, class ASample>
+	block_filter(const BSample* b_vec, size_t b_len, const ASample* a_vec, size_t a_len);
+
+	/*!
+	 * @brief Construct all-zero filter given coefficients vector as C array.
+	 * @param b_vec vector of b_len FIR filter coefficients.
+	 * @param b_len number of FIR filter coefficients.
+	 */
+	template<class BSample>
+	block_filter(const BSample* b_vec, size_t b_len);
+
+	//! @return order of the implemented filter.
+	size_t order() const {return P_ - 1;}
+
+	template<class BIterator>
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
+	BOOST_CONCEPT_REQUIRES(((boost::OutputIterator<BIterator, Sample>)),(void))
+#else
+	void
+#endif
+	set(BIterator b_begin, BIterator b_end)
+	{
+		size_t m = std::distance(b_begin, b_end);
+		if (m > M_)
+			throw std::length_error("filter length exceeds previous one");
+		std::copy(b_begin, b_end, b_);
+		M_ = m;
+	}
+
+	template<class BIterator, class AIterator>
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
+	BOOST_CONCEPT_REQUIRES(((boost::OutputIterator<BIterator, Sample>))((boost::OutputIterator<AIterator, Sample>)),(void))
+#else
+	void
+#endif
+	set(BIterator b_begin, BIterator b_end, AIterator a_begin, AIterator a_end)
+	{
+		size_t m = std::distance(b_begin, b_end), n = std::distance(a_begin, a_end);
+		if (m > M_ || n > N_)
+			throw std::length_error("filter length exceeds previous one");
+		std::copy(b_begin, b_end, b_);
+		std::copy(a_begin, a_end, a_);
+		M_ = m;
+		N_ = n;
+	}
+
+	template<class BSample, class ASample>
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
+	BOOST_CONCEPT_REQUIRES(((boost::Convertible<BSample, Sample>))((boost::Convertible<ASample, Sample>)),(void))
+#else
+	void
+#endif
+	set(const BSample* b_vec, size_t b_len, const ASample* a_vec, size_t a_len)
+	{
+		if (b_len > M_ || a_len > N_)
+			throw std::length_error("filter length exceeds previous one");
+
+		std::copy(a_vec, a_vec + a_len, a_);
+		std::copy(b_vec, b_vec + b_len, b_);
+		Sample a = (0 != a_len ? *a_vec : Sample(1));
+		std::transform(a_, a_ + N_, a_, std::bind2nd(std::divides<Sample>(), a));
+		std::transform(b_, b_ + M_, b_, std::bind2nd(std::divides<Sample>(), a));
+	}
+
+	template<class BSample>
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
+	BOOST_CONCEPT_REQUIRES(((boost::Convertible<BSample, Sample>)),(void))
+#else
+	void
+#endif
+	set(const BSample* b_vec, size_t b_len)
+	{
+		if (b_len > M_)
+			throw std::length_error("filter length exceeds previous one");
+		std::copy(b_vec, b_vec + b_len, b_);
+	}
+
+private:
+	const size_t L_;				//!< Block length
+	const size_t N_; 				//!< Number of AR coefficients.
+	const size_t M_;				//!< Number of MA coefficients.
+	const size_t P_;				//!< filter order + 1 (max(N_, M_))
+	trivial_array<Sample> buffer_;	//!< Buffer of size P_ + N_ + M_ + L - 1
+	Sample* const a_;				//!< AR coefficients
+	Sample* const b_;				//!< MA coefficients
+	Sample* const w_;				//!< delay line (P_ + L_ - 1)
+};
 
 }
 
