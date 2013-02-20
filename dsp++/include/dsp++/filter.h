@@ -479,11 +479,11 @@ public:
 
 	iterator begin() {return x_;}
 	iterator end() {return x_ + L_;}
-	const_iterator begin() {return x_ ;}
-	const_iterator end() {return x_ + L_;}
+	const_iterator begin() const {return x_ ;}
+	const_iterator end() const {return x_ + L_;}
 
 	//! @brief Apply the filter to the sample sequence specified by [begin(), end()) range.
-	void operator() 
+	void operator()()
 	{
 		std::copy(base::w_, base::w_ + base::P_ - 1, base::w_ + L_);
 		Sample* w = base::w_ + L_ - 1;
@@ -493,8 +493,8 @@ public:
 	}
 
 private:
-	size_t L_;
-	Sample* x_;
+	const size_t L_;
+	Sample* const x_;
 };
 
 }

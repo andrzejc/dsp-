@@ -34,6 +34,20 @@ void dsp::test::filter_test::test_iir()
 	CPPUNIT_ASSERT(std::equal(out, out + 1024, iir_y, dsp::within_range<float>(0.00001f)));
 }
 
+void dsp::test::filter_test::test_iir_block()
+{
+	float out[64];
+	const float* inn = in;
+	const float* reff = iir_y;
+	dsp::block_filter<double> iir(64, iir_b, 32, iir_a, 32);
+	for (size_t i = 0; i < 1024; i += 64, inn += 64, reff += 64) {
+		std::copy(inn, inn + 64, iir.begin());
+		iir();
+		std::copy(iir.begin(), iir.end(), out);
+		CPPUNIT_ASSERT(std::equal(out, out + 64, reff, dsp::within_range<float>(0.00001f)));
+	}
+}
+
 #define MWSPT_NSEC 33
 const int NL[MWSPT_NSEC] = { 1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,2,1 };
 const double NUM[MWSPT_NSEC][3] = {
