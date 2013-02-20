@@ -9,6 +9,9 @@
 #include <stdexcept>
 #include <cmath>
 #include <memory>
+#include <cstring>
+#include <algorithm>
+
 #include <dsp++/const.h>
 
 using namespace dsp;
@@ -193,6 +196,6 @@ void dsp::iir_filter_design(size_t order, double b[], double a[], unsigned type,
 	io->options |= mkfilter_opt_o;
 
 	mkfilter::design(*io);
-	std::copy_n(io->xcoeffs_r, sz + 1, b);
-	std::copy_n(io->ycoeffs_r, sz + 1, a);
+	std::copy(io->xcoeffs_r, io->xcoeffs_r + sz + 1, b);
+	std::copy(io->ycoeffs_r, io->ycoeffs_r + sz + 1, a);
 }

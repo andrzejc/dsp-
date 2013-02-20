@@ -24,7 +24,7 @@ typedef unsigned int uint;
 
 inline double sqr(double x)	    { return x*x;			       }
 inline bool seq(char *s1, char *s2) { return strcmp(s1,s2) == 0;	       }
-inline bool onebit(uint m)	    { return (m != 0) && ((m & m-1) == 0);     }
+inline bool onebit(uint m)	    { return (m != 0) && ((m & (m-1)) == 0);     }
 
 inline double asinh(double x)
   { /* Microsoft C++ does not define */

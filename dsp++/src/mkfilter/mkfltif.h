@@ -23,8 +23,8 @@
 
 namespace mkfilter {
 
-	const unsigned max_pz = 512;
-	const unsigned max_order = 10;
+	const int max_pz = 512;
+	const int max_order = 10;
 
 struct inout_b 
 {
