@@ -261,6 +261,7 @@ df2_filter_base<Sample>::df2_filter_base(const BSample* b_vec, size_t b_len, siz
 template<class Sample>
 class filter: public df2_filter_base<Sample>, public sample_based_transform<Sample>
 {
+	typedef df2_filter_base<Sample> base;
 public:
 	/*!
 	 * @brief Apply filtering to a single input sample x.
@@ -282,7 +283,7 @@ public:
 	 */
 	template<class BIterator, class AIterator>
 	filter(BIterator b_begin, BIterator b_end, AIterator a_begin, AIterator a_end)
-	 :	df2_filter_basese(b_begin, b_end, a_begin, a_end, 1) {}
+	 :	base(b_begin, b_end, a_begin, a_end, 1) {}
 
 	/*!
 	 * @brief Construct all-zero filter given coefficients vector as iterator range [b_begin, b_end).
@@ -293,7 +294,7 @@ public:
 	 */
 	template<class BIterator>
 	filter(BIterator b_begin, BIterator b_end)
-	 :	df2_filter_basese(b_begin, b_end, 1) {}
+	 :	base(b_begin, b_end, 1) {}
 
 	/*!
 	 * @brief Construct filter given coefficients vectors as C arrays.
@@ -304,7 +305,7 @@ public:
 	 */
 	template<class BSample, class ASample>
 	filter(const BSample* b_vec, size_t b_len, const ASample* a_vec, size_t a_len)
-	 :	df2_filter_basese(b_vec, b_len, a_vec, a_len, 1) {}
+	 :	base(b_vec, b_len, a_vec, a_len, 1) {}
 
 	/*!
 	 * @brief Construct all-zero filter given coefficients vector as C array.
@@ -313,15 +314,15 @@ public:
 	 */
 	template<class BSample>
 	filter(const BSample* b_vec, size_t b_len)
-	 :	df2_filter_basese(b_vec, b_len, 1) {}
+	 :	base(b_vec, b_len, 1) {}
 
 };
 
 template<class Sample>
 Sample filter<Sample>::operator()(Sample x)
 {
-	delay(w_, P_);
-	return filter_sample_df2(x, w_, b_, M_, a_, N_);
+	delay(base::w_, base::P_);
+	return filter_sample_df2(x, base::w_, base::b_, base::M_, base::a_, base::N_);
 }
 
 /*!
@@ -412,6 +413,7 @@ filter_sos<Sample>::filter_sos(size_t N, const CoeffSample (*num)[section_length
 template<class Sample>
 class block_filter: public df2_filter_base<Sample>
 {
+	typedef df2_filter_base<Sample> base;
 public:
 
 	/*!
@@ -428,7 +430,7 @@ public:
 	 */
 	template<class BIterator, class AIterator>
 	block_filter(size_t L, BIterator b_begin, BIterator b_end, AIterator a_begin, AIterator a_end)
-	 :	df2_filter_basese(b_begin, b_end, a_begin, a_end, L) {}
+	 :	base(b_begin, b_end, a_begin, a_end, L) {}
 
 	/*!
 	 * @brief Construct all-zero filter given coefficients vector as iterator range [b_begin, b_end).
@@ -440,7 +442,7 @@ public:
 	 */
 	template<class BIterator>
 	block_filter(size_t L, BIterator b_begin, BIterator b_end)
-	 :	df2_filter_basese(b_begin, b_end, L) {}
+	 :	base(b_begin, b_end, L) {}
 
 	/*!
 	 * @brief Construct filter given coefficients vectors as C arrays.
@@ -452,7 +454,7 @@ public:
 	 */
 	template<class BSample, class ASample>
 	block_filter(size_t L, const BSample* b_vec, size_t b_len, const ASample* a_vec, size_t a_len)
-	 :	df2_filter_basese(b_vec, b_len, a_vec, a_len, L) {}
+	 :	base(b_vec, b_len, a_vec, a_len, L) {}
 
 
 	/*!
@@ -463,7 +465,7 @@ public:
 	 */
 	template<class BSample>
 	block_filter(size_t L, const BSample* b_vec, size_t b_len)
-	 :	df2_filter_basese(b_vec, b_len, L) {}
+	 :	base(b_vec, b_len, L) {}
 
 };
 
