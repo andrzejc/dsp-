@@ -36,15 +36,13 @@ void dsp::test::filter_test::test_iir()
 
 void dsp::test::filter_test::test_iir_block()
 {
-	float out[64];
 	const float* inn = in;
 	const float* reff = iir_y;
 	dsp::block_filter<double> iir(64, iir_b, 32, iir_a, 32);
 	for (size_t i = 0; i < 1024; i += 64, inn += 64, reff += 64) {
 		std::copy(inn, inn + 64, iir.begin());
 		iir();
-		std::copy(iir.begin(), iir.end(), out);
-		CPPUNIT_ASSERT(std::equal(out, out + 64, reff, dsp::within_range<float>(0.00001f)));
+		CPPUNIT_ASSERT(std::equal(iir.begin(), iir.end(), reff, dsp::within_range<float>(0.00001f)));
 	}
 }
 
