@@ -318,7 +318,7 @@ public:
 
 };
 
-template<class Sample>
+template<class Sample> inline 
 Sample filter<Sample>::operator()(Sample x)
 {
 	delay(base::w_, base::P_);
@@ -414,7 +414,10 @@ template<class Sample>
 class block_filter: public df2_filter_base<Sample>
 {
 	typedef df2_filter_base<Sample> base;
+
 public:
+	typedef Sample* iterator;
+	typedef const Sample* const_iterator;
 
 	/*!
 	 * @brief Construct filter given coefficients vectors as iterator ranges [b_begin, b_end) and [a_begin, a_end).
@@ -430,7 +433,9 @@ public:
 	 */
 	template<class BIterator, class AIterator>
 	block_filter(size_t L, BIterator b_begin, BIterator b_end, AIterator a_begin, AIterator a_end)
-	 :	base(b_begin, b_end, a_begin, a_end, L) {}
+	 :	base(b_begin, b_end, a_begin, a_end, L * 2)
+	 ,	L_(L)
+	 ,	x_(base::w_ + base::P_ + L_ - 1) {}
 
 	/*!
 	 * @brief Construct all-zero filter given coefficients vector as iterator range [b_begin, b_end).
@@ -442,7 +447,9 @@ public:
 	 */
 	template<class BIterator>
 	block_filter(size_t L, BIterator b_begin, BIterator b_end)
-	 :	base(b_begin, b_end, L) {}
+	 :	base(b_begin, b_end, L * 2)
+	 ,	L_(L)
+	 ,	x_(base::w_ + base::P_ + L_ - 1) {}
 
 	/*!
 	 * @brief Construct filter given coefficients vectors as C arrays.
@@ -454,8 +461,9 @@ public:
 	 */
 	template<class BSample, class ASample>
 	block_filter(size_t L, const BSample* b_vec, size_t b_len, const ASample* a_vec, size_t a_len)
-	 :	base(b_vec, b_len, a_vec, a_len, L) {}
-
+	 :	base(b_vec, b_len, a_vec, a_len, L * 2)
+	 ,	L_(L)
+	 ,	x_(base::w_ + base::P_ + L_ - 1) {}
 
 	/*!
 	 * @brief Construct all-zero filter given coefficients vector as C array.
@@ -465,8 +473,28 @@ public:
 	 */
 	template<class BSample>
 	block_filter(size_t L, const BSample* b_vec, size_t b_len)
-	 :	base(b_vec, b_len, L) {}
+	 :	base(b_vec, b_len, L + 2)
+	 ,	L_(L)
+	 ,	x_(base::w_ + base::P_ + L_ - 1) {}
 
+	iterator begin() {return x_;}
+	iterator end() {return x_ + L_;}
+	const_iterator begin() {return x_ ;}
+	const_iterator end() {return x_ + L_;}
+
+	//! @brief Apply the filter to the sample sequence specified by [begin(), end()) range.
+	void operator() 
+	{
+		std::copy(base::w_, base::w_ + base::P_ - 1, base::w_ + L_);
+		Sample* w = base::w_ + L_ - 1;
+		Sample* x = x_;
+		for (size_t n = 0; n != L_; ++n, --w, ++x) 
+			*x = filter_sample_df2(*x, w, base::b_, base::M_, base::a_, base::N_);
+	}
+
+private:
+	size_t L_;
+	Sample* x_;
 };
 
 }
