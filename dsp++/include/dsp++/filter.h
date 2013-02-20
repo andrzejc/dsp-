@@ -34,9 +34,8 @@ namespace dsp {
  * @return filtered sample.
  */
 template<class Sample> inline
-Sample filter_sample_df2(Sample x, Sample* w, const size_t P, const Sample* b, const size_t M, const Sample* a, const size_t N)
+Sample filter_sample_df2(Sample x, Sample* w, const Sample* b, const size_t M, const Sample* a, const size_t N)
 {
-	delay(w, P);
 	*w = x;
 	++a;
 	for (size_t i = 1; i < N; ++i, ++a)
@@ -65,7 +64,7 @@ template<class Sample> inline
 Sample filter_sample_sos_df2(Sample x, size_t N, Sample (*w)[sos_length], const Sample (*b)[sos_length], const size_t* blens, const Sample (*a)[sos_length], const size_t* alens)
 {
 	for (size_t n = 0; n < N; ++n, ++b, ++blens, ++a, ++alens, ++w)
-		x = filter_sample_df2(x, *w, std::max(*alens, *blens), *b, *blens, *a, *alens);
+		x = filter_sample_df2(x, *w, *b, *blens, *a, *alens);
 	return x;
 }
 
@@ -321,7 +320,8 @@ public:
 template<class Sample>
 Sample filter<Sample>::operator()(Sample x)
 {
-	return filter_sample_df2(x, w_, P_, b_, M_, a_, N_);
+	delay(w_, P_);
+	return filter_sample_df2(x, w_, b_, M_, a_, N_);
 }
 
 /*!
@@ -368,6 +368,8 @@ private:
 template<class Sample> inline
 Sample filter_sos<Sample>::operator ()(Sample x)
 {
+	for (size_t n = 0; n < N_; ++n)
+		delay(w_[n], std::max(numl_[n], denl_[n]));
 	return filter_sample_sos_df2(x, N_, w_, num_, numl_, den_, denl_);
 }
 
