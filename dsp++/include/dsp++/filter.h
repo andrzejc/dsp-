@@ -268,7 +268,7 @@ public:
 	 * @param x input sample to filter.
 	 * @return filtered sample.
 	 */
-	Sample operator()(Sample x);
+	inline Sample operator()(Sample x);
 
 	/*!
 	 * @brief Construct filter given coefficients vectors as iterator ranges [b_begin, b_end) and [a_begin, a_end).
@@ -341,7 +341,7 @@ public:
 	 * @param x input sample to filter.
 	 * @return filtered sample.
 	 */
-	Sample operator()(Sample x);
+	inline Sample operator()(Sample x);
 
 	/*!
 	 * @brief Construct SOS-bank filter given coefficients provided as a matrix in a form compatible with
@@ -483,7 +483,7 @@ public:
 	const_iterator end() const {return x_ + L_;}
 
 	//! @brief Apply the filter to the sample sequence specified by [begin(), end()) range.
-	void operator()()
+	inline void operator()()
 	{
 		std::copy(base::w_, base::w_ + base::P_ - 1, base::w_ + L_);
 		Sample* w = base::w_ + L_ - 1;
