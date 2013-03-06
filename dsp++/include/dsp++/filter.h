@@ -388,11 +388,11 @@ filter_sos<Sample>::filter_sos(size_t N, const CoeffSample (*num)[section_length
 {
 #ifdef _MSC_VER
 	for (size_t i = 0; i < N; ++i) {
-		CoeffSample (&nto)[section_length] = num_[i];
+		Sample (&nto)[section_length] = num_[i];
 		const CoeffSample (&nfrom)[section_length] = num[i];
 		std::copy(nfrom, nfrom + section_length, nto);
 
-		CoeffSample (&dto)[section_length] = den_[i];
+		Sample (&dto)[section_length] = den_[i];
 		const CoeffSample (&dfrom)[section_length] = den[i];
 		std::copy(dfrom, dfrom + section_length, dto);
 
