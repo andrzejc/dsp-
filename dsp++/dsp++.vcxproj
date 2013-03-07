@@ -48,7 +48,6 @@
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;DSPXX_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>./include;$(BOOST_ROOT);$(LIBSNDFILE_ROOT)/include;$(FFTW3_ROOT)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4251;4275</DisableSpecificWarnings>
@@ -69,6 +68,10 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;DSPXX_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>./include;$(BOOST_ROOT);$(LIBSNDFILE_ROOT)/include;$(FFTW3_ROOT)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4251;4275</DisableSpecificWarnings>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <Optimization>Full</Optimization>
+      <OmitFramePointers>true</OmitFramePointers>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
