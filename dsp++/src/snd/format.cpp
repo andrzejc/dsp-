@@ -110,7 +110,7 @@ format::format(const char* sample_format, unsigned sample_rate, unsigned channel
  :	sample_format_(NULL != sample_format ? sample_format : "")
  ,	channel_layout_(static_cast<int>(channel_mask))
  ,	sample_rate_(sample_rate)
- ,	channel_count_(channel_layout_.count())
+ ,	channel_count_(static_cast<unsigned>(channel_layout_.count()))
 {
 }
 
@@ -118,7 +118,7 @@ format::format(const std::string& sample_format, unsigned sample_rate, unsigned 
  :	sample_format_(sample_format)
  ,	channel_layout_(static_cast<int>(channel_mask))
  ,	sample_rate_(sample_rate)
- ,	channel_count_(channel_layout_.count())
+ ,	channel_count_(static_cast<unsigned>(channel_layout_.count()))
 {
 }
 

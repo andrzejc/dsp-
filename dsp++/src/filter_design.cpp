@@ -192,7 +192,7 @@ void dsp::iir_filter_design(size_t order, double b[], double a[], unsigned type,
 		io->options |= mkfilter_opt_w;
 	if (type & iir_matched_z)
 		io->options |= mkfilter_opt_z;
-	io->order = order;
+	io->order = static_cast<int>(order);
 	io->options |= mkfilter_opt_o;
 
 	mkfilter::design(*io);

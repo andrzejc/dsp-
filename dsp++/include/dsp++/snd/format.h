@@ -162,12 +162,12 @@ public:
 
 	const channel::layout& channel_layout() const {return channel_layout_;}
 	void set_channel_layout(const channel::layout& cl)
-	{channel_layout_ = cl; channel_count_ = channel_layout_.count();}
+	{channel_layout_ = cl; channel_count_ = static_cast<unsigned>(channel_layout_.count());}
 	void set_channel_mask(unsigned channel_mask)
-	{channel_layout_ = channel::layout(static_cast<int>(channel_mask)); channel_count_ = channel_layout_.count();}
+	{channel_layout_ = channel::layout(static_cast<int>(channel_mask)); channel_count_ = static_cast<unsigned>(channel_layout_.count());}
 	bool is_channel_present(channel::type ch) const {return channel_layout_.test(ch);}
 	void set_channel_present(channel::type ch, bool present = true)
-	{channel_layout_.set(ch, present); channel_count_ = channel_layout_.count();}
+	{channel_layout_.set(ch, present); channel_count_ = static_cast<unsigned>(channel_layout_.count());}
 	unsigned channel_mask() const {return channel_layout_.to_ulong();}
 	unsigned channel_index(channel::type ch) const;
 	unsigned channel_count() const {return channel_count_;}

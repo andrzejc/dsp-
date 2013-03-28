@@ -351,7 +351,8 @@ struct dsp::snd::base_impl
 
 	static sf_count_t io_write(const void* buf, sf_count_t count, void* p)
 	{
-		if (count < 0 || count > std::numeric_limits<size_t>::max())
+		if (count < 0 || 
+			((sizeof(sf_count_t) > sizeof(size_t)) && (count > static_cast<sf_count_t>(std::numeric_limits<size_t>::max()))))
 			return -1;
 		return static_cast<io*>(p)->write(buf, static_cast<size_t>(count));
 	}
