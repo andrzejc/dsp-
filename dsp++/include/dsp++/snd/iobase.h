@@ -99,6 +99,8 @@ public:
 	 * @brief Close the audio file, free the resources.
 	 */
 	void close();
+
+	bool is_open() const;
 	///@}
 
 	/*!

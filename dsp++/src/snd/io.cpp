@@ -465,6 +465,11 @@ int iobase::command(int cmd, void* data, int datasize)
 	return sf_command(impl_->sf_, cmd, data, datasize);
 }
 
+bool iobase::is_open() const 
+{
+	return (NULL != impl_->sf_);
+}
+
 reader::reader()
  :	iobase(true)
 {
