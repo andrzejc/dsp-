@@ -32,6 +32,19 @@ public:
 		float release_ms;			//!< Release time in ms (time it takes for the compressor to deactivate).
 		bool bypass;				//!< If set, the compressor in this band is disabled.
 		bool mute;					//!< If set, this band is entirely muted.
+
+		bool operator==(const band_params& other) const {
+			return	envelope_period_ms == other.envelope_period_ms 
+				&&	threshold_dB == other.threshold_dB
+				&&	gain_dB == other.gain_dB
+				&&	ratio == other.ratio
+				&&	attack_ms == other.attack_ms
+				&&	release_ms == other.release_ms
+				&&	bypass == other.bypass
+				&&	mute == other.mute;
+		}
+
+		bool operator!=(const band_params& other) const {return !(operator==(other));}
 	};
 
 	//! @brief Parameters of the whole component.
@@ -73,6 +86,8 @@ public:
 
 	bool is_limiter_bypass() const;
 	void set_limiter_bypass(bool b);
+
+	void operator()(const sample_type* input, sample_type* output);
 
 private:
 	boost::scoped_ptr<detail::mbc_impl> impl_;
