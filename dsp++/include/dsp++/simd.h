@@ -7,6 +7,8 @@
 #pragma once
 
 #include <dsp++/export.h>
+#include <cstddef> // for size_t
+#include <limits>
 
 namespace dsp { namespace simd {
 
@@ -16,6 +18,7 @@ namespace dsp { namespace simd {
 		arch_x86 = 				0x0001,   	//!< 32-bit x86 (IA32)
 		arch_x86_64 = 			0x0002, 	//!< 64-bit x86 (x86-64 aka AMD64)
 		arch_ppc =				0x0004,		//!< PowerPC
+		arch_ppc64 = 			0x0008,
 		// TODO add flags for other architectures, esp. ARM
 	};
 
@@ -50,6 +53,53 @@ namespace dsp { namespace simd {
 	//! @brief Allows testing SIMD support of the processor in the runtime, so that alternative execution paths may be used depending on available features.
 	//! @return Combination of {@link feat} flags describing available SIMD features.
 	DSPXX_API int get_features();
+
+	//! @brief Allows checking in runtime what should be memory alignment of data passed to SIMD functions.
+	DSPXX_API size_t get_alignment();
+
+	DSPXX_API void* aligned_alloc(size_t size);
+	DSPXX_API void aligned_free(void* p);
+
+	//! @brief Allocator which guarantees that allocated memory be properly aligned to be used with SIMD instructions.
+	template<class T> class allocator
+	{
+	public:
+		typedef T value_type;
+		typedef value_type* pointer;
+		typedef const value_type* const_pointer;
+		typedef value_type& reference;
+		typedef const value_type& const_reference;
+		typedef std::size_t size_type;
+		typedef std::ptrdiff_t difference_type;
+
+		//    convert an allocator<T> to allocator<U>
+		template<typename U>
+		struct rebind {
+			typedef allocator<U> other;
+		};
+
+		allocator() {}
+		allocator(allocator const&) {}
+		template <class U> allocator(allocator<U> const&) {}
+
+		inline pointer address(reference r) { return &r; }
+		inline const_pointer address(const_reference r) { return &r; }
+
+		inline pointer allocate(size_type cnt, const T* p = 0)
+		{return reinterpret_cast<pointer>(aligned_alloc(cnt * sizeof(T)));}
+
+		inline void deallocate(pointer p, size_type)
+		{aligned_free(p);}
+
+		inline size_type max_size() const
+		{return std::numeric_limits<size_type>::max() / sizeof(T);}
+
+		inline void construct(pointer p, const T& t) {new (p) T(t);}
+		inline void destroy(pointer p) {p->~T();}
+
+		inline bool operator==(allocator const&) { return true; }
+		inline bool operator!=(allocator const& a) { return !operator==(a); }
+	};
 
 } }
 

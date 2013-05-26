@@ -3,6 +3,10 @@
 #include <dsp++/simd.h>
 #include <dsp++/platform.h>
 
+#include <malloc.h> // for _aligned_malloc()/_aligned_free()/memalign()
+#include <cstdlib> // for posix_memalign()
+#include <cassert>
+
 using namespace dsp::simd;
 
 #if defined(DSP_ARCH_FAMILY_X86)
@@ -74,15 +78,6 @@ static unsigned int xgetbv(unsigned int xcr) {
 #define CPUID2_XSAVE_OS_BIT (1 << 27)
 #define CPUID2_AVX_BIT (1 << 28)
 
-DSPXX_API int dsp::simd::get_architecture()
-{
-#ifdef DSP_ARCH_X86_64
-	return arch_x86_64;
-#else
-	return arch_x86;
-#endif
-}
-
 static int do_get_features() {
 	int regs[4];
 	__cpuid(regs, 1);
@@ -129,30 +124,80 @@ static int do_get_features() {
 	return res;
 }
 
-DSPXX_API int dsp::simd::get_features()
-{
-	static const int f = do_get_features();
-	return f;
-}
+static const int features = do_get_features();
+static const size_t alignment = ((features & feat_x86_avx) ? 32 : 16);
+#ifdef DSP_ARCH_X86_64
+static const int architecture = dsp::simd::arch_x86_64;
+#else
+static const int architecture = dsp::simd::arch_x86;
+#endif
 
 #elif defined(DSP_ARCH_FAMILY_PPC)
 
+static const size_t alignment = 16;
+#ifdef DSP_ARCH_PPC64
+static const int architecture = dsp::simd::arch_ppc64;
+#else
+static const int architecture = dsp::simd::arch_ppc;
+#endif
+
+// TODO add features/architecture/alignment for other platforms
+#else
+static const int features = 0;
+static const size_t alignment = 1;
+static const int architecture = dsp::simd::arch_unknown;
+#endif
+
 DSPXX_API int dsp::simd::get_architecture()
 {
-#ifdef DSP_ARCH_X86_64
-	return arch_x86_64;
+	return architecture;
+}
+
+DSPXX_API int dsp::simd::get_features()
+{
+	return features;
+}
+
+DSPXX_API size_t dsp::simd::get_alignment()
+{
+	return alignment;
+}
+
+DSPXX_API void* dsp::simd::aligned_alloc(size_t size)
+{
+	void* ptr;
+#if (_MSC_VER)
+	ptr = _aligned_malloc(size, alignment);
+#elif (_POSIX_C_SOURCE >= 200112L) || (_XOPEN_SOURCE >= 600)
+	if (0 != posix_memalign(&ptr, alignment, size))
+		ptr = NULL;
+#elif (_ISOC11_SOURCE)
+	ptr = ::aligned_alloc(alignment, size);
 #else
-	return arch_x86;
+    ptr = malloc(size + alignment);
+    if (NULL == ptr)
+        return NULL;
+    long diff 			= ((~(long)ptr)&(alignment - 1)) + 1;
+    ptr               	= (char *)ptr + diff;
+    ((char *)ptr)[-1] = diff;
 #endif
+    if (NULL == ptr && 0 == size)
+    	ptr = dsp::simd::aligned_alloc(1);
+    return ptr;
 }
 
-// TODO add implementation of get_architecture()/get_features() sections for other architectures (ARM!)
-#else // defined(DSP_ARCH_FAMILY_X86)
-DSPXX_API int dsp::simd::get_architecture() {
-	return dsp::simd::arch_unknown;
-}
+DSPXX_API void dsp::simd::aligned_free(void* ptr)
+{
+#if (_MSC_VER)
+	_aligned_free(ptr);
+#elif (_POSIX_C_SOURCE >= 200112L) || (_XOPEN_SOURCE >= 600) || (_ISOC11_SOURCE)
+	free(ptr);
+#else
+    if (NULL == ptr)
+    	return;
 
-DSPXX_API int dsp::simd::get_features() {
-	return 0;
-}
+	int v = ((char *)ptr)[-1];
+	assert(v > 0 && v <= (int)alignment);
+	free((char *)ptr - v);
 #endif
+}
