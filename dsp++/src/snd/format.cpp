@@ -4,7 +4,7 @@
  * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
  */
 
-#include "../pch.h"
+//#include "../pch.h"
 
 #include <dsp++/snd/format.h>
 #include <cstdlib>

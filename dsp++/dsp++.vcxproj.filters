@@ -57,6 +57,9 @@
     <ClCompile Include="src\mkfilter\mkfilter.cpp">
       <Filter>src\mkfilter</Filter>
     </ClCompile>
+    <ClCompile Include="src\simd.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pch.h">
@@ -181,6 +184,12 @@
     </ClInclude>
     <ClInclude Include="src\mkfilter\mkfltif.h">
       <Filter>src\mkfilter</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\platform.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\simd.h">
+      <Filter>include\dsp++</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -87,7 +87,7 @@ enum iir_type
 	iir_highpass		=  32,	//!< Highpass characteristic
 	iir_bandpass		=  64,	//!< Bandpass characteristic
 	iir_bandstop		= 128,	//!< Bandstop characteristic
-	iir_allpass			= 256,	//!< Allpass characteristic, only in conjunction with {@link iir_resonator}
+	iir_allpass			= 256,	//!< Allpass characteristic, only in conjunction with {@link iir_resonator_design()}
 
 	iir_prewrap			= 512,	//!< 
 	iir_matched_z		=1024,	//!< Use matched Z-transform instead of bilinear transform
@@ -108,7 +108,7 @@ DSPXX_API void iir_filter_design(
 	double b[],					//!< [out] difference equation numerator (FIR) polynomial coefficients (order + 1) or (2 * order + 1) in case of BP, BS
 	double a[],					//!< [out] difference equation numerator (FIR) polynomial coefficients (order + 1) or (2 * order + 1) in case of BP, BS
 	unsigned type,				//!< [in] filter type, characteristic and flags (combination of reasonable {@link iir_type} values)
-	double* fc,					//!< [in] normalized conrner frequency/ies (0, 0.5) range
+	double* fc,					//!< [in] normalized corner frequency/ies (0, 0.5) range
 	double* cheb_rip = NULL,	//!< [in] Chebyshev ripple in dB
 	double* zero_freq = NULL,	//!< [in] put additional zero at specified normalized frequency
 	unsigned pole_mask = 0		//!< [in] Use only specified poles

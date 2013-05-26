@@ -167,6 +167,7 @@
     <ClCompile Include="src\mkfilter\complex.cpp" />
     <ClCompile Include="src\mkfilter\mkfilter.cpp" />
     <ClCompile Include="src\remez\remez.c" />
+    <ClCompile Include="src\simd.cpp" />
     <ClCompile Include="src\snd\format.cpp" />
     <ClCompile Include="src\snd\io.cpp" />
   </ItemGroup>
@@ -195,7 +196,9 @@
     <ClInclude Include="include\dsp++\mean.h" />
     <ClInclude Include="include\dsp++\noncopyable.h" />
     <ClInclude Include="include\dsp++\overlap_add.h" />
+    <ClInclude Include="include\dsp++\platform.h" />
     <ClInclude Include="include\dsp++\pow2.h" />
+    <ClInclude Include="include\dsp++\simd.h" />
     <ClInclude Include="include\dsp++\snd\format.h" />
     <ClInclude Include="include\dsp++\snd\iobase.h" />
     <ClInclude Include="include\dsp++\snd\io_error.h" />

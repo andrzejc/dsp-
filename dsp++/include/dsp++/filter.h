@@ -26,11 +26,10 @@ namespace dsp {
  * @brief Filter a single sample x with a Direct-Form II AR/MA digital filter of order P.
  * @param[in] x input signal sample.
  * @param[in,out] w delay line buffer of length P.
- * @param[in] P filter order + 1 (max(N, M)) and the length of delay line used to store intermediate values between subsequent runs.
- * @param[in] a AR filter (IIR) coefficients vector (difference equation denominator), a[0] is assumed to be 1 (coefficients are normalized).
- * @param[in] N number of AR coefficients (length of a vector).
  * @param[in] b MA filter (FIR) coefficients vector (difference equation numerator).
  * @param[in] M number of MA coefficients (length of b vector).
+ * @param[in] a AR filter (IIR) coefficients vector (difference equation denominator), a[0] is assumed to be 1 (coefficients are normalized).
+ * @param[in] N number of AR coefficients (length of a vector).
  * @return filtered sample.
  */
 template<class Sample> inline

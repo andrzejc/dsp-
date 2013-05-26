@@ -28,6 +28,11 @@ namespace dsp {
 	 * @brief DFT (and related) operators based on libfftw3.
 	 */
 	namespace fftw {}
+
+	/*!
+	 * @brief SIMD (Vector instruction) support functions - testing SIMD features, etc.
+	 */
+	namespace simd {}
 }
 
 #endif /* DSP_DOC_H_INCLUDED */
