@@ -3,6 +3,9 @@
  * 
  * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
  */
+
+#include "../pch.h"
+
 #include <dsp++/config.h>
 #include <dsp++/fftw/plan_unavailable.h>
 

@@ -3,7 +3,9 @@
  * @brief Implementation of libsndfile C++ wrapper.
  * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
  */
-//#include "pch.h"
+
+#include "../pch.h"
+
 #define _FILE_OFFSET_BITS 64
 #define _LARGEFILE_SOURCE
 #define _LARGEFILE64_SOURCE

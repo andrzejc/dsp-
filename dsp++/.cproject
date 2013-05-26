@@ -386,8 +386,8 @@
 								<option id="org.eclipse.cdt.msvc.cl.option.debugFormat.737020534" name="Debug Information Format" superClass="org.eclipse.cdt.msvc.cl.option.debugFormat" value="org.eclipse.cdt.msvc.cl.option.debugFormat.complete" valueType="enumerated"/>
 								<option id="org.eclipse.cdt.msvc.cl.option.includes.1160926096" name="Include Path (/I)" superClass="org.eclipse.cdt.msvc.cl.option.includes" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dsp++/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${LIBSNDFILE_HOME}/include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${FFTW3_HOME}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${FFTW3_ROOT}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${LIBSNDFILE_ROOT}/include&quot;"/>
 								</option>
 								<option id="org.eclipse.cdt.msvc.cl.option.macros.271483071" name="Defines (/D)" superClass="org.eclipse.cdt.msvc.cl.option.macros" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="_DEBUG"/>
@@ -402,8 +402,8 @@
 								<option id="org.eclipse.cdt.msvc.cl.option.includes.675644820" name="Include Path (/I)" superClass="org.eclipse.cdt.msvc.cl.option.includes" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dsp++/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${BOOST_ROOT}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${LIBSNDFILE_HOME}/include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${FFTW3_HOME}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${FFTW3_ROOT}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${LIBSNDFILE_ROOT}/include&quot;"/>
 								</option>
 								<option id="org.eclipse.cdt.msvc.cl.option.macros.105398901" name="Defines (/D)" superClass="org.eclipse.cdt.msvc.cl.option.macros" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="_DEBUG"/>
@@ -415,8 +415,8 @@
 							<tool id="org.eclipse.cdt.msvc.rc.dll.debug.548039182" name="Resource Compiler (rc)" superClass="org.eclipse.cdt.msvc.rc.dll.debug">
 								<option id="org.eclipse.cdt.msvc.rc.option.includes.160348936" name="Include Path (/I)" superClass="org.eclipse.cdt.msvc.rc.option.includes" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dsp++/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${LIBSNDFILE_HOME}/include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${FFTW3_HOME}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${FFTW3_ROOT}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${LIBSNDFILE_ROOT}/include&quot;"/>
 								</option>
 								<option id="org.eclipse.cdt.msvc.rc.option.defines.1274238196" name="Defines (/D)" superClass="org.eclipse.cdt.msvc.rc.option.defines" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="_DEBUG"/>
@@ -428,10 +428,10 @@
 								<option defaultValue="true" id="org.eclipse.cdt.msvc.link.option.dll.1379723280" name="Build a DLL" superClass="org.eclipse.cdt.msvc.link.option.dll" valueType="boolean"/>
 								<option id="org.eclipse.cdt.msvc.link.option.debug.315355206" name="Generate Debug Info (/debug)" superClass="org.eclipse.cdt.msvc.link.option.debug" value="true" valueType="boolean"/>
 								<option id="org.eclipse.cdt.msvc.link.option.libraries.1567733686" name="Libraries" superClass="org.eclipse.cdt.msvc.link.option.libraries" valueType="libs">
-									<listOptionValue builtIn="false" value="&quot;${LIBSNDFILE_HOME}/lib/libsndfile-1.lib&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${FFTW3_HOME}/libfftw3-3.lib&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${FFTW3_HOME}/libfftw3f-3.lib&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${FFTW3_HOME}/libfftw3l-3.lib&quot;"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="&quot;${LIBSNDFILE_ROOT}/lib/libsndfile-1.lib&quot;"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="&quot;${FFTW3_ROOT}/libfftw3-3.lib&quot;"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="&quot;${FFTW3_ROOT}/libfftw3f-3.lib&quot;"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="&quot;${FFTW3_ROOT}/libfftw3l-3.lib&quot;"/>
 								</option>
 								<option id="org.eclipse.cdt.msvc.link.option.others.925441650" name="Other Options" superClass="org.eclipse.cdt.msvc.link.option.others" valueType="stringList">
 									<listOptionValue builtIn="false" value="/nodefaultlib:msvcrt"/>
@@ -475,8 +475,8 @@
 								<option id="org.eclipse.cdt.msvc.cl.option.debugFormat.1000429245" name="Debug Information Format" superClass="org.eclipse.cdt.msvc.cl.option.debugFormat" value="org.eclipse.cdt.msvc.cl.option.debugFormat.complete" valueType="enumerated"/>
 								<option id="org.eclipse.cdt.msvc.cl.option.includes.1973425304" name="Include Path (/I)" superClass="org.eclipse.cdt.msvc.cl.option.includes" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dsp++/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${LIBSNDFILE_HOME}/include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${FFTW3_HOME}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${LIBSNDFILE_ROOT}/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${FFTW3_ROOT}&quot;"/>
 								</option>
 								<option id="org.eclipse.cdt.msvc.cl.option.macros.1243401493" name="Defines (/D)" superClass="org.eclipse.cdt.msvc.cl.option.macros" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="NDEBUG"/>
@@ -489,9 +489,9 @@
 								<option id="org.eclipse.cdt.msvc.cl.option.debugFormat.2018215584" name="Debug Information Format" superClass="org.eclipse.cdt.msvc.cl.option.debugFormat" value="org.eclipse.cdt.msvc.cl.option.debugFormat.complete" valueType="enumerated"/>
 								<option id="org.eclipse.cdt.msvc.cl.option.includes.659620877" name="Include Path (/I)" superClass="org.eclipse.cdt.msvc.cl.option.includes" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dsp++/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${LIBSNDFILE_HOME}/include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${FFTW3_HOME}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${BOOST_ROOT}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${LIBSNDFILE_ROOT}/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${FFTW3_ROOT}&quot;"/>
 								</option>
 								<option id="org.eclipse.cdt.msvc.cl.option.macros.812341360" name="Defines (/D)" superClass="org.eclipse.cdt.msvc.cl.option.macros" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="NDEBUG"/>
@@ -502,8 +502,8 @@
 							<tool id="org.eclipse.cdt.msvc.rc.dll.debug.1340676338" name="Resource Compiler (rc)" superClass="org.eclipse.cdt.msvc.rc.dll.debug">
 								<option id="org.eclipse.cdt.msvc.rc.option.includes.814262797" name="Include Path (/I)" superClass="org.eclipse.cdt.msvc.rc.option.includes" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dsp++/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${LIBSNDFILE_HOME}/include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${FFTW3_HOME}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${LIBSNDFILE_ROOT}/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${FFTW3_ROOT}&quot;"/>
 								</option>
 								<option id="org.eclipse.cdt.msvc.rc.option.defines.205839557" name="Defines (/D)" superClass="org.eclipse.cdt.msvc.rc.option.defines" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="NDEBUG"/>
@@ -515,10 +515,10 @@
 								<option defaultValue="true" id="org.eclipse.cdt.msvc.link.option.dll.729251780" name="Build a DLL" superClass="org.eclipse.cdt.msvc.link.option.dll" valueType="boolean"/>
 								<option id="org.eclipse.cdt.msvc.link.option.debug.1066492661" name="Generate Debug Info (/debug)" superClass="org.eclipse.cdt.msvc.link.option.debug" value="true" valueType="boolean"/>
 								<option id="org.eclipse.cdt.msvc.link.option.libraries.310538580" name="Libraries" superClass="org.eclipse.cdt.msvc.link.option.libraries" valueType="libs">
-									<listOptionValue builtIn="false" value="&quot;${LIBSNDFILE_HOME}/lib/libsndfile-1.lib&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${FFTW3_HOME}/libfftw3-3.lib&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${FFTW3_HOME}/libfftw3f-3.lib&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${FFTW3_HOME}/libfftw3l-3.lib&quot;"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="&quot;${LIBSNDFILE_ROOT}/lib/libsndfile-1.lib&quot;"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="&quot;${FFTW3_ROOT}/libfftw3-3.lib&quot;"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="&quot;${FFTW3_ROOT}/libfftw3f-3.lib&quot;"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="&quot;${FFTW3_ROOT}/libfftw3l-3.lib&quot;"/>
 								</option>
 								<inputType id="org.eclipse.cdt.msvc.link.inputType.36243453" superClass="org.eclipse.cdt.msvc.link.inputType"/>
 							</tool>
@@ -739,7 +739,8 @@
 		</configuration>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
-	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings">
+	</storageModule>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.debug.428674351;cdt.managedbuild.config.macosx.so.debug.428674351.;cdt.managedbuild.tool.gnu.c.compiler.macosx.so.debug.898492047;cdt.managedbuild.tool.gnu.c.compiler.input.807098834">
