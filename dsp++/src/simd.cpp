@@ -80,6 +80,11 @@ static unsigned int xgetbv(unsigned int xcr) {
 
 static int do_get_features() {
 	int regs[4];
+	__cpuid(regs, 0);
+	if (regs[0] < 1)
+		// cpuid level 1 not supported
+		return 0;
+
 	__cpuid(regs, 1);
 	int res = 0;
 	if (regs[3] & CPUID3_MMX_BIT)
@@ -105,79 +110,80 @@ static int do_get_features() {
 # define _XCR_XFEATURE_ENABLED_MASK 0
 #endif
 
+	__cpuid(regs, 0x80000000);
+	if ((unsigned)regs[0] <  0x80000001)
+		return res;
+
+	__cpuid(regs, 0x80000001);
 	if (AVX_MASK == (regs[2] & AVX_MASK)) {
 	    unsigned int xcr = xgetbv(_XCR_XFEATURE_ENABLED_MASK);
 		if (xcr & 0x6) {
 			res |= feat_x86_avx;
 			// AMD XOP & FMA4 require AVX support
 			// test max supported level of cpuid
-			__cpuid(regs, 0x80000000);
-			if ((unsigned)regs[0] >= 0x80000001) {
-				__cpuid(regs, 0x80000001);
-				if (regs[2] & 0x00000800)
-					res |= feat_x86_xop;
-				if (regs[2] & 0x00010000)
-					res |= feat_x86_fma4;
-			}
+			if (regs[2] & 0x00000800)
+				res |= feat_x86_xop;
+			if (regs[2] & 0x00010000)
+				res |= feat_x86_fma4;
 		}
 	}
 	return res;
 }
 
-static const int features = do_get_features();
-static const size_t alignment = ((features & feat_x86_avx) ? 32 : 16);
+static const int features_ = do_get_features();
+static const size_t alignment_ = ((features_ & feat_x86_avx) ? 32 : 16);
 #ifdef DSP_ARCH_X86_64
-static const int architecture = dsp::simd::arch_x86_64;
+static const int architecture_ = dsp::simd::arch_x86_64;
 #else
-static const int architecture = dsp::simd::arch_x86;
+static const int architecture_ = dsp::simd::arch_x86;
 #endif
 
 #elif defined(DSP_ARCH_FAMILY_PPC)
 
-static const size_t alignment = 16;
+static const size_t alignment_ = 16;
 #ifdef DSP_ARCH_PPC64
-static const int architecture = dsp::simd::arch_ppc64;
+static const int architecture_ = dsp::simd::arch_ppc64;
 #else
-static const int architecture = dsp::simd::arch_ppc;
+static const int architecture_ = dsp::simd::arch_ppc;
 #endif
 
 // TODO add features/architecture/alignment for other platforms
 #else
-static const int features = 0;
-static const size_t alignment = 1;
-static const int architecture = dsp::simd::arch_unknown;
+static const int features_ = 0;
+static const size_t alignment_ = 1;
+static const int architecture_ = dsp::simd::arch_unknown;
 #endif
 
-DSPXX_API int dsp::simd::get_architecture()
+DSPXX_API int dsp::simd::architecture()
 {
-	return architecture;
+	return architecture_;
 }
 
-DSPXX_API int dsp::simd::get_features()
+DSPXX_API int dsp::simd::features()
 {
-	return features;
+	return features_;
 }
 
-DSPXX_API size_t dsp::simd::get_alignment()
+DSPXX_API size_t dsp::simd::alignment()
 {
-	return alignment;
+	return alignment_;
 }
 
 DSPXX_API void* dsp::simd::aligned_alloc(size_t size)
 {
 	void* ptr;
 #if (_MSC_VER)
-	ptr = _aligned_malloc(size, alignment);
+	ptr = _aligned_malloc(size, alignment_);
 #elif (_POSIX_C_SOURCE >= 200112L) || (_XOPEN_SOURCE >= 600)
-	if (0 != posix_memalign(&ptr, alignment, size))
+	if (0 != posix_memalign(&ptr, alignment_, size))
 		ptr = NULL;
 #elif (_ISOC11_SOURCE)
-	ptr = ::aligned_alloc(alignment, size);
+	ptr = ::aligned_alloc(alignment_, size);
 #else
-    ptr = malloc(size + alignment);
+    ptr = malloc(size + alignment_);
     if (NULL == ptr)
         return NULL;
-    long diff 			= ((~(long)ptr)&(alignment - 1)) + 1;
+    long diff 			= ((~(long)ptr)&(alignment_ - 1)) + 1;
     ptr               	= (char *)ptr + diff;
     ((char *)ptr)[-1] = diff;
 #endif
@@ -197,7 +203,25 @@ DSPXX_API void dsp::simd::aligned_free(void* ptr)
     	return;
 
 	int v = ((char *)ptr)[-1];
-	assert(v > 0 && v <= (int)alignment);
+	assert(v > 0 && v <= (int)alignment_);
 	free((char *)ptr - v);
 #endif
 }
+
+DSPXX_API size_t dsp::simd::aligned_count(size_t count, size_t element_size)
+{
+	assert(element_size <= alignment_ || 0 == (element_size % alignment_));
+	if (element_size > alignment_)
+		return count;
+
+	assert(0 == (alignment_ % element_size));
+	size_t sz = count * element_size;
+	if (sz <= alignment_)
+		return alignment_ / element_size;
+	
+	if (0 == (sz % alignment_))
+		return count;
+
+	return (alignment_ / element_size) * (sz / alignment_ + 1);
+}
+

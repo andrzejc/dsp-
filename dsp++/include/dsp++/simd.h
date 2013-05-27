@@ -26,7 +26,7 @@ namespace dsp { namespace simd {
 	//! @note If the code is compiled for x86 (32 bit executable) and is running on x86-64 processor, this will return {@link arch_x86}.
 	//! This is intentional, as you can't use 64-bit instructions in 32-bit executable anyway.
 	//! @return Combination of {@link arch} flags describing processor architecture.
-	DSPXX_API int get_architecture();
+	DSPXX_API int architecture();
 
 	//! @brief SIMD feature flags.
 	//! @note For various architectures the same bits may have different meaning. It's by design, as code sections for different architectures
@@ -52,10 +52,10 @@ namespace dsp { namespace simd {
 
 	//! @brief Allows testing SIMD support of the processor in the runtime, so that alternative execution paths may be used depending on available features.
 	//! @return Combination of {@link feat} flags describing available SIMD features.
-	DSPXX_API int get_features();
+	DSPXX_API int features();
 
 	//! @brief Allows checking in runtime what should be memory alignment of data passed to SIMD functions.
-	DSPXX_API size_t get_alignment();
+	DSPXX_API size_t alignment();
 
 	DSPXX_API void* aligned_alloc(size_t size);
 	DSPXX_API void aligned_free(void* p);
@@ -100,6 +100,38 @@ namespace dsp { namespace simd {
 		inline bool operator==(allocator const&) { return true; }
 		inline bool operator!=(allocator const& a) { return !operator==(a); }
 	};
+
+	//! @brief Required number of elements in a vector of specified length and element size, to make 
+	//! the one-past-last element aligned. This function is intended as a utility for allocating several
+	//! aligned vectors in one allocator call.
+	//! @param count number of elements in allocated vector.
+	//! @param element_size size of single element.
+	//! @pre element_size <= {@link alignment()}. This is tested with an assert() and will be unconditionally true for built-in types.
+	//! @pre {@link (alignment() % element_size) == 0). This is tested with an assert() and will be unconditionally true for built-in types.
+	//! @return number of elements to make the subsequent element aligned.
+	DSPXX_API size_t aligned_count(size_t count, size_t element_size);
+
+	//! @brief Required number of elements in a vector of specified length, to make the one-past-last 
+	//! element aligned. This function is intended as a utility for allocating several aligned vectors in one 
+	//! allocator call.
+	//! @param count number of elements in allocated vector.
+	//! @tparam T type of vector element.
+	//! @pre sizeof(T) <= {@link alignment()}
+	//! @pre {@link (alignment() % sizeof(T)) == 0)
+	//! @return number of elements to make the subsequent element aligned.
+	template<class T>
+	inline size_t aligned_count(size_t count) {return aligned_count(count, sizeof(T));}
+
+	//! @brief Number of padding elements in a vector of specified length, to make the one-past-last 
+	//! element aligned. This function is intended as a utility for allocating several aligned vectors in one 
+	//! allocator call.
+	//! @param count number of elements in allocated vector.
+	//! @tparam T type of vector element.
+	//! @pre sizeof(T) <= {@link alignment()}
+	//! @pre {@link (alignment() % sizeof(T)) == 0)
+	//! @return number of padding elements after count to make the subsequent element aligned.
+	template<class T>
+	inline size_t aligned_pad(size_t count) {return aligned_count<T>(count) - count;}
 
 } }
 
