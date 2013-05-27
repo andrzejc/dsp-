@@ -12,7 +12,7 @@
 
 namespace dsp { namespace simd {
 
-	//! @brief Processor architecture flags, not really useful in runtime - use DSP_ARCH_XXX macros in <dsp++/platform.h> instead.
+	//! @brief Processor architecture flags, not really useful in runtime - use DSP_ARCH_XXX macros in {@link dsp++/platform.h} instead.
 	enum arch {
 		arch_unknown = 			0x0000,		//!<
 		arch_x86 = 				0x0001,   	//!< 32-bit x86 (IA32)
@@ -22,7 +22,7 @@ namespace dsp { namespace simd {
 		// TODO add flags for other architectures, esp. ARM
 	};
 
-	//! @brief Query the architecture of the runtime environment (for which the code was compiled on, not the actual processor).
+	//! @brief Query the architecture of the runtime environment (for which the code was compiled, not the actual processor).
 	//! @note If the code is compiled for x86 (32 bit executable) and is running on x86-64 processor, this will return {@link arch_x86}.
 	//! This is intentional, as you can't use 64-bit instructions in 32-bit executable anyway.
 	//! @return Combination of {@link arch} flags describing processor architecture.
@@ -30,7 +30,7 @@ namespace dsp { namespace simd {
 
 	//! @brief SIMD feature flags.
 	//! @note For various architectures the same bits may have different meaning. It's by design, as code sections for different architectures
-	//! normally will have to be #ifdef'ed (you'll get compile time errors otherwise).
+	//! normally will have to be\#ifdef'ed (you'll get compile time errors otherwise).
 	//! @todo Add flags for other architectures when needed.
 	enum feat {
 		feat_x86_mmx = 			0x00000001,	//!< MMX instruction set @see http://en.wikipedia.org/wiki/MMX_(instruction_set)
@@ -43,8 +43,8 @@ namespace dsp { namespace simd {
 		feat_x86_sse4_2 =		0x00000080, //!< Nehalem SSE 4.2 @see http://en.wikipedia.org/wiki/SSE4.2#SSE4.2
 		feat_x86_avx = 			0x00000100, //!< Advanced Vector Extensions @see http://en.wikipedia.org/wiki/Advanced_Vector_Extensions
 
-		feat_x86_xop = 			0x00000200,	//!< AMD XOP @see http://en.wikipedia.org/wiki/XOP_instruction_set @note Not detected yet!
-		feat_x86_fma4 =			0x00000400,	//!< AMD FMA4 @see http://en.wikipedia.org/wiki/FMA4_instruction_set @note Not detected yet!
+		feat_x86_xop = 			0x00000200,	//!< AMD XOP @see http://en.wikipedia.org/wiki/XOP_instruction_set
+		feat_x86_fma4 =			0x00000400,	//!< AMD FMA4 @see http://en.wikipedia.org/wiki/FMA4_instruction_set
 		// leaving 5 bits reserved for other x86 features
 		feat_ppc_altivec =		0x00010000,	//!< PowerPC AltiVec instructions @see http://en.wikipedia.org/wiki/AltiVec @note Not detected yet!
 		// and now ARM features...
@@ -107,7 +107,7 @@ namespace dsp { namespace simd {
 	//! @param count number of elements in allocated vector.
 	//! @param element_size size of single element.
 	//! @pre element_size <= {@link alignment()}. This is tested with an assert() and will be unconditionally true for built-in types.
-	//! @pre {@link (alignment() % element_size) == 0). This is tested with an assert() and will be unconditionally true for built-in types.
+	//! @pre ({@link alignment()} % element_size) == 0. This is tested with an assert() and will be unconditionally true for built-in types.
 	//! @return number of elements to make the subsequent element aligned.
 	DSPXX_API size_t aligned_count(size_t count, size_t element_size);
 
@@ -117,7 +117,7 @@ namespace dsp { namespace simd {
 	//! @param count number of elements in allocated vector.
 	//! @tparam T type of vector element.
 	//! @pre sizeof(T) <= {@link alignment()}
-	//! @pre {@link (alignment() % sizeof(T)) == 0)
+	//! @pre ({@link alignment()} % sizeof(T)) == 0
 	//! @return number of elements to make the subsequent element aligned.
 	template<class T>
 	inline size_t aligned_count(size_t count) {return aligned_count(count, sizeof(T));}
@@ -128,7 +128,7 @@ namespace dsp { namespace simd {
 	//! @param count number of elements in allocated vector.
 	//! @tparam T type of vector element.
 	//! @pre sizeof(T) <= {@link alignment()}
-	//! @pre {@link (alignment() % sizeof(T)) == 0)
+	//! @pre ({@link alignment()} % sizeof(T)) == 0
 	//! @return number of padding elements after count to make the subsequent element aligned.
 	template<class T>
 	inline size_t aligned_pad(size_t count) {return aligned_count<T>(count) - count;}

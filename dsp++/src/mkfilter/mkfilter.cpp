@@ -72,7 +72,7 @@ static void expandpoly(context& ctx), expand(complex[], int, complex[]), multin(
 //static void printcoeffs(const char*, int, const double[]);
 //static void printrat_s(const context& ctx), printrat_z(const context& ctx), printpz(const complex*, int), printrecurrence(const context& ctx), prcomplex(complex);
 
-static void design(context& ctx)
+static void do_design(context& ctx)
 { 
 	//readcmdline(argv);
 	checkoptions(ctx);
@@ -116,7 +116,7 @@ void mkfilter::design(inout& params)
 	ctx->xcoeffs = params.xcoeffs_r;
 	ctx->ycoeffs = params.ycoeffs_r;
 
-	design(*ctx);
+	do_design(*ctx);
 
 	static_cast<inout_b&>(params) = *ctx;
 }

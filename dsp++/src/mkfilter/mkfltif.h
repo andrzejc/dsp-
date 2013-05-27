@@ -1,4 +1,4 @@
-//! @file external interface to mkfilter module
+//! @brief external interface to mkfilter module
 #pragma once
 
 #define mkfilter_opt_be 0x00001	/* -Be		Bessel characteristic	       */
