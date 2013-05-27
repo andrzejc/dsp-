@@ -9,6 +9,8 @@
 
 using namespace dsp::simd;
 
+namespace {
+
 #if defined(DSP_ARCH_FAMILY_X86)
 
 #if defined(__GNUC__)
@@ -153,6 +155,8 @@ static const int features_ = 0;
 static const size_t alignment_ = 1;
 static const int architecture_ = dsp::simd::arch_unknown;
 #endif
+
+} // end of anonymous namespace 
 
 DSPXX_API int dsp::simd::architecture()
 {

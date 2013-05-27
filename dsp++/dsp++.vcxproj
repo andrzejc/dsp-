@@ -163,6 +163,7 @@
   <ItemGroup>
     <ClCompile Include="src\fft.cpp" />
     <ClCompile Include="src\fftw\traits.cpp" />
+    <ClCompile Include="src\filter.cpp" />
     <ClCompile Include="src\filter_design.cpp" />
     <ClCompile Include="src\mkfilter\complex.cpp" />
     <ClCompile Include="src\mkfilter\mkfilter.cpp" />
@@ -170,6 +171,7 @@
     <ClCompile Include="src\simd.cpp" />
     <ClCompile Include="src\snd\format.cpp" />
     <ClCompile Include="src\snd\io.cpp" />
+    <ClCompile Include="src\vectmath.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\dsp++\algorithm.h" />
@@ -207,6 +209,7 @@
     <ClInclude Include="include\dsp++\snd\writer.h" />
     <ClInclude Include="include\dsp++\trivial_array.h" />
     <ClInclude Include="include\dsp++\utility.h" />
+    <ClInclude Include="include\dsp++\vectmath.h" />
     <ClInclude Include="include\dsp++\window.h" />
     <ClInclude Include="include\dsp++\xcorr.h" />
     <ClInclude Include="src\mkfilter\complex.h" />

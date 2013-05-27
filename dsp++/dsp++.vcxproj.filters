@@ -60,6 +60,12 @@
     <ClCompile Include="src\simd.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\filter.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vectmath.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pch.h">
@@ -189,6 +195,9 @@
       <Filter>include\dsp++</Filter>
     </ClInclude>
     <ClInclude Include="include\dsp++\simd.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\vectmath.h">
       <Filter>include\dsp++</Filter>
     </ClInclude>
   </ItemGroup>

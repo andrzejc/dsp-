@@ -133,6 +133,12 @@ namespace dsp { namespace simd {
 	template<class T>
 	inline size_t aligned_pad(size_t count) {return aligned_count<T>(count) - count;}
 
+#if defined(_MSC_VER)
+# define DSP_ALIGNED(x) __declspec(align(x))
+#elif defined(__GNUC__)
+# define DSP_ALIGNED(x) __attribute__((aligned(x)))
+#endif
+
 } }
 
 #endif /* DSP_SIMD_H_INCLUDED */
