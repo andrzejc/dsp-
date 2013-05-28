@@ -141,4 +141,18 @@ namespace dsp { namespace simd {
 
 } }
 
+#ifndef DSP_SIMD_FEATURES
+namespace {
+// Optimize access to dsp::simd::features() by providing a local copy in each compilation unit
+static inline int dsp_simd_features_local_()
+{
+	static const int features = dsp::simd::features();
+	return features;
+}
+}
+//! @brief Override this macro with compiler flag specifying a set of dsp::simd::feat flags to disable runtime
+//! features detection and compile for a specific instruction set.
+# define DSP_SIMD_FEATURES dsp_simd_features_local_()
+#endif // DSP_SIMD_FEATURES
+
 #endif /* DSP_SIMD_H_INCLUDED */

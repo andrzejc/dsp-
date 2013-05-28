@@ -82,11 +82,12 @@ static unsigned int xgetbv(unsigned int xcr) {
 
 static int do_get_features() {
 	int regs[4];
+#if 0
 	__cpuid(regs, 0);
 	if (regs[0] < 1)
 		// cpuid level 1 not supported
 		return 0;
-
+#endif
 	__cpuid(regs, 1);
 	int res = 0;
 	if (regs[3] & CPUID3_MMX_BIT)
@@ -112,21 +113,20 @@ static int do_get_features() {
 # define _XCR_XFEATURE_ENABLED_MASK 0
 #endif
 
-	__cpuid(regs, 0x80000000);
-	if ((unsigned)regs[0] <  0x80000001)
-		return res;
-
-	__cpuid(regs, 0x80000001);
 	if (AVX_MASK == (regs[2] & AVX_MASK)) {
 	    unsigned int xcr = xgetbv(_XCR_XFEATURE_ENABLED_MASK);
 		if (xcr & 0x6) {
 			res |= feat_x86_avx;
-			// AMD XOP & FMA4 require AVX support
-			// test max supported level of cpuid
-			if (regs[2] & 0x00000800)
-				res |= feat_x86_xop;
-			if (regs[2] & 0x00010000)
-				res |= feat_x86_fma4;
+
+			__cpuid(regs, 0x80000000);
+			if ((unsigned)regs[0] >=  0x80000001) {
+				__cpuid(regs, 0x80000001);
+				// AMD XOP & FMA4 require AVX support
+				if (regs[2] & 0x00000800)
+					res |= feat_x86_xop;
+				if (regs[2] & 0x00010000)
+					res |= feat_x86_fma4;
+			}
 		}
 	}
 	return res;
