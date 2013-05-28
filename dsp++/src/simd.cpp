@@ -1,8 +1,23 @@
 #include <dsp++/simd.h>
 #include <dsp++/platform.h>
 
-#include <malloc.h> // for _aligned_malloc()/_aligned_free()/memalign()
-#include <cstdlib> // for posix_memalign()
+#ifdef _MSC_VER
+#include <malloc.h> // for _aligned_malloc()/_aligned_free()
+#endif // _MSC_VER
+
+#ifdef _MSC_VER
+#include <intrin.h>	// for __cpuid()
+
+#if !defined(__CLR_VER) && defined(_M_X64) && defined(_MSC_VER) && (_MSC_FULL_VER >= 160040219)
+#include <immintrin.h>  // AVX intrinsics, for _xgetbv()
+#endif
+#endif // _MSC_VER
+
+#ifdef DSP_ARCH_FAMILY_X86
+#include <xmmintrin.h>	// SSE intrinsics
+#endif
+
+#include <cstdlib> // for posix_memalign()/aligned_alloc()/malloc()/free()
 #include <cassert>
 
 using namespace dsp::simd;
@@ -30,15 +45,6 @@ static __inline void __cpuid(int cpu_info[4], int info_type) {
 }
 #endif
 #endif // defined(__GNUC__)
-
-#ifdef _MSC_VER
-#include <intrin.h>
-
-#if !defined(__CLR_VER) && defined(_M_X64) && defined(_MSC_VER) && (_MSC_FULL_VER >= 160040219)
-#include <immintrin.h>  // For _xgetbv()
-#endif
-#endif // _MSC_VER
-
 
 #if !defined(__CLR_VER) && defined(_M_X64) && defined(_MSC_VER) && (_MSC_FULL_VER >= 160040219)
 static unsigned int xgetbv(unsigned int xcr) {
@@ -181,6 +187,8 @@ DSPXX_API void* dsp::simd::aligned_alloc(size_t size)
 		ptr = NULL;
 #elif (_ISOC11_SOURCE)
 	ptr = ::aligned_alloc(alignment_, size);
+#elif defined(DSP_ARCH_FAMILY_X86)
+	ptr = _mm_malloc(size, alignment_);
 #else
     ptr = malloc(size + alignment_);
     if (NULL == ptr)
@@ -200,6 +208,8 @@ DSPXX_API void dsp::simd::aligned_free(void* ptr)
 	_aligned_free(ptr);
 #elif (_POSIX_C_SOURCE >= 200112L) || (_XOPEN_SOURCE >= 600) || (_ISOC11_SOURCE)
 	free(ptr);
+#elif defined(DSP_ARCH_FAMILY_X86)
+	_mm_free(ptr);
 #else
     if (NULL == ptr)
     	return;

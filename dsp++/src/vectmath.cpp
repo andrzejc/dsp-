@@ -9,8 +9,8 @@
 #include <cstring>
 
 #ifdef DSP_ARCH_FAMILY_X86
-#include <immintrin.h>
-#include <xmmintrin.h>
+#include <xmmintrin.h> 	// SSE intrinsics
+#include <pmmintrin.h>	// SSE3 intrinsics
 #endif // DSP_ARCH_FAMILY_X86
 
 namespace {
@@ -73,6 +73,8 @@ static inline void mulcf_sse_(float* res, const float* a, const float* b, size_t
 		_mm_store_ps(res, x0);
 	}
 }
+
+// TODO implement complex mul/div using SSE3 instructions according to Ex 6-9
 
 //! @brief Dot product of complex vectors using SSE instructions
 static inline std::complex<float> dotcf_sse_(const float* a, const float* b, size_t len)
