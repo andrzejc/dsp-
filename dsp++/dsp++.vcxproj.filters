@@ -68,9 +68,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\pch.h">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="src\utility.h">
       <Filter>src</Filter>
     </ClInclude>

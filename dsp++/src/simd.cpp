@@ -1,5 +1,3 @@
-// #include "pch.h"
-
 #include <dsp++/simd.h>
 #include <dsp++/platform.h>
 
