@@ -107,9 +107,9 @@ static int do_get_features() {
 	if (regs[2] & CPUID2_FMA3_BIT)
 		res |= feat_x86_fma3;
 	if (regs[2] & CPUID2_SSE41_BIT)
-		res |= feat_x86_sse4_1;
+		res |= feat_x86_sse41;
 	if (regs[2] & CPUID2_SSE42_BIT)
-		res |= feat_x86_sse4_2;
+		res |= feat_x86_sse42;
 
 	// AVX requires OS support which is detected by testing whether OS enabled XSAVE bit and xgetbv magic
 #define AVX_MASK (CPUID2_AVX_BIT | CPUID2_XSAVE_OS_BIT)

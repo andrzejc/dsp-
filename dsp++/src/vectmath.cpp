@@ -138,6 +138,29 @@ static inline float dotf_sse3_(const float* x, const float* b, size_t N)
 	return res;
 }
 
+//! @brief Dot product using SSE4.1 instruction set.
+static inline float dotf_sse41_(const float* x, const float* b, size_t N)
+{
+	float res = 0.f;
+	__m128 b0, b1, b2, b3, x0, x1, x2, x3;
+	size_t n = N / 16;
+	for (size_t i = 0; i < n; ++i, x += 16, b += 16) {
+		SSE_LOAD16(b, b);
+		SSE_LOAD16(x, x);
+		SSE41_DP16(x, x, b, 0xf1); 		// 0xf1 = 11110001b, all multiplies, put result in lower dword
+		SSE_SUM16(x0, x);
+		res += _mm_cvtss_f32(x0);
+	}
+	n = (N % 16) / 4;
+	for (size_t i = 0; i < n; ++i, b += 4, x += 4) {
+		b0 = _mm_load_ps(b);
+		x0 = _mm_load_ps(x);
+		x0 = _mm_dp_ps(x0, b0, 0xf1);
+		res += _mm_cvtss_f32(x0);
+	}
+	return res;
+}
+
 #endif // DSP_ARCH_FAMILY_X86
 
 } // end of anonymous namespace 
@@ -146,6 +169,8 @@ DSPXX_API float dsp::simd::dot(const float* v0, const float* v1, size_t len)
 {
 	if (false) 	;
 #ifdef DSP_ARCH_FAMILY_X86
+	else if (DSP_SIMD_FEATURES & dsp::simd::feat_x86_sse41)
+		return dotf_sse41_(v0, v1, len);
 	else if (DSP_SIMD_FEATURES & dsp::simd::feat_x86_sse3)
 		return dotf_sse3_(v0, v1, len);
 	else if (DSP_SIMD_FEATURES & dsp::simd::feat_x86_sse)

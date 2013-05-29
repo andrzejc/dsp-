@@ -7,8 +7,11 @@
 #define DSP_SSE_H_INCLUDED
 #pragma once
 
-# include <xmmintrin.h> 	// SSE intrinsics
-# include <pmmintrin.h>		// SSE3 intrinsics
+#ifndef DSP_ARCH_FAMILY_X86
+# error "sse.h is only for x86-family targets"
+#endif
+
+#include <nmmintrin.h>		// SSE4.2
 
 #define SSE_UNARY16_REG_MEM(to, from, oper) \
 	to ## 0 = _mm_ ## oper(from); \
@@ -70,5 +73,11 @@
 #define SSE3_HSUM16(to, from) \
 	SSE_SUM16(from ## 0, from); \
 	SSE3_HSUM(to, from ## 0)
+
+#define SSE41_DP16(to, a, b, mask) \
+	to ## 0 = _mm_dp_ps(a ## 0, b ## 0, mask); \
+	to ## 1 = _mm_dp_ps(a ## 1, b ## 1, mask); \
+	to ## 2 = _mm_dp_ps(a ## 2, b ## 2, mask); \
+	to ## 3 = _mm_dp_ps(a ## 3, b ## 3, mask)
 
 #endif /* DSP_SSE_H_INCLUDED */

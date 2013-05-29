@@ -42,8 +42,8 @@ namespace dsp { namespace simd {
 		feat_x86_sse3 = 		0x00000008, //!< SSE3 instruction set (Prescott new instructions) @see http://en.wikipedia.org/wiki/Prescott_New_Instructions
 		feat_x86_ssse3 = 		0x00000010, //!< Supplemental SSE3 instructions @see http://en.wikipedia.org/wiki/SSSE3
 		feat_x86_fma3 = 		0x00000020, //!< FMA3 instruction set @see http://en.wikipedia.org/wiki/FMA_instruction_set
-		feat_x86_sse4_1 =		0x00000040, //!< Penryn SSE 4.1 @see http://en.wikipedia.org/wiki/SSE4.1#SSE4.1
-		feat_x86_sse4_2 =		0x00000080, //!< Nehalem SSE 4.2 @see http://en.wikipedia.org/wiki/SSE4.2#SSE4.2
+		feat_x86_sse41 =		0x00000040, //!< Penryn SSE 4.1 @see http://en.wikipedia.org/wiki/SSE4.1#SSE4.1
+		feat_x86_sse42 =		0x00000080, //!< Nehalem SSE 4.2 @see http://en.wikipedia.org/wiki/SSE4.2#SSE4.2
 		feat_x86_avx = 			0x00000100, //!< Advanced Vector Extensions @see http://en.wikipedia.org/wiki/Advanced_Vector_Extensions
 
 		feat_x86_xop = 			0x00000200,	//!< AMD XOP @see http://en.wikipedia.org/wiki/XOP_instruction_set

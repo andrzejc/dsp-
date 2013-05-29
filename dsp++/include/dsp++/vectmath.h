@@ -37,6 +37,7 @@ namespace dsp {
 		//! @copydoc dot(const float*, const float*, size_t)
 		DSPXX_API std::complex<float> dot(const std::complex<float>* a, const std::complex<float>* b, size_t len);
 
+		// TODO implement other interesting SIMD-accelerated vector ops
 	}
 
 	//! @brief Naïve implementation of piecewise vector multiplication.
