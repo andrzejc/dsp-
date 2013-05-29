@@ -18,14 +18,12 @@ class filter_test: public CppUnit::TestFixture
 {
 	CPPUNIT_TEST_SUITE(filter_test);
 	CPPUNIT_TEST(test_fir);
-	CPPUNIT_TEST(test_fir_simd);
 	CPPUNIT_TEST(test_iir);
 	CPPUNIT_TEST(test_iir_block);
 	CPPUNIT_TEST(test_sos);
 	CPPUNIT_TEST_SUITE_END();
 public:
 	void test_fir();
-	void test_fir_simd();
 	void test_iir();
 	void test_iir_block();
 	void test_sos();

@@ -9,8 +9,7 @@
 #include <cstring>
 
 #ifdef DSP_ARCH_FAMILY_X86
-#include <xmmintrin.h> 	// SSE intrinsics
-#include <pmmintrin.h>	// SSE3 intrinsics
+#include "sse.h"
 #endif // DSP_ARCH_FAMILY_X86
 
 namespace {
@@ -22,32 +21,18 @@ static inline void mulf_sse_(float* res, const float* x, const float* b, size_t 
 {
 	__m128 b0, b1, b2, b3, x0, x1, x2, x3;
 	size_t n = N / 16;
-	for (size_t i = 0; i < n; ++i) {
-		b0 = _mm_load_ps(b); b += 4;
-		b1 = _mm_load_ps(b); b += 4;
-		b2 = _mm_load_ps(b); b += 4;
-		b3 = _mm_load_ps(b); b += 4;
-		x0 = _mm_load_ps(x); x += 4;
-		x1 = _mm_load_ps(x); x += 4;
-		x2 = _mm_load_ps(x); x += 4;
-		x3 = _mm_load_ps(x); x += 4;
-
-		x0 = _mm_mul_ps(x0, b0);
-		x1 = _mm_mul_ps(x1, b1);
-		x2 = _mm_mul_ps(x2, b2);
-		x3 = _mm_mul_ps(x3, b3);
-
-		_mm_store_ps(res, x0); res += 4;
-		_mm_store_ps(res, x1); res += 4;
-		_mm_store_ps(res, x2); res += 4;
-		_mm_store_ps(res, x3); res += 4;
+	for (size_t i = 0; i < n; ++i, b += 16, x += 16, res += 16) {
+		SSE_LOAD16(b, b);
+		SSE_LOAD16(x, x);
+		SSE_MUL16(x, x, b);
+		SSE_STORE16(res, x);
 	}
 	n = (N % 16) / 4;
-	for (size_t i = 0; i < n; ++i) {
-		b0 = _mm_load_ps(b); b += 4;
-		x0 = _mm_load_ps(x); x += 4;
+	for (size_t i = 0; i < n; ++i, b += 4, x += 4, res += 4) {
+		b0 = _mm_load_ps(b);
+		x0 = _mm_load_ps(x);
 		x0 = _mm_mul_ps(x0, b0);
-		_mm_store_ps(res, x0); res += 4;
+		_mm_store_ps(res, x0);
 	}
 }
 
@@ -111,36 +96,19 @@ static inline float dotf_sse_(const float* x, const float* b, size_t N)
 	float res = 0.f;
 	__m128 b0, b1, b2, b3, x0, x1, x2, x3;
 	size_t n = N / 16;
-	for (size_t i = 0; i < n; ++i) {
-		b0 = _mm_load_ps(b); b += 4;
-		b1 = _mm_load_ps(b); b += 4;
-		b2 = _mm_load_ps(b); b += 4;
-		b3 = _mm_load_ps(b); b += 4;
-		x0 = _mm_load_ps(x); x += 4;
-		x1 = _mm_load_ps(x); x += 4;
-		x2 = _mm_load_ps(x); x += 4;
-		x3 = _mm_load_ps(x); x += 4;
-
-		x0 = _mm_mul_ps(x0, b0); // x0 *= b0
-		x1 = _mm_mul_ps(x1, b1); // x1 *= b1
-		x0 = _mm_add_ps(x0, x1); // x0 += x1
-
-		x2 = _mm_mul_ps(x2, b2); // x2 *= b2
-		x3 = _mm_mul_ps(x3, b3); // x3 *= b3
-		x2 = _mm_add_ps(x2, x3); // x2 += x3
-
-		x0 = _mm_add_ps(x0, x2); // x0 += x2
-		x1 = _mm_add_ps(x0, _mm_movehl_ps(x0, x0));
-		x0 = _mm_add_ss(x1, _mm_shuffle_ps(x1, x1, 1));
+	for (size_t i = 0; i < n; ++i, b += 16, x += 16) {
+		SSE_LOAD16(b, b);
+		SSE_LOAD16(x, x);
+		SSE_MUL16(x, x, b);
+		SSE_HSUM16(x0, x);
 		res += _mm_cvtss_f32(x0);
 	}
 	n = (N % 16) / 4;
-	for (size_t i = 0; i < n; ++i) {
-		b0 = _mm_load_ps(b); b += 4;
-		x0 = _mm_load_ps(x); x += 4;
+	for (size_t i = 0; i < n; ++i, b += 4, x += 4) {
+		b0 = _mm_load_ps(b);
+		x0 = _mm_load_ps(x);
 		x0 = _mm_mul_ps(x0, b0);
-		x1 = _mm_add_ps(x0, _mm_movehl_ps(x0, x0));
-		x0 = _mm_add_ss(x1, _mm_shuffle_ps(x1, x1, 1));
+		SSE_HSUM(x0, x0, x1);
 		res += _mm_cvtss_f32(x0);
 	}
 	return res;
@@ -152,36 +120,19 @@ static inline float dotf_sse3_(const float* x, const float* b, size_t N)
 	float res = 0.f;
 	__m128 b0, b1, b2, b3, x0, x1, x2, x3;
 	size_t n = N / 16;
-	for (size_t i = 0; i < n; ++i) {
-		b0 = _mm_load_ps(b); b += 4;
-		b1 = _mm_load_ps(b); b += 4;
-		b2 = _mm_load_ps(b); b += 4;
-		b3 = _mm_load_ps(b); b += 4;
-		x0 = _mm_load_ps(x); x += 4;
-		x1 = _mm_load_ps(x); x += 4;
-		x2 = _mm_load_ps(x); x += 4;
-		x3 = _mm_load_ps(x); x += 4;
-
-		x0 = _mm_mul_ps(x0, b0); // x0 *= b0
-		x1 = _mm_mul_ps(x1, b1); // x1 *= b1
-		x0 = _mm_add_ps(x0, x1); // x0 += x1
-
-		x2 = _mm_mul_ps(x2, b2); // x2 *= b2
-		x3 = _mm_mul_ps(x3, b3); // x3 *= b3
-		x2 = _mm_add_ps(x2, x3); // x2 += x3
-
-		x0 = _mm_add_ps(x0, x2); // x0 += x2
-		x0 = _mm_hadd_ps(x0, x0);
-		x0 = _mm_hadd_ps(x0, x0);
+	for (size_t i = 0; i < n; ++i, x += 16, b += 16) {
+		SSE_LOAD16(b, b);
+		SSE_LOAD16(x, x);
+		SSE_MUL16(x, x, b);
+		SSE3_HSUM16(x0, x);
 		res += _mm_cvtss_f32(x0);
 	}
 	n = (N % 16) / 4;
-	for (size_t i = 0; i < n; ++i) {
-		b0 = _mm_load_ps(b); b += 4;
-		x0 = _mm_load_ps(x); x += 4;
+	for (size_t i = 0; i < n; ++i, b += 4, x += 4) {
+		b0 = _mm_load_ps(b);
+		x0 = _mm_load_ps(x);
 		x0 = _mm_mul_ps(x0, b0);
-		x0 = _mm_hadd_ps(x0, x0);
-		x0 = _mm_hadd_ps(x0, x0);
+		SSE3_HSUM(x0, x0);
 		res += _mm_cvtss_f32(x0);
 	}
 	return res;

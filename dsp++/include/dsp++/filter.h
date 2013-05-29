@@ -363,7 +363,7 @@ public:
 	inline float operator()(float x) {
 		delay(w_, P_);
 		*w_ = x;
-		return dsp::simd::filter_sample_df2(w_, b_, M_pad_, a_, M_pad_);
+		return dsp::simd::filter_sample_df2(w_, b_, M_pad_, a_, N_pad_);
 	}
 
 	/*!

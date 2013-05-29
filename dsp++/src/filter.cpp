@@ -9,8 +9,7 @@
 #include <cstring>
 
 #ifdef DSP_ARCH_FAMILY_X86
-# include <xmmintrin.h> 	// SSE intrinsics
-# include <pmmintrin.h>	// SSE3 intrinsics
+# include "sse.h"
 #endif // DSP_ARCH_FAMILY_X86
 
 using namespace dsp;
@@ -31,64 +30,81 @@ namespace {
  */
 static inline float filter_df2_sse_(float* w, const float* b, const size_t M, const float* a, const size_t N)
 {
-	// TODO iterations for a_ and b_ should be split as they can have different lengths
-	float res = 0.f;
+	float ardot = 0.f, madot = 0, *ws = w, b0 = *b;
 	__m128 c0, c1, c2, c3, x0, x1, x2, x3;
-	size_t n = N / 16;
+	size_t L = std::min(N, M);
+	size_t n = L / 16;
+	// Simultaneous calculation of both AR- and MA- component dot products, first in 16-, then 4- element chunks
 	for (size_t i = 0; i < n; ++i, a += 16, w += 16, b += 16) {
-		c0 = _mm_load_ps(a); 			// c = a
-		c1 = _mm_load_ps(a + 4);
-		c2 = _mm_load_ps(a + 8);
-		c3 = _mm_load_ps(a + 12);
-		x0 = _mm_loadu_ps(w); 			// x = w
-		x1 = _mm_loadu_ps(w + 4);
-		x2 = _mm_loadu_ps(w + 8);
-		x3 = _mm_loadu_ps(w + 12);
-		c0 = _mm_mul_ps(c0, x0);		// c *= x (c = w * a)
-		c1 = _mm_mul_ps(c1, x1);
-		c2 = _mm_mul_ps(c2, x2);
-		c3 = _mm_mul_ps(c3, x3);
-		x0 = _mm_sub_ps(x0, c0);		// x -= c (x = w - w * a)
-		x1 = _mm_sub_ps(x1, c1);
-		x2 = _mm_sub_ps(x2, c2);
-		x3 = _mm_sub_ps(x3, c3);
-		_mm_storeu_ps(w, x0);			// w = x
-		_mm_storeu_ps(w + 4, x1);
-		_mm_storeu_ps(w + 8, x2);
-		_mm_storeu_ps(w + 12, x3);
+		SSE_LOADU16(x, w);				// x = w
+		SSE_LOAD16(c, a);				// c = a
+		SSE_MUL16(c, c, x); 			// c *= x (c = w * a)
+		SSE_HSUM16(c0, c);
+		ardot += _mm_cvtss_f32(c0);
 
-		c0 = _mm_load_ps(b);			// c = b
-		c1 = _mm_load_ps(b + 4);
-		c2 = _mm_load_ps(b + 8);
-		c3 = _mm_load_ps(b + 12);
-		c0 = _mm_mul_ps(c0, x0);		// c *= x (c = w * b)
-		c1 = _mm_mul_ps(c1, x1);
-		c2 = _mm_mul_ps(c2, x2);
-		c3 = _mm_mul_ps(c3, x3);
-
-		x0 = _mm_add_ps(x0, x1);		// sum(x)
-		x2 = _mm_add_ps(x2, x3);
-		x0 = _mm_add_ps(x0, x2);
-
-		x1 = _mm_add_ps(x0, _mm_movehl_ps(x0, x0));  		// horizontal sum(x0)
-		x0 = _mm_add_ss(x1, _mm_shuffle_ps(x1, x1, 1));
-		res += _mm_cvtss_f32(x0);
+		SSE_LOAD16(c, b);				// c = b
+		SSE_MUL16(x, x, c);				// x *= c (x = w * b)
+		SSE_HSUM16(x0, x); 				//  x0 = sum(x)
+		madot += _mm_cvtss_f32(x0);
 	}
-	n = (N % 16) / 4;
+	n = (L % 16) / 4;
 	for (size_t i = 0; i < n; ++i, a += 4, w += 4, b += 4) {
-		c0 = _mm_load_ps(a); 			// c = a
 		x0 = _mm_loadu_ps(w); 			// x = w
+		c0 = _mm_load_ps(a); 			// c = a
 		c0 = _mm_mul_ps(c0, x0);		// c *= x (c = w * a)
-		x0 = _mm_sub_ps(x0, c0);		// x -= c (x = w - w * a)
-		_mm_storeu_ps(w, x0);			// w = x
-		c0 = _mm_load_ps(b);			// c = b
-		c0 = _mm_mul_ps(c0, x0);		// c *= x (c = w * b)
+		SSE_HSUM(c0, c0, c1);
+		ardot += _mm_cvtss_f32(c0);
 
-		x1 = _mm_add_ps(x0, _mm_movehl_ps(x0, x0));  		// horizontal sum(x0)
-		x0 = _mm_add_ss(x1, _mm_shuffle_ps(x1, x1, 1));
-		res += _mm_cvtss_f32(x0);
+		c0 = _mm_load_ps(b);			// c = b
+		x0 = _mm_mul_ps(x0, c0);		// x *= c (x = w * b)
+		SSE_HSUM(x0, x0, x1);			// horizontal sum(x0)
+		madot += _mm_cvtss_f32(x0);
 	}
-	return res;
+	L = std::max(N, M) - L;
+	n = L / 16;
+	if (N > M) {
+		// Calculate only the remaining AR-component product
+		for (size_t i = 0; i < n; ++i, a += 16, w += 16) {
+			SSE_LOADU16(x, w);				// x = w
+			SSE_LOAD16(c, a);				// c = a
+			SSE_MUL16(c, c, x); 			// c *= x (c = w * a)
+			SSE_HSUM16(c0, c);
+			ardot += _mm_cvtss_f32(c0);
+		}
+		n = (L % 16) / 4;
+		for (size_t i = 0; i < n; ++i, a += 4, w += 4) {
+			x0 = _mm_loadu_ps(w); 			// x = w
+			c0 = _mm_load_ps(a); 			// c = a
+			c0 = _mm_mul_ps(c0, x0);		// c *= x (c = w * a)
+			SSE_HSUM(c0, c0, c1);
+			ardot += _mm_cvtss_f32(c0);
+		}
+	}
+	else {
+		// Calculate only the remaining MA-component
+		for (size_t i = 0; i < n; ++i, b += 16, w += 16) {
+			SSE_LOADU16(x, w);				// x = w
+			SSE_LOAD16(c, b);				// c = b
+			SSE_MUL16(x, x, c);				// x *= c (x = w * b)
+			SSE_HSUM16(x0, x); 				// x0 = sum(x)
+			madot += _mm_cvtss_f32(x0);
+		}
+		n = (L % 16) / 4;
+		for (size_t i = 0; i < n; ++i, b += 4, w += 4) {
+			x0 = _mm_loadu_ps(w); 			// x = w
+			c0 = _mm_load_ps(b);			// c = b
+			x0 = _mm_mul_ps(x0, c0);		// x *= c (x = w * b)
+			SSE_HSUM(x0, c0, x1);			// horizontal sum(x0)
+			madot += _mm_cvtss_f32(x0);
+		}
+	}
+	// In canonical equation, AR product should be computed first and subtracted from w[0] (which is in fact input sample)
+	// before calculating MA product. Since we computed them simultaneously, MA product must be corrected now, taking into
+	// account that w[0] was multiplied by b[0].
+	madot -= ardot * b0;
+	// Update w[0] as well.
+	*ws -= ardot;
+	return madot;
 }
 
 #endif

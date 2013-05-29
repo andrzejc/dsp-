@@ -28,25 +28,12 @@ void dsp::test::filter_test::test_fir()
 	CPPUNIT_ASSERT(std::equal(out, out + 1024, ref, dsp::within_range<float>(0.00001f)));
 }
 
-void dsp::test::filter_test::test_fir_simd()
-{
-	float out[1024];
-	float DSP_ALIGNED(16) w[128];
-	memset(w, 0, sizeof(float) * 128);
-	for (size_t i = 0; i < 1024; ++i) {
-		memmove(w + 1, w, 127 * sizeof(float));
-		*w = in[i];
-		out[i] = dsp::simd::dot(w, b, 128);
-	}
-	CPPUNIT_ASSERT(std::equal(out, out + 1024, ref, dsp::within_range<float>(0.00001f)));
-}
-
-
 void dsp::test::filter_test::test_iir()
 {
 	float out[1024];
 	dsp::filter<double> iir(iir_b, 32, iir_a, 32);
-	for (size_t i = 0; i < 1024; ++i) out[i] = iir(in[i]);
+	for (size_t i = 0; i < 1024; ++i)
+		out[i] = iir(in[i]);
 	CPPUNIT_ASSERT(std::equal(out, out + 1024, iir_y, dsp::within_range<float>(0.00001f)));
 }
 
