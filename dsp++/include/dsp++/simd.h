@@ -7,6 +7,9 @@
 #pragma once
 
 #include <dsp++/export.h>
+#include <dsp++/platform.h>
+#include <dsp++/buffer_traits.h>
+
 #include <cstddef> // for size_t
 #include <limits>
 
@@ -139,6 +142,22 @@ namespace dsp { namespace simd {
 # define DSP_ALIGNED(x) __attribute__((aligned(x)))
 #endif
 
+	template<class Elem>
+	struct buffer_traits
+	{
+		typedef Elem value_type;
+		typedef dsp::simd::allocator<Elem> allocator_type;
+
+		static size_t alignment()
+		{
+			const size_t a = dsp::simd::alignment();
+			return (a > DSP_ALIGNOF(Elem) ? a : DSP_ALIGNOF(Elem));
+		}
+
+		static size_t padding_size(size_t count) {return aligned_pad<Elem>(count);}
+		static size_t aligned_count(size_t count) {return dsp::simd::aligned_count<Elem>(count);}
+
+	};
 } }
 
 #ifndef DSP_SIMD_FEATURES

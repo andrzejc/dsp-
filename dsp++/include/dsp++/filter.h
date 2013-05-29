@@ -8,8 +8,10 @@
 
 #include <dsp++/config.h>
 #include <dsp++/utility.h>
+#include <dsp++/buffer_traits.h>
 #include <dsp++/trivial_array.h>
 #include <dsp++/algorithm.h>
+#include <dsp++/simd.h>
 
 #include <algorithm>
 #include <functional>
@@ -23,9 +25,8 @@
 namespace dsp {
 
 /*!
- * @brief Filter a single sample x with a Direct-Form II AR/MA digital filter of order P.
- * @param[in] x input signal sample.
- * @param[in,out] w delay line buffer of length P.
+ * @brief Filter a single input sample with a Direct-Form II AR/MA digital filter of order P.
+ * @param[in,out] w delay line buffer of length max(N, M) (== P + 1), on input w[0] should contain sample to be filtered x[0], upon output it will be output of IIR section.
  * @param[in] b MA filter (FIR) coefficients vector (difference equation numerator).
  * @param[in] M number of MA coefficients (length of b vector).
  * @param[in] a AR filter (IIR) coefficients vector (difference equation denominator), a[0] is assumed to be 1 (coefficients are normalized).
@@ -33,17 +34,18 @@ namespace dsp {
  * @return filtered sample.
  */
 template<class Sample> inline
-Sample filter_sample_df2(Sample x, Sample* w, const Sample* b, const size_t M, const Sample* a, const size_t N)
+Sample filter_sample_df2(Sample* w, const Sample* b, const size_t M, const Sample* a, const size_t N)
 {
-	*w = x;
-	++a;
-	for (size_t i = 1; i < N; ++i, ++a)
-		*w -= (*a) * w[i];
+	++a; 	// we assume a[0] is 1 and skip the multiplication
+	const Sample* y = w + 1;
+	for (size_t i = 1; i < N; ++i, ++a, ++y)
+		*w -= (*a) * (*y);
 
-	x = Sample();
-	for (size_t i = 0; i < M; ++i, ++b)
-		x += (*b) * w[i];
-	return x;
+	Sample r = Sample();
+	y = w;
+	for (size_t i = 0; i < M; ++i, ++b, ++y)
+		r += (*b) * (*y);
+	return r;
 }
 
 const size_t sos_length = 3; //!< Length of coefficient vector of a single second-order-section (SOS) filter (3).
@@ -62,12 +64,32 @@ const size_t sos_length = 3; //!< Length of coefficient vector of a single secon
 template<class Sample> inline
 Sample filter_sample_sos_df2(Sample x, size_t N, Sample (*w)[sos_length], const Sample (*b)[sos_length], const size_t* blens, const Sample (*a)[sos_length], const size_t* alens)
 {
-	for (size_t n = 0; n < N; ++n, ++b, ++blens, ++a, ++alens, ++w)
-		x = filter_sample_df2(x, *w, *b, *blens, *a, *alens);
+	for (size_t n = 0; n < N; ++n, ++b, ++blens, ++a, ++alens, ++w) {
+		**w = x;
+		x = filter_sample_df2(*w, *b, *blens, *a, *alens);
+	}
 	return x;
 }
 
-template<class Sample>
+namespace simd {
+
+/*!
+ * @brief Filter a single input sample with a Direct-Form II AR/MA digital filter of order P using SIMD instructions.
+ * @param w Delay line buffer of length max(M, N), needs not to be aligned (we use unaligned reads here as it should
+ * be generally faster to read/write unaligned sliding window than move the memory block in each iteration).
+ * @param b FIR filter coefficients vector, must be aligned and padded (M)
+ * @param M Padded length of b vector.
+ * @param a IIR filter coefficients vector, must be aligned and padded, a[0] must be set to 0 for efficiency reasons (N)
+ * @param N Padded length of a vector.
+ * @note M and N must include padding.
+ * @note a[0] must be set on input to 0, although it is assumed to be 1.
+ * @return filtered sample.
+ */
+DSPXX_API float filter_sample_df2(float* w, const float* b, const size_t M, const float* a, const size_t N);
+
+}
+
+template<class Sample, class BufferTraits = dsp::buffer_traits<Sample> >
 class df2_filter_base
 {
 public:
@@ -153,36 +175,39 @@ protected:
 	df2_filter_base(const BSample* b_vec, size_t b_len, size_t L);
 
 	df2_filter_base(size_t N, size_t M, size_t P, size_t L)
-	 :	N_(N)
-	 ,	M_(M)
-	 ,	P_(P)
-	 ,	buffer_(P_ + N_ + M_ + L - 1)
+	 :	N_(N), N_pad_(BufferTraits::aligned_count(N_))
+	 ,	M_(M), M_pad_(BufferTraits::aligned_count(M_))
+	 ,	P_(P), W_pad_(BufferTraits::aligned_count(P_ + L -1))
+	 ,	buffer_(N_pad_ + M_pad_ + W_pad_)
 	 ,	a_(buffer_.get())
-	 ,	b_(a_ + N_)
-	 ,	w_(b_ + M_)
+	 ,	b_(a_ + N_pad_)
+	 ,	w_(b_ + M_pad_)
 	{
 	}
 
 	const size_t N_; 				//!< Number of AR coefficients.
+	const size_t N_pad_;			//!< Length of a_ vector with padding included.
 	const size_t M_;				//!< Number of MA coefficients.
+	const size_t M_pad_;			//!< Length of b_ vector with padding included.
 	const size_t P_;				//!< filter order + 1 (max(N_, M_))
-	trivial_array<Sample> buffer_;	//!< Buffer of size P_ + N_ + M_ (+ L_ - 1 in case of block filter)
+	const size_t W_pad_;			//!< Length of w_ vector with padding included.
+	trivial_array<Sample, typename BufferTraits::allocator_type> buffer_;	//!< Buffer of size P_ + N_ + M_ (+ L_ - 1 in case of block filter)
 	Sample* const a_;				//!< AR coefficients
 	Sample* const b_;				//!< MA coefficients
 	Sample* const w_;				//!< delay line (P_ (+ L_ - 1 in case of block filter))
 
 };
 
-template<class Sample>
+template<class Sample, class BufferTraits>
 template<class BIterator, class AIterator>
-df2_filter_base<Sample>::df2_filter_base(BIterator b_begin, BIterator b_end, AIterator a_begin, AIterator a_end, size_t L)
- :	N_(std::distance(a_begin, a_end))
- ,	M_(std::distance(b_begin, b_end))
- ,	P_(std::max(N_, M_))
- ,	buffer_(P_ + N_ + M_ + L - 1)
+df2_filter_base<Sample, BufferTraits>::df2_filter_base(BIterator b_begin, BIterator b_end, AIterator a_begin, AIterator a_end, size_t L)
+ :	N_(std::distance(a_begin, a_end)), N_pad_(BufferTraits::aligned_count(N_))
+ ,	M_(std::distance(b_begin, b_end)), M_pad_(BufferTraits::aligned_count(M_))
+ ,	P_(std::max(N_, M_)), W_pad_(BufferTraits::aligned_count(P_ + L - 1))
+ ,	buffer_(N_pad_ + M_pad_ + W_pad_)
  ,	a_(buffer_.get())
- ,	b_(a_ + N_)
- ,	w_(b_ + M_)
+ ,	b_(a_ + N_pad_)
+ ,	w_(b_ + M_pad_)
 {
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_ASSERT((boost::OutputIterator<AIterator, Sample>));
@@ -195,16 +220,16 @@ df2_filter_base<Sample>::df2_filter_base(BIterator b_begin, BIterator b_end, AIt
 	std::transform(b_, b_ + M_, b_, std::bind2nd(std::divides<Sample>(), *a_));
 }
 
-template<class Sample>
+template<class Sample, class BufferTraits>
 template<class BIterator>
-df2_filter_base<Sample>::df2_filter_base(BIterator b_begin, BIterator b_end, size_t L)
- :	N_(0)
- ,	M_(std::distance(b_begin, b_end))
- ,	P_(std::max(N_, M_))
- ,	buffer_(P_ + N_ + M_ + L - 1)
+df2_filter_base<Sample, BufferTraits>::df2_filter_base(BIterator b_begin, BIterator b_end, size_t L)
+ :	N_(0), N_pad_(0)
+ ,	M_(std::distance(b_begin, b_end)), M_pad_(BufferTraits::aligned_count(M_))
+ ,	P_(M_), W_pad_(BufferTraits::aligned_count(P_ + L - 1))
+ ,	buffer_(N_pad_ + M_pad_ + W_pad_)
  ,	a_(buffer_.get())
- ,	b_(a_ + N_)
- ,	w_(b_ + M_)
+ ,	b_(a_)
+ ,	w_(b_ + M_pad_)
 {
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_ASSERT((boost::OutputIterator<BIterator, Sample>));
@@ -213,16 +238,16 @@ df2_filter_base<Sample>::df2_filter_base(BIterator b_begin, BIterator b_end, siz
 	std::copy(b_begin, b_end, b_);
 }
 
-template<class Sample>
+template<class Sample, class BufferTraits>
 template<class BSample, class ASample>
-df2_filter_base<Sample>::df2_filter_base(const BSample* b_vec, size_t b_len, const ASample* a_vec, size_t a_len, size_t L)
- :	N_(a_len)
- ,	M_(b_len)
- ,	P_(std::max(N_, M_))
- ,	buffer_(P_ + N_ + M_ + L - 1)
+df2_filter_base<Sample, BufferTraits>::df2_filter_base(const BSample* b_vec, size_t b_len, const ASample* a_vec, size_t a_len, size_t L)
+ :	N_(a_len), N_pad_(BufferTraits::aligned_count(N_))
+ ,	M_(b_len), M_pad_(BufferTraits::aligned_count(M_))
+ ,	P_(std::max(N_, M_)), W_pad_(BufferTraits::aligned_count(P_ + L - 1))
+ ,	buffer_(N_pad_ + M_pad_ + W_pad_)
  ,	a_(buffer_.get())
- ,	b_(a_ + N_)
- ,	w_(b_ + M_)
+ ,	b_(a_ + N_pad_)
+ ,	w_(b_ + M_pad_)
 {
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_ASSERT((boost::Convertible<BSample, Sample>));
@@ -236,16 +261,16 @@ df2_filter_base<Sample>::df2_filter_base(const BSample* b_vec, size_t b_len, con
 	std::transform(b_, b_ + M_, b_, std::bind2nd(std::divides<Sample>(), a));
 }
 
-template<class Sample>
+template<class Sample, class BufferTraits>
 template<class BSample>
-df2_filter_base<Sample>::df2_filter_base(const BSample* b_vec, size_t b_len, size_t L)
- :	N_(0)
- ,	M_(b_len)
- ,	P_(std::max(N_, M_))
- ,	buffer_(P_ + N_ + M_ + L - 1)
+df2_filter_base<Sample, BufferTraits>::df2_filter_base(const BSample* b_vec, size_t b_len, size_t L)
+ :	N_(0), N_pad_(0)
+ ,	M_(b_len), M_pad_(BufferTraits::aligned_count(M_))
+ ,	P_(M_), W_pad_(BufferTraits::aligned_count(P_ + L - 1))
+ ,	buffer_(N_pad_ + M_pad_ + W_pad_)
  ,	a_(buffer_.get())
- ,	b_(a_ + N_)
- ,	w_(b_ + M_)
+ ,	b_(a_)
+ ,	w_(b_ + M_pad_)
 {
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_ASSERT((boost::Convertible<BSample, Sample>));
@@ -321,8 +346,73 @@ template<class Sample> inline
 Sample filter<Sample>::operator()(Sample x)
 {
 	delay(base::w_, base::P_);
-	return filter_sample_df2(x, base::w_, base::b_, base::M_, base::a_, base::N_);
+	*base::w_ = x;
+	return filter_sample_df2(base::w_, base::b_, base::M_, base::a_, base::N_);
 }
+
+template<>
+class filter<float>: public df2_filter_base<float, dsp::simd::buffer_traits<float> >, public sample_based_transform<float>
+{
+	typedef df2_filter_base<float, dsp::simd::buffer_traits<float> > base;
+public:
+	/*!
+	 * @brief Apply filtering to a single input sample x.
+	 * @param x input sample to filter.
+	 * @return filtered sample.
+	 */
+	inline float operator()(float x) {
+		delay(w_, P_);
+		*w_ = x;
+		return dsp::simd::filter_sample_df2(w_, b_, M_pad_, a_, M_pad_);
+	}
+
+	/*!
+	 * @brief Construct filter given coefficients vectors as iterator ranges [b_begin, b_end) and [a_begin, a_end).
+	 * @param b_begin start of numerator coefficients sequence.
+	 * @param b_end end of numerator coefficients sequence.
+	 * @param a_begin start of denominator coefficients sequence.
+	 * @param a_end end of denominator coefficients sequence.
+	 * @tparam BIterator type of iterator used to denote numerator sequence, must adhere to OutputIterator concept
+	 * with value type convertible to Sample.
+	 * @tparam AIterator type of iterator used to denote denominator sequence, must adhere to OutputIterator concept
+	 * with value type convertible to Sample.
+	 */
+	template<class BIterator, class AIterator>
+	filter(BIterator b_begin, BIterator b_end, AIterator a_begin, AIterator a_end)
+	 :	base(b_begin, b_end, a_begin, a_end, 1) {if (0 != N_) *a_ = 0.f;}
+
+	/*!
+	 * @brief Construct all-zero filter given coefficients vector as iterator range [b_begin, b_end).
+	 * @param b_begin start of numerator coefficients sequence.
+	 * @param b_end end of numerator coefficients sequence.
+	 * @tparam BIterator type of iterator used to denote numerator sequence, must adhere to OutputIterator concept
+	 * with value type convertible to Sample.
+	 */
+	template<class BIterator>
+	filter(BIterator b_begin, BIterator b_end)
+	 :	base(b_begin, b_end, 1) {}
+
+	/*!
+	 * @brief Construct filter given coefficients vectors as C arrays.
+	 * @param b_vec start of numerator coefficients sequence.
+	 * @param b_len length numerator coefficients sequence.
+	 * @param a_vec start of denominator coefficients sequence.
+	 * @param a_len length of denominator coefficients sequence.
+	 */
+	template<class BSample, class ASample>
+	filter(const BSample* b_vec, size_t b_len, const ASample* a_vec, size_t a_len)
+	 :	base(b_vec, b_len, a_vec, a_len, 1) {if (0 != N_) *a_ = 0.f;}
+
+	/*!
+	 * @brief Construct all-zero filter given coefficients vector as C array.
+	 * @param b_vec vector of b_len FIR filter coefficients.
+	 * @param b_len number of FIR filter coefficients.
+	 */
+	template<class BSample>
+	filter(const BSample* b_vec, size_t b_len)
+	 :	base(b_vec, b_len, 1) {}
+
+};
 
 /*!
  * @brief Implementation of Direct-Form II digital filter realized as a bank of second-order-sections (SOS).
@@ -480,8 +570,10 @@ public:
 		std::copy(base::w_, base::w_ + base::P_ - 1, base::w_ + L_);
 		Sample* w = base::w_ + L_ - 1;
 		Sample* x = x_;
-		for (size_t n = 0; n != L_; ++n, --w, ++x) 
-			*x = filter_sample_df2(*x, w, base::b_, base::M_, base::a_, base::N_);
+		for (size_t n = 0; n != L_; ++n, --w, ++x) {
+			*w = *x;
+			*x = filter_sample_df2(w, base::b_, base::M_, base::a_, base::N_);
+		}
 	}
 
 private:

@@ -108,7 +108,7 @@ static inline std::complex<float> dotcf_sse_(const float* a, const float* b, siz
 //!@brief Dot product using SSE instruction set.
 static inline float dotf_sse_(const float* x, const float* b, size_t N)
 {
-	float res = 0.f, part;
+	float res = 0.f;
 	__m128 b0, b1, b2, b3, x0, x1, x2, x3;
 	size_t n = N / 16;
 	for (size_t i = 0; i < n; ++i) {
@@ -132,8 +132,7 @@ static inline float dotf_sse_(const float* x, const float* b, size_t N)
 		x0 = _mm_add_ps(x0, x2); // x0 += x2
 		x1 = _mm_add_ps(x0, _mm_movehl_ps(x0, x0));
 		x0 = _mm_add_ss(x1, _mm_shuffle_ps(x1, x1, 1));
-		_mm_store_ss(&part, x0);
-		res += part;
+		res += _mm_cvtss_f32(x0);
 	}
 	n = (N % 16) / 4;
 	for (size_t i = 0; i < n; ++i) {
@@ -142,8 +141,7 @@ static inline float dotf_sse_(const float* x, const float* b, size_t N)
 		x0 = _mm_mul_ps(x0, b0);
 		x1 = _mm_add_ps(x0, _mm_movehl_ps(x0, x0));
 		x0 = _mm_add_ss(x1, _mm_shuffle_ps(x1, x1, 1));
-		_mm_store_ss(&part, x0);
-		res += part;
+		res += _mm_cvtss_f32(x0);
 	}
 	return res;
 }
@@ -151,7 +149,7 @@ static inline float dotf_sse_(const float* x, const float* b, size_t N)
 //! @brief Dot product using SSE3 instruction set.
 static inline float dotf_sse3_(const float* x, const float* b, size_t N)
 {
-	float res = 0.f, part;
+	float res = 0.f;
 	__m128 b0, b1, b2, b3, x0, x1, x2, x3;
 	size_t n = N / 16;
 	for (size_t i = 0; i < n; ++i) {
@@ -175,8 +173,7 @@ static inline float dotf_sse3_(const float* x, const float* b, size_t N)
 		x0 = _mm_add_ps(x0, x2); // x0 += x2
 		x0 = _mm_hadd_ps(x0, x0);
 		x0 = _mm_hadd_ps(x0, x0);
-		_mm_store_ss(&part, x0);
-		res += part;
+		res += _mm_cvtss_f32(x0);
 	}
 	n = (N % 16) / 4;
 	for (size_t i = 0; i < n; ++i) {
@@ -185,8 +182,7 @@ static inline float dotf_sse3_(const float* x, const float* b, size_t N)
 		x0 = _mm_mul_ps(x0, b0);
 		x0 = _mm_hadd_ps(x0, x0);
 		x0 = _mm_hadd_ps(x0, x0);
-		_mm_store_ss(&part, x0);
-		res += part;
+		res += _mm_cvtss_f32(x0);
 	}
 	return res;
 }
