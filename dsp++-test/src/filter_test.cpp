@@ -28,6 +28,20 @@ void dsp::test::filter_test::test_fir()
 	CPPUNIT_ASSERT(std::equal(out, out + 1024, ref, dsp::within_range<float>(0.00001f)));
 }
 
+void dsp::test::filter_test::test_fir_block()
+{
+	const float* inn = in;
+	const float* reff = ref;
+	float out[128];
+	dsp::block_filter<float> fir(128, b, 128);
+	for (size_t i = 0; i < 1024; i += 128, inn += 128, reff += 128) {
+		std::copy(inn, inn + 128, fir.begin());
+		fir();
+		std::copy(fir.begin(), fir.end(), out);
+		CPPUNIT_ASSERT(std::equal(out, out + 128, reff, dsp::within_range<float>(0.00001f)));
+	}
+}
+
 void dsp::test::filter_test::test_iir()
 {
 	float out[1024];
@@ -41,11 +55,13 @@ void dsp::test::filter_test::test_iir_block()
 {
 	const float* inn = in;
 	const float* reff = iir_y;
+	float out[64];
 	dsp::block_filter<double> iir(64, iir_b, 32, iir_a, 32);
 	for (size_t i = 0; i < 1024; i += 64, inn += 64, reff += 64) {
 		std::copy(inn, inn + 64, iir.begin());
 		iir();
-		CPPUNIT_ASSERT(std::equal(iir.begin(), iir.end(), reff, dsp::within_range<float>(0.00001f)));
+		std::copy(iir.begin(), iir.end(), out);
+		CPPUNIT_ASSERT(std::equal(out, out + 64, reff, dsp::within_range<float>(0.00001f)));
 	}
 }
 

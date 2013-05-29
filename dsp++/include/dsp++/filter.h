@@ -345,13 +345,13 @@ public:
 template<class Sample> inline 
 Sample filter<Sample>::operator()(Sample x)
 {
-	delay(base::w_, base::P_);
-	*base::w_ = x;
-	return filter_sample_df2(base::w_, base::b_, base::M_, base::a_, base::N_);
+	delay(w_, P_);
+	*w_ = x;
+	return filter_sample_df2(w_, b_, M_, a_, N_);
 }
 
 template<>
-class filter<float>: public df2_filter_base<float, dsp::simd::buffer_traits<float> >, public sample_based_transform<float>
+class DSPXX_API filter<float>: public df2_filter_base<float, dsp::simd::buffer_traits<float> >, public sample_based_transform<float>
 {
 	typedef df2_filter_base<float, dsp::simd::buffer_traits<float> > base;
 public:
@@ -517,7 +517,7 @@ public:
 	block_filter(size_t L, BIterator b_begin, BIterator b_end, AIterator a_begin, AIterator a_end)
 	 :	base(b_begin, b_end, a_begin, a_end, L * 2)
 	 ,	L_(L)
-	 ,	x_(base::w_ + base::P_ + L_ - 1) {}
+	 ,	x_(w_ + P_ + L_ - 1) {}
 
 	/*!
 	 * @brief Construct all-zero filter given coefficients vector as iterator range [b_begin, b_end).
@@ -531,7 +531,7 @@ public:
 	block_filter(size_t L, BIterator b_begin, BIterator b_end)
 	 :	base(b_begin, b_end, L * 2)
 	 ,	L_(L)
-	 ,	x_(base::w_ + base::P_ + L_ - 1) {}
+	 ,	x_(w_ + P_ + L_ - 1) {}
 
 	/*!
 	 * @brief Construct filter given coefficients vectors as C arrays.
@@ -545,7 +545,7 @@ public:
 	block_filter(size_t L, const BSample* b_vec, size_t b_len, const ASample* a_vec, size_t a_len)
 	 :	base(b_vec, b_len, a_vec, a_len, L * 2)
 	 ,	L_(L)
-	 ,	x_(base::w_ + base::P_ + L_ - 1) {}
+	 ,	x_(w_ + P_ + L_ - 1) {}
 
 	/*!
 	 * @brief Construct all-zero filter given coefficients vector as C array.
@@ -555,9 +555,9 @@ public:
 	 */
 	template<class BSample>
 	block_filter(size_t L, const BSample* b_vec, size_t b_len)
-	 :	base(b_vec, b_len, L + 2)
+	 :	base(b_vec, b_len, L * 2)
 	 ,	L_(L)
-	 ,	x_(base::w_ + base::P_ + L_ - 1) {}
+	 ,	x_(w_ + P_ + L_ - 1) {}
 
 	iterator begin() {return x_;}
 	iterator end() {return x_ + L_;}
@@ -567,18 +567,63 @@ public:
 	//! @brief Apply the filter to the sample sequence specified by [begin(), end()) range.
 	inline void operator()()
 	{
-		std::copy(base::w_, base::w_ + base::P_ - 1, base::w_ + L_);
-		Sample* w = base::w_ + L_ - 1;
+		std::copy(w_, w_ + P_ - 1, w_ + L_);
+		Sample* w = w_ + L_ - 1;
 		Sample* x = x_;
 		for (size_t n = 0; n != L_; ++n, --w, ++x) {
 			*w = *x;
-			*x = filter_sample_df2(w, base::b_, base::M_, base::a_, base::N_);
+			*x = filter_sample_df2(w, b_, M_, a_, N_);
 		}
 	}
 
 private:
 	const size_t L_;
 	Sample* const x_;
+};
+
+template<>
+class DSPXX_API block_filter<float>: public df2_filter_base<float, dsp::simd::buffer_traits<float> >
+{
+	typedef df2_filter_base<float, dsp::simd::buffer_traits<float> > base;
+
+public:
+	typedef float* iterator;
+	typedef const float* const_iterator;
+
+	template<class BIterator, class AIterator>
+	block_filter(size_t L, BIterator b_begin, BIterator b_end, AIterator a_begin, AIterator a_end)
+	 :	base(b_begin, b_end, a_begin, a_end, L * 2)
+	 ,	L_(L)
+	 ,	x_(w_ + P_ + L_ - 1) {if (0 != N_) *a_ = 0.f;}
+
+	template<class BIterator>
+	block_filter(size_t L, BIterator b_begin, BIterator b_end)
+	 :	base(b_begin, b_end, L * 2)
+	 ,	L_(L)
+	 ,	x_(w_ + P_ + L_ - 1) {}
+
+	template<class BSample, class ASample>
+	block_filter(size_t L, const BSample* b_vec, size_t b_len, const ASample* a_vec, size_t a_len)
+	 :	base(b_vec, b_len, a_vec, a_len, L * 2)
+	 ,	L_(L)
+	 ,	x_(w_ + P_ + L_ - 1) {if (0 != N_) *a_ = 0.f;}
+
+	template<class BSample>
+	block_filter(size_t L, const BSample* b_vec, size_t b_len)
+	 :	base(b_vec, b_len, L * 2)
+	 ,	L_(L)
+	 ,	x_(w_ + P_ + L_ - 1) {}
+
+	iterator begin() {return x_;}
+	iterator end() {return x_ + L_;}
+	const_iterator begin() const {return x_ ;}
+	const_iterator end() const {return x_ + L_;}
+
+	void operator()();
+
+private:
+	const size_t L_;
+	float* const x_;
 };
 
 }

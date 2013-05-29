@@ -197,3 +197,14 @@ DSPXX_API float dsp::simd::filter_sample_df2(float* w, const float* b, const siz
 	else
 		return dsp::filter_sample_df2(w, b, M, a, N);
 }
+
+void dsp::block_filter<float>::operator()()
+{
+	std::memmove(w_ + L_, w_, (P_ - 1) * sizeof(float));
+	float* w = w_ + L_ - 1;
+	float* x = x_;
+	for (size_t n = 0; n != L_; ++n, --w, ++x) {
+		*w = *x;
+		*x = dsp::simd::filter_sample_df2(w, b_, M_pad_, a_, N_pad_);
+	}
+}
