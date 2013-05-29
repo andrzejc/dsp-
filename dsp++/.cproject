@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?fileVersion 4.0.0?>
-
-<cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
 		<cconfiguration id="cdt.managedbuild.config.macosx.so.debug.428674351">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.macosx.so.debug.428674351" moduleId="org.eclipse.cdt.core.settings" name="Debug-MacOSX">
@@ -592,6 +590,8 @@
 								<option id="gnu.cpp.compiler.option.optimization.level.1870319010" name="Optimization Level" superClass="gnu.cpp.compiler.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.debugging.level.2128061476" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.other.other.1443021510" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -fvisibility=hidden" valueType="string"/>
+								<option id="gnu.cpp.compiler.option.optimization.flags.634612159" name="Other optimization flags" superClass="gnu.cpp.compiler.option.optimization.flags" value="-msse3" valueType="string"/>
+								<option id="gnu.cpp.compiler.option.other.pic.363795004" name="Position Independent Code (-fPIC)" superClass="gnu.cpp.compiler.option.other.pic" value="true" valueType="boolean"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1667387593" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.base.1182402494" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
@@ -605,6 +605,8 @@
 								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.option.optimization.level.1235865566" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.debugging.level.1265829339" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.misc.other.634118926" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -fvisibility=hidden" valueType="string"/>
+								<option id="gnu.c.compiler.option.optimization.flags.1648603220" name="Other optimization flags" superClass="gnu.c.compiler.option.optimization.flags" value="-msse3" valueType="string"/>
+								<option id="gnu.c.compiler.option.misc.pic.1982125118" name="Position Independent Code (-fPIC)" superClass="gnu.c.compiler.option.misc.pic" value="true" valueType="boolean"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1146675857" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.974579411" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base">
@@ -617,6 +619,8 @@
 									<listOptionValue builtIn="false" value="fftw3f"/>
 									<listOptionValue builtIn="false" value="fftw3_threads"/>
 									<listOptionValue builtIn="false" value="fftw3f_threads"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="fftw3l"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="fftw3l_threads"/>
 								</option>
 								<option id="gnu.cpp.link.option.paths.2079225730" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths"/>
 								<option defaultValue="true" id="gnu.cpp.link.option.shared.238599852" name="Shared (-shared)" superClass="gnu.cpp.link.option.shared" valueType="boolean"/>
@@ -629,6 +633,7 @@
 								<option id="gnu.both.asm.option.include.paths.919508299" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dsp++/include}&quot;"/>
 								</option>
+								<option id="gnu.both.asm.option.flags.1189223457" name="Assembler flags" superClass="gnu.both.asm.option.flags" value="-msse3" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.2065572385" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
 						</toolChain>
@@ -678,6 +683,8 @@
 								<option id="gnu.cpp.compiler.option.optimization.level.1241909197" name="Optimization Level" superClass="gnu.cpp.compiler.option.optimization.level" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.debugging.level.1930614681" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.other.other.2118301934" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0  -fvisibility=hidden" valueType="string"/>
+								<option id="gnu.cpp.compiler.option.optimization.flags.513428469" name="Other optimization flags" superClass="gnu.cpp.compiler.option.optimization.flags" value="-msse3" valueType="string"/>
+								<option id="gnu.cpp.compiler.option.other.pic.1978198702" name="Position Independent Code (-fPIC)" superClass="gnu.cpp.compiler.option.other.pic" value="true" valueType="boolean"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.2115826039" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.base.2063756191" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
@@ -691,6 +698,8 @@
 								<option id="gnu.c.compiler.option.include.paths.1381363010" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dsp++/include}&quot;"/>
 								</option>
+								<option id="gnu.c.compiler.option.optimization.flags.457657017" name="Other optimization flags" superClass="gnu.c.compiler.option.optimization.flags" value="-msse3" valueType="string"/>
+								<option id="gnu.c.compiler.option.misc.pic.5160463" name="Position Independent Code (-fPIC)" superClass="gnu.c.compiler.option.misc.pic" value="true" valueType="boolean"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1670435176" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.1262002556" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base">
@@ -703,6 +712,8 @@
 									<listOptionValue builtIn="false" value="fftw3f"/>
 									<listOptionValue builtIn="false" value="fftw3_threads"/>
 									<listOptionValue builtIn="false" value="fftw3f_threads"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="fftw3l"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="fftw3l_threads"/>
 								</option>
 								<option defaultValue="true" id="gnu.cpp.link.option.shared.475911018" name="Shared (-shared)" superClass="gnu.cpp.link.option.shared" valueType="boolean"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.817305503" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
@@ -714,6 +725,7 @@
 								<option id="gnu.both.asm.option.include.paths.1426002106" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dsp++/include}&quot;"/>
 								</option>
+								<option id="gnu.both.asm.option.flags.1108371806" name="Assembler flags" superClass="gnu.both.asm.option.flags" value="-msse3" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.212287970" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
 						</toolChain>
