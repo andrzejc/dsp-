@@ -1,21 +1,28 @@
 #include <dsp++/simd.h>
 #include <dsp++/platform.h>
 
-#ifdef _MSC_VER
-#include <malloc.h> // for _aligned_malloc()/_aligned_free()
-#endif // _MSC_VER
+#if defined(DSP_ARCH_FAMILY_X86)
+# ifdef _MSC_VER
+#  include <malloc.h> // for _aligned_malloc()/_aligned_free()
+#  include <intrin.h>	// for __cpuid()
 
-#ifdef _MSC_VER
-#include <intrin.h>	// for __cpuid()
-
-#if !defined(__CLR_VER) && defined(_M_X64) && defined(_MSC_VER) && (_MSC_FULL_VER >= 160040219)
-#include <immintrin.h>  // AVX intrinsics, for _xgetbv()
-#endif
-#endif // _MSC_VER
-
-#ifdef DSP_ARCH_FAMILY_X86
-#include <xmmintrin.h>	// SSE intrinsics
-#endif
+#  if !defined(__CLR_VER) && defined(_M_X64) && (_MSC_FULL_VER >= 160040219)
+#   include <immintrin.h>  // AVX intrinsics, for _xgetbv()
+#  endif
+# else // _MSC_VER
+// Visual C++ compiler has _alligned_malloc(), others need _mm_malloc()
+#  include <xmmintrin.h>		// SSE intrinsics, for _mm_malloc()/_mm_free()
+# endif
+#elif defined(DSP_ARCH_FAMILY_PPC) // DSP_ARCH_FAMILY_X86
+# if defined(DSP_OS_MACOSX)
+#  include <sys/sysctl.h>
+# elif defined(DSP_OS_FAMILY_BSD)
+#  include <sys/param.h>
+#  include <sys/sysctl.h>
+#  include <machine/cpu.h>
+# endif
+// TODO add altivec detection on PPC linux
+#endif // DSP_ARCH_FAMILY_PPC
 
 #include <cstdlib> // for posix_memalign()/aligned_alloc()/malloc()/free()
 #include <cassert>
@@ -26,8 +33,8 @@ namespace {
 
 #if defined(DSP_ARCH_FAMILY_X86)
 
-#if defined(__GNUC__)
-#if (defined(__pic__) || defined(__APPLE__))
+#ifdef __GNUC__
+# if (defined(__pic__) || defined(__APPLE__))
 static __inline void __cpuid(int cpu_info[4], int info_type) {
   asm volatile (
     "mov %%ebx, %%edi                          \n"
@@ -36,31 +43,16 @@ static __inline void __cpuid(int cpu_info[4], int info_type) {
     : "=a"(cpu_info[0]), "=D"(cpu_info[1]), "=c"(cpu_info[2]), "=d"(cpu_info[3])
     : "a"(info_type));
 }
-#else
+# else
 static __inline void __cpuid(int cpu_info[4], int info_type) {
   asm volatile (
     "cpuid                                     \n"
     : "=a"(cpu_info[0]), "=b"(cpu_info[1]), "=c"(cpu_info[2]), "=d"(cpu_info[3])
     : "a"(info_type));
 }
-#endif
-#endif // defined(__GNUC__)
+# endif
 
-#if !defined(__CLR_VER) && defined(_M_X64) && defined(_MSC_VER) && (_MSC_FULL_VER >= 160040219)
-static unsigned int xgetbv(unsigned int xcr) {
-  return static_cast<unsigned int>(_xgetbv(xcr));
-}
-#elif !defined(__CLR_VER) && defined(_M_IX86) && defined(_MSC_VER)
-__declspec(naked) __declspec(align(16))
-static unsigned int xgetbv(unsigned int xcr) {
-  __asm {
-    mov        ecx, [esp + 4]    // xcr
-    _asm _emit 0x0f _asm _emit 0x01 _asm _emit 0xd0  // xgetbv for vs2005.
-    ret
-  }
-}
-#else
-static unsigned int xgetbv(unsigned int xcr) {
+static __inline unsigned int xgetbv(unsigned int xcr) {
   unsigned int xcr_feature_mask;
   asm volatile (
     ".byte 0x0f, 0x01, 0xd0\n"
@@ -69,8 +61,24 @@ static unsigned int xgetbv(unsigned int xcr) {
     : "memory", "cc", "edx");  // edx unused.
   return xcr_feature_mask;
 }
-#endif
+#endif // __GNUC__
 
+#ifdef _MSC_VER
+# if !defined(__CLR_VER) && defined(_M_X64) && (_MSC_FULL_VER >= 160040219)
+static unsigned int xgetbv(unsigned int xcr) {
+  return static_cast<unsigned int>(_xgetbv(xcr));
+}
+# elif !defined(__CLR_VER) && defined(_M_IX86)
+__declspec(naked) __declspec(align(16))
+static unsigned int xgetbv(unsigned int xcr) {
+  __asm {
+    mov        ecx, [esp + 4]    // xcr
+    _asm _emit 0x0f _asm _emit 0x01 _asm _emit 0xd0  // xgetbv for vs2005.
+    ret
+  }
+}
+# endif
+#endif// _MSC_VER
 
 #define CPUID3_MMX_BIT (1 << 23)
 #define CPUID3_SSE_BIT (1 << 25)
@@ -152,6 +160,23 @@ static const int architecture_ = dsp::simd::arch_ppc64;
 #else
 static const int architecture_ = dsp::simd::arch_ppc;
 #endif
+
+static int do_get_features() {
+
+#if defined(DSP_OS_FAMILY_BSD)
+    int sels[2] = {CTL_MACHDEP, CPU_ALTIVEC};
+#elif defined(DSP_OS_MACOSX)
+    int sels[2] = {CTL_HW, HW_VECTORUNIT};
+#endif
+    int altivec = 0;
+    size_t len = sizeof(altivec);
+    int err = sysctl(sels, 2, &altivec, &len, NULL, 0);
+    if (0 == err)
+        return (0 != altivec ? dsp::simd::feat_ppc_altivec : 0);
+    return 0;
+}
+
+static const int features_ = do_get_features();
 
 // TODO add features/architecture/alignment for other platforms
 #else
