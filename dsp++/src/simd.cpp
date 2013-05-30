@@ -23,7 +23,7 @@ void* dsp::simd::detail::generic_aligned_alloc(size_t size)
         return NULL;
     long diff 			= ((~(long)ptr)&(alignment_ - 1)) + 1;
     ptr               	= (char *)ptr + diff;
-    ((char *)ptr)[-1] = diff;
+    ((char *)ptr)[-1] = (char)diff;
 #endif
     if (NULL == ptr && 0 == size)
     	ptr = dsp::simd::aligned_alloc(1);
