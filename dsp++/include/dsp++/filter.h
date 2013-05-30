@@ -51,41 +51,74 @@ Sample filter_sample_df2(Sample* w, const Sample* b, const size_t M, const Sampl
 const size_t sos_length = 3; //!< Length of coefficient vector of a single second-order-section (SOS) filter (3).
 
 /*!
- * @brief Filter a single sample x with a bank of N second-order-section IIR filters.
+ * @brief Filter a single input sample through a cascade of Second-order Sections, optimized with SIMD instructions.
  * @param[in] x input signal sample.
- * @param[in] N number of second-order-sections and the length of w, b, blens, a and alens arrays.
- * @param[in,out] w delay line buffers for each SOS (N).
- * @param[in] b MA (FIR) coefficients of each SOS (N).
- * @param[in] blens number of important samples for each row of b array (N).
- * @param[in] a AR (IIR) coefficients of each SOS (N).
- * @param[in] alens number of important samples for each row of a array (N).
- * @return filtered sample.
+ * @param[in] N number of sections in a cascade.
+ * @param[in] scale_only array of bools which indicate (if true), that this section contains only b0 coefficient (is 0-th order scaler) (N).
+ * @param[in,out] w vector used for storing intermediate calculation results - N step-length delay line vectors (step * N).
+ * @param[in] b vector with MA coefficients for each section (step * N)
+ * @param[in] a vector with AR coefficients for each section (step * N)
+ * @param[in] step length of each section coefficient and delay line subvectors.
  */
 template<class Sample> inline
-Sample filter_sample_sos_df2(Sample x, size_t N, Sample (*w)[sos_length], const Sample (*b)[sos_length], const size_t* blens, const Sample (*a)[sos_length], const size_t* alens)
+Sample filter_sample_sos_df2(Sample x, size_t N, const bool* scale_only, Sample* w, const Sample* b, const Sample* a, size_t step)
 {
-	for (size_t n = 0; n < N; ++n, ++b, ++blens, ++a, ++alens, ++w) {
-		**w = x;
-		x = filter_sample_df2(*w, *b, *blens, *a, *alens);
+	for (size_t i = 0; i < N; ++i, ++scale_only, w += step, b += step, a += step) {
+		if (*scale_only)
+			x *= *b;
+		else {
+			Sample sum = Sample();
+			for (size_t i = 1; i < sos_length; ++i)
+				sum += a[i] * w[i];
+			*w = x - sum;
+			sum = Sample();
+			for (size_t i = 0; i < sos_length; ++i)
+				sum += b[i] * w[i];
+			x = sum;
+		}
 	}
 	return x;
 }
+
 
 namespace simd {
 
 /*!
  * @brief Filter a single input sample with a Direct-Form II AR/MA digital filter of order P using SIMD instructions.
- * @param w Delay line buffer of length max(M, N), needs not to be aligned (we use unaligned reads here as it should
+ * @param[in,out] w Delay line buffer of length max(M, N), needs not to be aligned (we use unaligned reads here as it should
  * be generally faster to read/write unaligned sliding window than move the memory block in each iteration).
- * @param b FIR filter coefficients vector, must be aligned and padded (M)
- * @param M Padded length of b vector.
- * @param a IIR filter coefficients vector, must be aligned and padded, a[0] must be set to 0 for efficiency reasons (N)
- * @param N Padded length of a vector.
+ * @param[in] b FIR filter coefficients vector, must be aligned and padded (M)
+ * @param[in] M Padded length of b vector.
+ * @param[in] a IIR filter coefficients vector, must be aligned and padded, a[0] must be set to 0 for efficiency reasons (N)
+ * @param[in] N Padded length of a vector.
  * @note M and N must include padding.
  * @note a[0] must be set on input to 0, although it is assumed to be 1.
  * @return filtered sample.
  */
 DSPXX_API float filter_sample_df2(float* w, const float* b, const size_t M, const float* a, const size_t N);
+/*!
+ * @param[in] feat_flags override runtime CPU feature flags detection and run as if the specified features were present.
+ * @copydoc filter_sample_df2(float*, const float*, const size_t, const float*, const size_t)
+ */
+DSPXX_API float filter_sample_df2(float* w, const float* b, const size_t M, const float* a, const size_t N, int feat_flags);
+
+/*!
+ * @brief Filter a single input sample through a cascade of Second-order Sections, optimized with SIMD instructions.
+ * @param[in] x input sample.
+ * @param[in] N number of sections in a cascade.
+ * @param[in] scale_only array of bools which indicate (if true), that this section contains only b0 coefficient (is 0-th order scaler) (N).
+ * @param[in,out] w vector used for storing intermediate calculation results - delay line of (padded) length step for each section, must be
+ * properly padded and aligned according to dsp::simd::aligned_count<float>(sos_length) (step * N).
+ * @param[in] b vector with MA coefficients for each section (step * N)
+ * @param[in] a vector with AR coefficients for each section (step * N)
+ * @param[in] step length of each section coefficient and delay line subvectors (basically result of dsp::simd::aligned_count<float>(sos_length) call).
+ */
+DSPXX_API float filter_sample_sos_df2(float x, size_t N, const bool* scale_only, float* w, const float* b, const float* a, size_t step);
+/*!
+ * @param[in] feat_flags override runtime CPU feature flags detection and run as if the specified features were present.
+ * @copydoc filter_sample_sos_df2(float, size_t, const bool*, float*, const float*, const float*, size_t)
+ */
+DSPXX_API float filter_sample_sos_df2(float x, size_t N, const bool* scale_only, float* w, const float* b, const float* a, size_t step, int feat_flags);
 
 }
 
@@ -411,23 +444,85 @@ public:
 
 };
 
+
+template<class Sample, class BufferTraits = dsp::buffer_traits<Sample> >
+class sos_filter_base
+{
+protected:
+	static const size_t step_min = sos_length + 1;
+	static size_t step() {return BufferTraits::aligned_count(step_min);}
+public:
+	static const size_t section_length = sos_length; 		//!< Length of coefficient vector of a single second-order-section (SOS) filter (3).
+
+protected:
+	/*!
+	 * @brief Construct SOS-bank filter given coefficients provided as a matrix in a form compatible with
+	 * MATLAB fdatool output.
+	 * @param N number of second-order-sections (rows in num, numl, den and denl arrays).
+	 * @param num @f$N{\times}section\_length@f$ matrix with N rows of numerator coefficients.
+	 * @param numl N-row array with lengths of each coefficient vector in matrix num.
+	 * @param den @f$N{\times}section\_length@f$ matrix with N rows of denominator coefficients.
+	 * @param denl N-row array with lengths of each coefficient vector in matrix den.
+	 */
+	template<class CoeffSample, class CoeffSize>
+	sos_filter_base(size_t N, const CoeffSample (*num)[section_length], const CoeffSize* numl, const CoeffSample (*den)[section_length], const CoeffSize* denl);
+
+	const size_t step_;
+	const size_t N_;				//!< number of second-order sections
+	trivial_array<Sample, typename BufferTraits::allocator_type> rbuf_;
+	trivial_array<bool>   scale_only_;
+	Sample* const b_;
+	Sample* const a_;
+	Sample* const w_;
+};
+
+template<class Sample, class BufferTraits>
+template<class CoeffSample, class CoeffSize> inline
+sos_filter_base<Sample, BufferTraits>::sos_filter_base(size_t N, const CoeffSample (*num)[section_length], const CoeffSize* numl, const CoeffSample (*den)[section_length], const CoeffSize* denl)
+ :	step_(step())
+ , 	N_(N)
+ ,	rbuf_(3 * step_ * N_)
+ ,	scale_only_(N_)
+ ,	b_(rbuf_.get())
+ ,	a_(b_ + N_ * step_)
+ ,	w_(a_ + N_ * step_)
+{
+	Sample* b = b_;
+	Sample* a = a_;
+	for (size_t i = 0; i < N; ++i, b += step_, a += step_, ++num, ++numl, ++den, ++denl) {
+		std::copy(*num, *num + *numl, b);
+		std::copy(*den, *den + *denl, a);
+		if (*denl > 0) {
+			std::transform(b, b + *numl, b, std::bind2nd(std::divides<Sample>(), *a));
+			std::transform(a, a + *denl, a, std::bind2nd(std::divides<Sample>(), *a));
+		}
+		*a = Sample(); // set a[0] to 0 as an optimization for dot product calculation
+		scale_only_[i] = (*numl == 1) && (*denl <= 1);
+	}
+}
+
+
 /*!
  * @brief Implementation of Direct-Form II digital filter realized as a bank of second-order-sections (SOS).
  * @tparam Sample type of samples this filter operates on.
  */
 template<class Sample>
-class filter_sos: public sample_based_transform<Sample>
+class filter_sos: public sos_filter_base<Sample>, public sample_based_transform<Sample>
 {
+	typedef sos_filter_base<Sample> base;
 public:
-	static const size_t section_length = sos_length; 		//!< Length of coefficient vector of a single second-order-section (SOS) filter (3).
-	typedef Sample second_order_section[section_length];	//!< Array used to store SOS samples.
+
+	using base::section_length;
 
 	/*!
 	 * @brief Apply filtering to a single input sample x.
 	 * @param x input sample to filter.
 	 * @return filtered sample.
 	 */
-	inline Sample operator()(Sample x);
+	inline Sample operator()(Sample x) {
+		delay(base::w_, base::N_ * base::step_);
+		return filter_sample_sos_df2(x, base::N_, base::scale_only_.get(), base::w_, base::b_, base::a_, base::step_);
+	}
 
 	/*!
 	 * @brief Construct SOS-bank filter given coefficients provided as a matrix in a form compatible with
@@ -439,52 +534,38 @@ public:
 	 * @param denl N-row array with lengths of each coefficient vector in matrix den.
 	 */
 	template<class CoeffSample, class CoeffSize>
-	filter_sos(size_t N, const CoeffSample (*num)[section_length], const CoeffSize* numl, const CoeffSample (*den)[section_length], const CoeffSize* denl);
-
-private:
-	const size_t N_;				//!< number of second-order sections
-	trivial_array<Sample> rbuf_;
-	trivial_array<size_t> lbuf_;
-	second_order_section* const num_;
-	second_order_section* const den_;
-	second_order_section* const w_;
-	size_t* const numl_;
-	size_t* const denl_;
+	filter_sos(size_t N, const CoeffSample (*num)[section_length], const CoeffSize* numl, const CoeffSample (*den)[section_length], const CoeffSize* denl)
+	 :	base(N, num, numl, den, denl) {}
 };
 
-template<class Sample> inline
-Sample filter_sos<Sample>::operator ()(Sample x)
+template<>
+class DSPXX_API filter_sos<float>: public sos_filter_base<float, dsp::simd::buffer_traits<float> >, public sample_based_transform<float>
 {
-	for (size_t n = 0; n < N_; ++n)
-		delay(w_[n], std::max(numl_[n], denl_[n]));
-	return filter_sample_sos_df2(x, N_, w_, num_, numl_, den_, denl_);
-}
+	typedef sos_filter_base<float, dsp::simd::buffer_traits<float> > base;
+public:
 
-template<class Sample>
-template<class CoeffSample, class CoeffSize> inline
-filter_sos<Sample>::filter_sos(size_t N, const CoeffSample (*num)[section_length], const CoeffSize* numl, const CoeffSample (*den)[section_length], const CoeffSize* denl)
- :	N_(N)
- ,	rbuf_(3 * section_length * N_)
- ,	lbuf_(2 * N_)
- ,	num_(reinterpret_cast<second_order_section*>(rbuf_.get()))
- ,	den_(num_ + N_)
- ,	w_(den_ + N_)
- ,	numl_(lbuf_.get())
- ,	denl_(numl_ + N_)
-{
-	for (size_t i = 0; i < N; ++i) {
-		Sample (&nto)[section_length] = num_[i];
-		const CoeffSample (&nfrom)[section_length] = num[i];
-		std::copy(nfrom, nfrom + section_length, nto);
+	using base::section_length;
 
-		Sample (&dto)[section_length] = den_[i];
-		const CoeffSample (&dfrom)[section_length] = den[i];
-		std::copy(dfrom, dfrom + section_length, dto);
+	/*!
+	 * @brief Apply filtering to a single input sample x.
+	 * @param x input sample to filter.
+	 * @return filtered sample.
+	 */
+	float operator()(float x);
 
-		numl_[i] = numl[i];
-		denl_[i] = denl[i];
-	}
-}
+	/*!
+	 * @brief Construct SOS-bank filter given coefficients provided as a matrix in a form compatible with
+	 * MATLAB fdatool output.
+	 * @param N number of second-order-sections (rows in num, numl, den and denl arrays).
+	 * @param num @f$N{\times}section\_length@f$ matrix with N rows of numerator coefficients.
+	 * @param numl N-row array with lengths of each coefficient vector in matrix num.
+	 * @param den @f$N{\times}section\_length@f$ matrix with N rows of denominator coefficients.
+	 * @param denl N-row array with lengths of each coefficient vector in matrix den.
+	 */
+	template<class CoeffSample, class CoeffSize>
+	filter_sos(size_t N, const CoeffSample (*num)[section_length], const CoeffSize* numl, const CoeffSample (*den)[section_length], const CoeffSize* denl)
+	 :	base(N, num, numl, den, denl) {}
+};
 
 /*!
  * @brief Implementation of Direct-Form II digital filter.

@@ -14,6 +14,7 @@ void x86_sse_mulf(float* res, const float* x, const float* b, size_t N);
 void x86_sse_mulcf(std::complex<float>* res, const std::complex<float>* a, const std::complex<float>* b, size_t len);
 std::complex<float> x86_sse_dotcf(const std::complex<float>* a, const std::complex<float>* b, size_t len);
 float x86_sse_dotf(const float* x, const float* b, size_t N);
+float x86_sse_filter_sos_df2(float x, size_t N, const bool* scale_only, float* w, const float* b, const float* a, size_t step);
 
 float x86_sse3_dotf(const float* x, const float* b, size_t N);
 float x86_sse41_dotf(const float* x, const float* b, size_t N);

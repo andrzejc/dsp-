@@ -276,8 +276,9 @@ const double y[] = {4.901631884445604e-011,1.969846451468608e-009,3.816477958616
 
 void dsp::test::filter_test::test_sos()
 {
-	double out[1024];
-	dsp::filter_sos<double> sos(MWSPT_NSEC, NUM, NL, DEN, DL);
-	for (size_t i = 0; i < 1024; ++i) out[i] = sos(x[i]);
-	CPPUNIT_ASSERT(std::equal(out, out + 1024, y, dsp::within_range<double>(0.00001)));
+	float out[1024];
+	dsp::filter_sos<float> sos(MWSPT_NSEC, NUM, NL, DEN, DL);
+	for (size_t i = 0; i < 1024; ++i)
+		out[i] = sos(x[i]);
+	CPPUNIT_ASSERT(std::equal(out, out + 1024, y, dsp::within_range<float>(0.00001)));
 }

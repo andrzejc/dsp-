@@ -199,4 +199,31 @@ float dsp::simd::detail::x86_sse_filter_df2(float* w, const float* b, const size
 	return madot;
 }
 
+float dsp::simd::detail::x86_sse_filter_sos_df2(float x, size_t N, const bool* scale_only, float* w, const float* b, const float* a, size_t step)
+{
+	__m128 cx, wx, xx, slack;
+	xx = _mm_set_ss(x);				// xx[0] = x; xx[1-3] = 0; xx[0] will hold the result between the steps
+	for (size_t i = 0; i < N; ++i, w += step, b += step, a += step, ++scale_only) {
+		if (*scale_only) {
+			cx = _mm_load_ss(b);		// load only 0th element from b
+			xx = _mm_mul_ss(xx, cx);	// xx[0] *= cx[0]; 		don't need to write intermediate results back to w for scale-only section (we don't use it)
+		}
+		else {
+			cx = _mm_load_ps(a);
+			wx = _mm_load_ps(w);
+			wx = _mm_move_ss(wx, xx);	// put result of previous iteration in wx[0]
+			cx = _mm_mul_ps(cx, wx);
+			SSE_HSUM(cx, cx, slack);	// cx[0] now has dot(a, w)
+			wx = _mm_sub_ss(wx, cx);	// wx[0] -= dot(a, w);
+			_mm_store_ps(w, wx);		// update the delay line for next sample, write wx to memory
+
+			cx = _mm_load_ps(b);
+			cx = _mm_mul_ps(cx, wx);	//
+			SSE_HSUM(xx, cx, slack);	// xx[0] = dot(b, w)
+		}
+	}
+	return _mm_cvtss_f32(xx);
+}
+
+
 #endif // DSP_ARCH_FAMILY_X86
