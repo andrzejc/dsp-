@@ -22,7 +22,7 @@ struct generalized_mean_functor {
 	bool zero;
 	Sample inverted;
 
-	generic_mean_functor(Exponent e)
+	generalized_mean_functor(Exponent e)
 	 :	exponent(e)
 	 ,	zero(Exponent() == e)
 	 ,	inverted(zero ? Sample() : 1/Sample(e)) {}
