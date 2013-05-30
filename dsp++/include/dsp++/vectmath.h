@@ -8,6 +8,7 @@
 
 #include <complex>			// for std::complex
 #include <cstddef>			// for size_t
+#include <cmath>			// for std::sqrt()
 
 namespace dsp { 
 
@@ -46,6 +47,14 @@ namespace dsp {
 
 		//! @copydoc dot(const float*, const float*, size_t)
 		DSPXX_API std::complex<float> dot(const std::complex<float>* a, const std::complex<float>* b, size_t len);
+
+		/*!
+		 * @brief Square root of elements of SIMD-aligned and padded vector.
+		 * @param [out] res output vector (SIMD-aligned and padded) (len).
+		 * @param [in] a input vector (SIMD-aligned and padded) (len).
+		 * @param [in] len length of vectors.
+		 */
+		void sqrt(float* res, const float* a, size_t len);
 
 		// TODO implement other interesting SIMD-accelerated vector ops
 	}
@@ -90,4 +99,12 @@ namespace dsp {
 		for (size_t i = 0; i < len; ++i, ++res, ++a)
 			*res = *a * s;
 	}
+
+	template<class T>
+	inline void sqrt(T* res, const T* a, size_t len)
+	{
+		for (size_t i = 0; i < len; ++i, ++res, ++a)
+			*res = std::sqrt(*a);
+	}
+
 } 

@@ -265,5 +265,45 @@ float dsp::simd::detail::x86_sse_filter_sos_df2(float x, size_t N, const bool* s
 	return _mm_cvtss_f32(xx);
 }
 
+//! @brief Vector-scalar multiplication using SSE instructions
+void dsp::simd::detail::x86_sse_sqrtf(float* res, const float* x, size_t N)
+{
+	__m128 x0, x1, x2, x3, x4, x5, x6, x7;
+	size_t n = N / 32;
+	for (size_t i = 0; i < n; ++i, x += 32, res += 32) {
+		x0 = _mm_load_ps(x);
+		x1 = _mm_load_ps(x + 4);
+		x2 = _mm_load_ps(x + 8);
+		x3 = _mm_load_ps(x + 12);
+		x4 = _mm_load_ps(x + 16);
+		x5 = _mm_load_ps(x + 20);
+		x6 = _mm_load_ps(x + 24);
+		x7 = _mm_load_ps(x + 32);
+
+		x0 = _mm_sqrt_ps(x0);
+		x1 = _mm_sqrt_ps(x1);
+		x2 = _mm_sqrt_ps(x2);
+		x3 = _mm_sqrt_ps(x3);
+		x4 = _mm_sqrt_ps(x4);
+		x5 = _mm_sqrt_ps(x5);
+		x6 = _mm_sqrt_ps(x6);
+		x7 = _mm_sqrt_ps(x7);
+
+		_mm_store_ps(res, x0);
+		_mm_store_ps(res + 4, x1);
+		_mm_store_ps(res + 8, x2);
+		_mm_store_ps(res + 12, x3);
+		_mm_store_ps(res + 16, x4);
+		_mm_store_ps(res + 20, x5);
+		_mm_store_ps(res + 24, x6);
+		_mm_store_ps(res + 32, x7);
+	}
+	n = (N % 32) / 4;
+	for (size_t i = 0; i < n; ++i, x += 4, res += 4) {
+		x0 = _mm_load_ps(x);
+		x0 = _mm_sqrt_ps(x0);
+		_mm_store_ps(res, x0);
+	}
+}
 
 #endif // DSP_ARCH_FAMILY_X86

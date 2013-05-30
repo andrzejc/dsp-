@@ -75,3 +75,13 @@ void dsp::simd::mul(std::complex<float>* res, const std::complex<float>* a, cons
 		dsp::mul(res, a, b, len);
 }
 
+void dsp::simd::sqrt(float* res, const float* a, size_t len)
+{
+	if (false) ;
+#ifdef DSP_ARCH_FAMILY_X86
+	else if (DSP_SIMD_FEATURES & dsp::simd::feat_x86_sse)
+		x86_sse_sqrtf(res, a, len);
+#endif // DSP_ARCH_FAMILY_X86
+	else
+		dsp::sqrt(res, a, len);
+}
