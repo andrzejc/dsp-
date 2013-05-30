@@ -53,6 +53,17 @@ void dsp::simd::mul(float* res, const float* a, const float* b, size_t len)
 		dsp::mul(res, a, b, len);
 }
 
+void dsp::simd::mul(float* res, const float* a, float s, size_t len)
+{
+	if (false) ;
+#ifdef DSP_ARCH_FAMILY_X86
+	else if (DSP_SIMD_FEATURES & dsp::simd::feat_x86_sse)
+		x86_sse_mulf(res, a, s, len);
+#endif // DSP_ARCH_FAMILY_X86
+	else
+		dsp::mul(res, a, s, len);
+}
+
 void dsp::simd::mul(std::complex<float>* res, const std::complex<float>* a, const std::complex<float>* b, size_t len)
 {
 	if (false) ;

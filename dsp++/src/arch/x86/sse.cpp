@@ -36,6 +36,46 @@ void dsp::simd::detail::x86_sse_mulf(float* res, const float* x, const float* b,
 	}
 }
 
+//! @brief Vector-scalar multiplication using SSE instructions
+void dsp::simd::detail::x86_sse_mulf(float* res, const float* x, float s, size_t N)
+{
+	__m128 x0, x1, x2, x3, x4, x5, x6, s0;
+	static const size_t step = 4 * 7;
+	size_t n = N / step;
+	s0 = _mm_load1_ps(&s);
+	for (size_t i = 0; i < n; ++i, x += step, res += step) {
+		x0 = _mm_load_ps(x);
+		x1 = _mm_load_ps(x + 4);
+		x2 = _mm_load_ps(x + 8);
+		x3 = _mm_load_ps(x + 12);
+		x4 = _mm_load_ps(x + 16);
+		x5 = _mm_load_ps(x + 20);
+		x6 = _mm_load_ps(x + 24);
+
+		x0 = _mm_mul_ps(x0, s0);
+		x1 = _mm_mul_ps(x1, s0);
+		x2 = _mm_mul_ps(x2, s0);
+		x3 = _mm_mul_ps(x3, s0);
+		x4 = _mm_mul_ps(x4, s0);
+		x5 = _mm_mul_ps(x5, s0);
+		x6 = _mm_mul_ps(x6, s0);
+
+		_mm_store_ps(res, x0);
+		_mm_store_ps(res + 4, x1);
+		_mm_store_ps(res + 8, x2);
+		_mm_store_ps(res + 12, x3);
+		_mm_store_ps(res + 16, x4);
+		_mm_store_ps(res + 20, x5);
+		_mm_store_ps(res + 24, x6);
+	}
+	n = (N % step) / 4;
+	for (size_t i = 0; i < n; ++i, x += 4, res += 4) {
+		x0 = _mm_load_ps(x);
+		x0 = _mm_mul_ps(x0, s0);
+		_mm_store_ps(res, x0);
+	}
+}
+
 //! @brief Piecewise complex vector multiplication using SSE instructions
 void dsp::simd::detail::x86_sse_mulcf(std::complex<float>* res_c, const std::complex<float>* a_c, const std::complex<float>* b_c, size_t len)
 {

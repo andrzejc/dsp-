@@ -11,6 +11,7 @@ void* x86_sse_alloc(int size, int align);
 void x86_sse_free(void *p);
 
 void x86_sse_mulf(float* res, const float* x, const float* b, size_t N);
+void x86_sse_mulf(float* res, const float* a, float s, size_t len);
 void x86_sse_mulcf(std::complex<float>* res, const std::complex<float>* a, const std::complex<float>* b, size_t len);
 std::complex<float> x86_sse_dotcf(const std::complex<float>* a, const std::complex<float>* b, size_t len);
 float x86_sse_dotf(const float* x, const float* b, size_t N);

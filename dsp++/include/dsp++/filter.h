@@ -112,6 +112,7 @@ DSPXX_API float filter_sample_df2(float* w, const float* b, const size_t M, cons
  * @param[in] b vector with MA coefficients for each section (step * N)
  * @param[in] a vector with AR coefficients for each section (step * N)
  * @param[in] step length of each section coefficient and delay line subvectors (basically result of dsp::simd::aligned_count<float>(sos_length) call).
+ * @note a[step * {0, 1, ... N-1}] must be set on input to 0, although it is assumed to be 1.
  */
 DSPXX_API float filter_sample_sos_df2(float x, size_t N, const bool* scale_only, float* w, const float* b, const float* a, size_t step);
 /*!
@@ -125,6 +126,19 @@ DSPXX_API float filter_sample_sos_df2(float x, size_t N, const bool* scale_only,
 template<class Sample, class BufferTraits = dsp::buffer_traits<Sample> >
 class df2_filter_base
 {
+	/*!
+	 * @brief Normalize numerator and denominator by a[0] and set it to 0 as required by SIMD functions.
+	 */
+	void normalize() {
+		if (0 == N_)
+			return;
+		if (Sample(1) != *a_) {
+			std::transform(b_, b_ + M_, b_, std::bind2nd(std::divides<Sample>(), *a_));
+			std::transform(a_, a_ + N_, a_, std::bind2nd(std::divides<Sample>(), *a_));
+		}
+		*a_ = Sample();
+	}
+
 public:
 
 	//! @return order of the implemented filter.
@@ -138,11 +152,14 @@ public:
 #endif
 	set(BIterator b_begin, BIterator b_end)
 	{
-		size_t m = std::distance(b_begin, b_end);
+		const size_t m = std::distance(b_begin, b_end);
 		if (m > M_)
 			throw std::length_error("filter length exceeds previous one");
+		std::fill_n(b_ + m, b_ + M_, Sample());
+		std::fill_n(a_, a_ + N_, Sample());
 		std::copy(b_begin, b_end, b_);
-		M_ = m;
+		M_ = m; M_pad_ = BufferTraits::aligned_count(M_);
+		N_ = 0; N_pad_ = 0;
 	}
 
 	template<class BIterator, class AIterator>
@@ -156,10 +173,14 @@ public:
 		size_t m = std::distance(b_begin, b_end), n = std::distance(a_begin, a_end);
 		if (m > M_ || n > N_)
 			throw std::length_error("filter length exceeds previous one");
+
+		std::fill_n(b_ + m, b_ + M_, Sample());
 		std::copy(b_begin, b_end, b_);
+		std::fill_n(a_ + n, a_ + N_, Sample());
 		std::copy(a_begin, a_end, a_);
-		M_ = m;
-		N_ = n;
+		M_ = m; M_pad_ = BufferTraits::aligned_count(M_);
+		N_ = n; N_pad_ = BufferTraits::aligned_count(N_);
+		normalize();
 	}
 
 	template<class BSample, class ASample>
@@ -173,11 +194,13 @@ public:
 		if (b_len > M_ || a_len > N_)
 			throw std::length_error("filter length exceeds previous one");
 
-		std::copy(a_vec, a_vec + a_len, a_);
+		std::fill_n(b_ + b_len, b_ + M_, Sample());
 		std::copy(b_vec, b_vec + b_len, b_);
-		Sample a = (0 != a_len ? *a_vec : Sample(1));
-		std::transform(a_, a_ + N_, a_, std::bind2nd(std::divides<Sample>(), a));
-		std::transform(b_, b_ + M_, b_, std::bind2nd(std::divides<Sample>(), a));
+		std::fill_n(a_ + a_len, a_ + N_, Sample());
+		std::copy(a_vec, a_vec + a_len, a_);
+		M_ = b_len; M_pad_ = BufferTraits::aligned_count(M_);
+		N_ = a_len; N_pad_ = BufferTraits::aligned_count(N_);
+		normalize();
 	}
 
 	template<class BSample>
@@ -190,7 +213,11 @@ public:
 	{
 		if (b_len > M_)
 			throw std::length_error("filter length exceeds previous one");
+		std::fill_n(b_ + b_len, b_ + M_, Sample());
+		std::fill_n(a_, a_ + N_, Sample());
 		std::copy(b_vec, b_vec + b_len, b_);
+		M_ = b_len; M_pad_ = BufferTraits::aligned_count(M_);
+		N_ = 0; N_pad_ = 0;
 	}
 
 protected:
@@ -249,8 +276,7 @@ df2_filter_base<Sample, BufferTraits>::df2_filter_base(BIterator b_begin, BItera
 
 	std::copy(a_begin, a_end, a_);
 	std::copy(b_begin, b_end, b_);
-	std::transform(a_, a_ + N_, a_, std::bind2nd(std::divides<Sample>(), *a_));
-	std::transform(b_, b_ + M_, b_, std::bind2nd(std::divides<Sample>(), *a_));
+	normalize();
 }
 
 template<class Sample, class BufferTraits>
@@ -289,9 +315,7 @@ df2_filter_base<Sample, BufferTraits>::df2_filter_base(const BSample* b_vec, siz
 
 	std::copy(a_vec, a_vec + a_len, a_);
 	std::copy(b_vec, b_vec + b_len, b_);
-	Sample a = (0 != a_len ? *a_vec : Sample(1));
-	std::transform(a_, a_ + N_, a_, std::bind2nd(std::divides<Sample>(), a));
-	std::transform(b_, b_ + M_, b_, std::bind2nd(std::divides<Sample>(), a));
+	normalize();
 }
 
 template<class Sample, class BufferTraits>
@@ -409,7 +433,7 @@ public:
 	 */
 	template<class BIterator, class AIterator>
 	filter(BIterator b_begin, BIterator b_end, AIterator a_begin, AIterator a_end)
-	 :	base(b_begin, b_end, a_begin, a_end, 1) {if (0 != N_) *a_ = 0.f;}
+	 :	base(b_begin, b_end, a_begin, a_end, 1) {}
 
 	/*!
 	 * @brief Construct all-zero filter given coefficients vector as iterator range [b_begin, b_end).
@@ -431,7 +455,7 @@ public:
 	 */
 	template<class BSample, class ASample>
 	filter(const BSample* b_vec, size_t b_len, const ASample* a_vec, size_t a_len)
-	 :	base(b_vec, b_len, a_vec, a_len, 1) {if (0 != N_) *a_ = 0.f;}
+	 :	base(b_vec, b_len, a_vec, a_len, 1) {}
 
 	/*!
 	 * @brief Construct all-zero filter given coefficients vector as C array.
@@ -487,12 +511,16 @@ sos_filter_base<Sample, BufferTraits>::sos_filter_base(size_t N, const CoeffSamp
  ,	a_(b_ + N_ * step_)
  ,	w_(a_ + N_ * step_)
 {
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
+	BOOST_CONCEPT_ASSERT((boost::Convertible<CoeffSample, Sample>));
+	BOOST_CONCEPT_ASSERT((boost::Convertible<CoeffSize, size_t>));
+#endif
 	Sample* b = b_;
 	Sample* a = a_;
 	for (size_t i = 0; i < N; ++i, b += step_, a += step_, ++num, ++numl, ++den, ++denl) {
 		std::copy(*num, *num + *numl, b);
 		std::copy(*den, *den + *denl, a);
-		if (*denl > 0) {
+		if (*denl > 0 && Sample(1) != *a) {
 			std::transform(b, b + *numl, b, std::bind2nd(std::divides<Sample>(), *a));
 			std::transform(a, a + *denl, a, std::bind2nd(std::divides<Sample>(), *a));
 		}
@@ -672,7 +700,7 @@ public:
 	block_filter(size_t L, BIterator b_begin, BIterator b_end, AIterator a_begin, AIterator a_end)
 	 :	base(b_begin, b_end, a_begin, a_end, L * 2)
 	 ,	L_(L)
-	 ,	x_(w_ + P_ + L_ - 1) {if (0 != N_) *a_ = 0.f;}
+	 ,	x_(w_ + P_ + L_ - 1) {}
 
 	template<class BIterator>
 	block_filter(size_t L, BIterator b_begin, BIterator b_end)
@@ -684,7 +712,7 @@ public:
 	block_filter(size_t L, const BSample* b_vec, size_t b_len, const ASample* a_vec, size_t a_len)
 	 :	base(b_vec, b_len, a_vec, a_len, L * 2)
 	 ,	L_(L)
-	 ,	x_(w_ + P_ + L_ - 1) {if (0 != N_) *a_ = 0.f;}
+	 ,	x_(w_ + P_ + L_ - 1) {}
 
 	template<class BSample>
 	block_filter(size_t L, const BSample* b_vec, size_t b_len)
