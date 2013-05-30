@@ -31,6 +31,15 @@
     <Filter Include="src\mkfilter">
       <UniqueIdentifier>{ff1c6181-850e-41d9-a75d-899448c6fcbb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\arch">
+      <UniqueIdentifier>{4b410044-4f3b-4f1a-a18c-debfbefc1cf2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\arch\x86">
+      <UniqueIdentifier>{d11ad4df-13d1-4dcb-b6f8-414eb29359e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\arch\ppc">
+      <UniqueIdentifier>{ec891776-654c-49bf-9ad6-e363a5bc9b49}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\fft.cpp">
@@ -65,6 +74,21 @@
     </ClCompile>
     <ClCompile Include="src\vectmath.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\arch\x86\sse.cpp">
+      <Filter>src\arch\x86</Filter>
+    </ClCompile>
+    <ClCompile Include="src\arch\x86\sse3.cpp">
+      <Filter>src\arch\x86</Filter>
+    </ClCompile>
+    <ClCompile Include="src\arch\x86\sse41.cpp">
+      <Filter>src\arch\x86</Filter>
+    </ClCompile>
+    <ClCompile Include="src\arch\ppc\cpu_ppc.cpp">
+      <Filter>src\arch\ppc</Filter>
+    </ClCompile>
+    <ClCompile Include="src\arch\x86\cpu_x86.cpp">
+      <Filter>src\arch\x86</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -196,6 +220,15 @@
     </ClInclude>
     <ClInclude Include="include\dsp++\vectmath.h">
       <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="src\arch\x86\sse.h">
+      <Filter>src\arch\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="src\arch\x86\sse_utils.h">
+      <Filter>src\arch\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="src\simd.h">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
