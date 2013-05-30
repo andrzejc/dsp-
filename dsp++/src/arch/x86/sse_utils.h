@@ -1,17 +1,11 @@
 /*!
- * @file sse.h
+ * @file sse_utils.h
  * @brief SSE support header
  */
 
 #ifndef DSP_SSE_H_INCLUDED
 #define DSP_SSE_H_INCLUDED
 #pragma once
-
-#ifndef DSP_ARCH_FAMILY_X86
-# error "sse.h is only for x86-family targets"
-#endif
-
-#include <nmmintrin.h>		// SSE4.2
 
 #define SSE_UNARY16_REG_MEM(to, from, oper) \
 	to ## 0 = _mm_ ## oper(from); \
