@@ -92,9 +92,7 @@ private:
 	Functor functor_;
 	trivial_array<Sample> buffer_;	//!< L_-length (circular) buffer holding intermediate values (averaged powers or logs if p_ == 0)
 	Sample pmean_;					//!< previous step mean value
-	Sample ip_;						//!< inverted exponent (can't be the same type as p_, as it often will be integer, and we need it for root calculation)
-	Exponent p_;					//!< mean exponent
-	size_t L_;						//!< averaging period and buffer_ length
+	const size_t L_;				//!< averaging period and buffer_ length
 	size_t n_;						//!< index of current sample in the circular buffer
 };
 
