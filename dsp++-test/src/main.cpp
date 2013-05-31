@@ -15,10 +15,12 @@
 #include "xcorr_test.h"
 #include "filter_design_test.h"
 #include "mean_test.h"
+#include "simd_test.h"
 
 int main(int argc, char* argv[])
 {
 	CppUnit::TextUi::TestRunner runner;
+	runner.addTest(dsp::test::simd_test::suite());
 	runner.addTest(dsp::test::fft_test::suite());
 	runner.addTest(dsp::test::window_test::suite());
 	runner.addTest(dsp::test::pow2_test::suite());

@@ -17,64 +17,35 @@ void dsp::simd::detail::x86_sse_free(void *p) {
 }
 
 //! @brief Piecewise vector multiplication using SSE instructions
-void dsp::simd::detail::x86_sse_mulf(float* res, const float* x, const float* b, size_t N)
-{
-	__m128 b0, b1, b2, b3, x0, x1, x2, x3;
-	size_t n = N / 16;
-	for (size_t i = 0; i < n; ++i, b += 16, x += 16, res += 16) {
-		SSE_LOAD16(b, b);
-		SSE_LOAD16(x, x);
-		SSE_MUL16(x, x, b);
-		SSE_STORE16(res, x);
-	}
-	n = (N % 16) / 4;
-	for (size_t i = 0; i < n; ++i, b += 4, x += 4, res += 4) {
-		b0 = _mm_load_ps(b);
-		x0 = _mm_load_ps(x);
-		x0 = _mm_mul_ps(x0, b0);
-		_mm_store_ps(res, x0);
-	}
-}
+SSE_FVVV(dsp::simd::detail::x86_sse_mulf, mul_ps)
 
 //! @brief Vector-scalar multiplication using SSE instructions
-void dsp::simd::detail::x86_sse_mulf(float* res, const float* x, float s, size_t N)
-{
-	__m128 x0, x1, x2, x3, x4, x5, x6, s0;
-	static const size_t step = 4 * 7;
-	size_t n = N / step;
-	s0 = _mm_load1_ps(&s);
-	for (size_t i = 0; i < n; ++i, x += step, res += step) {
-		x0 = _mm_load_ps(x);
-		x1 = _mm_load_ps(x + 4);
-		x2 = _mm_load_ps(x + 8);
-		x3 = _mm_load_ps(x + 12);
-		x4 = _mm_load_ps(x + 16);
-		x5 = _mm_load_ps(x + 20);
-		x6 = _mm_load_ps(x + 24);
+SSE_FVSV(dsp::simd::detail::x86_sse_mulf, mul_ps)
 
-		x0 = _mm_mul_ps(x0, s0);
-		x1 = _mm_mul_ps(x1, s0);
-		x2 = _mm_mul_ps(x2, s0);
-		x3 = _mm_mul_ps(x3, s0);
-		x4 = _mm_mul_ps(x4, s0);
-		x5 = _mm_mul_ps(x5, s0);
-		x6 = _mm_mul_ps(x6, s0);
+//! @brief Piecewise vector addition using SSE instructions
+SSE_FVVV(dsp::simd::detail::x86_sse_addf, add_ps)
 
-		_mm_store_ps(res, x0);
-		_mm_store_ps(res + 4, x1);
-		_mm_store_ps(res + 8, x2);
-		_mm_store_ps(res + 12, x3);
-		_mm_store_ps(res + 16, x4);
-		_mm_store_ps(res + 20, x5);
-		_mm_store_ps(res + 24, x6);
-	}
-	n = (N % step) / 4;
-	for (size_t i = 0; i < n; ++i, x += 4, res += 4) {
-		x0 = _mm_load_ps(x);
-		x0 = _mm_mul_ps(x0, s0);
-		_mm_store_ps(res, x0);
-	}
-}
+SSE_FVSV(dsp::simd::detail::x86_sse_addf, add_ps)
+
+//! @brief Piecewise vector addition using SSE instructions
+SSE_FVVV(dsp::simd::detail::x86_sse_subf, sub_ps)
+
+SSE_FVSV(dsp::simd::detail::x86_sse_subf, sub_ps)
+
+//! @brief Piecewise vector division (a/b) using SSE instructions
+SSE_FVVV(dsp::simd::detail::x86_sse_divf, div_ps)
+
+//! @brief Vector-scalar division using SSE instructions
+SSE_FVSV(dsp::simd::detail::x86_sse_divf, div_ps)
+
+//!@brief Dot product using SSE instruction set.
+SSE_SUM_FVVS(dsp::simd::detail::x86_sse_dotf, mul_ps)
+
+SSE_FVV(dsp::simd::detail::x86_sse_sqrtf, sqrt_ps)
+
+SSE_FVV(dsp::simd::detail::x86_sse_rcpf, rcp_ps)
+
+SSE_FVV(dsp::simd::detail::x86_sse_rsqrtf, rcp_ps)
 
 //! @brief Piecewise complex vector multiplication using SSE instructions
 void dsp::simd::detail::x86_sse_mulcf(std::complex<float>* res_c, const std::complex<float>* a_c, const std::complex<float>* b_c, size_t len)
@@ -134,30 +105,6 @@ std::complex<float> dsp::simd::detail::x86_sse_dotcf(const std::complex<float>* 
 	x0 = _mm_add_ps(x0, x5);
 	_mm_store_ps(mul, x0);
 	return *reinterpret_cast<std::complex<float>*>(mul);
-}
-
-//!@brief Dot product using SSE instruction set.
-float dsp::simd::detail::x86_sse_dotf(const float* x, const float* b, size_t N)
-{
-	float res = 0.f;
-	__m128 b0, b1, b2, b3, x0, x1, x2, x3;
-	size_t n = N / 16;
-	for (size_t i = 0; i < n; ++i, b += 16, x += 16) {
-		SSE_LOAD16(b, b);
-		SSE_LOAD16(x, x);
-		SSE_MUL16(x, x, b);
-		SSE_HSUM16(x0, x);
-		res += _mm_cvtss_f32(x0);
-	}
-	n = (N % 16) / 4;
-	for (size_t i = 0; i < n; ++i, b += 4, x += 4) {
-		b0 = _mm_load_ps(b);
-		x0 = _mm_load_ps(x);
-		x0 = _mm_mul_ps(x0, b0);
-		SSE_HSUM(x0, x0, x1);
-		res += _mm_cvtss_f32(x0);
-	}
-	return res;
 }
 
 float dsp::simd::detail::x86_sse_filter_df2(float* w, const float* b, const size_t M, const float* a, const size_t N)
@@ -265,12 +212,12 @@ float dsp::simd::detail::x86_sse_filter_sos_df2(float x, size_t N, const bool* s
 	return _mm_cvtss_f32(xx);
 }
 
-//! @brief Vector-scalar multiplication using SSE instructions
-void dsp::simd::detail::x86_sse_sqrtf(float* res, const float* x, size_t N)
+float dsp::simd::detail::x86_sse_accf(const float* x, size_t N)
 {
-	__m128 x0, x1, x2, x3, x4, x5, x6, x7;
-	size_t n = N / 32;
-	for (size_t i = 0; i < n; ++i, x += 32, res += 32) {
+	__m128 x0, x1, x2, x3, x4, x5, x6, r;
+	r = _mm_setzero_ps();
+	size_t n = N / 28;
+	for (size_t i = 0; i < n; ++i, x += 28) {
 		x0 = _mm_load_ps(x);
 		x1 = _mm_load_ps(x + 4);
 		x2 = _mm_load_ps(x + 8);
@@ -278,32 +225,23 @@ void dsp::simd::detail::x86_sse_sqrtf(float* res, const float* x, size_t N)
 		x4 = _mm_load_ps(x + 16);
 		x5 = _mm_load_ps(x + 20);
 		x6 = _mm_load_ps(x + 24);
-		x7 = _mm_load_ps(x + 32);
 
-		x0 = _mm_sqrt_ps(x0);
-		x1 = _mm_sqrt_ps(x1);
-		x2 = _mm_sqrt_ps(x2);
-		x3 = _mm_sqrt_ps(x3);
-		x4 = _mm_sqrt_ps(x4);
-		x5 = _mm_sqrt_ps(x5);
-		x6 = _mm_sqrt_ps(x6);
-		x7 = _mm_sqrt_ps(x7);
+		x0 = _mm_add_ps(x0, x1);
+		x2 = _mm_add_ps(x2, x3);
+		x4 = _mm_add_ps(x4, x5);
 
-		_mm_store_ps(res, x0);
-		_mm_store_ps(res + 4, x1);
-		_mm_store_ps(res + 8, x2);
-		_mm_store_ps(res + 12, x3);
-		_mm_store_ps(res + 16, x4);
-		_mm_store_ps(res + 20, x5);
-		_mm_store_ps(res + 24, x6);
-		_mm_store_ps(res + 32, x7);
+		x0 = _mm_add_ps(x0, x6);
+		x2 = _mm_add_ps(x2, x4);
+		x0 = _mm_add_ps(x0, x2);
+		r = _mm_add_ps(r, x0);
 	}
-	n = (N % 32) / 4;
-	for (size_t i = 0; i < n; ++i, x += 4, res += 4) {
+	n = (n % 28) / 4;
+	for (size_t i = 0; i < n; ++i, x += 4) {
 		x0 = _mm_load_ps(x);
-		x0 = _mm_sqrt_ps(x0);
-		_mm_store_ps(res, x0);
+		r = _mm_add_ps(r, x0);
 	}
+	SSE_HSUM(r, r, x0);
+	return _mm_cvtss_f32(r);
 }
 
 #endif // DSP_ARCH_FAMILY_X86

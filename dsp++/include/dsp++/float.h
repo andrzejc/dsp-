@@ -91,8 +91,8 @@ struct differs_by<std::complex<Real> >: public std::binary_function<std::complex
 
 	bool operator()(const std::complex<Real>& lhs, const std::complex<Real>& rhs) const
 	{
-		return within_range<Real>::value(lhs.real(), rhs.real(), factor) &&
-				within_range<Real>::value(lhs.imag(), rhs.imag(), factor);
+		return differs_by<Real>::value(lhs.real(), rhs.real(), factor) &&
+				differs_by<Real>::value(lhs.imag(), rhs.imag(), factor);
 	}
 };
 

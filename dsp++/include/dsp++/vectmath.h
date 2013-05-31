@@ -35,6 +35,17 @@ namespace dsp {
 		 */
 		DSPXX_API void mul(float* res, const float* a, float s, size_t len);
 
+		DSPXX_API void div(float* res, const float* a, const float* b, size_t len);
+		DSPXX_API void div(float* res, const float* a, float s, size_t len);
+
+		DSPXX_API void add(float* res, const float* a, const float* b, size_t len);
+		DSPXX_API void add(float* res, const float* a, float s, size_t len);
+
+		DSPXX_API void sub(float* res, const float* a, const float* b, size_t len);
+		DSPXX_API void sub(float* res, const float* a, float s, size_t len);
+
+		DSPXX_API float acc(const float* a, size_t len);
+
 		/*!
 		 * @brief Dot product of SIMD-aligned and padded vectors of equal length
 		 * (@f$ \sum_{i = 0}^{len - 1} a_i\cdot b_i @f$).
@@ -54,7 +65,11 @@ namespace dsp {
 		 * @param [in] a input vector (SIMD-aligned and padded) (len).
 		 * @param [in] len length of vectors.
 		 */
-		void sqrt(float* res, const float* a, size_t len);
+		DSPXX_API void sqrt(float* res, const float* a, size_t len);
+
+		DSPXX_API void recip(float* res, const float* a, size_t len);
+
+		DSPXX_API void rsqrt(float* res, const float* a, size_t len);
 
 		// TODO implement other interesting SIMD-accelerated vector ops
 	}
@@ -72,6 +87,61 @@ namespace dsp {
 			*res = *a * *b;
 	}
 
+	/*!@brief Naïve implementation of vector @f$\times@f$ scalar multiplication. Multiply (scale) vector a by scalar s, write result to res.
+	 * @param[out] res output vector (may be the same as input) (len).
+	 * @param[in] a vector to scale (len).
+	 * @param[in] s scalar value to multiply vector by.
+	 * @param[in] len length of vectors.
+	 */
+	template<class T>
+	inline void mul(T* res, const T* a, T s, size_t len)
+	{
+		for (size_t i = 0; i < len; ++i, ++res, ++a)
+			*res = *a * s;
+	}
+
+	template<class T>
+	inline void div(T* res, const T* a, const T* b, size_t len)
+	{
+		for (size_t i = 0; i < len; ++i, ++res, ++a, ++b)
+			*res = *a / *b;
+	}
+
+	template<class T>
+	inline void div(T* res, const T* a, T s, size_t len)
+	{
+		for (size_t i = 0; i < len; ++i, ++res, ++a)
+			*res = *a / s;
+	}
+
+	template<class T>
+	inline void add(T* res, const T* a, const T* b, size_t len)
+	{
+		for (size_t i = 0; i < len; ++i, ++res, ++a, ++b)
+			*res = *a + *b;
+	}
+
+	template<class T>
+	inline void add(T* res, const T* a, T s, size_t len)
+	{
+		for (size_t i = 0; i < len; ++i, ++res, ++a)
+			*res = *a + s;
+	}
+
+	template<class T>
+	inline void sub(T* res, const T* a, const T* b, size_t len)
+	{
+		for (size_t i = 0; i < len; ++i, ++res, ++a, ++b)
+			*res = *a - *b;
+	}
+
+	template<class T>
+	inline void sub(T* res, const T* a, T s, size_t len)
+	{
+		for (size_t i = 0; i < len; ++i, ++res, ++a)
+			*res = *a - s;
+	}
+
 	/*!@brief Naïve implementation of dot product.
 	 * @param[in] a vector operand (len).
 	 * @param[in] b vector operand (len).
@@ -87,24 +157,41 @@ namespace dsp {
 		return res;
 	}
 
-	/*!@brief Naïve implementation of vector @f$\times@f$ scalar multiplication. Multiply (scale) vector a by scalar s, write result to res.
-	 * @param[out] res output vector (may be the same as input) (len).
-	 * @param[in] a vector to scale (len).
-	 * @param[in] s scalar value to multiply vector by.
-	 * @param[in] len length of vectors.
+	/*!@brief Naïve implementation of square root of vector elements.
+	 * @param[out] res vector result (len).
+	 * @param[in] a vector operand (len).
+	 * @param len length of operands.
 	 */
-	template<class T>
-	inline void mul(T* res, const T* a, T s, size_t len)
-	{
-		for (size_t i = 0; i < len; ++i, ++res, ++a)
-			*res = *a * s;
-	}
-
 	template<class T>
 	inline void sqrt(T* res, const T* a, size_t len)
 	{
 		for (size_t i = 0; i < len; ++i, ++res, ++a)
 			*res = std::sqrt(*a);
+	}
+
+
+	/*!@brief Naïve implementation of reciprocal of vector elements (1/x).
+	 * @param[out] res vector result (len).
+	 * @param[in] a vector operand (len).
+	 * @param len length of operands.
+	 */
+	template<class T>
+	inline void recip(T* res, const T* a, size_t len)
+	{
+		for (size_t i = 0; i < len; ++i, ++res, ++a)
+			*res = 1 / *a;
+	}
+
+	/*!@brief Naïve implementation of reciprocal of square root of vector elements (1/sqrt(x)).
+	 * @param[out] res vector result (len).
+	 * @param[in] a vector operand (len).
+	 * @param len length of operands.
+	 */
+	template<class T>
+	inline void rsqrt(T* res, const T* a, size_t len)
+	{
+		for (size_t i = 0; i < len; ++i, ++res, ++a)
+			*res = 1 / *a;
 	}
 
 } 
