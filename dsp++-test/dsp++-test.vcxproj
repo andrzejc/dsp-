@@ -96,6 +96,7 @@
     <ClCompile Include="src\mean_test.cpp" />
     <ClCompile Include="src\overlap_add_test.cpp" />
     <ClCompile Include="src\pow2_test.cpp" />
+    <ClCompile Include="src\simd_test.cpp" />
     <ClCompile Include="src\window_test.cpp" />
     <ClCompile Include="src\xcorr_test.cpp" />
   </ItemGroup>

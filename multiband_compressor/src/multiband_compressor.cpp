@@ -40,7 +40,7 @@ struct det::mbc_impl
 		d::overlap_add<s_t> filter_;
 		d::compressor<s_t> compressor_;
 
-		band_channel(size_t 
+		//band_channel(size_t 
 	};
 
 	typedef boost::shared_ptr<band_channel> band_channel_ptr;
@@ -299,8 +299,10 @@ void r::multiband_compressor::set_params(const r::multiband_compressor::params& 
 		size_t start = impl_->bands_.size();
 		// add missing band entries
 		impl_->bands_.resize(p.bands.size());
-		for (size_t i = start; i < p.bands.size(); ++i) 
-			impl_->add_band_direct(p.bands[i]);
+
+		//for (size_t i = start; i < p.bands.size(); ++i) 
+		//	impl_->add_band_direct(p.bands[i]);
+		// TODO implement add_band_direct
 	}
 
 

@@ -22,7 +22,8 @@ void simd_test::test_mulv()
 	float DSP_ALIGNED(16) outs[N], outv[N];
 	dsp::simd::mul(outs, a, b, N);
 	dsp::mul(outv, a, b, N);
-	CPPUNIT_ASSERT(std::equal(outs, outs + N, outv));
+	float err = dsp::norm_inf<dsp::norm_rel>(outs, outv, N);
+	CPPUNIT_ASSERT(err < 1e-6);
 }
 
 void simd_test::test_muls()
@@ -30,7 +31,8 @@ void simd_test::test_muls()
 	float DSP_ALIGNED(16) outs[N], outv[N];
 	dsp::simd::mul(outs, a, 0.00126567f, N);
 	dsp::mul(outv, a, 0.00126567f, N);
-	CPPUNIT_ASSERT(std::equal(outs, outs + N, outv));
+	float err = dsp::norm_inf<dsp::norm_rel>(outs, outv, N);
+	CPPUNIT_ASSERT(err < 1e-6);
 }
 
 void simd_test::test_mulc()
@@ -40,7 +42,8 @@ void simd_test::test_mulc()
 			reinterpret_cast<const std::complex<float>*>(b), N / 2);
 	dsp::mul(reinterpret_cast<std::complex<float>*>(outv), reinterpret_cast<const std::complex<float>*>(a),
 			reinterpret_cast<const std::complex<float>*>(b), N / 2);
-	CPPUNIT_ASSERT(std::equal(outs, outs + N, outv));
+	float err = dsp::norm_inf<dsp::norm_rel>(outs, outv, N);
+	CPPUNIT_ASSERT(err < 1e-5);
 }
 
 void simd_test::test_divv()
@@ -48,7 +51,8 @@ void simd_test::test_divv()
 	float DSP_ALIGNED(16) outs[N], outv[N];
 	dsp::simd::div(outs, a, b, N);
 	dsp::div(outv, a, b, N);
-	CPPUNIT_ASSERT(std::equal(outs, outs + N, outv));
+	float err = dsp::norm_inf<dsp::norm_rel>(outs, outv, N);
+	CPPUNIT_ASSERT(err < 1e-6);
 }
 
 void simd_test::test_divs()
@@ -56,7 +60,8 @@ void simd_test::test_divs()
 	float DSP_ALIGNED(16) outs[N], outv[N];
 	dsp::simd::div(outs, a, 0.00126567f, N);
 	dsp::div(outv, a, 0.00126567f, N);
-	CPPUNIT_ASSERT(std::equal(outs, outs + N, outv));
+	float err = dsp::norm_inf<dsp::norm_rel>(outs, outv, N);
+	CPPUNIT_ASSERT(err < 1e-6);
 }
 
 void simd_test::test_addv()

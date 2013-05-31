@@ -202,6 +202,7 @@
     <ClInclude Include="include\dsp++\lpc.h" />
     <ClInclude Include="include\dsp++\mean.h" />
     <ClInclude Include="include\dsp++\noncopyable.h" />
+    <ClInclude Include="include\dsp++\norm.h" />
     <ClInclude Include="include\dsp++\overlap_add.h" />
     <ClInclude Include="include\dsp++\platform.h" />
     <ClInclude Include="include\dsp++\pow2.h" />
