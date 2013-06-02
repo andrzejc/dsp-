@@ -1,0 +1,64 @@
+global		_x86_sse_mulvf
+section		.text
+_x86_sse_mulvf:
+	push	ebp
+	mov		ebp, esp
+	mov		eax, dword [ebp+20]		; eax = n
+	mov		edi, dword [esp+8]		; edi = res
+	mov		esi, dword [esp+12]		; esi = x
+	mov		edx, dword [esp+16]		; edx = b
+
+	mov		ecx, eax
+	shr		ecx, 5
+	test	ecx, ecx
+	jz		_x86_sse_mulvf_done
+
+_x86_sse_mulvf_loop1:
+	movaps	xmm0, [esi +  0*4];
+	movaps	xmm1, [esi +  4*4];
+	mulps	xmm0, [edx +  0*4];
+	mulps	xmm1, [edx +  4*4];
+	movaps	[edi +  0*4], xmm0;
+	movaps	xmm2, [esi +  8*4];
+	movaps	[edi +  4*4], xmm1;
+	mulps	xmm2, [edx +  8*4];
+	movaps  xmm3, [esi + 12*4];
+	movaps  [edi +  8*4], xmm2;
+	mulps	xmm3, [edx + 12*4];
+	movaps  xmm4, [esi + 16*4];
+	movaps  [edi + 12*4], xmm3;
+	mulps	xmm4, [edx + 16*4];
+	movaps  xmm5, [esi + 20*4];
+	movaps  [edi + 16*4], xmm4;
+	mulps	xmm5, [edx + 20*4];
+	movaps  xmm6, [esi + 24*4];
+	movaps  [edi + 20*4], xmm5;
+	mulps	xmm6, [edx + 24*4];
+	movaps  xmm7, [esi + 28*4];
+	movaps  [edi + 24*4], xmm6;
+	mulps	xmm7, [edx + 28*4];
+	movaps  [edi + 28*4], xmm7;
+	add		esi, 4 * 32;
+	add		edx, 4 * 32;
+	add		edi, 4 * 32;
+	loop	_x86_sse_mulvf_loop1;
+
+	shr		eax, 2;
+	and		eax, 7;
+	jz		_x86_sse_mulvf_done;
+	mov		ecx, eax;
+
+_x86_sse_mulvf_loop2:
+	movaps	xmm0, [esi];
+	mulps	xmm0, [edx];
+	movaps	[edi], xmm0;
+
+	add		esi, 4*4;
+	add		edx, 4*4;
+	add		edi, 4*4;
+	loop	_x86_sse_mulvf_loop2;
+
+_x86_sse_mulvf_done:
+	leave
+	ret
+

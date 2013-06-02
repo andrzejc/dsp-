@@ -29,6 +29,8 @@ private:
 	std::string run_;
 #ifdef _WIN32
 	unsigned long ft_;
+	unsigned long pc_;
+	unsigned long tp_;
 #endif
 
 #ifdef __posix__

@@ -78,9 +78,9 @@
 
 #define SSE_FVVV(name, op) \
 void name(float* res, const float* x, const float* b, size_t N) {	 		\
-	size_t n = N / LONG_UNROLL;														\
-	__m128 x0, x1, x2, x3; \
-	for (size_t i = 0; i < n; ++i, b += LONG_UNROLL, x += LONG_UNROLL, res += LONG_UNROLL) {			\
+	register __m128 x0, x1, x2, x3; \
+	register size_t n = N / LONG_UNROLL;												\
+	for (register size_t i = 0; i < n; ++i, b += LONG_UNROLL, x += LONG_UNROLL, res += LONG_UNROLL) {	\
 		x0 = _mm_load_ps(x +  0); \
 		x1 = _mm_load_ps(x +  4); \
 		x0 = _mm_ ## op(x0, _mm_load_ps(b +  0));			\
@@ -106,8 +106,8 @@ void name(float* res, const float* x, const float* b, size_t N) {	 		\
 		x3 = _mm_ ## op(x3, _mm_load_ps(b + 28));			\
 		_mm_store_ps(res + 28, x3);		\
 	}																		\
-	n = (N % LONG_UNROLL) / 4;														\
-	for (size_t i = 0; i < n; ++i, b += 4, x += 4, res += 4) { 				\
+	n = (N % LONG_UNROLL) / 4;												\
+	for (register size_t i = 0; i < n; ++i, b += 4, x += 4, res += 4) { 				\
 		x0 = _mm_load_ps(x +  0); \
 		x0 = _mm_ ## op(x0, _mm_load_ps(b +  0));			\
 		_mm_store_ps(res, x0);			\
@@ -117,10 +117,10 @@ void name(float* res, const float* x, const float* b, size_t N) {	 		\
 // binary float op(vector,scalar) = vector
 #define SSE_FVSV(name, op) \
 void name(float* res, const float* x, float s, size_t N) {					\
-	__m128 x0, x1, x2, x3, s0;									\
-	size_t n = N / LONG_UNROLL;														\
+	register __m128 x0, x1, x2, x3, s0;									\
+	register size_t n = N / LONG_UNROLL;											\
 	s0 = _mm_load1_ps(&s);													\
-	for (size_t i = 0; i < n; ++i, x += LONG_UNROLL, res += LONG_UNROLL) {					\
+	for (register size_t i = 0; i < n; ++i, x += LONG_UNROLL, res += LONG_UNROLL) {	\
 		x0 = _mm_load_ps(x);												\
 		x1 = _mm_load_ps(x + 4);											\
 		x0 = _mm_## op(x0, s0);												\
@@ -147,7 +147,7 @@ void name(float* res, const float* x, float s, size_t N) {					\
 		_mm_store_ps(res + 28, x3);											\
 	}																		\
 	n = (N % LONG_UNROLL) / 4;														\
-	for (size_t i = 0; i < n; ++i, x += 4, res += 4) {						\
+	for (register size_t i = 0; i < n; ++i, x += 4, res += 4) {						\
 		x0 = _mm_load_ps(x);												\
 		x0 = _mm_## op(x0, s0);												\
 		_mm_store_ps(res, x0);												\
@@ -157,10 +157,10 @@ void name(float* res, const float* x, float s, size_t N) {					\
 // binary float sum(op(vector,vector)) = scalar
 #define SSE_SUM_FVVS(name, op) \
 float name(const float* x, const float* b, size_t N) {	 					\
-	__m128 x0, x1, x2, x3, x4, x5, x6, s;									\
+	register __m128 x0, x1, x2, x3, x4, x5, x6, s;									\
 	s = _mm_setzero_ps();	\
-	size_t n = N / LONG_UNROLL;														\
-	for (size_t i = 0; i < n; ++i, b += LONG_UNROLL, x += LONG_UNROLL) {			\
+	register size_t n = N / LONG_UNROLL;									\
+	for (register size_t i = 0; i < n; ++i, b += LONG_UNROLL, x += LONG_UNROLL) {	\
 		x0 = _mm_load_ps(x);												\
 		x1 = _mm_load_ps(x + 4);											\
 		x0 = _mm_## op(x0, _mm_load_ps(b));									\
@@ -187,7 +187,7 @@ float name(const float* x, const float* b, size_t N) {	 					\
 		s = _mm_add_ps(s, x0); \
 	}																		\
 	n = (N % LONG_UNROLL) / 4;														\
-	for (size_t i = 0; i < n; ++i, b += 4, x += 4) {				\
+	for (register size_t i = 0; i < n; ++i, b += 4, x += 4) {				\
 		x0 = _mm_load_ps(x);												\
 		x0 = _mm_ ## op(x0, _mm_load_ps(b));											\
 		s = _mm_add_ps(s, x0); \
@@ -198,9 +198,9 @@ float name(const float* x, const float* b, size_t N) {	 					\
 
 #define SSE3_SUM_FVVS(name, op) \
 float name(const float* x, const float* b, size_t N) {	 					\
-	__m128 x0, x1, x2, x3, x4, x5, x6, s;									\
+	register __m128 x0, x1, x2, x3, x4, x5, x6, s;									\
 	s = _mm_setzero_ps();	\
-	size_t n = N / LONG_UNROLL;														\
+	register size_t n = N / LONG_UNROLL;														\
 	for (size_t i = 0; i < n; ++i, b += LONG_UNROLL, x += LONG_UNROLL) {			\
 		x0 = _mm_load_ps(x);												\
 		x1 = _mm_load_ps(x + 4);											\
@@ -228,7 +228,7 @@ float name(const float* x, const float* b, size_t N) {	 					\
 		s = _mm_add_ps(s, x0); \
 	}																		\
 	n = (N % LONG_UNROLL) / 4;														\
-	for (size_t i = 0; i < n; ++i, b += 4, x += 4) {				\
+	for (register size_t i = 0; i < n; ++i, b += 4, x += 4) {				\
 		x0 = _mm_load_ps(x);												\
 		x0 = _mm_ ## op(x0, _mm_load_ps(b));											\
 		s = _mm_add_ps(s, x0); \
@@ -240,9 +240,9 @@ float name(const float* x, const float* b, size_t N) {	 					\
 // unary float op(vector) = vector
 #define SSE_FVV(name, op)	\
 void name(float* res, const float* x, size_t N) {							\
-	__m128 x0, x1, x2, x3, x4, x5, x6, x7;									\
-	size_t n = N / 32;														\
-	for (size_t i = 0; i < n; ++i, x += 32, res += 32) {					\
+	register __m128 x0, x1, x2, x3, x4, x5, x6, x7;									\
+	register size_t n = N / LONG_UNROLL;												\
+	for (register size_t i = 0; i < n; ++i, x += LONG_UNROLL, res += LONG_UNROLL) {	\
 		x0 = _mm_load_ps(x);												\
 		x1 = _mm_load_ps(x + 4);											\
 		x2 = _mm_load_ps(x + 8);											\
@@ -268,8 +268,8 @@ void name(float* res, const float* x, size_t N) {							\
 		_mm_store_ps(res + 24, x6);											\
 		_mm_store_ps(res + 28, x7);											\
 	}																		\
-	n = (N % 32) / 4;														\
-	for (size_t i = 0; i < n; ++i, x += 4, res += 4) {						\
+	n = (N % LONG_UNROLL) / 4;														\
+	for (register size_t i = 0; i < n; ++i, x += 4, res += 4) {						\
 		x0 = _mm_load_ps(x);												\
 		x0 = _mm_ ## op(x0);												\
 		_mm_store_ps(res, x0);												\

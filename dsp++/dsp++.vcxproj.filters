@@ -90,6 +90,9 @@
     <ClCompile Include="src\arch\x86\cpu_x86.cpp">
       <Filter>src\arch\x86</Filter>
     </ClCompile>
+    <ClCompile Include="src\fixed.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\utility.h">
@@ -231,6 +234,9 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="include\dsp++\norm.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\fixed.h">
       <Filter>include\dsp++</Filter>
     </ClInclude>
   </ItemGroup>

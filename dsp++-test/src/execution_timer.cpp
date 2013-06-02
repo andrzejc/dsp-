@@ -17,7 +17,7 @@
 
 dsp::test::execution_timer::execution_timer():
 #ifdef _WIN32
-	ft_(0)
+	ft_(0), pc_(::GetPriorityClass(::GetCurrentProcess())), tp_(::GetThreadPriority(::GetCurrentThread()))
 #endif
 {
 #ifdef __posix__
@@ -28,6 +28,8 @@ dsp::test::execution_timer::execution_timer():
 void dsp::test::execution_timer::start(const char* run) {
 	run_ = run;
 #ifdef _WIN32
+	::SetPriorityClass(::GetCurrentProcess(), REALTIME_PRIORITY_CLASS);
+	::SetThreadPriority(::GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
 	ft_ = ::GetTickCount();
 #endif
 
@@ -44,6 +46,8 @@ void dsp::test::execution_timer::stop() {
 		millis = now - ft_;
 	else
 		millis = (ULONG_MAX - ft_ + now + 1);
+	::SetPriorityClass(::GetCurrentProcess(), pc_);
+	::SetThreadPriority(::GetCurrentThread(), tp_);
 #endif
 
 #ifdef __posix__
@@ -53,7 +57,7 @@ void dsp::test::execution_timer::stop() {
 	millis += (ntv.tv_usec - tv_.tv_usec + 500) / 1000;
 #endif
 
-	printf("\nrun %s time: %lu ms\n", run_.c_str(), millis);
+	printf("\n%s time: %lu ms\n", run_.c_str(), millis);
 }
 
 void dsp::test::execution_timer::next(const char* run) {
