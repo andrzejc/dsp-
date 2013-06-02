@@ -48,6 +48,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\vsyasm.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -97,6 +98,10 @@
       <AdditionalLibraryDirectories>$(BOOST_ROOT)/lib;$(LIBSNDFILE_ROOT)/lib;$(FFTW3_ROOT);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libfftw3-3.lib;libfftw3f-3.lib;libfftw3l-3.lib;libsndfile-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <YASM>
+      <AdditionalOptions>-m x86 %(AdditionalOptions)</AdditionalOptions>
+      <Debug>true</Debug>
+    </YASM>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -125,7 +130,6 @@
       <DisableSpecificWarnings>4251;4275</DisableSpecificWarnings>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
-      <Optimization>Full</Optimization>
       <OmitFramePointers>true</OmitFramePointers>
     </ClCompile>
     <Link>
@@ -136,6 +140,10 @@
       <AdditionalLibraryDirectories>$(BOOST_ROOT)/lib;$(LIBSNDFILE_ROOT)/lib;$(FFTW3_ROOT);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libfftw3-3.lib;libfftw3f-3.lib;libfftw3l-3.lib;libsndfile-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <YASM>
+      <AdditionalOptions>-m x86 %(AdditionalOptions)</AdditionalOptions>
+      <Debug>true</Debug>
+    </YASM>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -163,7 +171,10 @@
   <ItemGroup>
     <ClCompile Include="src\arch\ppc\cpu_ppc.cpp" />
     <ClCompile Include="src\arch\x86\cpu_x86.cpp" />
-    <ClCompile Include="src\arch\x86\sse.cpp" />
+    <ClCompile Include="src\arch\x86\sse.cpp">
+      <DebugInformationFormat Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ProgramDatabase</DebugInformationFormat>
+      <DebugInformationFormat Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
     <ClCompile Include="src\arch\x86\sse3.cpp" />
     <ClCompile Include="src\arch\x86\sse41.cpp" />
     <ClCompile Include="src\fft.cpp" />
@@ -232,5 +243,6 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\vsyasm.targets" />
   </ImportGroup>
 </Project>

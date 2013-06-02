@@ -9,6 +9,7 @@
 #include <smmintrin.h>
 
 //! @brief Dot product using SSE3 instruction set.
+//! @todo x86_sse41_dotf needs to be optimized, currently is 2x slower than SSE3 implementation where there is no dpps instruction
 float dsp::simd::detail::x86_sse41_dotf(const float* x, const float* b, size_t N)
 {
 	float res = 0.f;

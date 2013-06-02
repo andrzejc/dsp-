@@ -17,7 +17,70 @@ void dsp::simd::detail::x86_sse_free(void *p) {
 }
 
 //! @brief Piecewise vector multiplication using SSE instructions
+#if defined(_MSC_VER) && !defined(_WIN64)
+// testing inline assembly :)
+void dsp::simd::detail::x86_sse_mulf(float* res, const float* x, const float* b, size_t N) {
+__asm {
+	mov		eax, dword ptr [N]		
+	mov		edi, dword ptr [res]	
+	mov		esi, dword ptr [x]		
+	mov		edx, dword ptr [b]		
+
+	mov		ecx, eax
+	shr		ecx, 5
+	test	ecx, ecx
+	jz		done
+
+loop1:
+	movaps	xmm0, [esi +  0*4];
+	movaps	xmm1, [esi +  4*4];
+	mulps	xmm0, [edx +  0*4];
+	mulps	xmm1, [edx +  4*4];
+	movaps	[edi +  0*4], xmm0;
+	movaps	xmm2, [esi +  8*4];
+	movaps	[edi +  4*4], xmm1;
+	mulps	xmm2, [edx +  8*4];
+	movaps  xmm3, [esi + 12*4];
+	movaps  [edi +  8*4], xmm2;
+	mulps	xmm3, [edx + 12*4];
+	movaps  xmm4, [esi + 16*4];
+	movaps  [edi + 12*4], xmm3;
+	mulps	xmm4, [edx + 16*4];
+	movaps  xmm5, [esi + 20*4];
+	movaps  [edi + 16*4], xmm4;
+	mulps	xmm5, [edx + 20*4];
+	movaps  xmm6, [esi + 24*4];
+	movaps  [edi + 20*4], xmm5;
+	mulps	xmm6, [edx + 24*4];
+	movaps  xmm7, [esi + 28*4];
+	movaps  [edi + 24*4], xmm6;
+	mulps	xmm7, [edx + 28*4];
+	movaps  [edi + 28*4], xmm7;
+	add		esi, 4 * 32;
+	add		edx, 4 * 32;
+	add		edi, 4 * 32;
+	loop	loop1;
+
+	shr		eax, 2;
+	and		eax, 7;
+	jz		done;
+	mov		ecx, eax;
+
+loop2:
+	movaps	xmm0, [esi];
+	mulps	xmm0, [edx];
+	movaps	[edi], xmm0;
+
+	add		esi, 4*4;
+	add		edx, 4*4;
+	add		edi, 4*4;
+	loop	loop2;
+
+done:
+}}
+#else
 SSE_FVVV(dsp::simd::detail::x86_sse_mulf, mul_ps)
+#endif
 
 //! @brief Vector-scalar multiplication using SSE instructions
 SSE_FVSV(dsp::simd::detail::x86_sse_mulf, mul_ps)
@@ -59,14 +122,13 @@ void dsp::simd::detail::x86_sse_mulcf(std::complex<float>* res_c, const std::com
 	size_t n = len / 2; // each complex has 2 floats, so divide by 2 not 4
 	x4 = _mm_load_ps(mul);
 	for (size_t i = 0; i < n; ++i, a += 4, b += 4, res += 4) {
-		x0 = _mm_load_ps(a);
 		x1 = _mm_load_ps(b);
+		x0 = _mm_load_ps(a);
 		x2 = x1;
 		x3 = x0;
 		x2 = _mm_shuffle_ps(x2, x1, 0xA0);
 		x1 = _mm_shuffle_ps(x1, x1, 0xF5);
 		x3 = _mm_shuffle_ps(x3, x0, 0xB1);
-		x0 = _mm_mul_ps(x0, x2);
 		x3 = _mm_mul_ps(x3, x1);
 		x3 = _mm_mul_ps(x3, x4);
 		x0 = _mm_add_ps(x0, x3);
@@ -221,13 +283,12 @@ float dsp::simd::detail::x86_sse_accf(const float* x, size_t N)
 		x0 = _mm_load_ps(x);
 		x1 = _mm_load_ps(x + 4);
 		x2 = _mm_load_ps(x + 8);
+		x0 = _mm_add_ps(x0, x1);
 		x3 = _mm_load_ps(x + 12);
 		x4 = _mm_load_ps(x + 16);
+		x2 = _mm_add_ps(x2, x3);
 		x5 = _mm_load_ps(x + 20);
 		x6 = _mm_load_ps(x + 24);
-
-		x0 = _mm_add_ps(x0, x1);
-		x2 = _mm_add_ps(x2, x3);
 		x4 = _mm_add_ps(x4, x5);
 
 		x0 = _mm_add_ps(x0, x6);
