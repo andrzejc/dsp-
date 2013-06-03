@@ -12,24 +12,6 @@
 
 namespace dsp { 
 
-namespace detail {
-	// Implementation details, don't look here (fold down this namespace) ;)
-	template<unsigned bits, bool valid = (bits == 8 || bits == 16 || bits == 32 || bits == 64)> struct fixed_word_length_valid;
-	template<unsigned bits> struct fixed_word_length_valid<bits, true> {};
-
-	template<unsigned bits, unsigned int_bits, bool sign, bool valid = (int_bits + (sign ? 1 : 0) <= bits)> struct fixed_int_bits_fit_in_word_length;
-	template<unsigned bits, unsigned int_bits, bool sign> struct fixed_int_bits_fit_in_word_length<bits, int_bits, sign, true> {};
-
-	template<unsigned bits, unsigned int_bits, bool sign> struct fixed_rep: fixed_word_length_valid<bits>, fixed_int_bits_fit_in_word_length<bits, int_bits, sign> {
-		typedef typename select_int<bits, sign>::type type;
-		static const unsigned fractional_bits = (bits - int_bits - (sign ? 1 : 0));
-	};
-
-	template<class T, unsigned n> struct pow2 {static const T value = 2 * pow2<T, n - 1>::value;};
-	template<class T> struct pow2<T, 0> {static const T value = 0;};
-
-} // namespace detail
-
 //! @brief Holds fixed-point (and other) rounding mode constants, so that we don't have name clashes and can nicely qualify values like round::fastest.
 namespace round {
 	//! @brief Rounding mode.
@@ -59,6 +41,26 @@ struct raw_representation_tag {};
 //! @brief Undefined value used to specify that "raw" initializing constructor/assignment should be used.
 const raw_representation_tag raw = {};
 
+namespace detail {
+	// Implementation details, don't look here (fold down this namespace) ;)
+	template<unsigned bits, bool valid = (bits == 8 || bits == 16 || bits == 32 || bits == 64)> struct fixed_word_length_valid;
+	template<unsigned bits> struct fixed_word_length_valid<bits, true> {};
+
+	template<unsigned bits, unsigned int_bits, bool sign, bool valid = (int_bits + (sign ? 1 : 0) <= bits)> struct fixed_int_bits_fit_in_word_length;
+	template<unsigned bits, unsigned int_bits, bool sign> struct fixed_int_bits_fit_in_word_length<bits, int_bits, sign, true> {};
+
+	template<unsigned bits, unsigned int_bits, bool sign> struct fixed_rep: fixed_word_length_valid<bits>, fixed_int_bits_fit_in_word_length<bits, int_bits, sign> {
+		typedef typename select_int<bits, sign>::type type;
+		static const unsigned fractional_bits = (bits - int_bits - (sign ? 1 : 0));
+	};
+
+	template<class T, unsigned n> struct pow2 {static const T value = 2 * pow2<T, n - 1>::value;};
+	template<class T> struct pow2<T, 0> {static const T value = 1;};
+
+//	template<class Res, unsigned frac_bits, class Float> Res float_to_fixed
+
+} // namespace detail
+
 /*!
  * @brief Implementation of fixed-point number with parametrized word length, number of integer and fractional bits and signedness.
  * @tparam WordLength total number of bits the number is stored in. Must be one of: 8, 16, 32, 64.
@@ -72,7 +74,6 @@ class fixed {
 	typedef detail::fixed_rep<WordLength, IntBits, sign> F;
 	typedef typename F::type R;
 	R v_;
-	static const R unity_ = R(1) << F::fractional_bits;
 public:
 	static const unsigned word_length = WordLength;					//!< Well... word length.
 	static const unsigned integer_bits = IntBits;					//!< Number of integer bits.
@@ -91,9 +92,9 @@ public:
 	explicit fixed(R v, const raw_representation_tag&): v_(v) {}
 
 	//!@todo add dsp::round::mode param and dsp::overflow::mode param, currently both are default (truncated/wrap)
-	explicit fixed(float v): v_(static_cast<R>(unity_ * v)) {}
-	explicit fixed(double v): v_(static_cast<R>(unity_ * v)) {}
-	explicit fixed(long double v): v_(static_cast<R>(unity_ * v)) {}
+	explicit fixed(float v): v_(static_cast<R>((1ull << fractional_bits) * v)) {}
+	explicit fixed(double v): v_(static_cast<R>((1ull << fractional_bits) * v)) {}
+	explicit fixed(long double v): v_(static_cast<R>((1ull << fractional_bits) * v)) {}
 
 
 	/*!@brief Obtain raw integer representation.
@@ -132,7 +133,7 @@ public:
     static F lowest() throw() {return F(NL::min(), dsp::raw);}
 
     static const int digits = static_cast<int>(IntBits);
-    static const int digits10 = (int)(digits * 301. / 1000. + .5);
+    static const int digits10 = (int)(digits * 301L / 1000);
     static const bool is_signed = sign;
     static const bool is_integer = false;
     static const bool is_exact = true;
