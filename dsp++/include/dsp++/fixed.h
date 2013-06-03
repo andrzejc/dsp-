@@ -3,7 +3,7 @@
 #define DSP_FIXED_H_INCLUDED
 #pragma once
 
-#include <cstdint>
+#include <dsp++/stdint.h>
 
 namespace dsp { 
 
@@ -13,32 +13,16 @@ namespace detail {
 	template<class T0, class T1> struct select_type_if<true, T0, T1> {typedef T0 type;};
 	template<class T0, class T1> struct select_type_if<false, T0, T1> {typedef T1 type;};
 
-	template<bool sel, unsigned V0, unsigned V1> struct select_value_if;
-	template<unsigned V0, unsigned V1> struct select_value_if<true, V0, V1> {static const unsigned value = V0;};
-	template<unsigned V0, unsigned V1> struct select_value_if<false, V0, V1> {static const unsigned value = V1;};
+	template<unsigned bits, bool valid = (bits == 8 || bits == 16 || bits == 32 || bits == 64)> struct fixed_word_length_valid;
+	template<unsigned bits> struct fixed_word_length_valid<bits, true> {};
 
+	template<unsigned bits, unsigned int_bits, bool sign, bool valid = (int_bits + (sign ? 1 : 0) <= bits)> struct int_bits_fit_in_word_length;
+	template<unsigned bits, unsigned int_bits, bool sign> struct int_bits_fit_in_word_length<bits, int_bits, sign, true> {};
 
-	template<unsigned bits, bool sign> struct fixed_type_impl {
-		typedef select_type_if<(bits>64), void, typename fixed_type_impl<bits + 1, sign>::type> type;
-		static const unsigned width = select_value_if<(bits>64), bits, fixed_type_impl<bits + 1, sign>::width>::value;
+	template<unsigned bits, unsigned int_bits, bool sign> struct fixed_rep: fixed_word_length_valid<bits>, int_bits_fit_in_word_length<bits, int_bits, sign> {
+		typedef typename select_int<bits, sign>::type type;
+		static const unsigned fractional_bits = (bits - int_bits - (sign ? 1 : 0));
 	};
-
-	template<> struct fixed_type_impl<8, true> {typedef std::int8_t type; static const unsigned width = 8;};
-	template<> struct fixed_type_impl<8, false> {typedef std::uint8_t type; static const unsigned width = 8;};
-	template<> struct fixed_type_impl<16, true> {typedef std::int16_t type; static const unsigned width = 16;};
-	template<> struct fixed_type_impl<16, false> {typedef std::uint16_t type; static const unsigned width = 16;};
-	template<> struct fixed_type_impl<32, true> {typedef std::int32_t type; static const unsigned width = 32;};
-	template<> struct fixed_type_impl<32, false> {typedef std::uint32_t type; static const unsigned width = 32;};
-	template<> struct fixed_type_impl<64, true> {typedef std::int64_t type; static const unsigned width = 64;};
-	template<> struct fixed_type_impl<64, false> {typedef std::uint64_t type; static const unsigned width = 64;};
-
-	template<unsigned bits, bool sign> struct fixed_promote_impl;
-	template<unsigned bits> struct fixed_promote_impl<bits, true> {typedef typename fixed_type_impl<1 + (bits-1) * 2, true>::type type;};
-	template<unsigned bits> struct fixed_promote_impl<bits, false> {typedef typename fixed_type_impl<bits * 2, false>::type type;};
-
-	template<unsigned int_bits, unsigned fract_bits, bool sign> struct fixed_width_impl;
-	template<unsigned int_bits, unsigned fract_bits> struct fixed_width_impl<int_bits, fract_bits, false> {static const unsigned width = int_bits + fract_bits;};
-	template<unsigned int_bits, unsigned fract_bits> struct fixed_width_impl<int_bits, fract_bits, true> {static const unsigned width = int_bits + fract_bits + 1;};
 
 } // namespace detail
 
@@ -64,26 +48,30 @@ namespace overflow {
 		saturate,		//!< If the dynamic value exceeds the range of the variable, assign the nearest representable value.
 		exception,		//!< If the dynamic value exceeds the range of the variable, throw an exception of type std::overflow_error.
 	};
-} // namesapce overflow
+} // namespace overflow
 
 //! @brief Tagging type so that we can nicely initialize dsp::fixed objects with dsp::raw param to indicate that the representation value should be used "as is".
 struct raw_representation_tag {};
 //! @brief Undefined value used to specify that "raw" initializing constructor/assignment should be used.
-const raw_representation_tag raw; 
+const raw_representation_tag raw = {};
 
 
-template<unsigned int_bits, unsigned frac_bits, bool sign = true> 
+template<unsigned WordLength, unsigned IntBits, bool sign = true>
 class fixed {
-	static const unsigned bits_ = detail::fixed_width_impl<int_bits, frac_bits, sign>::width;
-	typedef typename detail::fixed_type_impl<bits_, sign>::type R;
+	typedef detail::fixed_rep<WordLength, IntBits, sign> F;
+	typedef typename F::type R;
 	R v_;
 public:
-	static const unsigned representation_width = bits_;
+	static const unsigned word_length = WordLength;
+	static const unsigned integer_bits = IntBits;
+	static const unsigned fractional_bits = F::fractional_bits;
 	typedef R representation_type;
 
+	fixed(): v_(R()) {}
 	explicit fixed(R v, const raw_representation_tag&): v_(v) {}
 
-
+//	template<unsigned oth_int, unsigned oth_frac, bool oth_sign>
+//	fixed<oth_int+int_bits, oth_frac+frac_bits, !(sign || oth_sign)> mul(fixed<oth_int, oth_frac, oth_sign> val);
 
 	representation_type raw() const {return v_;}
 

@@ -1,15 +1,10 @@
 #include <dsp++/fixed.h>
-
+#include <boost/static_assert.hpp>
 using namespace dsp;
 
-typedef dsp::detail::fixed_width_impl<0, 15, true> Q15_width;
-typedef dsp::detail::fixed_type_impl<Q15_width::width, true>::type Q15_type;
-typedef dsp::detail::fixed_promote_impl<31, true>::type Q31p_type;
+typedef dsp::fixed<16, 0> Q15_t;
+BOOST_STATIC_ASSERT(Q15_t::fractional_bits == 15);
 
-Q15_type aa;
-
-
-typedef dsp::fixed<0, 15> Q15_t;
-Q15_t::representation_type t;
+dsp::fixed<8, 3> fff;
 
 Q15_t v(15, dsp::raw);
