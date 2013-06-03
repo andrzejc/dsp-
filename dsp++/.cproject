@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?fileVersion 4.0.0?>
-
-<cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
 		<cconfiguration id="cdt.managedbuild.config.macosx.so.debug.428674351">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.macosx.so.debug.428674351" moduleId="org.eclipse.cdt.core.settings" name="Debug-MacOSX">
@@ -206,7 +204,7 @@
 								<option id="gnu.c.compiler.option.include.paths.1179395075" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/dsp++/include}&quot;"/>
 								</option>
-								<option id="gnu.c.compiler.option.optimization.flags.30465089" name="Other optimization flags" superClass="gnu.c.compiler.option.optimization.flags" value="-" valueType="string"/>
+								<option id="gnu.c.compiler.option.optimization.flags.30465089" name="Other optimization flags" superClass="gnu.c.compiler.option.optimization.flags" value="" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.286738460" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 						</toolChain>
@@ -284,7 +282,7 @@
 								<option id="gnu.cpp.compiler.option.optimization.level.1619184008" name="Optimization Level" superClass="gnu.cpp.compiler.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.debugging.level.727233519" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.optimization.flags.873101720" name="Other optimization flags" superClass="gnu.cpp.compiler.option.optimization.flags" value="" valueType="string"/>
-								<option id="gnu.cpp.compiler.option.other.other.1391760254" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0  -std=c++11" valueType="string"/>
+								<option id="gnu.cpp.compiler.option.other.other.1391760254" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 " valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1442774072" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.mingw.base.898042150" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.mingw.base">
@@ -321,7 +319,7 @@
 					<fileInfo id="cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.744307186" name="sse.cpp" rcbsApplicability="disable" resourcePath="src/arch/x86/sse.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base.1048102264.1585544668">
 						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base.1048102264.1585544668" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base.1048102264">
 							<option id="gnu.cpp.compiler.option.optimization.flags.1850579307" name="Other optimization flags" superClass="gnu.cpp.compiler.option.optimization.flags" value="-msse3" valueType="string"/>
-							<option id="gnu.cpp.compiler.option.other.other.298602473" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0  -std=c++11" valueType="string"/>
+							<option id="gnu.cpp.compiler.option.other.other.298602473" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 " valueType="string"/>
 							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.646986215" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 						</tool>
 						<tool customBuildStep="true" id="org.eclipse.cdt.managedbuilder.ui.rcbs.704428807" name="Resource Custom Build Step">
@@ -398,7 +396,7 @@
 								<option id="gnu.cpp.compiler.option.optimization.level.788225604" name="Optimization Level" superClass="gnu.cpp.compiler.option.optimization.level" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.debugging.level.473525347" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" value="gnu.cpp.compiler.debugging.level.minimal" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.optimization.flags.551636925" name="Other optimization flags" superClass="gnu.cpp.compiler.option.optimization.flags" value="" valueType="string"/>
-								<option id="gnu.cpp.compiler.option.other.other.225294305" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -std=c++11" valueType="string"/>
+								<option id="gnu.cpp.compiler.option.other.other.225294305" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1170529247" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.mingw.base.1239641879" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.mingw.base">
