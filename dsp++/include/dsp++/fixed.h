@@ -57,9 +57,36 @@ namespace detail {
 	template<class T, unsigned n> struct pow2 {static const T value = 2 * pow2<T, n - 1>::value;};
 	template<class T> struct pow2<T, 0> {static const T value = 1;};
 
-//	template<class Res, unsigned frac_bits, class Float> Res float_to_fixed
+	template<unsigned B0, unsigned I0, bool S0, unsigned B1, unsigned I1, bool S1> struct multiply_helper {
+		static const bool result_signed = (S0 || S1); // multiply result is signed if any of the operands is signed
+		static const unsigned base_word_length = (B0 > B1 ? B0 : B1);
+		static const unsigned frac_bits0 = fixed_rep<B0, I0, S0>::fractional_bits;
+		static const unsigned frac_bits1 = fixed_rep<B1, I1, S1>::fractional_bits;
+		static const unsigned result_word_length = 2 * base_word_length;
+		typedef typename select_int<result_word_length, result_signed>::type type;
+		static const unsigned fractional_bits = frac_bits0 + frac_bits1;
+		static const unsigned integer_bits = result_word_length - fractional_bits - (result_signed ? 1 : 0);
+		static const unsigned meaningful_integer_bits = (I0 + (S0 ? 1 : 0) + I1 + (S1 ? 1 : 0) - (result_signed ? 1 : 0));
 
+	};
 } // namespace detail
+
+// forward declaration
+template<unsigned WordLength, unsigned IntBits, bool Signed = true> class fixed;
+
+template<unsigned WordLength0, unsigned IntBits0, bool Signed0,
+	unsigned WordLength1, unsigned IntBits1, bool Signed1> struct fixed_multiply_result {
+private:
+	typedef detail::multiply_helper<WordLength0, IntBits0, Signed0, WordLength1, IntBits1, Signed1> H;
+public:
+	static const unsigned word_length = H::result_word_length;
+	static const bool is_signed = H::result_signed;
+	static const unsigned integer_bits = H::integer_bits;
+	static const unsigned meaningful_integer_bits = H::meaningful_integer_bits;
+	static const unsigned fractional_bits = H::fractional_bits;
+	typedef fixed<word_length, integer_bits, is_signed> type;
+	typedef typename H::type representation_type;
+};
 
 /*!
  * @brief Implementation of fixed-point number with parametrized word length, number of integer and fractional bits and signedness.
@@ -67,14 +94,15 @@ namespace detail {
  * @tparam IntBits number of integer bits. Number of fractional bits is inferred from @p WordLength, @p IntBits and @p sign.
  * @tparam sign specifies whether this is signed or unsigned number.
  * @pre Only word lengths that can be represented by built-in integer types are allowed. This is enforced by detail::fixed_word_length_valid compile-time check.
- * @pre (IntBits <= WordLength - (sign ? 1 : 0)) This is enforced by detail::fixed_int_bits_fit_in_word_length compile-time check.
+ * @pre (IntBits <= WordLength - (Signed ? 1 : 0)) This is enforced by detail::fixed_int_bits_fit_in_word_length compile-time check.
  */
-template<unsigned WordLength, unsigned IntBits, bool sign = true>
+template<unsigned WordLength, unsigned IntBits, bool Signed>
 class fixed {
-	typedef detail::fixed_rep<WordLength, IntBits, sign> F;
+	typedef detail::fixed_rep<WordLength, IntBits, Signed> F;
 	typedef typename F::type R;
 	R v_;
 public:
+	static const bool is_signed = Signed;
 	static const unsigned word_length = WordLength;					//!< Well... word length.
 	static const unsigned integer_bits = IntBits;					//!< Number of integer bits.
 	static const unsigned fractional_bits = F::fractional_bits;		//!< Number of fractional bits.
@@ -105,13 +133,20 @@ public:
 	 * @return *this. */
 	fixed& operator=(const fixed& rhs) {v_ = rhs.v_; return *this;}
 
-	friend bool operator==(const fixed<WordLength, IntBits, sign>& lhs, const fixed<WordLength, IntBits, sign>& rhs) {return lhs.v_ == rhs.v_;}
-	friend bool operator!=(const fixed<WordLength, IntBits, sign>& lhs, const fixed<WordLength, IntBits, sign>& rhs) {return lhs.v_ != rhs.v_;}
-	friend bool operator<(const fixed<WordLength, IntBits, sign>& lhs, const fixed<WordLength, IntBits, sign>& rhs) {return lhs.v_ < rhs.v_;}
-	friend bool operator<=(const fixed<WordLength, IntBits, sign>& lhs, const fixed<WordLength, IntBits, sign>& rhs) {return lhs.v_ <= rhs.v_;}
-	friend bool operator>(const fixed<WordLength, IntBits, sign>& lhs, const fixed<WordLength, IntBits, sign>& rhs) {return lhs.v_ > rhs.v_;}
-	friend bool operator>=(const fixed<WordLength, IntBits, sign>& lhs, const fixed<WordLength, IntBits, sign>& rhs) {return lhs.v_ > rhs.v_;}
+	friend bool operator==(const fixed<WordLength, IntBits, Signed>& lhs, const fixed<WordLength, IntBits, Signed>& rhs) {return lhs.v_ == rhs.v_;}
+	friend bool operator!=(const fixed<WordLength, IntBits, Signed>& lhs, const fixed<WordLength, IntBits, Signed>& rhs) {return lhs.v_ != rhs.v_;}
+	friend bool operator<(const fixed<WordLength, IntBits, Signed>& lhs, const fixed<WordLength, IntBits, Signed>& rhs) {return lhs.v_ < rhs.v_;}
+	friend bool operator<=(const fixed<WordLength, IntBits, Signed>& lhs, const fixed<WordLength, IntBits, Signed>& rhs) {return lhs.v_ <= rhs.v_;}
+	friend bool operator>(const fixed<WordLength, IntBits, Signed>& lhs, const fixed<WordLength, IntBits, Signed>& rhs) {return lhs.v_ > rhs.v_;}
+	friend bool operator>=(const fixed<WordLength, IntBits, Signed>& lhs, const fixed<WordLength, IntBits, Signed>& rhs) {return lhs.v_ > rhs.v_;}
 
+	template<unsigned WordLength1, unsigned IntBits1, bool Signed1>
+	friend typename fixed_multiply_result<WordLength, IntBits, Signed, WordLength1, IntBits1, Signed1>::type
+	multiply_lossless(const fixed<WordLength, IntBits, Signed>& lhs, const fixed<WordLength1, IntBits1, Signed1>& rhs) {
+		typedef typename fixed_multiply_result<WordLength, IntBits, Signed, WordLength1, IntBits1, Signed1>::type Res;
+		typedef typename fixed_multiply_result<WordLength, IntBits, Signed, WordLength1, IntBits1, Signed1>::representation_type Rep;
+		return Res(static_cast<Rep>(lhs.v_) * static_cast<Rep>(rhs.raw()), dsp::raw);
+	}
 private:
 };
 

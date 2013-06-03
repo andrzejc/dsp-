@@ -15,12 +15,12 @@
 #include <climits>
 #include <cstdio>
 
-dsp::test::execution_timer::execution_timer():
+dsp::test::execution_timer::execution_timer()
 #ifdef _WIN32
-	ft_(0), pc_(::GetPriorityClass(::GetCurrentProcess())), tp_(::GetThreadPriority(::GetCurrentThread()))
+ : ft_(0), pc_(::GetPriorityClass(::GetCurrentProcess())), tp_(::GetThreadPriority(::GetCurrentThread()))
 #endif
 {
-#ifdef __posix__
+#if defined(__posix__) || defined(__MACH__)
 	std::memset(&tv_, 0, sizeof(tv_));
 #endif
 }
@@ -33,7 +33,7 @@ void dsp::test::execution_timer::start(const char* run) {
 	ft_ = ::GetTickCount();
 #endif
 
-#ifdef __posix__
+#if defined(__posix__) || defined(__MACH__)
 	gettimeofday(&tv_, NULL);
 #endif
 }
@@ -50,7 +50,7 @@ void dsp::test::execution_timer::stop() {
 	::SetThreadPriority(::GetCurrentThread(), tp_);
 #endif
 
-#ifdef __posix__
+#if defined(__posix__) || defined(__MACH__)
 	timeval ntv;
 	gettimeofday(&ntv, NULL);
 	millis = 1000 * (ntv.tv_sec - tv_.tv_sec);

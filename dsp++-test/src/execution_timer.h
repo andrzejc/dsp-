@@ -8,7 +8,7 @@
 #ifndef EXECUTION_TIMER_H_
 #define EXECUTION_TIMER_H_
 
-#ifdef __posix__
+#if defined(__posix__) || defined(__MACH__)
 # include <sys/time.h>
 #endif
 
@@ -33,7 +33,7 @@ private:
 	unsigned long tp_;
 #endif
 
-#ifdef __posix__
+#if defined(__posix__) || defined(__MACH__)
 	timeval tv_;
 #endif
 
