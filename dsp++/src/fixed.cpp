@@ -1,6 +1,6 @@
 #include <dsp++/fixed.h>
 #include <boost/static_assert.hpp>
-
+#include <climits>
 
 using namespace dsp::fi;
 

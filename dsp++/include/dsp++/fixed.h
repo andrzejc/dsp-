@@ -9,6 +9,7 @@
 #include <dsp++/stdint.h>
 
 #include <limits>
+#include <cmath>
 #include <functional>
 
 namespace dsp { namespace fi {
@@ -324,7 +325,7 @@ struct multiplies_lossless<DSP_FI_BIN_TPARAMS, result::max_range>:
 	typedef multiply_result<DSP_FI_BIN_TPARAMS, result::max_range> result_traits;
 	typename result_traits::type operator()(fixed<DSP_FI_TPARAMS(0)> l, fixed<DSP_FI_TPARAMS(1)> r) {
 		typedef typename result_traits::type Res; // this is the full-precision fixed type
-		typedef Res::representation_type R; // this is the int type
+		typedef typename Res::representation_type R; // this is the int type
 		return Res(static_cast<R>(l.raw()) * static_cast<R>(r.raw()), raw); // simply convert to target int type and do copy, no philosophy here
 	}
 };
@@ -336,7 +337,7 @@ struct multiplies_lossless<DSP_FI_BIN_TPARAMS, result::max_precision>:
 	typedef multiply_result<DSP_FI_BIN_TPARAMS, result::max_precision> result_traits;
 	typename result_traits::type operator()(fixed<DSP_FI_TPARAMS(0)> l, fixed<DSP_FI_TPARAMS(1)> r) {
 		typedef typename result_traits::type Res; // this is the full-precision fixed type
-		typedef Res::representation_type R; // this is the int type
+		typedef typename Res::representation_type R; // this is the int type
 		R val = static_cast<R>(l.raw()) * static_cast<R>(r.raw()); // do the multiplication
 		val <<= (Res::fractional_bits - Res::min_fractional_bits); // shift result left to maximize bit width of fractional part
 		return Res(val, raw); // simply convert to target int type and do copy, no philosophy here
