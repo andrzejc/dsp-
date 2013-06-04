@@ -1637,7 +1637,11 @@ PREDEFINED             = "BOOST_CONCEPT_REQUIRES(a, b)=b" \
 # overrules the definition found in the source code.
 
 EXPAND_AS_DEFINED      = DSP_WINDOW_ITERATOR_SUPPORT \
-                         DSP_SND_CHANNEL_MASK
+                         DSP_SND_CHANNEL_MASK \
+                         DSP_FI_TPARAMS \
+                         DSP_FI_TPARAMS_DECL \ 
+                         DSP_FI_BIN_TPARAMS \
+                         DSP_FI_BIN_TPARAMS_DECL \
 
 # If the SKIP_FUNCTION_MACROS tag is set to YES (the default) then
 # doxygen's preprocessor will remove all references to function-like macros

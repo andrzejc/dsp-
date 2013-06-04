@@ -9,11 +9,12 @@
 #include <dsp++/stdint.h>
 
 #include <limits>
+#include <functional>
 
-namespace dsp { 
+namespace dsp { namespace fi {
 
 //! @brief Holds fixed-point (and other) rounding mode constants, so that we don't have name clashes and can nicely qualify values like round::fastest.
-namespace round {
+namespace rounding {
 	//! @brief Rounding mode.
 	enum mode {
 		fastest = std::round_indeterminate,			//!< Speed is more important than the choice in value.
@@ -24,7 +25,7 @@ namespace round {
 		near_even, 			//!< Round towards the nearest value, but exactly-half values are rounded towards even values. This mode has more balance than the classic mode.
 		near_odd,			//!< Round towards the nearest value, but exactly-half values are rounded towards odd values. This mode has as much balance as the near_even mode, but preserves more information.
 	};
-} // namespace round
+} // namespace rounding
 
 //! @brief Holds fixed-point (and other) overflow mode constants, so that we don't have name clashes and can nicely qualify values like overflow::saturate.
 namespace overflow {
@@ -36,145 +37,281 @@ namespace overflow {
 	};
 } // namespace overflow
 
-//! @brief Tagging type so that we can nicely initialize dsp::fixed objects with dsp::raw param to indicate that the representation value should be used "as is".
+//! @brief Tagging type so that we can nicely initialize fixed objects with raw param to indicate that the representation value should be used "as is".
 struct raw_representation_tag {};
 //! @brief Undefined value used to specify that "raw" initializing constructor/assignment should be used.
 const raw_representation_tag raw = {};
 
 namespace detail {
 	// Implementation details, don't look here (fold down this namespace) ;)
-	template<unsigned bits, bool valid = (bits == 8 || bits == 16 || bits == 32 || bits == 64)> struct fixed_word_length_valid;
-	template<unsigned bits> struct fixed_word_length_valid<bits, true> {};
+	template<int WordLength, bool IsValid = (WordLength == 8 || WordLength == 16 || WordLength == 32 || WordLength == 64)> struct word_length_valid;
+	template<int WordLength> struct word_length_valid<WordLength, true> {};
 
-	template<unsigned bits, unsigned int_bits, bool sign, bool valid = (int_bits + (sign ? 1 : 0) <= bits)> struct fixed_int_bits_fit_in_word_length;
-	template<unsigned bits, unsigned int_bits, bool sign> struct fixed_int_bits_fit_in_word_length<bits, int_bits, sign, true> {};
-
-	template<unsigned bits, unsigned int_bits, bool sign> struct fixed_rep: fixed_word_length_valid<bits>, fixed_int_bits_fit_in_word_length<bits, int_bits, sign> {
-		typedef typename select_int<bits, sign>::type type;
-		static const unsigned fractional_bits = (bits - int_bits - (sign ? 1 : 0));
+	template<class R, int FracBits, class F, bool negative = (FracBits < 0)> struct fixed_from_float_impl;
+	template<class R, int FracBits, class F> struct fixed_from_float_impl<R, FracBits, F, false> {
+		static const R convert(F val) {
+			return static_cast<R>(val * (1ull << FracBits));
+		}
 	};
 
-	template<class T, unsigned n> struct pow2 {static const T value = 2 * pow2<T, n - 1>::value;};
-	template<class T> struct pow2<T, 0> {static const T value = 1;};
-
-	template<unsigned B0, unsigned I0, bool S0, unsigned B1, unsigned I1, bool S1> struct multiply_helper {
-		static const bool result_signed = (S0 || S1); // multiply result is signed if any of the operands is signed
-		static const unsigned base_word_length = (B0 > B1 ? B0 : B1);
-		static const unsigned frac_bits0 = fixed_rep<B0, I0, S0>::fractional_bits;
-		static const unsigned frac_bits1 = fixed_rep<B1, I1, S1>::fractional_bits;
-		static const unsigned result_word_length = 2 * base_word_length;
-		typedef typename select_int<result_word_length, result_signed>::type type;
-		static const unsigned fractional_bits = frac_bits0 + frac_bits1;
-		static const unsigned integer_bits = result_word_length - fractional_bits - (result_signed ? 1 : 0);
-		static const unsigned meaningful_integer_bits = (I0 + (S0 ? 1 : 0) + I1 + (S1 ? 1 : 0) - (result_signed ? 1 : 0));
-
+	template<class R, int FracBits, class F> struct fixed_from_float_impl<R, FracBits, F, true> {
+		static const R convert(F val) {
+			return static_cast<R>(val / (1ull << -FracBits));
+		}
 	};
+
+	template<class R, int FracBits, class F> R fixed_from_float(F val) {
+		return fixed_from_float_impl<R, FracBits, F>::convert(val);
+	}
+
+	template<class R, int num> struct mask_lower_impl {
+		static const R this_bit = R(1) << num;
+		static const R mask = this_bit | mask_lower_impl<R, num - 1>::mask;
+	};
+	template<class R> struct mask_lower_impl<R, 0> {
+		static const R this_bit = 0;
+		static const R mask = 0;
+	};
+
+	template<class R, int num> R mask_lower() {return mask_lower_impl<R, num>::mask;}
+
 } // namespace detail
 
-// forward declaration
-template<unsigned WordLength, unsigned IntBits, bool Signed = true> class fixed;
-
-template<unsigned WordLength0, unsigned IntBits0, bool Signed0,
-	unsigned WordLength1, unsigned IntBits1, bool Signed1> struct fixed_multiply_result {
-private:
-	typedef detail::multiply_helper<WordLength0, IntBits0, Signed0, WordLength1, IntBits1, Signed1> H;
-public:
-	static const unsigned word_length = H::result_word_length;
-	static const bool is_signed = H::result_signed;
-	static const unsigned integer_bits = H::integer_bits;
-	static const unsigned meaningful_integer_bits = H::meaningful_integer_bits;
-	static const unsigned fractional_bits = H::fractional_bits;
-	typedef fixed<word_length, integer_bits, is_signed> type;
-	typedef typename H::type representation_type;
+template<int WordLength, int IntBits, bool IsSigned>
+struct fixed_properties: private detail::word_length_valid<WordLength>
+{
+	static const bool is_signed = IsSigned;							//!< Is this signed of unsigned fixed-point type?
+	static const int sign_bits = (is_signed ? 1 : 0);				//!< Number of sign bits (0 or 1).
+	static const int word_length = WordLength;									//!< Well... word length (in bits).
+	static const int integer_bits = IntBits;									//!< Number of integer bits.
+	static const int fractional_bits = word_length - integer_bits - sign_bits;	//!< Number of fractional bits.
 };
+
+
+//! @brief Holds fixed-point arithmetic operation result type constants, so that we don't have name clashes and can nicely qualify values like result::max_range.
+namespace result {
+	//! @brief Fixed point arithmetic operation result type.
+	enum type {
+		max_range, 		//!< Result word is shifted left, so that integer range is maximized.
+		max_precision,	//!< Result word is shifted right, so that fractional precision is maximized.
+	};
+};
+
 
 /*!
- * @brief Implementation of fixed-point number with parametrized word length, number of integer and fractional bits and signedness.
+ * @brief Implementation of fixed-point number with parameterized word length, number of integer and fractional bits and signedness.
  * @tparam WordLength total number of bits the number is stored in. Must be one of: 8, 16, 32, 64.
- * @tparam IntBits number of integer bits. Number of fractional bits is inferred from @p WordLength, @p IntBits and @p sign.
- * @tparam sign specifies whether this is signed or unsigned number.
- * @pre Only word lengths that can be represented by built-in integer types are allowed. This is enforced by detail::fixed_word_length_valid compile-time check.
- * @pre (IntBits <= WordLength - (Signed ? 1 : 0)) This is enforced by detail::fixed_int_bits_fit_in_word_length compile-time check.
+ * @tparam IntBits number of integer bits. Number of fractional bits is inferred from @p WordLength, @p IntBits and @p IsSigned.
+ * @tparam IsSigned specifies whether this is signed or unsigned number.
+ * @pre Only word lengths that can be represented by built-in integer types are allowed. This is enforced by detail::word_length_valid compile-time check.
  */
-template<unsigned WordLength, unsigned IntBits, bool Signed>
-class fixed {
-	typedef detail::fixed_rep<WordLength, IntBits, Signed> F;
-	typedef typename F::type R;
+template<int WordLength, int IntBits, bool IsSigned = true>
+class fixed: public fixed_properties<WordLength, IntBits, IsSigned>
+{
+	typedef typename select_int<WordLength, IsSigned>::type R;
 	R v_;
 public:
-	static const bool is_signed = Signed;
-	static const unsigned word_length = WordLength;					//!< Well... word length.
-	static const unsigned integer_bits = IntBits;					//!< Number of integer bits.
-	static const unsigned fractional_bits = F::fractional_bits;		//!< Number of fractional bits.
+	typedef fixed_properties<WordLength, IntBits, IsSigned> properties;
+	using properties::is_signed;
+	using properties::sign_bits;
+	using properties::word_length;
+	using properties::integer_bits;
+	using properties::fractional_bits;
 	typedef R representation_type;									//!< Type of underlying integer representation.
 
-	/*!@brief Default constructor, initializes fixed point number to 0. */
+	//! @brief Default constructor, initializes fixed point number to 0.
 	fixed(): v_(R()) {}
-	/*!@brief Trivial copy constructor from the same type, simply copy the representation value.
-	 * @param[in] rhs fixed-point number to initialize this to. */
+
+	//! @brief Trivial copy constructor from the same type, simply copy the representation value.
+	//! @param[in] rhs fixed-point number to initialize this to.
 	fixed(const fixed& rhs): v_(rhs.v_) {}
-	/*!@brief Initialize this fixed-point number with raw integer representation. Useful for interacting with outside-world
-	 * (e.g. using data generated by MATLAB).
-	 * @param[in] v the value to initialize representation with.
-	 */
+
+	//! @brief Initialize this fixed-point number with raw integer representation. Useful for interacting with outside-world
+	//! (e.g. using data generated by MATLAB).
+	//! @param[in] v the value to initialize representation with.
 	explicit fixed(R v, const raw_representation_tag&): v_(v) {}
 
-	//!@todo add dsp::round::mode param and dsp::overflow::mode param, currently both are default (truncated/wrap)
-	explicit fixed(float v): v_(static_cast<R>((1ull << fractional_bits) * v)) {}
-	explicit fixed(double v): v_(static_cast<R>((1ull << fractional_bits) * v)) {}
-	explicit fixed(long double v): v_(static_cast<R>((1ull << fractional_bits) * v)) {}
+	//! @todo add dsp::fi::rounding::mode param and dsp::fi::overflow::mode param, currently both are default (truncated/wrap)
+	explicit fixed(float v): v_(detail::fixed_from_float<R, fractional_bits>(v)) {}
+	explicit fixed(double v): v_(detail::fixed_from_float<R, fractional_bits>(v)) {}
+	explicit fixed(long double v): v_(detail::fixed_from_float<R, fractional_bits>(v)) {}
 
 
-	/*!@brief Obtain raw integer representation.
-	 * @return raw integer representation value. */
+	//! @brief Obtain raw integer representation.
+	//! @return raw integer representation value.
 	representation_type raw() const {return v_;}
-	/*!@brief Trivial copy constructor from the same type, simply copy the representation value.
-	 * @param[in] rhs fixed-point number copy.
-	 * @return *this. */
+
+	//! @brief Trivial copy constructor from the same type, simply copy the representation value.
+	//! @param[in] rhs fixed-point number copy.
+	//! @return *this. */
 	fixed& operator=(const fixed& rhs) {v_ = rhs.v_; return *this;}
 
-	friend bool operator==(const fixed<WordLength, IntBits, Signed>& lhs, const fixed<WordLength, IntBits, Signed>& rhs) {return lhs.v_ == rhs.v_;}
-	friend bool operator!=(const fixed<WordLength, IntBits, Signed>& lhs, const fixed<WordLength, IntBits, Signed>& rhs) {return lhs.v_ != rhs.v_;}
-	friend bool operator<(const fixed<WordLength, IntBits, Signed>& lhs, const fixed<WordLength, IntBits, Signed>& rhs) {return lhs.v_ < rhs.v_;}
-	friend bool operator<=(const fixed<WordLength, IntBits, Signed>& lhs, const fixed<WordLength, IntBits, Signed>& rhs) {return lhs.v_ <= rhs.v_;}
-	friend bool operator>(const fixed<WordLength, IntBits, Signed>& lhs, const fixed<WordLength, IntBits, Signed>& rhs) {return lhs.v_ > rhs.v_;}
-	friend bool operator>=(const fixed<WordLength, IntBits, Signed>& lhs, const fixed<WordLength, IntBits, Signed>& rhs) {return lhs.v_ > rhs.v_;}
+	friend bool operator==(const fixed<WordLength, IntBits, IsSigned>& lhs, const fixed<WordLength, IntBits, IsSigned>& rhs) {return lhs.v_ == rhs.v_;}
+	friend bool operator!=(const fixed<WordLength, IntBits, IsSigned>& lhs, const fixed<WordLength, IntBits, IsSigned>& rhs) {return lhs.v_ != rhs.v_;}
+	friend bool operator<(const fixed<WordLength, IntBits, IsSigned>& lhs, const fixed<WordLength, IntBits, IsSigned>& rhs) {return lhs.v_ < rhs.v_;}
+	friend bool operator<=(const fixed<WordLength, IntBits, IsSigned>& lhs, const fixed<WordLength, IntBits, IsSigned>& rhs) {return lhs.v_ <= rhs.v_;}
+	friend bool operator>(const fixed<WordLength, IntBits, IsSigned>& lhs, const fixed<WordLength, IntBits, IsSigned>& rhs) {return lhs.v_ > rhs.v_;}
+	friend bool operator>=(const fixed<WordLength, IntBits, IsSigned>& lhs, const fixed<WordLength, IntBits, IsSigned>& rhs) {return lhs.v_ > rhs.v_;}
 
-	template<unsigned WordLength1, unsigned IntBits1, bool Signed1>
-	friend typename fixed_multiply_result<WordLength, IntBits, Signed, WordLength1, IntBits1, Signed1>::type
-	multiply_lossless(const fixed<WordLength, IntBits, Signed>& lhs, const fixed<WordLength1, IntBits1, Signed1>& rhs) {
-		typedef typename fixed_multiply_result<WordLength, IntBits, Signed, WordLength1, IntBits1, Signed1>::type Res;
-		typedef typename fixed_multiply_result<WordLength, IntBits, Signed, WordLength1, IntBits1, Signed1>::representation_type Rep;
-		return Res(static_cast<Rep>(lhs.v_) * static_cast<Rep>(rhs.raw()), dsp::raw);
-	}
 private:
 };
 
-}  // namespace dsp
+#define DSP_FI_TPARAMS_DECL(index) 	int WordLength ## index, int IntBits ## index, bool IsSigned ## index
+#define DSP_FI_TPARAMS(index)		WordLength ## index, IntBits ## index, IsSigned ## index
 
-namespace std { // specializing std::numeric_limits for dsp::fixed
+#define DSP_FI_UNA_TPARAMS_DECL 	DSP_FI_TPARAMS_DECL(0)
+#define DSP_FI_UNA_TPARAMS 			DSP_FI_TPARAMS(0)
 
-template<unsigned WordLength, unsigned IntBits, bool sign>
-class numeric_limits<dsp::fixed<WordLength, IntBits, sign> > {
-	typedef dsp::fixed<WordLength, IntBits, sign> F;
+#define DSP_FI_BIN_TPARAMS_DECL 	DSP_FI_TPARAMS_DECL(0), DSP_FI_TPARAMS_DECL(1)
+#define DSP_FI_BIN_TPARAMS 			DSP_FI_TPARAMS(0), DSP_FI_TPARAMS(1)
+
+template<int WordLength, int IntBits, bool IsSigned, rounding::mode RoundMode = rounding::fastest>
+struct rounds;
+
+template<DSP_FI_UNA_TPARAMS_DECL>
+struct rounds<DSP_FI_UNA_TPARAMS, rounding::fastest>: public std::binary_function<fixed<DSP_FI_UNA_TPARAMS>, int, fixed<DSP_FI_UNA_TPARAMS> >
+{
+	fixed<DSP_FI_UNA_TPARAMS> operator()(fixed<DSP_FI_UNA_TPARAMS> f, int fractional_bits) {
+		int mask_bits = fixed<DSP_FI_UNA_TPARAMS>::fractional_bits - fractional_bits;
+		if (mask_bits <= 0)
+			return f;
+		typedef typename fixed<DSP_FI_UNA_TPARAMS>::representation_type R;
+		R val = f.raw();
+		val >>= mask_bits;
+		val <<= mask_bits;
+		return fixed<DSP_FI_UNA_TPARAMS>(val, raw);
+	}
+};
+
+template<rounding::mode RoundMode, DSP_FI_UNA_TPARAMS_DECL>
+inline fixed<DSP_FI_UNA_TPARAMS> round(fixed<DSP_FI_UNA_TPARAMS> f, int fractional_bits) {
+	return rounds<DSP_FI_UNA_TPARAMS, RoundMode>()(f, fractional_bits);
+}
+
+//template<int WordLengthArg, int IntBitsArg, bool IsSignedArg, int WordLengthRes, int IntBitsRes = IntBitsArg, bool IsSignedRes = IsSignedArg, overflow::mode OverflowMode = overflow::wrap, round::mode RoundMode = round::fastest>
+//struct converts;
+
+
+template<int WordLength0, int IntBits0, bool IsSigned0, int WordLength1, int IntBits1, bool IsSigned1>
+struct multiply_result_base
+{
+	//! @brief Multiply result is signed if any of the operands is signed.
+	static const bool is_signed = (IsSigned0 || IsSigned1);
+	//! @brief Number of sign bits (0 or 1)
+	static const int sign_bits = (is_signed ? 1 : 0);
+	//! @brief Choose word length of largest operand as base word length.
+	static const int base_word_length = (WordLength0 > WordLength1 ? WordLength0 : WordLength1);
+	//! @brief 'Definition' word length of full-precision result is double the base length (actually WordLength0 + WordLength1 but we quantize it to the nearest higher power-of-2).
+	static const int word_length = 2 * base_word_length;
+	//! @brief Number of fractional bits in first operand.
+	static const int fractional_bits_0 = fixed_properties<WordLength0, IntBits0, IsSigned0>::fractional_bits;
+	//! @brief Number of fractional bits in second operand.
+	static const int fractional_bits_1 = fixed_properties<WordLength1, IntBits1, IsSigned1>::fractional_bits;
+	//! @brief Minimum required number of fractional bits in the result.
+	static const int min_fractional_bits = fractional_bits_0 + fractional_bits_1;
+	//! @brief Minimum required number of integer bits in the result.
+	static const int min_integer_bits = IntBits0 + IntBits1;
+	//! @brief Representation type of full-precision result
+	typedef typename select_int<word_length, is_signed>::type representation_type;
+	//! @brief Type of result when truncated to base word length.
+	typedef fixed<base_word_length, min_integer_bits, is_signed> type_base;
+	//! @brief Type of first operand
+	typedef fixed<WordLength0, IntBits0, IsSigned0> operand_type_0;
+	//! @brief Type of second operand
+	typedef fixed<WordLength1, IntBits1, IsSigned1> operand_type_1;
+};
+
+//! @brief 'Traits' type describing the properties of the result of multiplication of 2 fixed-point values.
+template<int WordLength0, int IntBits0, bool IsSigned0, int WordLength1, int IntBits1, bool IsSigned1, result::type ResultType = result::max_range>
+struct multiply_result;
+
+template<DSP_FI_BIN_TPARAMS_DECL>
+struct multiply_result<DSP_FI_BIN_TPARAMS, result::max_range>: public multiply_result_base<DSP_FI_BIN_TPARAMS>
+{
+	typedef multiply_result_base<DSP_FI_BIN_TPARAMS> base;
+	//! @brief Number of integer bits in max-range (right-shifted) result.
+	static const int integer_bits = base::word_length - base::min_fractional_bits - base::sign_bits;
+	//! @brief Number of fractional bits.
+	static const int fractional_bits = base::min_fractional_bits;
+	//! @brief Type of 'max-range' (right-shifted) result.
+	typedef fixed<base::word_length, integer_bits, base::is_signed> type;
+};
+
+template<DSP_FI_BIN_TPARAMS_DECL>
+struct multiply_result<DSP_FI_BIN_TPARAMS, result::max_precision>: public multiply_result_base<DSP_FI_BIN_TPARAMS>
+{
+	typedef multiply_result_base<DSP_FI_BIN_TPARAMS> base;
+	//! @brief Number of integer bits.
+	static const int integer_bits = base::min_integer_bits;
+	//! @brief Number of fractional bits in 'max-precision' (left-shifted) result.
+	static const int fractional_bits = base::word_length - base::min_integer_bits - base::sign_bits;
+	//! @brief Type of 'max-precision' (left-shifted) result.
+	typedef fixed<base::word_length, integer_bits, base::is_signed> type;
+};
+
+//! @brief Multiplication functor parameterized with result::type constants, returning full-precision (double-size) result.
+template<int WordLength0, int IntBits0, bool IsSigned0, int WordLength1, int IntBits1, bool IsSigned1, result::type ResultType = result::max_range>
+struct multiplies_lossless;
+
+template<DSP_FI_BIN_TPARAMS_DECL>
+struct multiplies_lossless<DSP_FI_BIN_TPARAMS, result::max_range>:
+	public std::binary_function< fixed<DSP_FI_TPARAMS(0)>, fixed<DSP_FI_TPARAMS(1)>, typename multiply_result<DSP_FI_BIN_TPARAMS, result::max_range>::type >
+{
+	typedef multiply_result<DSP_FI_BIN_TPARAMS, result::max_range> result_traits;
+	typename result_traits::type operator()(fixed<DSP_FI_TPARAMS(0)> l, fixed<DSP_FI_TPARAMS(1)> r) {
+		typedef typename result_traits::type Res;
+		return Res();
+	}
+};
+
+template<DSP_FI_BIN_TPARAMS_DECL>
+struct multiplies_lossless<DSP_FI_BIN_TPARAMS, result::max_precision>:
+	public std::binary_function< fixed<DSP_FI_TPARAMS(0)>, fixed<DSP_FI_TPARAMS(1)>, typename multiply_result<DSP_FI_BIN_TPARAMS, result::max_precision>::type >
+{
+	typedef multiply_result<DSP_FI_BIN_TPARAMS, result::max_precision> result_traits;
+	typename result_traits::type operator()(fixed<DSP_FI_TPARAMS(0)> l, fixed<DSP_FI_TPARAMS(1)> r) {
+		typedef typename result_traits::type Res;
+		return Res();
+	}
+};
+
+template<result::type ResultType, int WordLength0, int IntBits0, bool IsSigned0, int WordLength1, int IntBits1, bool IsSigned1>
+typename multiply_result<DSP_FI_BIN_TPARAMS, ResultType>::type
+multiply_lossless(fixed<DSP_FI_TPARAMS(0)> lhs, fixed<DSP_FI_TPARAMS(1)> rhs) {
+	return multiplies_lossless<DSP_FI_BIN_TPARAMS, ResultType>()(lhs, rhs);
+}
+
+////! @brief Multiplication functor parameterized returning base-type-sized result, scaled as appropriate
+//template<int WordLength0, int IntBits0, bool IsSigned0, int WordLength1, int IntBits1, bool IsSigned1, int Scale = 0>
+//struct multiplies_scaled
+
+
+} }  // namespace dsp::fi
+
+namespace std { // specializing std::numeric_limits for dsp::fi::fixed
+
+template<int WordLength, int IntBits, bool IsSigned>
+class numeric_limits<dsp::fi::fixed<WordLength, IntBits, IsSigned> >
+{
+	typedef dsp::fi::fixed<WordLength, IntBits, IsSigned> F;
 	typedef typename F::representation_type R;
 	typedef std::numeric_limits<R> NL;
 public:
 
     static const bool is_specialized = true;
 
-    static F min() throw() {return F(1, dsp::raw);}
-    static F max() throw() {return F(NL::max(), dsp::raw);}
-    static F lowest() throw() {return F(NL::min(), dsp::raw);}
+    static F min() throw() {return F(1, dsp::fi::raw);}
+    static F max() throw() {return F(NL::max(), dsp::fi::raw);}
+    static F lowest() throw() {return F(NL::min(), dsp::fi::raw);}
 
-    static const int digits = static_cast<int>(IntBits);
+    static const int digits = IntBits;
     static const int digits10 = (int)(digits * 301L / 1000);
-    static const bool is_signed = sign;
+    static const bool is_signed = IsSigned;
     static const bool is_integer = false;
     static const bool is_exact = true;
     static const int radix = 2;
 
-    static F epsilon() throw() {return F(1, dsp::raw);}
+    static F epsilon() throw() {return F(1, dsp::fi::raw);}
     static F round_error() throw() {return F(.5f);}
 
     static const int min_exponent = 0;

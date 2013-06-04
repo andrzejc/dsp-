@@ -28,14 +28,15 @@ namespace detail {
 	template<> struct next_int<unsigned int> {typedef unsigned long type;};
 	template<> struct next_int<unsigned long> {typedef unsigned long long type;};
 
-	template<unsigned size, class T, bool is_same_size = (size == 8*sizeof(T))> struct select_sized_int;
-	template<unsigned size, class T> struct select_sized_int<size, T, true> {typedef T type;};
-	template<unsigned size, class T> struct select_sized_int<size, T, false> {typedef typename select_sized_int<size, typename next_int<T>::type>::type type;};
+	template<int size, class T, bool is_same_size = (size == 8*sizeof(T))> struct select_sized_int;
+	template<int size, class T> struct select_sized_int<size, T, true> {typedef T type;};
+	template<int size, class T> struct select_sized_int<size, T, false> {typedef typename select_sized_int<size, typename next_int<T>::type>::type type;};
 
-	template<unsigned size,  bool sign> struct select_int;
-	template<unsigned size> struct select_int<size, true> {typedef typename select_sized_int<size, char>::type type;};
-	template<unsigned size> struct select_int<size, false> {typedef typename select_sized_int<size, unsigned char>::type type;};
 } // namespace detail
+
+template<int size,  bool sign> struct select_int;
+template<int size> struct select_int<size, true> {typedef typename detail::select_sized_int<size, char>::type type;};
+template<int size> struct select_int<size, false> {typedef typename detail::select_sized_int<size, unsigned char>::type type;};
 
 
 #ifdef DSP_STDINT
@@ -50,14 +51,14 @@ namespace detail {
 # undef DSP_STDINT
 #else
 
-typedef detail::select_int<8, true>::type int8_t;
-typedef detail::select_int<8, false>::type uint8_t;
-typedef detail::select_int<16, true>::type int16_t;
-typedef detail::select_int<16, false>::type uint16_t;
-typedef detail::select_int<32, true>::type int32_t;
-typedef detail::select_int<32, false>::type uint32_t;
-typedef detail::select_int<64, true>::type int64_t;
-typedef detail::select_int<64, false>::type uint64_t;
+typedef select_int<8, true>::type int8_t;
+typedef select_int<8, false>::type uint8_t;
+typedef select_int<16, true>::type int16_t;
+typedef select_int<16, false>::type uint16_t;
+typedef select_int<32, true>::type int32_t;
+typedef select_int<32, false>::type uint32_t;
+typedef select_int<64, true>::type int64_t;
+typedef select_int<64, false>::type uint64_t;
 
 #endif
 }
