@@ -7,43 +7,19 @@
 #pragma once
 
 #include <dsp++/stdint.h>
+#include <dsp++/intmath.h>
 
 #include <limits>
 #include <cmath>
 #include <functional>
-#include <stdexcept>
 
 namespace dsp { namespace fi {
 
-//! @brief Holds fixed-point (and other) rounding mode constants, so that we don't have name clashes and can nicely qualify values like round::fastest.
-namespace round {
-	//! @brief Rounding mode.
-	enum mode {
-		fastest = std::round_indeterminate,			//!< Speed is more important than the choice in value.
-		negative = std::round_toward_neg_infinity,	//!< Round towards negative infinity. This mode is useful in interval arithmetic.
-		truncated = std::round_toward_zero,			//!< Round towards zero. This mode is useful in implementing integral arithmetic.
-		positive = std::round_toward_infinity,		//!< Round towards positive infinity. This mode is useful in interval arithmetic.
-		nearest = std::round_to_nearest,			//!< Round towards the nearest value, but exactly-half values are rounded towards maximum magnitude. This mode is the standard school algorithm.
-		near_even, 			//!< Round towards the nearest value, but exactly-half values are rounded towards even values. This mode has more balance than the classic mode.
-		near_odd,			//!< Round towards the nearest value, but exactly-half values are rounded towards odd values. This mode has as much balance as the near_even mode, but preserves more information.
-	};
-} // namespace round
-
-//! @brief Holds fixed-point (and other) overflow mode constants, so that we don't have name clashes and can nicely qualify values like overflow::saturate.
-namespace overflow {
-	//! @brief Overflow mode.
-	enum mode {
-		fastest,		//!< Implementation-defined overflow mode (wrap or saturate, if hardware supports saturated maths).
-		wrap,			//!< Overflowed values will wrap.
-		saturate,		//!< If the dynamic value exceeds the range of the variable, assign the nearest representable value.
-		exception,		//!< If the dynamic value exceeds the range of the variable, throw an exception of type std::overflow_error.
-	};
-} // namespace overflow
 
 //! @brief Fixed-point rounding function object. Rounds the argument passed to operator() after specified fractional bit position (use 0 to round at integers).
 //! @tparam RoundMode Rounding mode to use.
 //! @tparam OverflowMode The way this object handles the overflow which may occur during rounding.
-template<int WordLength, int IntBits, bool IsSigned, round::mode RoundMode = round::fastest, overflow::mode OverflowMode = overflow::fastest>
+template<int WordLength, int IntBits, bool IsSigned, rounding::mode RoundMode = rounding::fastest, overflow::mode OverflowMode = overflow::fastest>
 struct rounds;
 
 //! @brief Tagging type so that we can nicely initialize fixed objects with raw param to indicate that the representation value should be used "as is".
@@ -57,19 +33,16 @@ namespace detail {
 	template<int WordLength, bool IsValid = (WordLength == 8 || WordLength == 16 || WordLength == 32 || WordLength == 64)> struct word_length_valid;
 	template<int WordLength> struct word_length_valid<WordLength, true> {};
 
-	// signum function
-	template <typename T> inline int sgn(T val) {return (T(0) < val) - (val < T(0));}
-
 	// prototype of float-to-fixed conversion helper, specializations for negative and nonnegative fractional bits must exist
-	// TODO parameterize float-to-fixed conversion on round::mode too
+	// TODO parameterize float-to-fixed conversion on rounding::mode too
 	template<class R, int FracBits, class F, bool negative = (FracBits < 0)> struct fixed_from_float_impl;
 	// nonnegative specialization of float-to-fixed conversion helper
 	template<class R, int FracBits, class F> struct fixed_from_float_impl<R, FracBits, F, false> {
-		static R convert(F val) {return static_cast<R>(val * (1ull << FracBits) + .5 * sgn(val));}
+		static R convert(F val) {return static_cast<R>(val * (1ull << FracBits) + .5 * signum(val));}
 	};
 
 	template<class R, int FracBits, class F> struct fixed_from_float_impl<R, FracBits, F, true> {
-		static R convert(F val) {return static_cast<R>(val / (1ull << -FracBits) + .5 * sgn(val));}
+		static R convert(F val) {return static_cast<R>(val / (1ull << -FracBits) + .5 * signum(val));}
 	};
 
 	template<class R, int FracBits, class F> inline R fixed_from_float(F val) {return fixed_from_float_impl<R, FracBits, F>::convert(val);}
@@ -86,131 +59,6 @@ namespace detail {
 	template<class F, int FracBits, class R> inline F float_from_fixed(R val) {
 		return float_from_fixed_impl<R, FracBits, F>::convert(val);
 	}
-
-	// by default silently ignore, this is implementation of overflow::fastest and wrap modes
-	template<class R, overflow::mode OverflowMode> struct overflow_impl {static void handle(R&, bool) {}};
-	template<class R> struct overflow_impl<R, overflow::saturate> {static void handle(R& val, bool up) {val = (up ? std::numeric_limits<R>::max() : std::numeric_limits<R>::min());}};
-	template<class R> struct overflow_impl<R, overflow::exception> {static void handle(R&, bool) {throw std::overflow_error("overflow");}};
-
-	template<overflow::mode OverflowMode, class R> inline void handle_overflow(R& val, bool up) {overflow_impl<R, OverflowMode>::handle(val, up);}
-
-
-	template<class R, overflow::mode OverflowMode, bool IsSigned = std::numeric_limits<R>::is_signed> struct add_impl;
-	template<class R> struct add_impl<R, overflow::wrap, true> {static R add(R v0, R v1) {return v0 + v1;}};
-	template<class R> struct add_impl<R, overflow::wrap, false> {static R add(R v0, R v1) {return v0 + v1;}};
-	template<class R> struct add_impl<R, overflow::fastest, true>: public add_impl<R, overflow::wrap, true>{};
-	template<class R> struct add_impl<R, overflow::fastest, false>: public add_impl<R, overflow::wrap, false>{};
-
-	template<class R, overflow::mode OverflowMode> struct add_impl<R, OverflowMode, false> {
-		static R add(R v0, R v1) {
-			bool ovf = (v1 > std::numeric_limits<R>::max() - v0);
-			v0 += v1;
-			if (ovf)
-				handle_overflow<OverflowMode>(v0, true);
-			return v0;
-		}
-	};
-
-	template<class R, overflow::mode OverflowMode> struct add_impl<R, OverflowMode, true> {
-		static R add(R v0, R v1) {
-			bool ovf = false;
-			bool up;
-			if (v0 < R() && v1 < R()) {
-				ovf = (v1 < std::numeric_limits<R>::min() - v0);
-				up = false;
-			}
-			else if (v0 > R() && v1 > R()) {
-				ovf = (v1 > std::numeric_limits<R>::max() - v0);
-				up = true;
-			}
-			v0 += v1;
-			if (ovf)
-				handle_overflow<OverflowMode>(v0, up);
-			return v0;
-		}
-	};
-
-	template<overflow::mode OverflowMode, class R> inline R add(R v0, R v1) {
-		return add_impl<R, OverflowMode>::add(v0, v1);
-	}
-
-	template<class R, bool is_valid = std::numeric_limits<R>::is_integer, bool is_signed = std::numeric_limits<R>::is_signed> struct absint_impl;
-	template<class R> struct absint_impl<R, true, true> {static R absint(R val) {return (val >= 0 ? val : -val);}};
-	template<class R> struct absint_impl<R, true, false> {static R absint(R val) {return val;}};
-	template<class R> inline R absint(R val) {return absint_impl<R>::absint(val);}
-
-	template<class R, round::mode RoundMode, overflow::mode OverflowMode, bool IsSigned = std::numeric_limits<R>::is_signed> struct round_impl;
-
-	// discard all the bits below the specified one
-	template<class R, overflow::mode OverflowMode, bool IsSigned> struct round_impl<R, round::truncated, OverflowMode, IsSigned> {
-		static R round(R val, int at_bit) {
-			R div = R(1 << at_bit);
-			R r = val % div;
-			val -= r;			// this will never overflow
-			return val;
-		}
-	};
-
-	template<class R, overflow::mode OverflowMode, bool IsSigned> struct round_impl<R, round::fastest, OverflowMode, IsSigned>:
-		public round_impl<R, round::truncated, OverflowMode, IsSigned> {};
-
-	template<class R, overflow::mode OverflowMode> struct round_impl<R, round::nearest, OverflowMode, false> {
-		static R round(R val, int at_bit) {
-			R div = R(1 << at_bit);
-			R r = val % div;
-			if (0 == r)
-				return val;
-			val -= r;
-			if (r >= div / 2)
-				val = add<OverflowMode>(val, div);
-			return val;
-		}
-	};
-
-	template<class R, overflow::mode OverflowMode> struct round_impl<R, round::nearest, OverflowMode, true> {
-		static R round(R val, int at_bit) {
-			R div = R(1 << at_bit);
-			R r = val % div;
-			if (0 == r)
-				return val;
-			val -= r;
-			if (r >= div / 2)
-				val = add<OverflowMode>(val, div);
-			else if (r < -div / 2)
-				val = add<OverflowMode>(val, R(-div));	// XXX use sub instead
-			return val;
-		}
-	};
-
-
-	template<class R, overflow::mode OverflowMode, bool IsSigned> struct round_impl<R, round::positive, OverflowMode, IsSigned> {
-		static R round(R val, int at_bit) {
-			R div = R(1 << at_bit);
-			R r = val % div;
-			if (0 == r)
-				return val;
-			val -= r;
-			if (r > 0)
-				val = add<OverflowMode>(val, div);
-			return val;
-		}
-	};
-
-	// for unsigned numbers rounding towards -inf is the same as truncating
-	template<class R, overflow::mode OverflowMode> struct round_impl<R, round::negative, OverflowMode, false>: public round_impl<R, round::truncated, OverflowMode, false> {};
-
-	template<class R, overflow::mode OverflowMode> struct round_impl<R, round::negative, OverflowMode, true> {
-		static R round(R val, int at_bit) {
-			R div = R(1 << at_bit);
-			R r = val % div;
-			if (0 == r)
-				return val;
-			val -= r;
-			if (r < 0)
-				val = add<OverflowMode>(val, R(-div)); // XXX use sub instead
-			return val;
-		}
-	};
 
 	template<class R, int Shift, bool negative = (Shift < 0)> struct shift_right_impl;
 	template<class R, int Shift> struct shift_right_impl<R, Shift, false> {static R shift(R val) {return val >> Shift;}	};
@@ -278,7 +126,7 @@ public:
 	//! @param[in] v the value to initialize representation with.
 	explicit fixed(R v, const raw_representation_tag&): v_(v) {}
 
-	//! @todo add dsp::fi::round::mode param and dsp::fi::overflow::mode param, currently rounding to nearest (like matlab) and wrapping
+	//! @todo add dsp::rounding::mode param and dsp::overflow::mode param, currently rounding to nearest (like matlab) and wrapping
 	explicit fixed(float v): v_(detail::fixed_from_float<R, fractional_bits>(v)) {}
 	explicit fixed(double v): v_(detail::fixed_from_float<R, fractional_bits>(v)) {}
 	explicit fixed(long double v): v_(detail::fixed_from_float<R, fractional_bits>(v)) {}
@@ -301,12 +149,12 @@ public:
 	friend bool operator>=(const fixed<WordLength, IntBits, IsSigned>& lhs, const fixed<WordLength, IntBits, IsSigned>& rhs) {return lhs.v_ > rhs.v_;}
 
 
-	template<round::mode RoundingMode, overflow::mode OverflowMode>
+	template<rounding::mode RoundingMode, overflow::mode OverflowMode>
 	fixed round(int fractional_bits = 0) {
 		return rounds<word_length, integer_bits, is_signed, RoundingMode, OverflowMode>()(*this, fractional_bits);
 	}
 
-	template<round::mode RoundingMode>
+	template<rounding::mode RoundingMode>
 	fixed round(int fractional_bits = 0) {
 		return rounds<word_length, integer_bits, is_signed, RoundingMode>()(*this, fractional_bits);
 	}
@@ -332,7 +180,7 @@ inline Float float_cast(const fixed<WordLength, IntBits, IsSigned>& f)
 #define DSP_FI_BIN_TPARAMS_DECL 	DSP_FI_TPARAMS_DECL(0), DSP_FI_TPARAMS_DECL(1)
 #define DSP_FI_BIN_TPARAMS 			DSP_FI_TPARAMS(0), DSP_FI_TPARAMS(1)
 
-template<int WordLength, int IntBits, bool IsSigned, round::mode RoundMode, overflow::mode OverflowMode>
+template<int WordLength, int IntBits, bool IsSigned, rounding::mode RoundMode, overflow::mode OverflowMode>
 struct rounds: public std::binary_function<fixed<WordLength, IntBits, IsSigned>, int, fixed<WordLength, IntBits, IsSigned> >
 {
 	fixed<WordLength, IntBits, IsSigned> operator()(const fixed<WordLength, IntBits, IsSigned>& f, int fractional_bits) {
@@ -341,12 +189,12 @@ struct rounds: public std::binary_function<fixed<WordLength, IntBits, IsSigned>,
 			return f;
 
 		typedef typename fixed<WordLength, IntBits, IsSigned>::representation_type R;
-		R val = detail::round_impl<R, RoundMode, OverflowMode>::round(f.raw(), at_bit);
+		R val = dsp::round<RoundMode, OverflowMode>(f.raw(), at_bit);
 		return fixed<WordLength, IntBits, IsSigned>(val, raw);
 	}
 };
 
-//template<int WordLengthArg, int IntBitsArg, bool IsSignedArg, int WordLengthRes, int IntBitsRes = IntBitsArg, bool IsSignedRes = IsSignedArg, overflow::mode OverflowMode = overflow::wrap, round::mode RoundMode = round::fastest>
+//template<int WordLengthArg, int IntBitsArg, bool IsSignedArg, int WordLengthRes, int IntBitsRes = IntBitsArg, bool IsSignedRes = IsSignedArg, overflow::mode OverflowMode = overflow::wrap, rounding::mode RoundMode = rounding::fastest>
 //struct converts;
 
 
@@ -447,7 +295,7 @@ template<int WordLength0, int IntBits0, bool IsSigned0, int WordLength1, int Int
 		int WordLengthR,	//!< Word length of the result.
 		int IntBitsR,		//!< Integral bits of the result.
 		bool IsSignedR = (IsSigned0 || IsSigned1), //!< Signedness of the result
-		round::mode RoundMode = round::fastest, overflow::mode OverflowMode = overflow::fastest>
+		rounding::mode RoundMode = rounding::fastest, overflow::mode OverflowMode = overflow::fastest>
 struct multiplies: public std::binary_function<fixed<WordLength0, IntBits0, IsSigned0>,
 	fixed<WordLength1, IntBits1, IsSigned1>, fixed<WordLengthR, IntBitsR, IsSignedR> >
 {
@@ -457,7 +305,7 @@ struct multiplies: public std::binary_function<fixed<WordLength0, IntBits0, IsSi
 		typedef typename T::representation_type R;
 		R res = static_cast<R>(lhs.raw()) * static_cast<R>(rhs.raw());
 		if (T::min_fractional_bits > result_type::fractional_bits) {
-			res = detail::round_impl<R, RoundMode, OverflowMode>::round(res, T::min_fractional_bits - result_type::fractional_bits);
+			res = dsp::round<RoundMode, OverflowMode>(res, T::min_fractional_bits - result_type::fractional_bits);
 		}
 		else {
 			// TODO check overflow
@@ -467,7 +315,7 @@ struct multiplies: public std::binary_function<fixed<WordLength0, IntBits0, IsSi
 	}
 };
 
-template<int WordLengthR, int IntBitsR, round::mode RoundMode, overflow::mode OverflowMode,
+template<int WordLengthR, int IntBitsR, rounding::mode RoundMode, overflow::mode OverflowMode,
 	int WordLength0, int IntBits0, bool IsSigned0, int WordLength1, int IntBits1, bool IsSigned1>
 inline fixed<WordLengthR, IntBitsR, (IsSigned0 || IsSigned1)>
 multiply(const fixed<WordLength0, IntBits0, IsSigned0>& lhs, const fixed<WordLength1, IntBits1, IsSigned1>& rhs)
@@ -475,7 +323,7 @@ multiply(const fixed<WordLength0, IntBits0, IsSigned0>& lhs, const fixed<WordLen
 	return multiplies<WordLength0, IntBits0, IsSigned0, WordLength1, IntBits1, IsSigned1, WordLengthR, IntBitsR, (IsSigned0 || IsSigned1), RoundMode, OverflowMode>()(lhs, rhs);
 }
 
-template<int WordLengthR, int IntBitsR, round::mode RoundMode,
+template<int WordLengthR, int IntBitsR, rounding::mode RoundMode,
 	int WordLength0, int IntBits0, bool IsSigned0, int WordLength1, int IntBits1, bool IsSigned1>
 inline fixed<WordLengthR, IntBitsR, (IsSigned0 || IsSigned1)>
 multiply(const fixed<WordLength0, IntBits0, IsSigned0>& lhs, const fixed<WordLength1, IntBits1, IsSigned1>& rhs)
@@ -488,7 +336,7 @@ template<int WordLengthR, int IntBitsR, overflow::mode OverflowMode,
 inline fixed<WordLengthR, IntBitsR, (IsSigned0 || IsSigned1)>
 multiply(const fixed<WordLength0, IntBits0, IsSigned0>& lhs, const fixed<WordLength1, IntBits1, IsSigned1>& rhs)
 {
-	return multiplies<WordLength0, IntBits0, IsSigned0, WordLength1, IntBits1, IsSigned1, WordLengthR, IntBitsR, (IsSigned0 || IsSigned1), round::fastest, OverflowMode>()(lhs, rhs);
+	return multiplies<WordLength0, IntBits0, IsSigned0, WordLength1, IntBits1, IsSigned1, WordLengthR, IntBitsR, (IsSigned0 || IsSigned1), rounding::fastest, OverflowMode>()(lhs, rhs);
 }
 
 template<int WordLengthR, int IntBitsR,
