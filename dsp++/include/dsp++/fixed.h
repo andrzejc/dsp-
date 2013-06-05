@@ -35,6 +35,7 @@ struct rounds;
 namespace overflow {
 	//! @brief Overflow mode.
 	enum mode {
+		fastest,		//!< Implementation-defined overflow mode (wrap or saturate, if hardware supports saturated maths).
 		wrap,			//!< Overflowed values will wrap.
 		saturate,		//!< If the dynamic value exceeds the range of the variable, assign the nearest representable value.
 		exception,		//!< If the dynamic value exceeds the range of the variable, throw an exception of type std::overflow_error.
@@ -47,15 +48,18 @@ struct raw_representation_tag {};
 const raw_representation_tag raw = {};
 
 namespace detail {
-	// Implementation details, don't look here (fold down this namespace) ;)
+	// Implementation details, don't look here, fold down this namespace ;)
+	// TODO detect presence of 128-bit int type and include it as a valid choice
 	template<int WordLength, bool IsValid = (WordLength == 8 || WordLength == 16 || WordLength == 32 || WordLength == 64)> struct word_length_valid;
 	template<int WordLength> struct word_length_valid<WordLength, true> {};
 
-	template <typename T> int sgn(T val) {
-	   return (T(0) < val) - (val < T(0));
-	}
+	// signum function
+	template <typename T> int sgn(T val) {return (T(0) < val) - (val < T(0));}
 
+	// prototype of float-to-fixed conversion helper, specializations for negative and nonnegative fractional bits must exist
+	// TODO parameterize float-to-fixed conversion on round::mode too
 	template<class R, int FracBits, class F, bool negative = (FracBits < 0)> struct fixed_from_float_impl;
+	// nonnegative specialization of float-to-fixed conversion helper
 	template<class R, int FracBits, class F> struct fixed_from_float_impl<R, FracBits, F, false> {
 		static R convert(F val) {
 			return static_cast<R>(val * (1ull << FracBits) + .5 * sgn(val));
@@ -72,7 +76,7 @@ namespace detail {
 		return fixed_from_float_impl<R, FracBits, F>::convert(val);
 	}
 
-	template<class R, int FracBits, class F, bool negative = (FracBits < 0), bool is_float = !std::numeric_limits<F>::is_integer> struct float_from_fixed_impl;
+	template<class R, int FracBits, class F, bool negative = (FracBits < 0), bool is_float = (std::numeric_limits<F>::is_specialized && !std::numeric_limits<F>::is_integer)> struct float_from_fixed_impl;
 	template<class R, int FracBits, class F> struct float_from_fixed_impl<R, FracBits, F, false, true> {
 		static F convert(R val) {
 			return static_cast<F>(val) / (1ull << FracBits);
@@ -91,6 +95,16 @@ namespace detail {
 
 	template<class R, round::mode Mode, bool IsSigned = std::numeric_limits<R>::is_signed> struct round_impl;
 
+	template<class R, bool is_valid = std::numeric_limits<R>::is_integer, bool is_signed = std::numeric_limits<R>::is_signed> struct absint_impl;
+	template<class R> struct absint_impl<R, true, true> {
+		static R absint(R val) {return (val >= 0 ? val : -val);}
+	};
+	template<class R> struct absint_impl<R, true, false> {
+		static R absint(R val) {return val;}
+	};
+
+	template<class R> R absint(R val) {return absint_impl<R>::absint(val);}
+
 	// discard all the bits below the specified one
 	template<class R, bool IsSigned> struct round_impl<R, round::truncated, IsSigned> {
 		static R round(R val, int at_bit) {
@@ -101,6 +115,9 @@ namespace detail {
 		}
 	};
 
+	template<class R, bool IsSigned> struct round_impl<R, round::fastest, IsSigned>:
+		public round_impl<R, round::truncated, IsSigned> {};
+
 	template<class R, bool IsSigned> struct round_impl<R, round::nearest, IsSigned> {
 		static R round(R val, int at_bit) {
 			R div = R(1) << at_bit;
@@ -108,8 +125,7 @@ namespace detail {
 			if (0 == r)
 				return val;
 			val -= r;
-			using std::abs;
-			if (std::abs(r) >= div / 2)
+			if (absint(r) >= div / 2)
 				val += sgn(r) * div;
 			return val;
 		}
@@ -163,6 +179,10 @@ namespace result {
 		max_precision,	//!< Result word is shifted right, so that fractional precision is maximized.
 	};
 };
+
+template<int WordLength0, int IntBits0, bool IsSigned0, int WordLength1, int IntBits1, bool IsSigned1>
+struct multiply_result_base;
+
 
 /*!
  * @brief Implementation of fixed-point number with parameterized word length, number of integer and fractional bits and signedness.
@@ -227,6 +247,7 @@ public:
 
 	template<class Float>
 	friend Float float_cast(fixed f) {return detail::float_from_fixed<Float, fractional_bits>(f.v_);}
+
 private:
 };
 
@@ -339,15 +360,27 @@ struct multiplies_lossless<DSP_FI_BIN_TPARAMS, result::max_precision>:
 		typedef typename result_traits::type Res; // this is the full-precision fixed type
 		typedef typename Res::representation_type R; // this is the int type
 		R val = static_cast<R>(l.raw()) * static_cast<R>(r.raw()); // do the multiplication
-		val <<= (Res::fractional_bits - Res::min_fractional_bits); // shift result left to maximize bit width of fractional part
+		val <<= (result_traits::fractional_bits - result_traits::min_fractional_bits); // shift result left to maximize bit width of fractional part
 		return Res(val, raw); // simply convert to target int type and do copy, no philosophy here
 	}
 };
 
 template<result::type ResultType, int WordLength0, int IntBits0, bool IsSigned0, int WordLength1, int IntBits1, bool IsSigned1>
-typename multiply_result<DSP_FI_BIN_TPARAMS, ResultType>::type
+inline typename multiply_result<DSP_FI_BIN_TPARAMS, ResultType>::type
 multiply_lossless(fixed<DSP_FI_TPARAMS(0)> lhs, fixed<DSP_FI_TPARAMS(1)> rhs) {
 	return multiplies_lossless<DSP_FI_BIN_TPARAMS, ResultType>()(lhs, rhs);
+}
+
+template<int WordLength0, int IntBits0, bool IsSigned0, int WordLength1, int IntBits1, bool IsSigned1>
+inline typename multiply_result_base<DSP_FI_BIN_TPARAMS>::type_base
+operator* (const fixed<DSP_FI_TPARAMS(0)>& l, const fixed<DSP_FI_TPARAMS(1)>& r)
+{
+	typedef typename multiply_result<DSP_FI_BIN_TPARAMS, result::max_precision>::type IRes;
+	IRes imm = multiply_lossless<result::max_precision>(l, r);
+	typedef typename multiply_result_base<DSP_FI_BIN_TPARAMS>::type_base Res;
+	typedef typename Res::representation_type R;
+	imm = imm.template round<round::fastest>(Res::fractional_bits);
+	return Res(static_cast<R>(imm.raw() >> (IRes::word_length - Res::word_length)), dsp::fi::raw);
 }
 
 ////! @brief Multiplication functor parameterized returning base-type-sized result, scaled as appropriate

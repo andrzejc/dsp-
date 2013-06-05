@@ -27,6 +27,9 @@ static bool test1() {
 	float f2 = float_cast<float>(r2);
 	fixed<32, 12> r3 = res.round<round::negative>(5);
 	float f3 = float_cast<float>(r3);
+
+	Q15_t q = v * v1;
+	float fq = float_cast<float>(q);
 	return true;
 }
 
