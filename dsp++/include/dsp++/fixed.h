@@ -228,11 +228,6 @@ inline FixedR fixed_cast(const fixed<WordLength, IntBits, IsSigned>& lhs) {
 	return converts<WordLength, IntBits, IsSigned, FixedR::word_length, FixedR::integer_bits, FixedR::is_signed, RoundingMode>()(lhs);
 }
 
-template<class FixedR, overflow::mode OverflowMode, int WordLength, int IntBits, bool IsSigned>
-inline FixedR fixed_cast(const fixed<WordLength, IntBits, IsSigned>& lhs) {
-	return converts<WordLength, IntBits, IsSigned, FixedR::word_length, FixedR::integer_bits, FixedR::is_signed, rounding::fastest, OverflowMode>()(lhs);
-}
-
 template<class FixedR, int WordLength, int IntBits, bool IsSigned>
 inline FixedR fixed_cast(const fixed<WordLength, IntBits, IsSigned>& lhs) {
 	return converts<WordLength, IntBits, IsSigned, FixedR::word_length, FixedR::integer_bits, FixedR::is_signed>()(lhs);
@@ -246,11 +241,6 @@ inline fixed<WordLengthR, IntBitsR, IsSignedR> fixed_cast(const fixed<WordLength
 template<int WordLengthR, int IntBitsR, bool IsSignedR, rounding::mode RoundingMode, int WordLength, int IntBits, bool IsSigned>
 inline fixed<WordLengthR, IntBitsR, IsSignedR> fixed_cast(const fixed<WordLength, IntBits, IsSigned>& lhs) {
 	return converts<WordLength, IntBits, IsSigned, WordLengthR, IntBitsR, IsSignedR, RoundingMode>()(lhs);
-}
-
-template<int WordLengthR, int IntBitsR, bool IsSignedR, overflow::mode OverflowMode, int WordLength, int IntBits, bool IsSigned>
-inline fixed<WordLengthR, IntBitsR, IsSignedR> fixed_cast(const fixed<WordLength, IntBits, IsSigned>& lhs) {
-	return converts<WordLength, IntBits, IsSigned, WordLengthR, IntBitsR, IsSignedR, rounding::fastest, OverflowMode>()(lhs);
 }
 
 template<int WordLengthR, int IntBitsR, bool IsSignedR, int WordLength, int IntBits, bool IsSigned>

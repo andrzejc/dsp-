@@ -17,8 +17,7 @@ static bool test1() {
 	Q15_t rrr = fixed_cast<Q15_t, dsp::rounding::nearest, dsp::overflow::exception>(res);
 	rrr = fixed_cast<Q15_t, dsp::rounding::nearest>(res);
 	rrr = fixed_cast<16,0,true>(res);
-	rrr = fixed_cast<16,0,true, dsp::overflow::exception>(res);
-	rrr = fixed_cast<Q15_t, dsp::overflow::exception>(res);
+	rrr = fixed_cast<16,0,true, dsp::rounding::negative>(res);
 
 
 	float ff = float_cast<float>(res);
