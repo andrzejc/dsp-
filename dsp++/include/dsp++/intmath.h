@@ -124,7 +124,7 @@ template<class R, overflow::mode OverflowMode> struct sub_impl<R, OverflowMode, 
 		bool ovf = (v1 > v0);
 		v0 -= v1;
 		if (ovf)
-			handle_overflow<OverflowMode>(v0, true);
+			handle_overflow<OverflowMode>(v0, false);
 		return v0;
 	}
 };
@@ -148,6 +148,60 @@ template<class R, overflow::mode OverflowMode> struct sub_impl<R, OverflowMode, 
 	}
 };
 
+template<class R, overflow::mode OverflowMode, bool IsSigned = std::numeric_limits<R>::is_signed> struct mul_impl;
+template<class R> struct mul_impl<R, overflow::wrap, true> {static R mul(R v0, R v1) {return v0 * v1;}};  // specializations for the trivial (wrapping) case
+template<class R> struct mul_impl<R, overflow::wrap, false> {static R mul(R v0, R v1) {return v0 * v1;}}; // we need both signed and unsigned variants so that we don't get compilation errors due to ambiguous template resolution
+// this specialization covers all non-wrapping unsigned cases
+template<class R, overflow::mode OverflowMode> struct mul_impl<R, OverflowMode, false> {
+	static R mul(R v0, R v1) {
+		bool ovf = (v0 != 0 && v1 != 0 && v0 > std::numeric_limits<R>::max() / v1);
+		v0 *= v1;
+		if (ovf)
+			handle_overflow<OverflowMode>(v0, true);
+		return v0;
+	}
+};
+// and this one is for non-wrapping signed cases
+template<class R, overflow::mode OverflowMode> struct mul_impl<R, OverflowMode, true> {
+	static R mul(R v0, R v1) {
+		bool ovf = false;
+		bool up;
+		if (v0 > 0) {
+			if (v1 > 0) {
+				if (v0 > std::numeric_limits<R>::max() / v1) {
+					ovf = true;
+					up = true;
+				}
+			}
+			else {
+				if (v1 < std::numeric_limits<R>::min() / v0) {
+					ovf = true;
+					up = false;
+				}
+			}
+		}
+		else {
+			if (v1 > 0) {
+				if (v0 < std::numeric_limits<R>::min() / v1) {
+					ovf = true;
+					up = false;
+				}
+			}
+			else {
+				if ((v0 != 0) && (v1 < std::numeric_limits<R>::max() / v0)) {
+					ovf = true;
+					up = true;
+				}
+			}
+		}
+		v0 *= v1;
+		if (ovf)
+			handle_overflow<OverflowMode>(v0, up);
+		return v0;
+	}
+};
+
+
 } // namespace detail
 
 //! @brief Adding with parameterized overflow handling.
@@ -160,7 +214,13 @@ inline R add(R v0, R v1) {return detail::add_impl<R, OverflowMode>::add(v0, v1);
 //! @tparam OverflowMode overflow handling constant.
 //! @return (@f${v_0 - v_1}@f$).
 template<overflow::mode OverflowMode, class R>
-inline R sub(R v0, R v1) {return detail::add_impl<R, OverflowMode>::add(v0, v1);}
+inline R sub(R v0, R v1) {return detail::sub_impl<R, OverflowMode>::sub(v0, v1);}
+
+//! @brief Multiplication with parameterized overflow handling.
+//! @tparam OverflowMode overflow handling constant.
+//! @return (@f${v_0 \cdot v_1}@f$).
+template<overflow::mode OverflowMode, class R>
+inline R mul(R v0, R v1) {return detail::mul_impl<R, OverflowMode>::mul(v0, v1);}
 
 namespace detail {
 //template<class R, bool is_valid = std::numeric_limits<R>::is_integer, bool is_signed = std::numeric_limits<R>::is_signed> struct absint_impl;
