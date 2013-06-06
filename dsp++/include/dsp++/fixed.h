@@ -360,6 +360,54 @@ operator*=(fixed<WordLength0, IntBits0, IsSigned0>& lhs, const fixed<WordLength1
 	return lhs = multiplies<WordLength0, IntBits0, IsSigned0, WordLength1, IntBits1, IsSigned1, WordLength0, IntBits0, IsSigned0>()(lhs, rhs);
 }
 
+template<int WordLength0, int IntBits0, bool IsSigned0, int WordLength1, int IntBits1, bool IsSigned1>
+struct addition_result
+{
+	//! @brief Multiply result is signed if any of the operands is signed.
+	static const bool is_signed = (IsSigned0 || IsSigned1);
+	//! @brief Number of sign bits (0 or 1)
+	static const int sign_bits = (is_signed ? 1 : 0);
+	//! @brief Choose word length of largest operand as base word length.
+	static const int base_word_length = (WordLength0 > WordLength1 ? WordLength0 : WordLength1);
+	//! @brief 'Definition' word length of full-precision result is double the base length (actually WordLength0 + WordLength1 but we quantize it to the nearest higher power-of-2).
+	static const int word_length = 2 * base_word_length;
+	//! @brief Number of fractional bits in first operand.
+	static const int fractional_bits_0 = fixed_properties<WordLength0, IntBits0, IsSigned0>::fractional_bits;
+	//! @brief Number of fractional bits in second operand.
+	static const int fractional_bits_1 = fixed_properties<WordLength1, IntBits1, IsSigned1>::fractional_bits;
+	//! @brief Minimum required number of fractional bits in the result.
+	static const int min_fractional_bits = detail::max<fractional_bits_0, fractional_bits_1>::value;
+	//! @brief Minimum required number of integer bits in the result.
+	static const int min_integer_bits = detail::max<IntBits0, IntBits1>::value + 1;
+	//! @brief Minimum required word length for full-precision result.
+	static const int min_word_length = min_integer_bits + min_fractional_bits + sign_bits;
+	//! @brief Representation type of full-precision result
+	typedef typename select_int<word_length, is_signed>::type representation_type;
+	//! @brief Type of result when truncated to base word length.
+	typedef fixed<base_word_length, min_integer_bits, is_signed> type_base;
+	//! @brief Type of first operand
+	typedef fixed<WordLength0, IntBits0, IsSigned0> operand_type_0;
+	//! @brief Type of second operand
+	typedef fixed<WordLength1, IntBits1, IsSigned1> operand_type_1;
+	//! @brief Number of integer bits taking into account that actual word length may be wider than sum of operands' word lengths.
+	static const int integer_bits = word_length - min_fractional_bits - sign_bits;
+	//! @brief Number of fractional bits.
+	static const int fractional_bits = min_fractional_bits;
+	//! @brief Type of 'max-range' (right-shifted) result.
+	typedef fixed<word_length, integer_bits, is_signed> type;
+};
+
+//template<int WordLength0, int IntBits0, bool IsSigned0, int WordLength1, int IntBits1, bool IsSigned1>
+//struct plus_lossless: public std::binary_function<fixed<DSP_FI_TPARAMS(0)>, fixed<DSP_FI_TPARAMS(1)>,
+//	typename addition_result<DSP_FI_BIN_TPARAMS>::type>
+//{
+//	typename addition_result<DSP_FI_BIN_TPARAMS> result_traits;
+//	typename result_traits::type operator()(const fixed<DSP_FI_TPARAMS(0)>& l, const fixed<DSP_FI_TPARAMS(1)>& r) {
+//		typedef typename result_traits::type Res; // this is the full-precision fixed type
+//		typedef typename Res::representation_type R; // this is the int type
+//		return Res(static_cast<R>(l.raw()) * static_cast<R>(r.raw()), raw); // simply convert to target int type and multiply, no rounding/overflow can happen here
+//	}
+//};
 
 } } // namespace dsp::fi
 
