@@ -163,6 +163,7 @@
     <ClCompile Include="src\fft_test.cpp" />
     <ClCompile Include="src\filter_design_test.cpp" />
     <ClCompile Include="src\filter_test.cpp" />
+    <ClCompile Include="src\intmath_test.cpp" />
     <ClCompile Include="src\lattice_test.cpp" />
     <ClCompile Include="src\levinson_test.cpp" />
     <ClCompile Include="src\lpc_test.cpp" />
@@ -179,6 +180,7 @@
     <ClInclude Include="src\fft_test.h" />
     <ClInclude Include="src\filter_design_test.h" />
     <ClInclude Include="src\filter_test.h" />
+    <ClInclude Include="src\intmath_test.h" />
     <ClInclude Include="src\lattice_test.h" />
     <ClInclude Include="src\levinson_test.h" />
     <ClInclude Include="src\lpc_test.h" />

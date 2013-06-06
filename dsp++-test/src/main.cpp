@@ -16,6 +16,7 @@
 #include "filter_design_test.h"
 #include "mean_test.h"
 #include "simd_test.h"
+#include "intmath_test.h"
 
 int main(int argc, char* argv[])
 {
@@ -32,6 +33,7 @@ int main(int argc, char* argv[])
 	runner.addTest(dsp::test::xcorr_test::suite());
 	runner.addTest(dsp::test::filter_design_test::suite());
 	runner.addTest(dsp::test::mean_test::suite());
+	runner.addTest(dsp::test::intmath_test::suite());
 	runner.run();
 	return 0;
 }
