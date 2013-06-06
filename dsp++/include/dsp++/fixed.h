@@ -267,7 +267,7 @@ struct multiplies_lossless<DSP_FI_BIN_TPARAMS, result::max_range>:
 	typename result_traits::type operator()(const fixed<DSP_FI_TPARAMS(0)>& l, const fixed<DSP_FI_TPARAMS(1)>& r) {
 		typedef typename result_traits::type Res; // this is the full-precision fixed type
 		typedef typename Res::representation_type R; // this is the int type
-		return Res(static_cast<R>(l.raw()) * static_cast<R>(r.raw()), raw); // simply convert to target int type and do copy, no philosophy here
+		return Res(static_cast<R>(l.raw()) * static_cast<R>(r.raw()), raw); // simply convert to target int type and multiply, no rounding/overflow can happen here
 	}
 };
 
@@ -281,7 +281,7 @@ struct multiplies_lossless<DSP_FI_BIN_TPARAMS, result::max_precision>:
 		typedef typename Res::representation_type R; // this is the int type
 		R val = static_cast<R>(l.raw()) * static_cast<R>(r.raw()); // do the multiplication, the result is now in Qmin_integer_bits.min_fractional_bits format
 		val <<= (result_traits::fractional_bits - result_traits::min_fractional_bits); // shift result left to maximize bit width of fractional part
-		return Res(val, raw); // simply convert to target int type and do copy, no philosophy here
+		return Res(val, raw);
 	}
 };
 
@@ -289,6 +289,12 @@ template<result::type ResultType, int WordLength0, int IntBits0, bool IsSigned0,
 inline typename multiply_result<DSP_FI_BIN_TPARAMS, ResultType>::type
 multiply_lossless(const fixed<DSP_FI_TPARAMS(0)>& lhs, const fixed<DSP_FI_TPARAMS(1)>& rhs) {
 	return multiplies_lossless<DSP_FI_BIN_TPARAMS, ResultType>()(lhs, rhs);
+}
+
+template<int WordLength0, int IntBits0, bool IsSigned0, int WordLength1, int IntBits1, bool IsSigned1>
+inline typename multiply_result<DSP_FI_BIN_TPARAMS, result::max_range>::type
+multiply_lossless(const fixed<DSP_FI_TPARAMS(0)>& lhs, const fixed<DSP_FI_TPARAMS(1)>& rhs) {
+	return multiplies_lossless<DSP_FI_BIN_TPARAMS, result::max_range>()(lhs, rhs);
 }
 
 template<int WordLength0, int IntBits0, bool IsSigned0, int WordLength1, int IntBits1, bool IsSigned1,
@@ -304,11 +310,10 @@ struct multiplies: public std::binary_function<fixed<WordLength0, IntBits0, IsSi
 		typedef multiply_result_base<WordLength0, IntBits0, IsSigned0, WordLength1, IntBits1, IsSigned1> T;
 		typedef typename T::representation_type R;
 		R res = static_cast<R>(lhs.raw()) * static_cast<R>(rhs.raw());
-		if (T::min_fractional_bits > result_type::fractional_bits) {
+		if (T::min_fractional_bits > result_type::fractional_bits)
 			res = dsp::round<RoundMode, OverflowMode>(res, T::min_fractional_bits - result_type::fractional_bits);
-		}
-		else {
-			// TODO check overflow
+		if (result_type::integer_bits < T::min_integer_bits + 1) { // +1 because rounding could cause res to overflow min_integer_bits
+			// TODO check if overflowed
 		}
 		res = detail::shift_right<T::min_fractional_bits - result_type::fractional_bits>(res);
 		return result_type(static_cast<R>(res), raw);

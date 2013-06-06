@@ -17,8 +17,8 @@ namespace rounding {
 	//! @brief Rounding mode.
 	enum mode {
 		fastest,				//!< Speed is more important than the choice in value.
-		negative,				//!< Round towards negative infinity. This mode is useful in interval arithmetic.
 		truncated = fastest,	//!< Round towards zero. This mode is useful in implementing integral arithmetic.
+		negative,				//!< Round towards negative infinity. This mode is useful in interval arithmetic.
 		positive,				//!< Round towards positive infinity. This mode is useful in interval arithmetic.
 		nearest,				//!< Round towards the nearest value, but exactly-half values are rounded towards maximum magnitude. This mode is the standard school algorithm.
 		near_even, 				//!< Round towards the nearest value, but exactly-half values are rounded towards even values. This mode has more balance than the classic mode.
@@ -233,7 +233,7 @@ template<class R, rounding::mode RoundMode, overflow::mode OverflowMode, bool Is
 // discard all the bits below the specified one, validity of at_bit is checked by the driving function
 template<class R, overflow::mode OverflowMode, bool IsSigned> struct round_impl<R, rounding::truncated, OverflowMode, IsSigned> {
 	static R round(R val, int at_bit) {
-		R div = R(1 << at_bit);
+		R div = R(1) << static_cast<R>(at_bit);
 		R r = val % div;
 		val -= r;			// this will never overflow
 		return val;
@@ -242,7 +242,7 @@ template<class R, overflow::mode OverflowMode, bool IsSigned> struct round_impl<
 
 template<class R, overflow::mode OverflowMode> struct round_impl<R, rounding::nearest, OverflowMode, false> {
 	static R round(R val, int at_bit) {
-		R div = R(1 << at_bit);
+		R div = R(1) << static_cast<R>(at_bit);
 		R r = val % div;
 		if (0 == r)
 			return val;
@@ -255,14 +255,14 @@ template<class R, overflow::mode OverflowMode> struct round_impl<R, rounding::ne
 
 template<class R, overflow::mode OverflowMode> struct round_impl<R, rounding::nearest, OverflowMode, true> {
 	static R round(R val, int at_bit) {
-		R div = R(1 << at_bit);
+		R div = R(1) << static_cast<R>(at_bit);
 		R r = val % div;
 		if (0 == r)
 			return val;
 		val -= r;
 		if (r >= div / 2)
 			val = add<OverflowMode>(val, div);
-		else if (r < -div / 2)
+		else if (r <= -div / 2)
 			val = sub<OverflowMode>(val, div);
 		return val;
 	}
@@ -271,7 +271,7 @@ template<class R, overflow::mode OverflowMode> struct round_impl<R, rounding::ne
 
 template<class R, overflow::mode OverflowMode, bool IsSigned> struct round_impl<R, rounding::positive, OverflowMode, IsSigned> {
 	static R round(R val, int at_bit) {
-		R div = R(1 << at_bit);
+		R div = R(1) << static_cast<R>(at_bit);
 		R r = val % div;
 		if (0 == r)
 			return val;
@@ -287,7 +287,7 @@ template<class R, overflow::mode OverflowMode> struct round_impl<R, rounding::ne
 
 template<class R, overflow::mode OverflowMode> struct round_impl<R, rounding::negative, OverflowMode, true> {
 	static R round(R val, int at_bit) {
-		R div = R(1 << at_bit);
+		R div = R(1) << static_cast<R>(at_bit);
 		R r = val % div;
 		if (0 == r)
 			return val;
@@ -298,8 +298,80 @@ template<class R, overflow::mode OverflowMode> struct round_impl<R, rounding::ne
 	}
 };
 
+// testing if number overflows above specified bit count
+template<class R, overflow::mode OverflowMode, bool IsSigned = std::numeric_limits<R>::is_signed> struct check_overflow_impl;
+template<class R> struct check_overflow_impl<R, overflow::wrap, true> {static void check(R&, int) {}};  // specializations for the trivial (wrapping) case
+template<class R> struct check_overflow_impl<R, overflow::wrap, false> {static void check(R&, int) {}}; // we need both signed and unsigned variants so that we don't get compilation errors due to ambiguous template resolution
+// overflow checking with saturation, unsigned case
+template<class R> struct check_overflow_impl<R, overflow::saturate, false> {
+	static void check(R& val, int bit_count) {
+		if (bit_count < 0 && val != R())
+			val = 0;
+		else if (bit_count < std::numeric_limits<R>::digits) {
+			R max = (R(1) << static_cast<R>(bit_count)) - R(1);
+			if (val > max)
+				val = max;
+		}
+	}
+};
+// overflow checking with saturation, signed case
+template<class R> struct check_overflow_impl<R, overflow::saturate, true> {
+	static void check(R& val, int bit_count) {
+		if (bit_count < 0 && val != R())
+			val = 0;
+		else if (bit_count < std::numeric_limits<R>::digits) {
+			if (val < R()) {
+				R min = R(-1) << static_cast<R>(bit_count);
+				if (val < min)
+					val = min;
+			}
+			else {
+				R max = (R(1) << static_cast<R>(bit_count)) - R(1);
+				if (val > max)
+					val = max;
+			}
+		}
+	}
+};
+// overflow checking with exception, unsigned case
+template<class R> struct check_overflow_impl<R, overflow::exception, false> {
+	static void check(R& val, int bit_count) {
+		if (bit_count < 0 && val != R())
+			throw std::overflow_error("overflow");
+		else if (bit_count < std::numeric_limits<R>::digits) {
+			R max = (R(1) << static_cast<R>(bit_count)) - R(1);
+			if (val > max)
+				throw std::overflow_error("overflow");
+		}
+	}
+};
+// overflow checking with exception, signed case
+template<class R> struct check_overflow_impl<R, overflow::exception, true> {
+	static void check(R& val, int bit_count) {
+		if (bit_count < 0 && val != R())
+			throw std::overflow_error("overflow");
+		else if (bit_count < std::numeric_limits<R>::digits) {
+			if (val < R()) {
+				R min = R(-1) << static_cast<R>(bit_count);
+				if (val < min)
+					throw std::overflow_error("overflow");
+			}
+			else {
+				R max = (R(1) << static_cast<R>(bit_count)) - R(1);
+				if (val > max)
+					throw std::overflow_error("overflow");
+			}
+		}
+	}
+};
+
 } // namespace detail
 
+//! @brief Round the integer number below specified bit.
+//! @tparam RoundMode rounding mode to use.
+//! @tparam OverflowMode overflow handling mode to use if the rounding result overflows the dynamic range of integer type.
+//! @param[in] val value to round.
+//! @param[in] at_bit bits below this one will be rounded and cleared (if <= 0, it's a no-op).
 template<rounding::mode RoundMode, overflow::mode OverflowMode, class R>
 inline R round(R val, int at_bit) {
 	if (at_bit <= 0)
@@ -312,6 +384,20 @@ inline R round(R val, int at_bit) {
 	else
 		val = detail::round_impl<R, RoundMode, OverflowMode>::round(val, at_bit);
 	return val;
+}
+
+template<rounding::mode RoundMode, class R>
+inline R round(R val, int at_bit) {
+	return round<RoundMode, overflow::fastest>(val, at_bit);
+}
+
+//! @brief Check if integer number overflows specified number of bits.
+//! @tparam OverflowMode overflow handling mode.
+//! @param[in,out] val value to check overflow in (and possibly adjust, if saturating).
+//! @param[in] bit_count number of bits the @p val should fit into.
+template<overflow::mode OverflowMode, class R>
+inline void check_overflow(R& val, int bit_count) {
+	return detail::check_overflow_impl<R, OverflowMode>::check(val, bit_count);
 }
 
 } // namespace dsp
