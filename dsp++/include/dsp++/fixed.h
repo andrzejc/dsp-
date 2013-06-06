@@ -309,12 +309,15 @@ struct multiplies: public std::binary_function<fixed<WordLength0, IntBits0, IsSi
 	result_type operator()(const fixed<WordLength0, IntBits0, IsSigned0>& lhs, const fixed<WordLength1, IntBits1, IsSigned1>& rhs) {
 		typedef multiply_result_base<WordLength0, IntBits0, IsSigned0, WordLength1, IntBits1, IsSigned1> T;
 		typedef typename T::representation_type R;
-		R res = static_cast<R>(lhs.raw()) * static_cast<R>(rhs.raw());
-		if (T::min_fractional_bits > result_type::fractional_bits)
+		R res = static_cast<R>(lhs.raw()) * static_cast<R>(rhs.raw());	// res is now in right-aligned Qmin_integer.min_fractional format
+		if (!result_type::is_signed && res < R())
+			// signalize overflow if converting negative numbers to unsigned format
+			handle_overflow<OverflowMode>(res, false);
+		if (T::min_fractional_bits > result_type::fractional_bits) 		// need to round the fractional part at result's fractional bits length
 			res = dsp::round<RoundMode, OverflowMode>(res, T::min_fractional_bits - result_type::fractional_bits);
-		if (result_type::integer_bits < T::min_integer_bits + 1) { // +1 because rounding could cause res to overflow min_integer_bits
-			// TODO check if overflowed
-		}
+		// the rounding signalizes overflow only if full range is exceeded, but can overflow the min_integer_bits anyway
+		if (result_type::integer_bits < T::min_integer_bits + 1)  // +1 because rounding could cause res to overflow min_integer_bits
+			check_overflow<OverflowMode>(res, result_type::integer_bits + T::min_fractional_bits);
 		res = detail::shift_right<T::min_fractional_bits - result_type::fractional_bits>(res);
 		return result_type(static_cast<R>(res), raw);
 	}
@@ -358,6 +361,13 @@ operator* (const fixed<WordLength0, IntBits0, IsSigned0>& lhs, const fixed<WordL
 {
 	return multiplies<WordLength0, IntBits0, IsSigned0, WordLength1, IntBits1, IsSigned1, detail::max<WordLength0,WordLength1>::value, detail::max<IntBits0,IntBits1>::value, (IsSigned0 || IsSigned1)>()(lhs, rhs);
 }
+
+template<int WordLength0, int IntBits0, bool IsSigned0, int WordLength1, int IntBits1, bool IsSigned1>
+inline fixed<WordLength0, IntBits0, IsSigned0>&
+operator*=(fixed<WordLength0, IntBits0, IsSigned0>& lhs, const fixed<WordLength1, IntBits1, IsSigned1>& rhs) {
+	return lhs = multiplies<WordLength0, IntBits0, IsSigned0, WordLength1, IntBits1, IsSigned1, WordLength0, IntBits0, IsSigned0>()(lhs, rhs);
+}
+
 
 } } // namespace dsp::fi
 

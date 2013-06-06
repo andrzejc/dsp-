@@ -32,6 +32,9 @@ static bool test1() {
 
 	fixed<16, 0> q = v * v1;
 	float fq = float_cast<float>(q);
+	q *= fixed<16, 3>(-5.f);
+	fv1 *= -5.f;
+	fq = float_cast<float>(q);
 	return true;
 }
 
