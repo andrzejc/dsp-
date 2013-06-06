@@ -207,6 +207,7 @@
     <ClInclude Include="include\dsp++\filter_design.h" />
     <ClInclude Include="include\dsp++\fixed.h" />
     <ClInclude Include="include\dsp++\float.h" />
+    <ClInclude Include="include\dsp++\intmath.h" />
     <ClInclude Include="include\dsp++\lattice.h" />
     <ClInclude Include="include\dsp++\levinson.h" />
     <ClInclude Include="include\dsp++\lpc.h" />

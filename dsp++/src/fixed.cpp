@@ -13,10 +13,16 @@ bool ff = (v == v1);
 
 
 static bool test1() {
-	fixed<32, 12> res = multiply_lossless<result::max_range>(fff, v);
-	fixed<32, 4> res1 = multiply_lossless<result::max_precision>(fff, v);
+	fixed<32, 12> res = multiply_lossless(fff, v);
+	Q15_t rrr = fixed_cast<Q15_t, dsp::rounding::nearest, dsp::overflow::exception>(res);
+	rrr = fixed_cast<Q15_t, dsp::rounding::nearest>(res);
+	rrr = fixed_cast<16,0,true>(res);
+	rrr = fixed_cast<16,0,true, dsp::overflow::exception>(res);
+	rrr = fixed_cast<Q15_t, dsp::overflow::exception>(res);
+
+
 	float ff = float_cast<float>(res);
-	float rr = float_cast<float>(res1);
+	float ffff = float_cast<float>(rrr);
 
 ////	fixed<32, 12> r0 = res.round<dsp::rounding::fastest>(5);
 //	float f0 = float_cast<float>(r0);

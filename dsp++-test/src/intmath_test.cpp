@@ -127,10 +127,6 @@ void intmath_test::test_round()
 	CPPUNIT_ASSERT((dsp::round<rounding::nearest>(short(32767), 15) == 0));
 	CPPUNIT_ASSERT((dsp::round<rounding::truncated>(short(-32768), 15) == 0));
 	CPPUNIT_ASSERT((dsp::round<rounding::nearest>(short(-32768), 15) == 0));
-	CPPUNIT_ASSERT_THROW((dsp::round<rounding::truncated, overflow::exception>(short(32767), 15)), std::overflow_error);
-	CPPUNIT_ASSERT_THROW((dsp::round<rounding::truncated, overflow::exception>(short(-32768), 15)), std::overflow_error);
-	CPPUNIT_ASSERT((dsp::round<rounding::truncated, overflow::saturate>(short(32767), 15) == short(32767)));
-	CPPUNIT_ASSERT((dsp::round<rounding::nearest, overflow::saturate>(short(32767), 15) == short(32767)));
 
 	CPPUNIT_ASSERT_NO_THROW((dsp::round<rounding::truncated, overflow::exception>(short(32767), 14)));
 	CPPUNIT_ASSERT((dsp::round<rounding::truncated, overflow::exception>(short(32767), 14) == 16384));
@@ -142,37 +138,37 @@ void intmath_test::test_round()
 void intmath_test::test_check_overflow()
 {
 	short val = 16383;
-	CPPUNIT_ASSERT_NO_THROW(dsp::check_overflow<overflow::exception>(val, 14));
+	CPPUNIT_ASSERT_NO_THROW(dsp::overflow_check_handle<overflow::exception>(val, 14));
 	++val;
-	CPPUNIT_ASSERT_THROW(dsp::check_overflow<overflow::exception>(val, 14), std::overflow_error);
-	CPPUNIT_ASSERT_NO_THROW(dsp::check_overflow<overflow::exception>(val, 15));
+	CPPUNIT_ASSERT_THROW(dsp::overflow_check_handle<overflow::exception>(val, 14), std::overflow_error);
+	CPPUNIT_ASSERT_NO_THROW(dsp::overflow_check_handle<overflow::exception>(val, 15));
 	val = 32767;
-	CPPUNIT_ASSERT_NO_THROW(dsp::check_overflow<overflow::exception>(val, 15));
-	CPPUNIT_ASSERT_NO_THROW(dsp::check_overflow<overflow::exception>(val, 16));
+	CPPUNIT_ASSERT_NO_THROW(dsp::overflow_check_handle<overflow::exception>(val, 15));
+	CPPUNIT_ASSERT_NO_THROW(dsp::overflow_check_handle<overflow::exception>(val, 16));
 	val = -16384;
-	CPPUNIT_ASSERT_NO_THROW(dsp::check_overflow<overflow::exception>(val, 14));
-	CPPUNIT_ASSERT_NO_THROW(dsp::check_overflow<overflow::exception>(val, 15));
+	CPPUNIT_ASSERT_NO_THROW(dsp::overflow_check_handle<overflow::exception>(val, 14));
+	CPPUNIT_ASSERT_NO_THROW(dsp::overflow_check_handle<overflow::exception>(val, 15));
 	--val;
-	CPPUNIT_ASSERT_THROW(dsp::check_overflow<overflow::exception>(val, 14), std::overflow_error);
-	CPPUNIT_ASSERT_NO_THROW(dsp::check_overflow<overflow::exception>(val, 15));
+	CPPUNIT_ASSERT_THROW(dsp::overflow_check_handle<overflow::exception>(val, 14), std::overflow_error);
+	CPPUNIT_ASSERT_NO_THROW(dsp::overflow_check_handle<overflow::exception>(val, 15));
 	val = 0;
-	CPPUNIT_ASSERT_NO_THROW(dsp::check_overflow<overflow::exception>(val, 0));
+	CPPUNIT_ASSERT_NO_THROW(dsp::overflow_check_handle<overflow::exception>(val, 0));
 	++val;
-	CPPUNIT_ASSERT_THROW(dsp::check_overflow<overflow::exception>(val, 0), std::overflow_error);
+	CPPUNIT_ASSERT_THROW(dsp::overflow_check_handle<overflow::exception>(val, 0), std::overflow_error);
 
 	unsigned short uval = 16383;
-	CPPUNIT_ASSERT_NO_THROW(dsp::check_overflow<overflow::exception>(uval, 14));
+	CPPUNIT_ASSERT_NO_THROW(dsp::overflow_check_handle<overflow::exception>(uval, 14));
 	++uval;
-	CPPUNIT_ASSERT_THROW(dsp::check_overflow<overflow::exception>(uval, 14), std::overflow_error);
-	CPPUNIT_ASSERT_NO_THROW(dsp::check_overflow<overflow::exception>(uval, 15));
+	CPPUNIT_ASSERT_THROW(dsp::overflow_check_handle<overflow::exception>(uval, 14), std::overflow_error);
+	CPPUNIT_ASSERT_NO_THROW(dsp::overflow_check_handle<overflow::exception>(uval, 15));
 	uval = 32767;
-	CPPUNIT_ASSERT_NO_THROW(dsp::check_overflow<overflow::exception>(uval, 15));
-	CPPUNIT_ASSERT_NO_THROW(dsp::check_overflow<overflow::exception>(uval, 16));
+	CPPUNIT_ASSERT_NO_THROW(dsp::overflow_check_handle<overflow::exception>(uval, 15));
+	CPPUNIT_ASSERT_NO_THROW(dsp::overflow_check_handle<overflow::exception>(uval, 16));
 	uval = 32768;
-	CPPUNIT_ASSERT_THROW(dsp::check_overflow<overflow::exception>(uval, 15), std::overflow_error);
-	CPPUNIT_ASSERT_NO_THROW(dsp::check_overflow<overflow::exception>(uval, 16));
+	CPPUNIT_ASSERT_THROW(dsp::overflow_check_handle<overflow::exception>(uval, 15), std::overflow_error);
+	CPPUNIT_ASSERT_NO_THROW(dsp::overflow_check_handle<overflow::exception>(uval, 16));
 	uval = 0;
-	CPPUNIT_ASSERT_NO_THROW(dsp::check_overflow<overflow::exception>(uval, 0));
+	CPPUNIT_ASSERT_NO_THROW(dsp::overflow_check_handle<overflow::exception>(uval, 0));
 	++uval;
-	CPPUNIT_ASSERT_THROW(dsp::check_overflow<overflow::exception>(uval, 0), std::overflow_error);
+	CPPUNIT_ASSERT_THROW(dsp::overflow_check_handle<overflow::exception>(uval, 0), std::overflow_error);
 }

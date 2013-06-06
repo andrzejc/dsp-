@@ -239,6 +239,9 @@
     <ClInclude Include="include\dsp++\fixed.h">
       <Filter>include\dsp++</Filter>
     </ClInclude>
+    <ClInclude Include="include\dsp++\intmath.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="doxyfile" />
