@@ -96,6 +96,56 @@ void intmath_test::test_mul()
 	CPPUNIT_ASSERT_THROW(dsp::mul<dsp::overflow::exception>(INT_MAX, 2), std::overflow_error);
 }
 
+void intmath_test::test_div()
+{
+	CPPUNIT_ASSERT(dsp::div<dsp::overflow::fastest>(1, 1) == 1);
+	CPPUNIT_ASSERT(dsp::div<dsp::overflow::fastest>(10, -10) == -1);
+	CPPUNIT_ASSERT(dsp::div<dsp::overflow::fastest>(-100, -100) == 1);
+	CPPUNIT_ASSERT(dsp::div<dsp::overflow::fastest>(-1000, 1000) == -1);
+	CPPUNIT_ASSERT(dsp::div<dsp::overflow::fastest>(INT_MAX, 2) > 0);
+
+	CPPUNIT_ASSERT(dsp::div<dsp::overflow::fastest>(10000u, 2u) == 5000u);
+	CPPUNIT_ASSERT(dsp::div<dsp::overflow::fastest>(0u, 100u) == 0u);
+
+	CPPUNIT_ASSERT(dsp::div<dsp::overflow::saturate>(INT_MIN, -1) == INT_MAX);
+	CPPUNIT_ASSERT_NO_THROW(dsp::div<dsp::overflow::exception>(INT_MIN, 1));
+	CPPUNIT_ASSERT_NO_THROW(dsp::div<dsp::overflow::exception>(INT_MAX, -1));
+	CPPUNIT_ASSERT_THROW(dsp::div<dsp::overflow::exception>(INT_MIN, -1), std::overflow_error);
+}
+
+void intmath_test::test_mod()
+{
+	CPPUNIT_ASSERT(dsp::mod<dsp::overflow::fastest>(1, 1) == 0);
+	CPPUNIT_ASSERT(dsp::mod<dsp::overflow::fastest>(10, -10) == 0);
+	CPPUNIT_ASSERT(dsp::mod<dsp::overflow::fastest>(-100, -100) == 0);
+	CPPUNIT_ASSERT(dsp::mod<dsp::overflow::fastest>(-1000, 1000) == 0);
+
+	CPPUNIT_ASSERT(dsp::mod<dsp::overflow::fastest>(11, 10) == 1);
+	CPPUNIT_ASSERT(dsp::mod<dsp::overflow::fastest>(-11, 10) == -1);
+	CPPUNIT_ASSERT(dsp::mod<dsp::overflow::fastest>(11, -10) == 1);
+	CPPUNIT_ASSERT(dsp::mod<dsp::overflow::fastest>(-11, -10) == -1);
+
+	CPPUNIT_ASSERT(dsp::mod<dsp::overflow::fastest>(INT_MAX, 2) == 1);
+	CPPUNIT_ASSERT(dsp::mod<dsp::overflow::fastest>(INT_MIN, 2) == 0);
+
+	CPPUNIT_ASSERT(dsp::mod<dsp::overflow::fastest>(10000u, 2u) == 0u);
+	CPPUNIT_ASSERT(dsp::mod<dsp::overflow::fastest>(0u, 100u) == 0u);
+}
+
+void intmath_test::test_neg()
+{
+	CPPUNIT_ASSERT(dsp::neg<dsp::overflow::fastest>(1) == -1);
+	CPPUNIT_ASSERT(dsp::neg<dsp::overflow::fastest>(10) == -10);
+	CPPUNIT_ASSERT(dsp::neg<dsp::overflow::fastest>(-100) == 100);
+	CPPUNIT_ASSERT(dsp::neg<dsp::overflow::fastest>(INT_MAX) == -INT_MAX);
+
+	CPPUNIT_ASSERT(dsp::neg<dsp::overflow::saturate>(10000u) == 0u);
+	CPPUNIT_ASSERT(dsp::neg<dsp::overflow::fastest>(0u) == 0u);
+
+	CPPUNIT_ASSERT(dsp::neg<dsp::overflow::saturate>(INT_MIN) == INT_MAX);
+	CPPUNIT_ASSERT_THROW(dsp::neg<dsp::overflow::exception>(INT_MIN), std::overflow_error);
+}
+
 void intmath_test::test_round()
 {
 	CPPUNIT_ASSERT((dsp::round<rounding::truncated>(19234, 0) == 19234));

@@ -285,24 +285,24 @@ struct multiply_result
 	static const int integer_bits = word_length - min_fractional_bits - sign_bits;
 	//! @brief Number of fractional bits.
 	static const int fractional_bits = min_fractional_bits;
-	//! @brief Type of 'max-range' (right-shifted) result.
-	typedef fixed<word_length, integer_bits, is_signed> type;
+	//! @brief Lossless (full-precision, right-shifted) result.
+	typedef fixed<word_length, integer_bits, is_signed> type_lossless;
 };
 
 template<int WordLength0, int IntBits0, bool IsSigned0, int WordLength1, int IntBits1, bool IsSigned1>
 struct multiplies_lossless: public std::binary_function<fixed<DSP_FI_TPARAMS(0)>, fixed<DSP_FI_TPARAMS(1)>,
-	typename multiply_result<DSP_FI_BIN_TPARAMS>::type>
+	typename multiply_result<DSP_FI_BIN_TPARAMS>::type_lossless>
 {
 	typedef multiply_result<DSP_FI_BIN_TPARAMS> result_traits;
-	typename result_traits::type operator()(const fixed<DSP_FI_TPARAMS(0)>& l, const fixed<DSP_FI_TPARAMS(1)>& r) {
-		typedef typename result_traits::type Res; // this is the full-precision fixed type
+	typename result_traits::type_lossless operator()(const fixed<DSP_FI_TPARAMS(0)>& l, const fixed<DSP_FI_TPARAMS(1)>& r) {
+		typedef typename result_traits::type_lossless Res; // this is the full-precision fixed type
 		typedef typename Res::representation_type R; // this is the int type
 		return Res(static_cast<R>(l.raw()) * static_cast<R>(r.raw()), raw); // simply convert to target int type and multiply, no rounding/overflow can happen here
 	}
 };
 
 template<int WordLength0, int IntBits0, bool IsSigned0, int WordLength1, int IntBits1, bool IsSigned1>
-inline typename multiply_result<DSP_FI_BIN_TPARAMS>::type
+inline typename multiply_result<DSP_FI_BIN_TPARAMS>::type_lossless
 multiply_lossless(const fixed<DSP_FI_TPARAMS(0)>& lhs, const fixed<DSP_FI_TPARAMS(1)>& rhs) {
 	return multiplies_lossless<DSP_FI_BIN_TPARAMS>()(lhs, rhs);
 }
@@ -412,20 +412,34 @@ struct addition_result
 	static const int integer_bits = min_integer_bits;
 	//! @brief Number of fractional bits.
 	static const int fractional_bits = word_length - sign_bits - integer_bits;
-	//! @brief Type of 'max-range' (right-shifted) result.
-	typedef fixed<word_length, integer_bits, is_signed> type;
+	//! @brief Type of extended (double-word) result.
+	typedef fixed<word_length, integer_bits, is_signed> type_extended;
 };
 
 template<int WordLength0, int IntBits0, bool IsSigned0, int WordLength1, int IntBits1, bool IsSigned1, rounding::mode RoundingMode>
-struct plus_double_width: public std::binary_function<fixed<DSP_FI_TPARAMS(0)>, fixed<DSP_FI_TPARAMS(1)>,
-	typename addition_result<DSP_FI_BIN_TPARAMS>::type>
+struct plus_extended: public std::binary_function<fixed<DSP_FI_TPARAMS(0)>, fixed<DSP_FI_TPARAMS(1)>,
+	typename addition_result<DSP_FI_BIN_TPARAMS>::type_extended>
 {
 	typedef addition_result<DSP_FI_BIN_TPARAMS> result_traits;
-	typename result_traits::type operator()(const fixed<DSP_FI_TPARAMS(0)>& l, const fixed<DSP_FI_TPARAMS(1)>& r) {
-		typedef typename result_traits::type Res; // this is the full-precision fixed type
-		typedef typename Res::representation_type R; // this is the int type
+	typename result_traits::type_extended operator()(const fixed<DSP_FI_TPARAMS(0)>& l, const fixed<DSP_FI_TPARAMS(1)>& r) {
+		typedef typename result_traits::type_extended Res;		// this is the extended-precision fixed type
+		typedef typename Res::representation_type R;			// this is the int type
 		// this addition should never overflow as min_integer_bits has 1 bit of overhead
 		R res = add<overflow::fastest>(fixed_cast<Res, RoundingMode>(l).raw(), fixed_cast<Res, RoundingMode>(r).raw());
+		return Res(res, raw);
+	}
+};
+
+template<int WordLength0, int IntBits0, bool IsSigned0, int WordLength1, int IntBits1, bool IsSigned1, rounding::mode RoundingMode>
+struct minus_extended: public std::binary_function<fixed<DSP_FI_TPARAMS(0)>, fixed<DSP_FI_TPARAMS(1)>,
+	typename addition_result<DSP_FI_BIN_TPARAMS>::type_extended>
+{
+	typedef addition_result<DSP_FI_BIN_TPARAMS> result_traits;
+	typename result_traits::type_extended operator()(const fixed<DSP_FI_TPARAMS(0)>& l, const fixed<DSP_FI_TPARAMS(1)>& r) {
+		typedef typename result_traits::type_extended Res;		// this is the extended-precision fixed type
+		typedef typename Res::representation_type R;			// this is the int type
+		// this addition should never overflow as min_integer_bits has 1 bit of overhead
+		R res = sub<overflow::fastest>(fixed_cast<Res, RoundingMode>(l).raw(), fixed_cast<Res, RoundingMode>(r).raw());
 		return Res(res, raw);
 	}
 };

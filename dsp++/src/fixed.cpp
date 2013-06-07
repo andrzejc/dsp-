@@ -33,7 +33,7 @@ static bool test1() {
 //	float f3 = float_cast<float>(r3);
 
 	float fv1 = float_cast<float>(v1);
-	fv1 *= 0.33333;
+	fv1 *= 0.33333f;
 
 	fixed<16, 0> q = v * v1;
 	float fq = float_cast<float>(q);

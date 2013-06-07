@@ -20,6 +20,9 @@ class intmath_test: public CppUnit::TestFixture
 	CPPUNIT_TEST(test_add);
 	CPPUNIT_TEST(test_sub);
 	CPPUNIT_TEST(test_mul);
+	CPPUNIT_TEST(test_div);
+	CPPUNIT_TEST(test_mod);
+	CPPUNIT_TEST(test_neg);
 	CPPUNIT_TEST(test_round);
 	CPPUNIT_TEST(test_check_overflow);
 	CPPUNIT_TEST_SUITE_END();
@@ -28,6 +31,9 @@ public:
 	void test_add();
 	void test_sub();
 	void test_mul();
+	void test_div();
+	void test_mod();
+	void test_neg();
 	void test_round();
 	void test_check_overflow();
 };

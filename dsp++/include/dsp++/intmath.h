@@ -154,10 +154,11 @@ template<class R> struct mul_impl<R, overflow::wrap, false> {static R mul(R v0, 
 // this specialization covers all non-wrapping unsigned cases
 template<class R, overflow::mode OverflowMode> struct mul_impl<R, OverflowMode, false> {
 	static R mul(R v0, R v1) {
-		bool ovf = (v0 != 0 && v1 != 0 && v0 > std::numeric_limits<R>::max() / v1);
-		v0 *= v1;
+		bool ovf = (v0 != R() && v1 != R() && v0 > std::numeric_limits<R>::max() / v1);
 		if (ovf)
 			overflow_handle<OverflowMode>(v0, true);
+		else
+			v0 *= v1;
 		return v0;
 	}
 };
@@ -166,8 +167,8 @@ template<class R, overflow::mode OverflowMode> struct mul_impl<R, OverflowMode, 
 	static R mul(R v0, R v1) {
 		bool ovf = false;
 		bool up;
-		if (v0 > 0) {
-			if (v1 > 0) {
+		if (v0 > R()) {
+			if (v1 > R()) {
 				if (v0 > std::numeric_limits<R>::max() / v1) {
 					ovf = true;
 					up = true;
@@ -181,26 +182,96 @@ template<class R, overflow::mode OverflowMode> struct mul_impl<R, OverflowMode, 
 			}
 		}
 		else {
-			if (v1 > 0) {
+			if (v1 > R()) {
 				if (v0 < std::numeric_limits<R>::min() / v1) {
 					ovf = true;
 					up = false;
 				}
 			}
 			else {
-				if ((v0 != 0) && (v1 < std::numeric_limits<R>::max() / v0)) {
+				if ((v0 != R()) && (v1 < std::numeric_limits<R>::max() / v0)) {
 					ovf = true;
 					up = true;
 				}
 			}
 		}
-		v0 *= v1;
 		if (ovf)
 			overflow_handle<OverflowMode>(v0, up);
+		else
+			v0 *= v1;
 		return v0;
 	}
 };
 
+template<class R, overflow::mode OverflowMode, bool IsSigned = std::numeric_limits<R>::is_signed> struct div_impl;
+template<class R> struct div_impl<R, overflow::wrap, true> {static R div(R v0, R v1) {return v0 / v1;}};  // specializations for the trivial (wrapping) case
+template<class R> struct div_impl<R, overflow::wrap, false> {static R div(R v0, R v1) {return v0 / v1;}}; // we need both signed and unsigned variants so that we don't get compilation errors due to ambiguous template resolution
+// this specialization covers all non-wrapping unsigned cases
+template<class R, overflow::mode OverflowMode> struct div_impl<R, OverflowMode, false> {
+	static R div(R v0, R v1) {
+		bool ovf = (R() == v1 && R() != v0);	// unsigned overflow may happen only when dividing by 0, result is +inf
+		if (ovf) 
+			overflow_handle<OverflowMode>(v0, false);
+		else
+			v0 /= v1;
+		return v0;
+	}
+};
+// and this one is for non-wrapping signed cases
+template<class R, overflow::mode OverflowMode> struct div_impl<R, OverflowMode, true> {
+	static R div(R v0, R v1) {
+		bool ovf = false;
+		bool up;
+		if (R() == v1 && R() != v0) {
+			ovf = true;
+			up = (v0 >= R());
+		}
+		else if (v0 == std::numeric_limits<R>::min() && R(-1) == v1) { // igned overflow may happen also when dividing min by -1, the result is max + 1
+			ovf = true;
+			up = true;
+		}
+		if (ovf)
+			overflow_handle<OverflowMode>(v0, up);
+		else
+			v0 /= v1;
+		return v0;
+	}
+};
+
+template<class R, bool IsSigned = std::numeric_limits<R>::is_signed> struct mod_impl;
+template<class R> struct mod_impl<R, false> {static R mod(R v0, R v1) {return v0 % v1;}};  // unsigned case can never overflow and need no error checking
+// and this one is for non-wrapping signed cases
+template<class R> struct mod_impl<R, true> {
+	static R mod(R v0, R v1) {
+		if (v0 == std::numeric_limits<R>::min() && R(-1) == v1) 
+			v0 = R();
+		else
+			v0 %= v1;
+		return v0;
+	}
+};
+
+template<class R, overflow::mode OverflowMode, bool IsSigned = std::numeric_limits<R>::is_signed> struct neg_impl;
+template<class R> struct neg_impl<R, overflow::wrap, true> {static R neg(R v0) {return -v0;}};  // specializations for the trivial (wrapping) case
+template<class R> struct neg_impl<R, overflow::wrap, false> {static R neg(R v0) {return -v0;}}; // we need both signed and unsigned variants so that we don't get compilation errors due to ambiguous template resolution
+// this specialization covers all non-wrapping unsigned cases
+template<class R, overflow::mode OverflowMode> struct neg_impl<R, OverflowMode, false> {
+	static R neg(R v0) {
+		if (R() != v0) 
+			overflow_handle<OverflowMode>(v0, false);
+		return v0;
+	}
+};
+// and this one is for non-wrapping signed cases
+template<class R, overflow::mode OverflowMode> struct neg_impl<R, OverflowMode, true> {
+	static R neg(R v0) {
+		if (v0 == std::numeric_limits<R>::min()) 
+			overflow_handle<OverflowMode>(v0, true);
+		else
+			v0 = -v0;
+		return v0;
+	}
+};
 
 } // namespace detail
 
@@ -221,6 +292,24 @@ inline R sub(R v0, R v1) {return detail::sub_impl<R, OverflowMode>::sub(v0, v1);
 //! @return (@f${v_0 \cdot v_1}@f$).
 template<overflow::mode OverflowMode, class R>
 inline R mul(R v0, R v1) {return detail::mul_impl<R, OverflowMode>::mul(v0, v1);}
+
+//! @brief Division with parameterized overflow handling.
+//! @tparam OverflowMode overflow handling constant.
+//! @return (@f${v_0 / v_1}@f$).
+template<overflow::mode OverflowMode, class R>
+inline R div(R v0, R v1) {return detail::div_impl<R, OverflowMode>::div(v0, v1);}
+
+//! @brief Modulo with parameterized overflow handling.
+//! @tparam OverflowMode overflow handling constant (ignored, as modulo can't overflow).
+//! @return (@f${v_0 \mod v_1}@f$).
+template<overflow::mode OverflowMode, class R>
+inline R mod(R v0, R v1) {return detail::mod_impl<R>::mod(v0, v1);}
+
+//! @brief Negation with parameterized overflow handling.
+//! @tparam OverflowMode overflow handling constant.
+//! @return (@f${-v_0}@f$).
+template<overflow::mode OverflowMode, class R>
+inline R neg(R v0) {return detail::neg_impl<R, OverflowMode>::neg(v0);}
 
 namespace detail {
 //template<class R, bool is_valid = std::numeric_limits<R>::is_integer, bool is_signed = std::numeric_limits<R>::is_signed> struct absint_impl;
