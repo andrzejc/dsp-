@@ -9,6 +9,7 @@
 
 #include <limits>
 #include <stdexcept>
+#include <cmath>
 
 namespace dsp {
 
@@ -21,8 +22,8 @@ namespace rounding {
 		negative,				//!< Round towards negative infinity. This mode is useful in interval arithmetic.
 		positive,				//!< Round towards positive infinity. This mode is useful in interval arithmetic.
 		nearest,				//!< Round towards the nearest value, but exactly-half values are rounded towards maximum magnitude. This mode is the standard school algorithm.
-		near_even, 				//!< Round towards the nearest value, but exactly-half values are rounded towards even values. This mode has more balance than the classic mode.
-		near_odd,				//!< Round towards the nearest value, but exactly-half values are rounded towards odd values. This mode has as much balance as the near_even mode, but preserves more information.
+//		near_even, 				//!< Round towards the nearest value, but exactly-half values are rounded towards even values. This mode has more balance than the classic mode.
+//		near_odd,				//!< Round towards the nearest value, but exactly-half values are rounded towards odd values. This mode has as much balance as the near_even mode, but preserves more information.
 	};
 } // namespace rounding
 
@@ -476,6 +477,31 @@ inline R round(R val, int at_bit) {
 template<overflow::mode OverflowMode, class R>
 inline void overflow_check_handle(R& val, int bit_count) {
 	return detail::overflow_check_handle_impl<R, OverflowMode>::check_handle(val, bit_count);
+}
+
+namespace detail {
+// floating point rounding
+template<class F, rounding::mode RoundingMode> struct float_round_impl;
+template<class F> struct float_round_impl<F, rounding::truncated> {static F round(F f) {return (f < F()) ? std::ceil(f) : std::floor(f);}};
+template<class F> struct float_round_impl<F, rounding::nearest> {static F round(F f) {return (f < F()) ? std::ceil(f - F(.5)) : std::floor(f + F(.5));}};
+template<class F> struct float_round_impl<F, rounding::negative> {static F round(F f) {return std::floor(f);}};
+template<class F> struct float_round_impl<F, rounding::positive> {static F round(F f) {return std::ceil(f);}};
+}
+
+//! @brief Round floating point number according to rounding::mode provided as a template parameter.
+//! @tparam R type of the result.
+template<class R, rounding::mode RoundingMode, class F>
+inline R rint(F f) {return static_cast<R>(detail::float_round_impl<F, RoundingMode>::round(f));}
+
+template<class R, class F>
+inline R rint(F f, rounding::mode rm) {
+	switch (rm) {
+	case rounding::truncated: 	return static_cast<R>(detail::float_round_impl<F, rounding::truncated>::round(f));
+	case rounding::nearest:		return static_cast<R>(detail::float_round_impl<F, rounding::nearest>::round(f));
+	case rounding::negative:	return static_cast<R>(detail::float_round_impl<F, rounding::negative>::round(f));
+	case rounding::positive:	return static_cast<R>(detail::float_round_impl<F, rounding::positive>::round(f));
+	default: throw std::invalid_argument("unknown rounding mode");
+	}
 }
 
 } // namespace dsp

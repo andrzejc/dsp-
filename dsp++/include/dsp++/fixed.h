@@ -40,18 +40,18 @@ namespace detail {
 	template<int WordLength> struct word_length_valid<WordLength, true> {};
 
 	// prototype of float-to-fixed conversion helper, specializations for negative and nonnegative fractional bits must exist
-	// TODO parameterize float-to-fixed conversion on rounding::mode too
-	template<class R, int FracBits, class F, bool negative = (FracBits < 0)> struct fixed_from_float_impl;
+	template<class R, int FracBits, class F, rounding::mode RoundingMode, bool negative = (FracBits < 0)> struct fixed_from_float_impl;
 	// nonnegative specialization of float-to-fixed conversion helper
-	template<class R, int FracBits, class F> struct fixed_from_float_impl<R, FracBits, F, false> {
-		static R convert(F val) {return static_cast<R>(val * (1ull << FracBits) + .5 * signum(val));}
+	template<class R, int FracBits, class F, rounding::mode RoundingMode> struct fixed_from_float_impl<R, FracBits, F, RoundingMode, false> {
+		static R convert(F val) {return dsp::rint<R, RoundingMode>(val * (1ull << FracBits));}
 	};
 
-	template<class R, int FracBits, class F> struct fixed_from_float_impl<R, FracBits, F, true> {
-		static R convert(F val) {return static_cast<R>(val / (1ull << -FracBits) + .5 * signum(val));}
+	template<class R, int FracBits, class F, rounding::mode RoundingMode> struct fixed_from_float_impl<R, FracBits, F, RoundingMode, true> {
+		static R convert(F val) {return dsp::rint<R, RoundingMode>(val / (1ull << -FracBits));}
 	};
 
-	template<class R, int FracBits, class F> inline R fixed_from_float(F val) {return fixed_from_float_impl<R, FracBits, F>::convert(val);}
+	template<class R, rounding::mode RoundingMode, int FracBits, class F>
+	inline R fixed_from_float(F val) {return fixed_from_float_impl<R, FracBits, F, RoundingMode>::convert(val);}
 
 	template<class R, int FracBits, class F, bool negative = (FracBits < 0), bool is_float = (std::numeric_limits<F>::is_specialized && !std::numeric_limits<F>::is_integer)> struct float_from_fixed_impl;
 	template<class R, int FracBits, class F> struct float_from_fixed_impl<R, FracBits, F, false, true> {
@@ -128,15 +128,18 @@ public:
 	//! @param[in] v the value to initialize representation with.
 	explicit fixed(R v, const raw_representation_tag&): v_(v) {}
 
-	//! @todo add dsp::rounding::mode param and dsp::overflow::mode param, currently rounding to nearest (like matlab) and wrapping
-	explicit fixed(float v): v_(detail::fixed_from_float<R, fractional_bits>(v)) {}
-	explicit fixed(double v): v_(detail::fixed_from_float<R, fractional_bits>(v)) {}
-	explicit fixed(long double v): v_(detail::fixed_from_float<R, fractional_bits>(v)) {}
-
-
 	//! @brief Obtain raw integer representation.
 	//! @return raw integer representation value.
 	representation_type raw() const {return v_;}
+
+	//! @todo add dsp::rounding::mode param and dsp::overflow::mode param, currently rounding to nearest (like matlab) and wrapping
+	template<rounding::mode RoundingMode>
+	static fixed value_of(float v) {return fixed(detail::fixed_from_float<R, RoundingMode, fractional_bits>(v), dsp::fi::raw);}
+	template<rounding::mode RoundingMode>
+	static fixed value_of(double v) {return fixed(detail::fixed_from_float<R, RoundingMode, fractional_bits>(v), dsp::fi::raw);}
+	template<rounding::mode RoundingMode>
+	static fixed value_of(long double v) {return fixed(detail::fixed_from_float<R, RoundingMode, fractional_bits>(v), dsp::fi::raw);}
+
 
 	//! @brief Trivial copy constructor from the same type, simply copy the representation value.
 	//! @param[in] rhs fixed-point number copy.
@@ -338,7 +341,7 @@ struct multiplies: public std::binary_function<fixed<WordLength0, IntBits0, IsSi
 template<int WordLengthR, int IntBitsR, rounding::mode RoundMode, overflow::mode OverflowMode,
 	int WordLength0, int IntBits0, bool IsSigned0, int WordLength1, int IntBits1, bool IsSigned1>
 inline fixed<WordLengthR, IntBitsR, (IsSigned0 || IsSigned1)>
-multiply(const fixed<WordLength0, IntBits0, IsSigned0>& lhs, const fixed<WordLength1, IntBits1, IsSigned1>& rhs)
+mul(const fixed<WordLength0, IntBits0, IsSigned0>& lhs, const fixed<WordLength1, IntBits1, IsSigned1>& rhs)
 {
 	return multiplies<WordLength0, IntBits0, IsSigned0, WordLength1, IntBits1, IsSigned1, WordLengthR, IntBitsR, (IsSigned0 || IsSigned1), RoundMode, OverflowMode>()(lhs, rhs);
 }
@@ -346,7 +349,7 @@ multiply(const fixed<WordLength0, IntBits0, IsSigned0>& lhs, const fixed<WordLen
 template<int WordLengthR, int IntBitsR, rounding::mode RoundMode,
 	int WordLength0, int IntBits0, bool IsSigned0, int WordLength1, int IntBits1, bool IsSigned1>
 inline fixed<WordLengthR, IntBitsR, (IsSigned0 || IsSigned1)>
-multiply(const fixed<WordLength0, IntBits0, IsSigned0>& lhs, const fixed<WordLength1, IntBits1, IsSigned1>& rhs)
+mul(const fixed<WordLength0, IntBits0, IsSigned0>& lhs, const fixed<WordLength1, IntBits1, IsSigned1>& rhs)
 {
 	return multiplies<WordLength0, IntBits0, IsSigned0, WordLength1, IntBits1, IsSigned1, WordLengthR, IntBitsR, (IsSigned0 || IsSigned1), RoundMode>()(lhs, rhs);
 }
@@ -354,7 +357,7 @@ multiply(const fixed<WordLength0, IntBits0, IsSigned0>& lhs, const fixed<WordLen
 template<int WordLengthR, int IntBitsR, overflow::mode OverflowMode,
 	int WordLength0, int IntBits0, bool IsSigned0, int WordLength1, int IntBits1, bool IsSigned1>
 inline fixed<WordLengthR, IntBitsR, (IsSigned0 || IsSigned1)>
-multiply(const fixed<WordLength0, IntBits0, IsSigned0>& lhs, const fixed<WordLength1, IntBits1, IsSigned1>& rhs)
+mul(const fixed<WordLength0, IntBits0, IsSigned0>& lhs, const fixed<WordLength1, IntBits1, IsSigned1>& rhs)
 {
 	return multiplies<WordLength0, IntBits0, IsSigned0, WordLength1, IntBits1, IsSigned1, WordLengthR, IntBitsR, (IsSigned0 || IsSigned1), rounding::fastest, OverflowMode>()(lhs, rhs);
 }
@@ -362,7 +365,7 @@ multiply(const fixed<WordLength0, IntBits0, IsSigned0>& lhs, const fixed<WordLen
 template<int WordLengthR, int IntBitsR,
 	int WordLength0, int IntBits0, bool IsSigned0, int WordLength1, int IntBits1, bool IsSigned1>
 inline fixed<WordLengthR, IntBitsR, (IsSigned0 || IsSigned1)>
-multiply(const fixed<WordLength0, IntBits0, IsSigned0>& lhs, const fixed<WordLength1, IntBits1, IsSigned1>& rhs)
+mul(const fixed<WordLength0, IntBits0, IsSigned0>& lhs, const fixed<WordLength1, IntBits1, IsSigned1>& rhs)
 {
 	return multiplies<WordLength0, IntBits0, IsSigned0, WordLength1, IntBits1, IsSigned1, WordLengthR, IntBitsR, (IsSigned0 || IsSigned1)>()(lhs, rhs);
 }
