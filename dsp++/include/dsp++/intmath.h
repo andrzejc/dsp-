@@ -486,22 +486,43 @@ template<class F> struct float_round_impl<F, rounding::truncated> {static F roun
 template<class F> struct float_round_impl<F, rounding::nearest> {static F round(F f) {return (f < F()) ? std::ceil(f - F(.5)) : std::floor(f + F(.5));}};
 template<class F> struct float_round_impl<F, rounding::negative> {static F round(F f) {return std::floor(f);}};
 template<class F> struct float_round_impl<F, rounding::positive> {static F round(F f) {return std::ceil(f);}};
+
+template<class R, class F, overflow::mode OverflowMode> struct float_overflow_impl {
+	static R cast(F f) {
+		R res = static_cast<R>(f);
+		bool up;
+		if ((up = (f > std::numeric_limits<R>::max())) || f < std::numeric_limits<R>::min())
+			overflow_handle_impl<R, OverflowMode>::handle(res, up);
+		return res;
+	}
+};
+
+template<class R, class F> struct float_overflow_impl<R, F, overflow::wrap> {static R cast(F f) {return static_cast<R>(f);}};
 }
 
 //! @brief Round floating point number according to rounding::mode provided as a template parameter.
 //! @tparam R type of the result.
-template<class R, rounding::mode RoundingMode, class F>
-inline R rint(F f) {return static_cast<R>(detail::float_round_impl<F, RoundingMode>::round(f));}
+template<class R, rounding::mode RoundingMode, overflow::mode OverflowMode, class F>
+inline R rint(F f) {return detail::float_overflow_impl<R, F, OverflowMode>::cast(detail::float_round_impl<F, RoundingMode>::round(f));}
 
 template<class R, class F>
-inline R rint(F f, rounding::mode rm) {
+inline R rint(F f, rounding::mode rm, overflow::mode om) {
+	F rnd;
 	switch (rm) {
-	case rounding::truncated: 	return static_cast<R>(detail::float_round_impl<F, rounding::truncated>::round(f));
-	case rounding::nearest:		return static_cast<R>(detail::float_round_impl<F, rounding::nearest>::round(f));
-	case rounding::negative:	return static_cast<R>(detail::float_round_impl<F, rounding::negative>::round(f));
-	case rounding::positive:	return static_cast<R>(detail::float_round_impl<F, rounding::positive>::round(f));
+	case rounding::truncated: 	rnd = detail::float_round_impl<F, rounding::truncated>::round(f); break;
+	case rounding::nearest:		rnd = detail::float_round_impl<F, rounding::nearest>::round(f); break;
+	case rounding::negative:	rnd = detail::float_round_impl<F, rounding::negative>::round(f); break;
+	case rounding::positive:	rnd = detail::float_round_impl<F, rounding::positive>::round(f); break;
 	default: throw std::invalid_argument("unknown rounding mode");
 	}
+	R res;
+	switch (om) {
+	case overflow::wrap:		res = detail::float_overflow_impl<R, F, overflow::wrap>::cast(rnd); break;
+	case overflow::saturate:	res = detail::float_overflow_impl<R, F, overflow::saturate>::cast(rnd); break;
+	case overflow::exception:	res = detail::float_overflow_impl<R, F, overflow::exception>::cast(rnd); break;
+	default: throw std::invalid_argument("unknown overflow mode");
+	}
+	return res;
 }
 
 } // namespace dsp

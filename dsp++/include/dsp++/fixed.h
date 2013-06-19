@@ -40,18 +40,18 @@ namespace detail {
 	template<int WordLength> struct word_length_valid<WordLength, true> {};
 
 	// prototype of float-to-fixed conversion helper, specializations for negative and nonnegative fractional bits must exist
-	template<class R, int FracBits, class F, rounding::mode RoundingMode, bool negative = (FracBits < 0)> struct fixed_from_float_impl;
+	template<class R, int FracBits, class F, rounding::mode RoundingMode, overflow::mode OverflowMode, bool negative = (FracBits < 0)> struct fixed_from_float_impl;
 	// nonnegative specialization of float-to-fixed conversion helper
-	template<class R, int FracBits, class F, rounding::mode RoundingMode> struct fixed_from_float_impl<R, FracBits, F, RoundingMode, false> {
-		static R convert(F val) {return dsp::rint<R, RoundingMode>(val * (1ull << FracBits));}
+	template<class R, int FracBits, class F, rounding::mode RoundingMode, overflow::mode OverflowMode> struct fixed_from_float_impl<R, FracBits, F, RoundingMode, OverflowMode, false> {
+		static R convert(F val) {return dsp::rint<R, RoundingMode, OverflowMode>(val * (1ull << FracBits));}
 	};
 
-	template<class R, int FracBits, class F, rounding::mode RoundingMode> struct fixed_from_float_impl<R, FracBits, F, RoundingMode, true> {
-		static R convert(F val) {return dsp::rint<R, RoundingMode>(val / (1ull << -FracBits));}
+	template<class R, int FracBits, class F, rounding::mode RoundingMode, overflow::mode OverflowMode> struct fixed_from_float_impl<R, FracBits, F, RoundingMode, OverflowMode, true> {
+		static R convert(F val) {return dsp::rint<R, RoundingMode, OverflowMode>(val / (1ull << -FracBits));}
 	};
 
-	template<class R, rounding::mode RoundingMode, int FracBits, class F>
-	inline R fixed_from_float(F val) {return fixed_from_float_impl<R, FracBits, F, RoundingMode>::convert(val);}
+	template<class R, rounding::mode RoundingMode, overflow::mode OverflowMode, int FracBits, class F>
+	inline R fixed_from_float(F val) {return fixed_from_float_impl<R, FracBits, F, RoundingMode, OverflowMode>::convert(val);}
 
 	template<class R, int FracBits, class F, bool negative = (FracBits < 0), bool is_float = (std::numeric_limits<F>::is_specialized && !std::numeric_limits<F>::is_integer)> struct float_from_fixed_impl;
 	template<class R, int FracBits, class F> struct float_from_fixed_impl<R, FracBits, F, false, true> {
@@ -133,12 +133,12 @@ public:
 	representation_type raw() const {return v_;}
 
 	//! @todo add dsp::rounding::mode param and dsp::overflow::mode param, currently rounding to nearest (like matlab) and wrapping
-	template<rounding::mode RoundingMode>
-	static fixed value_of(float v) {return fixed(detail::fixed_from_float<R, RoundingMode, fractional_bits>(v), dsp::fi::raw);}
-	template<rounding::mode RoundingMode>
-	static fixed value_of(double v) {return fixed(detail::fixed_from_float<R, RoundingMode, fractional_bits>(v), dsp::fi::raw);}
-	template<rounding::mode RoundingMode>
-	static fixed value_of(long double v) {return fixed(detail::fixed_from_float<R, RoundingMode, fractional_bits>(v), dsp::fi::raw);}
+	template<rounding::mode RoundingMode, overflow::mode OverflowMode>
+	static fixed value_of(float v) {return fixed(detail::fixed_from_float<R, RoundingMode, OverflowMode, fractional_bits>(v), dsp::fi::raw);}
+	template<rounding::mode RoundingMode, overflow::mode OverflowMode>
+	static fixed value_of(double v) {return fixed(detail::fixed_from_float<R, RoundingMode, OverflowMode, fractional_bits>(v), dsp::fi::raw);}
+	template<rounding::mode RoundingMode, overflow::mode OverflowMode>
+	static fixed value_of(long double v) {return fixed(detail::fixed_from_float<R, RoundingMode, OverflowMode, fractional_bits>(v), dsp::fi::raw);}
 
 
 	//! @brief Trivial copy constructor from the same type, simply copy the representation value.

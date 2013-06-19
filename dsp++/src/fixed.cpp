@@ -6,8 +6,8 @@ using namespace dsp::fi;
 
 typedef fixed<16, 0> Q15_t;
 BOOST_STATIC_ASSERT(Q15_t::fractional_bits == 15);
-fixed<8, 3> fff = fixed<8,3>::value_of<dsp::rounding::nearest>(-0.33333f);
-Q15_t v = Q15_t::value_of<dsp::rounding::nearest>(0.33333);
+fixed<8, 3> fff = fixed<8,3>::value_of<dsp::rounding::nearest, dsp::overflow::saturate>(-0.33333f);
+Q15_t v = Q15_t::value_of<dsp::rounding::nearest, dsp::overflow::saturate>(0.33333);
 Q15_t v1(2048, raw);
 bool ff = (v == v1);
 
@@ -37,7 +37,7 @@ static bool test1() {
 
 	fixed<16, 0> q = v * v1;
 	float fq = float_cast<float>(q);
-	q *= fixed<16, 3>::value_of<dsp::rounding::truncated>(-5.f);
+	q *= fixed<16, 3>::value_of<dsp::rounding::truncated, dsp::overflow::saturate>(-5.f);
 	fv1 *= -5.f;
 	fq = float_cast<float>(q);
 	return true;
