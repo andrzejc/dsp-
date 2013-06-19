@@ -25,6 +25,7 @@ class intmath_test: public CppUnit::TestFixture
 	CPPUNIT_TEST(test_neg);
 	CPPUNIT_TEST(test_round);
 	CPPUNIT_TEST(test_check_overflow);
+	CPPUNIT_TEST(test_rint);
 	CPPUNIT_TEST_SUITE_END();
 public:
 	void test_signum();
@@ -36,6 +37,7 @@ public:
 	void test_neg();
 	void test_round();
 	void test_check_overflow();
+	void test_rint();
 };
 
 } /* namespace test */

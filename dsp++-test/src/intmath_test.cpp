@@ -222,3 +222,29 @@ void intmath_test::test_check_overflow()
 	++uval;
 	CPPUNIT_ASSERT_THROW(dsp::overflow_check_handle<overflow::exception>(uval, 0), std::overflow_error);
 }
+
+void intmath_test::test_rint()
+{
+	CPPUNIT_ASSERT((dsp::rint<short>(0.5f, rounding::truncated, overflow::fastest) == 0));
+	CPPUNIT_ASSERT((dsp::rint<short>(0.9f, rounding::truncated, overflow::fastest) == 0));
+	CPPUNIT_ASSERT((dsp::rint<short>(-0.9f, rounding::truncated, overflow::fastest) == 0));
+	CPPUNIT_ASSERT((dsp::rint<short>(-11.f, rounding::truncated, overflow::fastest) == -11));
+	CPPUNIT_ASSERT((dsp::rint<short>(100.f, rounding::truncated, overflow::fastest) == 100));
+
+	CPPUNIT_ASSERT((dsp::rint<short>(0.1, rounding::nearest, overflow::fastest) == 0));
+	CPPUNIT_ASSERT((dsp::rint<short>(-0.1, rounding::nearest, overflow::fastest) == 0));
+	CPPUNIT_ASSERT((dsp::rint<int>(100.7, rounding::nearest, overflow::fastest) == 101));
+	CPPUNIT_ASSERT((dsp::rint<int>(-100.7, rounding::nearest, overflow::fastest) == -101));
+	CPPUNIT_ASSERT((dsp::rint<short>(32767.6, rounding::positive, overflow::saturate) == 32767));
+	CPPUNIT_ASSERT((dsp::rint<short>(-32769.6, rounding::positive, overflow::saturate) == -32768));
+	CPPUNIT_ASSERT((dsp::rint<short>(-32767.6, rounding::negative, overflow::saturate) == -32768));
+	CPPUNIT_ASSERT((dsp::rint<short>(-32767.6, rounding::positive, overflow::saturate) == -32767));
+
+	CPPUNIT_ASSERT_THROW((dsp::rint<short>(-32768.6, rounding::nearest, overflow::exception)), std::overflow_error);
+	CPPUNIT_ASSERT_THROW((dsp::rint<short>(32767.6, rounding::nearest, overflow::exception)), std::overflow_error);
+	CPPUNIT_ASSERT_THROW((dsp::rint<unsigned short>(-1., rounding::nearest, overflow::exception)), std::overflow_error);
+	CPPUNIT_ASSERT_THROW((dsp::rint<unsigned short>(-1., rounding::nearest, overflow::exception)), std::overflow_error);
+
+	CPPUNIT_ASSERT_THROW((dsp::rint<int>(-2147483648.5, rounding::nearest, overflow::exception)), std::overflow_error);
+	CPPUNIT_ASSERT_THROW((dsp::rint<int>(2147483647.5, rounding::nearest, overflow::exception)), std::overflow_error);
+}
