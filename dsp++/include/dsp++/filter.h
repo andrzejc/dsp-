@@ -63,7 +63,7 @@ const size_t sos_length = 3; //!< Length of coefficient vector of a single secon
 template<class Sample> inline
 Sample filter_sample_sos_df2(Sample x, size_t N, const bool* scale_only, Sample* w, const Sample* b, const Sample* a, size_t step)
 {
-	for (size_t i = 0; i < N; ++i, ++scale_only, w += step, b += step, a += step) {
+	for (size_t j = 0; j < N; ++j, ++scale_only, w += step, b += step, a += step) {
 		if (*scale_only)
 			x *= *b;
 		else {
