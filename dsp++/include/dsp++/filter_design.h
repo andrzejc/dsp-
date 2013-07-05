@@ -72,7 +72,7 @@ DSPXX_API void biquad_design(
 		double norm_freq,		//!< [in] normalized characteristic frequency of designed filter (@f$f_0/F_s@f$; center frequency, corner frequency, shelf midpoint frequency).
 		const double* gain_db, 	//!< [in] gain in dB, used only for peaking and shelving eq filters.
 		const double* q,		//!< [in] filter quality.
-		const double* bw,		//!< [in] filter bandwidth in octaves.
+		const double* bw,		//!< [in] filter bandwidth in octaves, between -3dB freqs in case of bandpass and notch or between midpoint (gain_db/2) freqs in case of shelfs.
 		const double* s			//!< [in] shelf slope, if set to 1 - as steep as it can be, proportional to slope in dB/octave.
 );
 
@@ -103,6 +103,7 @@ DSPXX_API void iir_resonator_design(
 	double q					//!< [in] quality factor
 );
 
+//! @note it seems that filters designed with this functions are inherently unstable, use with caution - needs to be revised.
 DSPXX_API void iir_filter_design(
 	size_t order,				//!< [in] filter order
 	double b[],					//!< [out] difference equation numerator (FIR) polynomial coefficients (order + 1) or (2 * order + 1) in case of BP, BS

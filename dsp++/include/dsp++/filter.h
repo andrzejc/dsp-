@@ -491,6 +491,9 @@ protected:
 	template<class CoeffSample, class CoeffSize>
 	sos_filter_base(size_t N, const CoeffSample (*num)[section_length], const CoeffSize* numl, const CoeffSample (*den)[section_length], const CoeffSize* denl);
 
+	template<class CoeffSample>
+	sos_filter_base(size_t N, const CoeffSample* num, const CoeffSample* den);
+
 	const size_t step_;
 	const size_t N_;				//!< number of second-order sections
 	trivial_array<Sample, typename BufferTraits::allocator_type> rbuf_;
@@ -529,6 +532,34 @@ sos_filter_base<Sample, BufferTraits>::sos_filter_base(size_t N, const CoeffSamp
 	}
 }
 
+template<class Sample, class BufferTraits>
+template<class CoeffSample> inline
+sos_filter_base<Sample, BufferTraits>::sos_filter_base(size_t N, const CoeffSample* num, const CoeffSample* den)
+ :	step_(step())
+ , 	N_(N)
+ ,	rbuf_(3 * step_ * N_)
+ ,	scale_only_(N_)
+ ,	b_(rbuf_.get())
+ ,	a_(b_ + N_ * step_)
+ ,	w_(a_ + N_ * step_)
+{
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
+	BOOST_CONCEPT_ASSERT((boost::Convertible<CoeffSample, Sample>));
+#endif
+	Sample* b = b_;
+	Sample* a = a_;
+	for (size_t i = 0; i < N; ++i, b += step_, a += step_, num += section_length, den += section_length) {
+		std::copy(num, num + section_length, b);
+		std::copy(den, den + section_length, a);
+		if (Sample(1) != *a) {
+			std::transform(b, b + section_length, b, std::bind2nd(std::divides<Sample>(), *a));
+			std::transform(a, a + section_length, a, std::bind2nd(std::divides<Sample>(), *a));
+		}
+		*a = Sample(); // set a[0] to 0 as an optimization for dot product calculation
+		scale_only_[i] = false;
+	}
+}
+
 
 /*!
  * @brief Implementation of Direct-Form II digital filter realized as a bank of second-order-sections (SOS).
@@ -564,6 +595,10 @@ public:
 	template<class CoeffSample, class CoeffSize>
 	filter_sos(size_t N, const CoeffSample (*num)[section_length], const CoeffSize* numl, const CoeffSample (*den)[section_length], const CoeffSize* denl)
 	 :	base(N, num, numl, den, denl) {}
+
+	template<class CoeffSample>
+	filter_sos(size_t N, const CoeffSample* num, const CoeffSample* den)
+	 :	base(N, num, den) {}
 };
 
 template<>
@@ -593,6 +628,10 @@ public:
 	template<class CoeffSample, class CoeffSize>
 	filter_sos(size_t N, const CoeffSample (*num)[section_length], const CoeffSize* numl, const CoeffSample (*den)[section_length], const CoeffSize* denl)
 	 :	base(N, num, numl, den, denl) {}
+
+	template<class CoeffSample>
+	filter_sos(size_t N, const CoeffSample* num, const CoeffSample* den)
+	 :	base(N, num, den) {}
 };
 
 /*!
