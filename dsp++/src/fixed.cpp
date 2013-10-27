@@ -19,6 +19,8 @@ static bool test1() {
 	rrr = fixed_cast<16,0,true>(res);
 	rrr = fixed_cast<16,0,true, dsp::rounding::negative>(res);
 
+	rrr -= v;
+
 
 	float ff = float_cast<float>(res);
 	float ffff = float_cast<float>(rrr);

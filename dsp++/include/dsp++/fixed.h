@@ -447,6 +447,42 @@ struct minus_extended: public std::binary_function<fixed<DSP_FI_TPARAMS(0)>, fix
 	}
 };
 
+template<int WordLength0, int IntBits0, bool IsSigned0, int WordLength1, int IntBits1, bool IsSigned1>
+inline fixed<detail::max<WordLength0, WordLength1>::value, detail::max<IntBits0, IntBits1>::value, (IsSigned0 || IsSigned1)>
+operator + (const fixed<DSP_FI_TPARAMS(0)>& l, const fixed<DSP_FI_TPARAMS(1)>& r) {
+	typedef fixed<detail::max<WordLength0, WordLength1>::value, detail::max<IntBits0, IntBits1>::value, (IsSigned0 || IsSigned1)> Res;
+	typedef typename Res::R R;
+	R res = add<overflow::fastest>(fixed_cast<Res, rounding::fastest>(l).raw(), fixed_cast<Res, rounding::fastest>(r).raw());
+	return Res(res, raw);
+}
+
+template<int WordLength0, int IntBits0, bool IsSigned0, int WordLength1, int IntBits1, bool IsSigned1>
+inline fixed<detail::max<WordLength0, WordLength1>::value, detail::max<IntBits0, IntBits1>::value, (IsSigned0 || IsSigned1)>
+operator - (const fixed<DSP_FI_TPARAMS(0)>& l, const fixed<DSP_FI_TPARAMS(1)>& r) {
+	typedef fixed<detail::max<WordLength0, WordLength1>::value, detail::max<IntBits0, IntBits1>::value, (IsSigned0 || IsSigned1)> Res;
+	typedef typename Res::R R;
+	R res = sub<overflow::fastest>(fixed_cast<Res, rounding::fastest>(l).raw(), fixed_cast<Res, rounding::fastest>(r).raw());
+	return Res(res, raw);
+}
+
+template<int WordLength0, int IntBits0, bool IsSigned0, int WordLength1, int IntBits1, bool IsSigned1>
+inline fixed<DSP_FI_TPARAMS(0)>&
+operator += (fixed<DSP_FI_TPARAMS(0)>& l, const fixed<DSP_FI_TPARAMS(1)>& r) {
+	typedef fixed<detail::max<WordLength0, WordLength1>::value, detail::max<IntBits0, IntBits1>::value, (IsSigned0 || IsSigned1)> Res;
+	Res res(add<overflow::fastest>(fixed_cast<Res, rounding::fastest>(l).raw(), fixed_cast<Res, rounding::fastest>(r).raw()), raw);
+	l = fixed_cast<fixed<DSP_FI_TPARAMS(0)>, rounding::fastest, overflow::fastest>(res);
+	return l;
+}
+
+template<int WordLength0, int IntBits0, bool IsSigned0, int WordLength1, int IntBits1, bool IsSigned1>
+inline fixed<DSP_FI_TPARAMS(0)>&
+operator -= (fixed<DSP_FI_TPARAMS(0)>& l, const fixed<DSP_FI_TPARAMS(1)>& r) {
+	typedef fixed<detail::max<WordLength0, WordLength1>::value, detail::max<IntBits0, IntBits1>::value, (IsSigned0 || IsSigned1)> Res;
+	Res res(sub<overflow::fastest>(fixed_cast<Res, rounding::fastest>(l).raw(), fixed_cast<Res, rounding::fastest>(r).raw()), raw);
+	l = fixed_cast<fixed<DSP_FI_TPARAMS(0)>, rounding::fastest, overflow::fastest>(res);
+	return l;
+}
+
 } } // namespace dsp::fi
 
 namespace std { // specializing std::numeric_limits for dsp::fi::fixed
