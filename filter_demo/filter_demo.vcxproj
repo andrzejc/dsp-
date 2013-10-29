@@ -89,6 +89,9 @@
       <Project>{5c1a077c-1bec-49cc-948f-d5ad282c89bc}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="fdacoefs.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
