@@ -12,6 +12,10 @@
 #include <cstdio>
 #include <iostream>
 
+typedef double real64_T;
+#include "fdacoefs.h"
+
+
 int main(int argc, const char* argv[]) {
 	if (argc < 3) {
 		std::cerr << "usage: filter_demo <input_file> <output_file>\n";
@@ -50,8 +54,8 @@ int main(int argc, const char* argv[]) {
 	static const size_t frame_len = 512;
 	float buffer[frame_len];
 
-	static const size_t fir_len = 128;
-	double fir[fir_len] = {0};
+	static const size_t fir_len = BL;
+	const double* fir = B;
 	// TODO design the filter here...
 
 #if FILTER_TIME_DOMAIN
