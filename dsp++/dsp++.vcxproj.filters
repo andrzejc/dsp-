@@ -246,4 +246,9 @@
   <ItemGroup>
     <None Include="doxyfile" />
   </ItemGroup>
+  <ItemGroup>
+    <MASM Include="src\arch\x86\xxgetbv.asm">
+      <Filter>src\arch\x86</Filter>
+    </MASM>
+  </ItemGroup>
 </Project>

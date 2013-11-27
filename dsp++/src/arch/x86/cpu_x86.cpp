@@ -58,6 +58,9 @@ static unsigned int xgetbv(unsigned int xcr) {
     ret
   }
 }
+# else
+extern "C" unsigned int xxgetbv(unsigned int xcr);
+#define xgetbv xxgetbv
 # endif
 #endif// _MSC_VER
 
