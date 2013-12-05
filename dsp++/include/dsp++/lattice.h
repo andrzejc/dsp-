@@ -26,7 +26,7 @@ namespace dsp {
  * This filter structure realizes direct linear predictor.
  * @see http://www.cs.tut.fi/~tabus/course/ASP/LectureNew8.pdf
  */
-template<class Sample>
+template<class Sample, class Allocator = std::allocator<Sample> >
 class lattice_fir: public sample_based_transform<Sample>
 {
 public:
@@ -58,7 +58,7 @@ public:
 	size_t order() const {return M_;}
 private:
 	const size_t M_;			//!< Number of MA coefficients.
-	trivial_array<Sample> buffer_;
+	trivial_array<Sample, Allocator> buffer_;
 	Sample* const k_;				//!< reflection coefficients (M_)
 	Sample* const b_;				//!< backward prediction error delay line (M_ + 1)
 };
@@ -119,7 +119,7 @@ lattice_fir<Sample>::lattice_fir(const KSample* k_vec, size_t k_len)
  * part omitted.
  * @see http://web.eecs.utk.edu/~roberts/ECE506/PresentationSlides/LatticeLadder.pdf
  */
-template<class Sample>
+template<class Sample, class Allocator = std::allocator<Sample> >
 class lattice_iir: public sample_based_transform<Sample>
 {
 public:
@@ -135,7 +135,7 @@ public:
 
 private:
 	const size_t N_;			//!< Number of AR coefficients.
-	trivial_array<Sample> buffer_;
+	trivial_array<Sample, Allocator> buffer_;
 	Sample* const k_;				//!< reflection coefficients (N_)
 	Sample* const g_;				//!< backward prediction error delay line (M_ + 1)
 };
@@ -191,7 +191,7 @@ lattice_iir<Sample>::lattice_iir(const KSample* k_vec, size_t k_len)
  * @brief Implementation of mixed FIR-IIR Lattice-Ladder filter structure.
  * @see http://web.eecs.utk.edu/~roberts/ECE506/PresentationSlides/LatticeLadder.pdf
  */
-template<class Sample>
+template<class Sample, class Allocator = std::allocator<Sample> >
 class lattice_ladder: public sample_based_transform<Sample>
 {
 public:
@@ -207,7 +207,7 @@ public:
 
 private:
 	const size_t N_;			//!< Number of AR/MA coefficients.
-	trivial_array<Sample> buffer_;
+	trivial_array<Sample, Allocator> buffer_;
 	Sample* const k_;				//!< reflection (lattice) coefficients (N_)
 	Sample* const v_;				//!< ladder coefficients (N_ + 1)
 	Sample* const g_;				//!< one-sample delayed backward prediction error (N_ + 1)

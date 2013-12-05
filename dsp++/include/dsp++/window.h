@@ -313,6 +313,7 @@ struct hamming: public window_function<Result>
 	//! @copydoc unspecified::operator()(size_t) const
 	Result operator()(size_t n) const
 	{
+		using std::cos;
 		return 0.54 - 0.46 * cos(Result(2 * DSP_M_PI) * n / (window_function<Result>::l_ - 1));
 	}
 
@@ -350,6 +351,7 @@ struct hann: public window_function<Result>
 	//! @copydoc unspecified::operator()(size_t) const
 	Result operator()(size_t n) const
 	{
+		using std::cos;
 		return 0.5 * (1 - cos(Result(2 * DSP_M_PI) * n / (window_function<Result>::l_ - 1)));
 	}
 
@@ -407,6 +409,7 @@ struct blackman: public window_function<Result>
 	//! @copydoc unspecified::operator()(size_t) const
 	Result operator()(size_t n) const
 	{
+		using std::cos;
 		return a0_ - a1_ * cos(Result(2 * DSP_M_PI) * n / (window_function<Result>::l_ - 1)) +
 				a2_ * cos(Result(4 * DSP_M_PI) * n / (window_function<Result>::l_ - 1));
 	}
@@ -453,6 +456,7 @@ struct cosine: public window_function<Result>
 	//!@copydoc unspecified::operator()(size_t) const
 	Result operator()(size_t n) const
 	{
+		using std::cos;
 		return cos(Result(DSP_M_PI) * n / (window_function<Result>::l_ - 1) - Result(DSP_M_PI_2));
 	}
 
@@ -492,6 +496,7 @@ struct bartlett: public window_function<Result>
 	//! @copydoc unspecified::operator()(size_t) const
 	Result operator()(size_t n) const
 	{
+		using std::abs;
 		const size_t N = window_function<Result>::l_;
 		return Result(2) / (N - 1) * (Result(N - 1)/2 - abs(n - (Result(N - 1)/2)));
 	}
@@ -531,6 +536,7 @@ struct triang: public window_function<Result>
 	//! @copydoc unspecified::operator()(size_t) const
 	Result operator()(size_t n) const
 	{
+		using std::abs;
 		const size_t N = window_function<Result>::l_;
 		return Result(2) / (N + 1) * (Result(N + 1)/2 - abs(n - (Result(N - 1)/2)));
 	}
@@ -577,6 +583,7 @@ struct gausswin: public window_function<Result>
 	//! @copydoc unspecified::operator()(size_t) const
 	Result operator()(size_t n) const
 	{
+		using std::exp;
 		const size_t N = window_function<Result>::l_;
 		return exp(-Result(1)/2 * pow((Result(n) - Result(N - 1)/2)/(sigma_ * N / 2), 2));
 	}
@@ -632,8 +639,9 @@ struct kaiser: public window_function<Result>
 	//! @copydoc unspecified::operator()(size_t) const
 	Result operator()(size_t n) const
 	{
+		using std::sqrt; using std::pow;
 		const size_t N = window_function<Result>::l_;
-		return boost::math::cyl_bessel_i(0, Result(DSP_M_PI) * alpha_ * std::sqrt(1 - std::pow(Result(2*n)/(N-1) - 1, 2))) /
+		return boost::math::cyl_bessel_i(0, Result(DSP_M_PI) * alpha_ * sqrt(1 - pow(Result(2*n)/(N-1) - 1, 2))) /
 				boost::math::cyl_bessel_i(0, Result(DSP_M_PI) * alpha_);
 	}
 	//! @return value of @f$\alpha@f$ parameter.

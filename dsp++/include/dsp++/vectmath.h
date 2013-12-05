@@ -165,8 +165,9 @@ namespace dsp {
 	template<class T>
 	inline void sqrt(T* res, const T* a, size_t len)
 	{
+		using std::sqrt;
 		for (size_t i = 0; i < len; ++i, ++res, ++a)
-			*res = std::sqrt(*a);
+			*res = sqrt(*a);
 	}
 
 
@@ -190,8 +191,9 @@ namespace dsp {
 	template<class T>
 	inline void rsqrt(T* res, const T* a, size_t len)
 	{
+		using std::sqrt;
 		for (size_t i = 0; i < len; ++i, ++res, ++a)
-			*res = 1 / *a;
+			*res = 1 / sqrt(*a);
 	}
 
 } 

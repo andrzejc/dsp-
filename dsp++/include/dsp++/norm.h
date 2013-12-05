@@ -28,7 +28,7 @@ namespace detail {
 	template<class T>
 	struct norm_error_helper<norm_abs, T> {
 		typename dsp::remove_complex<T>::type operator()(const T& a, const T& b) {
-			using namespace std;
+			using std::abs;
 			return abs(a - b);
 		}
 	};
@@ -36,7 +36,7 @@ namespace detail {
 	template<class T>
 	struct norm_error_helper<norm_rel, T> {
 		typename dsp::remove_complex<T>::type operator()(const T& a, const T& b) {
-			using namespace std;
+			using std::abs;
 			return abs(a - b) / abs(b);
 		}
 	};
@@ -46,7 +46,7 @@ namespace detail {
 template<class T>
 inline typename dsp::remove_complex<T>::type norm_1(const T* a, size_t len) {
 	typedef typename dsp::remove_complex<T>::type R;
-	using namespace std;
+	using std::abs;
 	R res = R();
 	for (size_t i = 0; i < len; ++i, ++a)
 		res += abs(*a);
@@ -66,7 +66,7 @@ typename dsp::remove_complex<T>::type norm_1(const T* a, const T* b, size_t len)
 template<class T>
 inline typename dsp::remove_complex<T>::type norm_2(const T* a, size_t len) {
 	typedef typename dsp::remove_complex<T>::type R;
-	using namespace std;
+	using std::abs; using std::sqrt;
 	R res = R();
 	for (size_t i = 0; i < len; ++i, ++a) {
 		R m = abs(*a);
@@ -78,7 +78,7 @@ inline typename dsp::remove_complex<T>::type norm_2(const T* a, size_t len) {
 template<norm_tag t, class T>
 typename dsp::remove_complex<T>::type norm_2(const T* a, const T* b, size_t len) {
 	typedef typename dsp::remove_complex<T>::type R;
-	using namespace std;
+	using std::sqrt;
 	R res = R();
 	dsp::detail::norm_error_helper<t, T> f;
 	for (size_t i = 0; i < len; ++i, ++a, ++b) {
@@ -91,7 +91,7 @@ typename dsp::remove_complex<T>::type norm_2(const T* a, const T* b, size_t len)
 template<class T>
 inline typename dsp::remove_complex<T>::type norm_inf(const T* a, size_t len) {
 	typedef typename dsp::remove_complex<T>::type R;
-	using namespace std;
+	using std::max; using std::abs;
 	R res = R();
 	for (size_t i = 0; i < len; ++i, ++a)
 		res = max(res, abs(*a));
@@ -101,7 +101,7 @@ inline typename dsp::remove_complex<T>::type norm_inf(const T* a, size_t len) {
 template<norm_tag t, class T>
 inline typename dsp::remove_complex<T>::type norm_inf(const T* a, const T* b, size_t len) {
 	typedef typename dsp::remove_complex<T>::type R;
-	using namespace std;
+	using std::max;
 	R res = R();
 	dsp::detail::norm_error_helper<t, T> f;
 	for (size_t i = 0; i < len; ++i, ++a, ++b)
@@ -112,7 +112,7 @@ inline typename dsp::remove_complex<T>::type norm_inf(const T* a, const T* b, si
 template<class T>
 inline typename dsp::remove_complex<T>::type norm_rms(const T* a, size_t len) {
 	typedef typename dsp::remove_complex<T>::type R;
-	using namespace std;
+	using std::abs; using std::sqrt;
 	R res = R();
 	for (size_t i = 0; i < len; ++i, ++a) {
 		R m = abs(*a);
@@ -124,7 +124,7 @@ inline typename dsp::remove_complex<T>::type norm_rms(const T* a, size_t len) {
 template<norm_tag t, class T>
 typename dsp::remove_complex<T>::type norm_rms(const T* a, const T* b, size_t len) {
 	typedef typename dsp::remove_complex<T>::type R;
-	using namespace std;
+	using std::sqrt;
 	R res = R();
 	dsp::detail::norm_error_helper<t, T> f;
 	for (size_t i = 0; i < len; ++i, ++a, ++b) {

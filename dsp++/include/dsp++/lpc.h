@@ -113,12 +113,16 @@ private:
 	{
 		const Sample zero = Sample();
 		Sample* x = in_out_.get();
-		if (NULL != x_begin) dsp::copy_n(*x_begin, L_, x);
+		if (NULL != x_begin) 
+			std::copy_n(*x_begin, L_, x);
+
 		std::fill_n(x + L_, N_ - L_, zero);
+		using std::pow; using std::abs;
 
 		dft_();
 		complex_t* c = interm_.get();
-		for (size_t i = 0; i < N_; ++i, ++c) *c = std::pow(std::abs(*c), 2);
+		for (size_t i = 0; i < N_; ++i, ++c) 
+			*c = pow(abs(*c), 2);
 		idft_();
 
 		std::transform(x, x + N_, x, std::bind2nd(std::divides<Sample>(), static_cast<Sample>(L_ * N_)));

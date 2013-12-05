@@ -129,12 +129,13 @@ private:
 #endif
 	do_calc(XIterator* x, YIterator* y, OutputIterator* out, scaling_type scaling)
 	{
+		using std::sqrt; using std::pow; using std::abs;
 		const Sample zero = Sample();
 		Sample* xx = x_begin();
 		Sample* yy = y_begin();
-		if (NULL != x && static_cast<const void*>(&(**x)) != xx) dsp::copy_n(*x, M_, xx);
+		if (NULL != x && static_cast<const void*>(&(**x)) != xx) std::copy_n(*x, M_, xx);
 		std::fill_n(xx + M_, N_ - M_, zero);
-		if (NULL != y && static_cast<const void*>(&(**y)) != yy) dsp::copy_n(*y, L_, yy);
+		if (NULL != y && static_cast<const void*>(&(**y)) != yy) std::copy_n(*y, L_, yy);
 
 		real_t sumx = real_t(), sumy = real_t();
 		dft_(xx, X_.get());
@@ -153,13 +154,15 @@ private:
 			dft_(yy, X_.get() + N_);
 			complex_t* X = X_.get();
 			complex_t* Y = X + N_;
-			for (size_t i = 0; i < N_; ++i, ++X, ++Y) *X *= dsp::conj(*Y);
+			for (size_t i = 0; i < N_; ++i, ++X, ++Y) 
+				*X *= std::conj(*Y);
 		}
 		else
 		{
 			// this is autocorrelation case, DFT of single vector is enough
 			complex_t* X = X_.get();
-			for (size_t i = 0; i < N_; ++i, ++X) *X = std::pow(std::abs(*X), 2);
+			for (size_t i = 0; i < N_; ++i, ++X) 
+				*X = pow(abs(*X), 2);
 		}
 
 		idft_();
@@ -181,28 +184,32 @@ private:
 			break; }
 		case scaling_coeff:
 			if (0 == L_) {
-				const Sample scale = Sample(1) / *(xx + (M_ - 1));
-				for (size_t i = 0; i < len; ++i, ++xx) *xx *= scale;
+				const Sample scale = 1 / *(xx + (M_ - 1));
+				for (size_t i = 0; i < len; ++i, ++xx) 
+					*xx *= scale;
 			}
 			else {
-				const real_t scale = 1 / (std::sqrt(sumx * sumy) * N_);
-				for (size_t i = 0; i < len; ++i, ++xx) *xx *= scale;
+				const real_t scale = 1 / (sqrt(sumx * sumy) * N_);
+				for (size_t i = 0; i < len; ++i, ++xx) 
+					*xx *= scale;
 			}
 			break;
 		case scaling_unbiased:
 			for (int i = 0; i < static_cast<int>(len); ++i, ++xx)
-				*xx /= (N_ * (M_ - std::abs(static_cast<int>(M) - i - 1)));
+				*xx /= (N_ * (M_ - abs(static_cast<int>(M) - i - 1)));
 			break;
 		}
-		if (NULL != out) dsp::copy_n(begin(), len, *out);
+		if (NULL != out) 
+			std::copy_n(begin(), len, *out);
 	}
 
 
 	static real_t acorr_coeff(const Sample* vec, size_t N)
 	{
+		using std::pow; using std::abs;
 		real_t sum = real_t();
 		for (size_t i = 0; i < N; ++i, ++vec)
-			sum += std::pow(std::abs(*vec), 2);
+			sum += pow(abs(*vec), 2);
 		return sum;
 	}
 

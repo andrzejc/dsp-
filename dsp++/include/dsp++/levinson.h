@@ -112,7 +112,7 @@ levup(size_t P, ACurIter Acur, ANxtIter Anxt,
  * @brief Levinson-Durbin recursion functor operating on generic sample types.
  * @see http://en.wikipedia.org/wiki/Levinson_recursion
  */
-template<class Sample>
+template<class Sample, class Allocator = std::allocator<Sample> >
 class levinson
 {
 public:
@@ -175,7 +175,7 @@ public:
 private:
 	size_t L_;						//!< length of input autocorrelation sequence r
 	size_t N_;						//!< recursion order
-	trivial_array<Sample> a_;
+	trivial_array<Sample, Allocator> a_;
 
 	template<class RIterator, class AIterator, class KIterator>
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED

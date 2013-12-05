@@ -43,7 +43,7 @@ struct generalized_mean_functor {
  * @tparam Sample type of sample this algorithm works with (real and complex types).
  * @tparam Exponent type of the exponent value, there may be some optimizations possible when it's integer.
  */
-template<class Sample, class Exponent, class Functor = generalized_mean_functor<Sample, Exponent> >
+template<class Sample, class Exponent, class Functor = generalized_mean_functor<Sample, Exponent>, class Allocator = std::allocator<Sample> >
 class generalized_mean: public sample_based_transform<Sample>
 {
 public:
@@ -90,7 +90,7 @@ public:
 
 private:
 	Functor functor_;
-	trivial_array<Sample> buffer_;	//!< L_-length (circular) buffer holding intermediate values (averaged powers or logs if p_ == 0)
+	trivial_array<Sample, Allocator> buffer_;	//!< L_-length (circular) buffer holding intermediate values (averaged powers or logs if p_ == 0)
 	Sample pmean_;					//!< previous step mean value
 	const size_t L_;				//!< averaging period and buffer_ length
 	size_t n_;						//!< index of current sample in the circular buffer
@@ -108,8 +108,8 @@ struct arithmetic_mean_functor {
 /*!
  * @brief A special case: generalized mean of order 1.
  */
-template<class Sample>
-class arithmetic_mean: public generalized_mean<Sample, int, arithmetic_mean_functor<Sample> >
+template<class Sample, class Allocator = std::allocator<Sample> >
+class arithmetic_mean: public generalized_mean<Sample, int, arithmetic_mean_functor<Sample>, Allocator>
 {
 	typedef generalized_mean<Sample, int, arithmetic_mean_functor<Sample> > base;
 public:
@@ -121,15 +121,15 @@ template<class Sample>
 struct geometric_mean_functor {
 	template<class Exponent>
 	geometric_mean_functor(Exponent) {}
-	Sample power(Sample s) {return std::log(s);}
-	Sample root(Sample s) {return std::exp(s);}
+	Sample power(Sample s) {using std::log; return log(s);}
+	Sample root(Sample s) {using std::exp; return exp(s);}
 };
 /*!
  * @brief A special case: generalized mean of order 0, @f$M_0(x_1,\dots,x_n) = \prod_{i=1}^n x_i^{w_i}@f$
  *  (actually geometric mean is @f$\lim_{p\to0} M_p(x_1,\dots,x_n)@f$).
  */
-template<class Sample>
-class geometric_mean: public generalized_mean<Sample, int, geometric_mean_functor<Sample> >
+template<class Sample, class Allocator = std::allocator<Sample> >
+class geometric_mean: public generalized_mean<Sample, int, geometric_mean_functor<Sample>, Allocator>
 {
 	typedef generalized_mean<Sample, int, geometric_mean_functor<Sample> > base;
 public:
@@ -147,8 +147,8 @@ struct harmonic_mean_functor {
 /*!
  * @brief A special case: generalized mean of order -1, @f$M_{-1}(x_1,\dots,x_n) = \frac{n}{\frac{1}{x_1}+\dots+\frac{1}{x_n}}@f$.
  */
-template<class Sample>
-class harmonic_mean: public generalized_mean<Sample, int, harmonic_mean_functor<Sample> >
+template<class Sample, class Allocator = std::allocator<Sample> >
+class harmonic_mean: public generalized_mean<Sample, int, harmonic_mean_functor<Sample>, Allocator>
 {
 	typedef generalized_mean<Sample, int, harmonic_mean_functor<Sample> > base;
 public:
@@ -161,13 +161,13 @@ struct quadratic_mean_functor {
 	template<class Exponent>
 	quadratic_mean_functor(Exponent) {}
 	Sample power(Sample s) {return s * s;}
-	Sample root(Sample s) {return std::sqrt(s);}
+	Sample root(Sample s) {using std::sqrt; return sqrt(s);}
 };
 /*!
  * @brief A special case: generalized mean of order 2, RMS value.
  */
-template<class Sample>
-class quadratic_mean: public generalized_mean<Sample, int, quadratic_mean_functor<Sample> >
+template<class Sample, class Allocator = std::allocator<Sample> >
+class quadratic_mean: public generalized_mean<Sample, int, quadratic_mean_functor<Sample>, Allocator>
 {
 	typedef generalized_mean<Sample, int, quadratic_mean_functor<Sample> > base;
 public:

@@ -104,7 +104,8 @@ public:
 
 	Sample operator()(Sample x) 
 	{
-		float a = static_cast<float>(std::abs(x));
+		using std::abs; // allow for ADL with non-std abs
+		float a = static_cast<float>(abs(x));
 		if (a <= threshold_)
 			return x;
 		float in = (a - threshold_)/swing_;
