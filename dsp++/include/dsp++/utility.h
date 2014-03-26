@@ -5,6 +5,7 @@
 
 #ifndef DSP_UTILITY_H_INCLUDED
 #define DSP_UTILITY_H_INCLUDED
+#pragma once
 
 #include <dsp++/config.h>
 

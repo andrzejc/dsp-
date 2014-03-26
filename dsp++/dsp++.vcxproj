@@ -169,6 +169,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\adaptfilt.cpp" />
     <ClCompile Include="src\arch\ppc\cpu_ppc.cpp" />
     <ClCompile Include="src\arch\x86\cpu_x86.cpp" />
     <ClCompile Include="src\arch\x86\sse.cpp">
@@ -191,6 +192,7 @@
     <ClCompile Include="src\vectmath.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\dsp++\adaptfilt.h" />
     <ClInclude Include="include\dsp++\algorithm.h" />
     <ClInclude Include="include\dsp++\buffer.h" />
     <ClInclude Include="include\dsp++\complex.h" />

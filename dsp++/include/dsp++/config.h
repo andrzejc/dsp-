@@ -6,6 +6,7 @@
 
 #ifndef DSP_CONFIG_H_INCLUDED
 #define DSP_CONFIG_H_INCLUDED
+#pragma once
 
 #ifndef DSP_USE_CUSTOM_CONFIG
 /*!
