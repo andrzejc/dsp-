@@ -184,12 +184,12 @@ private:
 			break; }
 		case scaling_coeff:
 			if (0 == L_) {
-				const Sample scale = 1 / *(xx + (M_ - 1));
+				const Sample scale = Sample(1) / *(xx + (M_ - 1));
 				for (size_t i = 0; i < len; ++i, ++xx) 
 					*xx *= scale;
 			}
 			else {
-				const real_t scale = 1 / (sqrt(sumx * sumy) * N_);
+				const real_t scale = real_t(1) / (sqrt(sumx * sumy) * N_);
 				for (size_t i = 0; i < len; ++i, ++xx) 
 					*xx *= scale;
 			}

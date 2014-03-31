@@ -36,36 +36,40 @@ namespace dsp {
  *		\f$\hat{\mathbf{h}}(n+1) = \hat{\mathbf{h}}(n) + \mu\,e^{\ast}(n)\mathbf{x}(n)\f$.
  * @param[in] P order of the adaptive filter and number of elements in vectors x and h.
  * @param[in] mu convergence step size  \f$\mu\f$.
+ * @param[in] lambda leakage factor (1 - no leakage).
  * @return estimation error \f$e(n) = d(n) - \hat{y}(n) = d(n) - \hat{\mathbf{h}}^H(n) \cdot \mathbf{x}(n)\f$.
  */
 template<class Sample>
-Sample filter_sample_adapt_lms(const Sample d, const Sample* x, Sample* h, const size_t P, const Sample mu) 
+Sample filter_sample_adapt_lms(const Sample d, const Sample* x, Sample* h, const size_t P, const Sample mu, const Sample lambda = Sample(1)) 
 {
 	Sample e = d;
 	for (size_t i = 0; i < P; ++i)
 		e -= conj(h[i])  * x[i];
 	Sample ec = conj(e);
-	for (size_t i = 0; i < P; ++i)
+	for (size_t i = 0; i < P; ++i) {
+		h[i] *= lambda;
 		h[i] += mu * ec * x[i];
+	}
 	return e;
 }
 
 /*! 
  * @brief Perform single step of adaptive Normalised LMS (NLMS) filter algorithm.
  * @see https://en.wikipedia.org/wiki/Least_mean_squares_filter
- * @param[in] x excitation vector \f$\mathbf{x}(n) = \left[x(n), x(n-1),\cdots,x(n-P+1)\right]^T\f$ of length P, 
- *		x[0] is the most recent sample \f$x(n)\f$.
  * @param[in] d sample of the observed signal \f$d(n) = y(n) + v(n)\f$, \f$v(n)\f$ being the additive disturbance and 
  *		\f$y(n) = \mathbf{h}^H(n)\cdot \mathbf{x}(n)\f$.
+ * @param[in] x excitation vector \f$\mathbf{x}(n) = \left[x(n), x(n-1),\cdots,x(n-P+1)\right]^T\f$ of length P, 
+ *		x[0] is the most recent sample \f$x(n)\f$.
  * @param[in,out] h estimated filter response \f$\hat{\mathbf{h}}(n)\f$ of length P, updated with this iteration estimate upon return:
  *		\f$\hat{\mathbf{h}}(n+1) = \hat{\mathbf{h}}(n) + \frac{\mu\,e^{\ast}(n)\mathbf{x}(n)}{\mathbf{x}^H(n)\mathbf{x}(n) + \gamma}\f$.
  * @param[in] P order of the adaptive filter and number of elements in vectors x and h.
  * @param[in] mu convergence step size  \f$\mu\f$.
- * @param[in] gamma correction coefficient \f$\gamma\f$ safeguarding agains divide-by-zero in case of 0 signal.
+ * @param[in] gamma denominator offset \f$\gamma\f$ safeguarding agains divide-by-zero in case of 0 signal.
+ * @param[in] lambda leakage factor (1 - no leakage).
  * @return estimation error \f$e(n) = d(n) - \hat{y}(n) = d(n) - \hat{\mathbf{h}}^H(n) \cdot \mathbf{x}(n)\f$.
  */
 template<class Sample>
-Sample filter_sample_adapt_nlms(const Sample* x, const Sample d, Sample* h, const size_t P, const Sample mu, const Sample gamma = Sample()) 
+Sample filter_sample_adapt_nlms(const Sample d, const Sample* x, Sample* h, const size_t P, const Sample mu, const Sample gamma = Sample(), const Sample lambda = Sample(1)) 
 {
 	Sample e = d;
 	Sample p = Sample();
@@ -74,8 +78,10 @@ Sample filter_sample_adapt_nlms(const Sample* x, const Sample d, Sample* h, cons
 		p += conj(x[i]) * x[i];
 	}
 	Sample ec = conj(e);
-	for (size_t i = 0; i < P; ++i)
+	for (size_t i = 0; i < P; ++i) {
+		h[i] *= lambda;
 		h[i] += mu * ec * x[i] / (p + gamma);
+	}
 	return e;
 }
 
@@ -104,14 +110,18 @@ public:
 	//! @brief Modify step size \f$\mu\f$ of the LMS algorithm. @param[in] mu new step size used during subsequent iterations.
 	void set_mu(const Sample mu) {mu_ = mu;}
 
+	Sample leakage() const {return lambda_;}
+	void set_leakage(const Sample lambda) {lambda_ = lambda;}
+
 protected:
-	lms_filter_base(const size_t P, const Sample mu, const Sample* initial_h = NULL)
+	lms_filter_base(const size_t P, const Sample mu, const Sample lambda = Sample(1), const Sample* initial_h = NULL)
 	 :	P_(P)
 	 ,	P_pad_(BufferTraits::aligned_count(P_))
 	 ,	buffer_(2 * P_pad_)
 	 ,	x_(buffer_.get())
 	 ,	h_(x_ + P_pad_)
 	 ,	mu_(mu)
+	 ,	lambda_(lambda)
 	{
 		std::fill_n(x_, P_pad_, Sample());
 		if (NULL != initial_h)
@@ -120,13 +130,14 @@ protected:
 			std::fill_n(h_, P_pad_, Sample());
 	}
 
-private:
+protected:
 	const size_t P_;		//!< filter order and length of x_ and h_ vectors
 	const size_t P_pad_;	//!< length of allocated space of x_ and h_ vectors
 	trivial_array<Sample, typename BufferTraits::allocator_type> buffer_;	//!< Buffer of size 2 * P_pad_
 	Sample* const x_;		//!< excitation vector \f$\mathbf{x}(n)\f$ (P_)
 	Sample* const h_;		//!< estimated filter response vector \f$\hat{\mathbf{h}}(n)\f$ (P_)
 	Sample mu_;				//!< LMS algorithm step size \f$\mu\f$		
+	Sample lambda_;			//!< leakage facter (1 - no leakage)
 };
 
 /*!
@@ -142,10 +153,11 @@ public:
 	 * @brief Initialize LMS algorithm functor.
 	 * @param[in] P order of the LMS adaptive filter.
 	 * @param[in] mu step size \f$\mu\f$ of the LMS algorithm.
+	 * @param[in] lambda leakage factor (1 - no leakage, dafault).
 	 * @param[in] initial_h override initial filter response estimate with specified vector of length P.
 	 */
-	filter_adapt_lms(const size_t P, const Sample mu, const Sample* initial_h = NULL)
-	 :	lms_filter_base(P, mu, initial_h) {}
+	filter_adapt_lms(const size_t P, const Sample mu, const Sample lambda = Sample(1), const Sample* initial_h = NULL)
+	 :	lms_filter_base(P, mu, lambda, initial_h) {}
 
 	/*!
 	 * @brief Perform single step of LMS algorithm, storing estimated system response in internal vector [response_begin(), response_end()).
@@ -158,7 +170,7 @@ public:
 	{
 		delay(base::x_, base::P_);
 		*base::x_ = x;
-		return filter_sample_adapt_lms(d, x, base::h_, P_, base::mu_);
+		return filter_sample_adapt_lms(d, base::x_, base::h_, P_, base::mu_, base::lambda_);
 	}
 };
 
@@ -175,11 +187,12 @@ public:
 	 * @brief Initialize NLMS algorithm functor.
 	 * @param[in] P order of the NLMS adaptive filter.
 	 * @param[in] mu step size \f$\mu\f$ of the NLMS algorithm.
-	 * @param[in] gamma correction coefficient \f$\gamma\f$ preventing divide by zero.
+	 * @param[in] gamma denominator offset \f$\gamma\f$ preventing divide by zero.
+	 * @param[in] lambda leakage factor (1 - no leakage, dafault).
 	 * @param[in] initial_h override initial filter response estimate with specified vector of length P.
 	 */
-	filter_adapt_nlms(const size_t P, const Sample mu, const Sample gamma = Sample(), const Sample* initial_h = NULL)
-	 :	lms_filter_base(P, mu, initial_h) 
+	filter_adapt_nlms(const size_t P, const Sample mu, const Sample gamma = Sample(), const Sample lambda = Sample(1), const Sample* initial_h = NULL)
+	 :	lms_filter_base(P, mu, lambda, initial_h) 
 	 ,	gamma_(gamma)
 	{}
 
@@ -194,13 +207,15 @@ public:
 	{
 		delay(base::x_, base::P_);
 		*base::x_ = x;
-		return filter_sample_adapt_nlms(d, x, base::h_, P_, base::mu_, gamma_);
+		return filter_sample_adapt_nlms(d, base::x_, base::h_, P_, base::mu_, gamma_, base::lambda_);
 	}
 
 	//! @return Correction coefficient \f$\gamma\f$.
 	Sample gamma() const {return gamma_;}
+	Sample offset() const {return gamma_;}
 	//! @brief Modify correction coefficient \f$\gamma\f$ of the NLMS algorithm. @param[in] gamma new gamma used during subsequent iterations.
-	void set_gamma(const Sample gamma) {return gamma_ = gamma;}
+	void set_gamma(const Sample gamma) {gamma_ = gamma;}
+	void set_offset(const Sample gamma) {gamma_ = gamma;}
 
 private:
 	Sample gamma_;

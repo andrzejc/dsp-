@@ -63,8 +63,8 @@ private:
 	Sample* const b_;				//!< backward prediction error delay line (M_ + 1)
 };
 
-template<class Sample>
-Sample lattice_fir<Sample>::operator()(Sample x, Sample* eb)
+template<class Sample, class Allocator>
+Sample lattice_fir<Sample, Allocator>::operator()(Sample x, Sample* eb)
 {
 	Sample* b = b_;
 	Sample* k = k_;
@@ -83,9 +83,9 @@ Sample lattice_fir<Sample>::operator()(Sample x, Sample* eb)
 	return x;
 }
 
-template<class Sample>
+template<class Sample, class Allocator>
 template<class Iterator>
-lattice_fir<Sample>::lattice_fir(Iterator k_begin, Iterator k_end)
+lattice_fir<Sample, Allocator>::lattice_fir(Iterator k_begin, Iterator k_end)
  :	M_(std::distance(k_begin, k_end))
  ,	buffer_(2 * M_ + 1)
  ,	k_(buffer_.get())
@@ -98,9 +98,9 @@ lattice_fir<Sample>::lattice_fir(Iterator k_begin, Iterator k_end)
 	std::copy(k_begin, k_end, k_);
 }
 
-template<class Sample>
+template<class Sample, class Allocator>
 template<class KSample>
-lattice_fir<Sample>::lattice_fir(const KSample* k_vec, size_t k_len)
+lattice_fir<Sample, Allocator>::lattice_fir(const KSample* k_vec, size_t k_len)
  :	M_(k_len)
  ,	buffer_(2 * M_ + 1)
  ,	k_(buffer_.get())
@@ -140,8 +140,8 @@ private:
 	Sample* const g_;				//!< backward prediction error delay line (M_ + 1)
 };
 
-template<class Sample>
-Sample lattice_iir<Sample>::operator()(Sample x, Sample* eb)
+template<class Sample, class Allocator>
+Sample lattice_iir<Sample, Allocator>::operator()(Sample x, Sample* eb)
 {
 	Sample* k = k_ + N_- 1;
 	Sample* g = g_ + N_;
@@ -157,9 +157,9 @@ Sample lattice_iir<Sample>::operator()(Sample x, Sample* eb)
 	return x;
 }
 
-template<class Sample>
+template<class Sample, class Allocator>
 template<class Iterator>
-lattice_iir<Sample>::lattice_iir(Iterator k_begin, Iterator k_end)
+lattice_iir<Sample, Allocator>::lattice_iir(Iterator k_begin, Iterator k_end)
  :	N_(std::distance(k_begin, k_end))
  ,	buffer_(2 * N_ + 1)
  ,	k_(buffer_.get())
@@ -172,9 +172,9 @@ lattice_iir<Sample>::lattice_iir(Iterator k_begin, Iterator k_end)
 	std::copy(k_begin, k_end, k_);
 }
 
-template<class Sample>
+template<class Sample, class Allocator>
 template<class KSample>
-lattice_iir<Sample>::lattice_iir(const KSample* k_vec, size_t k_len)
+lattice_iir<Sample, Allocator>::lattice_iir(const KSample* k_vec, size_t k_len)
  :	N_(k_len)
  ,	buffer_(2 * N_ + 1)
  ,	k_(buffer_.get())
@@ -213,8 +213,8 @@ private:
 	Sample* const g_;				//!< one-sample delayed backward prediction error (N_ + 1)
 };
 
-template<class Sample>
-Sample lattice_ladder<Sample>::operator()(Sample x, Sample* eb)
+template<class Sample, class Allocator>
+Sample lattice_ladder<Sample, Allocator>::operator()(Sample x, Sample* eb)
 {
 	Sample* k = k_ + N_- 1;
 	Sample* v = v_ + N_;
@@ -234,9 +234,9 @@ Sample lattice_ladder<Sample>::operator()(Sample x, Sample* eb)
 	return r;
 }
 
-template<class Sample>
+template<class Sample, class Allocator>
 template<class KIterator, class VIterator>
-lattice_ladder<Sample>::lattice_ladder(KIterator k_begin, KIterator k_end, VIterator v_begin, VIterator v_end)
+lattice_ladder<Sample, Allocator>::lattice_ladder(KIterator k_begin, KIterator k_end, VIterator v_begin, VIterator v_end)
  :	N_(std::max(std::distance(k_begin, k_end), std::distance(v_begin, v_end)))
  ,	buffer_(3 * N_ + 2)
  ,	k_(buffer_.get())
@@ -252,9 +252,9 @@ lattice_ladder<Sample>::lattice_ladder(KIterator k_begin, KIterator k_end, VIter
 	std::copy(v_begin, v_end, v_);
 }
 
-template<class Sample>
+template<class Sample, class Allocator>
 template<class KSample, class VSample>
-lattice_ladder<Sample>::lattice_ladder(const KSample* k_vec, size_t k_len, const VSample* v_vec, size_t v_len)
+lattice_ladder<Sample, Allocator>::lattice_ladder(const KSample* k_vec, size_t k_len, const VSample* v_vec, size_t v_len)
  :	N_(std::max(k_len, v_len))
  ,	buffer_(3 * N_ + 2)
  ,	k_(buffer_.get())

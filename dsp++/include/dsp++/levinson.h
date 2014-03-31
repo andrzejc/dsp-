@@ -249,8 +249,8 @@ private:
 	}
 };
 
-template<class Real>
-levinson<Real>::levinson(size_t r_len, size_t N)
+template<class Sample, class Allocator>
+levinson<Sample, Allocator>::levinson(size_t r_len, size_t N)
  :	L_(verify_input_length(r_len))
  ,	N_(verify_order(N))
  ,	a_(2 * N_ + 2)

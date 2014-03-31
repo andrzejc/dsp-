@@ -159,6 +159,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\adaptfilt_test.cpp" />
     <ClCompile Include="src\execution_timer.cpp" />
     <ClCompile Include="src\fft_test.cpp" />
     <ClCompile Include="src\filter_design_test.cpp" />
@@ -176,6 +177,7 @@
     <ClCompile Include="src\xcorr_test.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\adaptfilt_test.h" />
     <ClInclude Include="src\execution_timer.h" />
     <ClInclude Include="src\fft_test.h" />
     <ClInclude Include="src\filter_design_test.h" />
