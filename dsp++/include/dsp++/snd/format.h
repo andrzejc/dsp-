@@ -24,20 +24,18 @@ namespace channel {
 //! @see https://developer.apple.com/library/mac/#qa/qa1638/_index.html
 enum type {
 	type_unknown,
-	type_left,
-	type_right,
-	type_center,
+	type_front_left,
+	type_front_right,
+	type_front_center,
 	type_lfe,
-	type_left_surround,
-	type_right_surround,
-	type_left_center,
-	type_right_center,
-	type_surround,
-	type_center_surround = type_surround,
+	type_back_left,
+	type_back_right,
+	type_front_left_center,
+	type_front_right_center,
+	type_back_center,
 	type_side_left,
 	type_side_right,
-	type_top,
-	type_top_center_surround = type_top,
+	type_top_center,
 	type_top_front_left,
 	type_top_front_center,
 	type_top_front_right,
@@ -51,25 +49,31 @@ enum type {
 #define DSP_SND_CHANNEL_MASK(label) mask_ ## label = 1 << type_ ## label
 enum mask {
 	DSP_SND_CHANNEL_MASK(unknown),
-	DSP_SND_CHANNEL_MASK(left),
-	DSP_SND_CHANNEL_MASK(right),
-	DSP_SND_CHANNEL_MASK(center),
+	DSP_SND_CHANNEL_MASK(front_left),
+	DSP_SND_CHANNEL_MASK(front_right),
+	DSP_SND_CHANNEL_MASK(front_center),
 	DSP_SND_CHANNEL_MASK(lfe),
-	DSP_SND_CHANNEL_MASK(left_surround),
-	DSP_SND_CHANNEL_MASK(right_surround),
-	DSP_SND_CHANNEL_MASK(left_center),
-	DSP_SND_CHANNEL_MASK(right_center),
-	DSP_SND_CHANNEL_MASK(surround),
+	DSP_SND_CHANNEL_MASK(back_left),
+	DSP_SND_CHANNEL_MASK(back_right),
+	DSP_SND_CHANNEL_MASK(front_left_center),
+	DSP_SND_CHANNEL_MASK(front_right_center),
+	DSP_SND_CHANNEL_MASK(back_center),
 	DSP_SND_CHANNEL_MASK(side_left),
 	DSP_SND_CHANNEL_MASK(side_right),
-	DSP_SND_CHANNEL_MASK(top),
+	DSP_SND_CHANNEL_MASK(top_center),
 	DSP_SND_CHANNEL_MASK(top_front_left),
 	DSP_SND_CHANNEL_MASK(top_front_center),
 	DSP_SND_CHANNEL_MASK(top_front_right),
 	DSP_SND_CHANNEL_MASK(top_back_left),
 	DSP_SND_CHANNEL_MASK(top_back_center),
 	DSP_SND_CHANNEL_MASK(top_back_right),
-	mask_stereo = mask_left | mask_right,
+
+	mask_mono =		mask_front_center,
+	mask_stereo =	mask_front_left | mask_front_right,
+	mask_2_1 =		mask_stereo | mask_lfe,
+	mask_quadro =	mask_stereo | mask_back_left | mask_back_right,
+	mask_5_0	=	mask_quadro | mask_front_center,
+	mask_5_1	=	mask_5_0 | mask_lfe,
 };
 
 //!Definition of channel labels in multichannel audio formats.
@@ -89,9 +93,7 @@ const char right_surround1[] = 	"Rs1";
 const char top[] =				"T";
 
 const char layout_stereo[] = 	"LR";
-const char layout_surround[] =	"LRC";
 const char layout_2_1[] =		"LRWo";
-const char layout_3_1[] = 		"LRCWo";
 const char layout_quadro[] =	"LRLsRs";
 const char layout_5_0[] = 		"LRCLsRs";
 const char layout_5_1[] = 		"LRCWoLsRs";
