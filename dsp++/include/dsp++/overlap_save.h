@@ -79,13 +79,13 @@ public:
 	size_t impulse_response_length() const {return M_;}
 
 	//! @return pointer (serving as an iterator) to the first sample of the input/output frame.
-	iterator begin() {return rbuf_;}
+	iterator begin() {return x_;}
 	//! @return pointer (serving as an iterator) to the first sample of the input/output frame.
-	const_iterator begin() const {return rbuf_;}
+	const_iterator begin() const {return x_;}
 	//! @return pointer (serving as an iterator) to the one-past-last sample of the input/output frame.
-	iterator end() {return rbuf_ + L_;}
+	iterator end() {return z_;}
 	//! @return pointer (serving as an iterator) to the one-past-last sample of the input/output frame.
-	const_iterator end() const {return rbuf_ + L_;}
+	const_iterator end() const {return z_;}
 	/*!
 	 * @brief Perform filtration of the current input frame, represented as samples in the range [begin(), end()),
 	 * and store the result in the same sequence.
@@ -132,12 +132,12 @@ public:
 		ir_length = std::min(M_, ir_length);
 		std::copy(ir, ir + ir_length, rbuf_);
 		std::fill_n(rbuf_ + ir_length, N_ - ir_length, value_type());
-		prepare_ir_dft();
+		prepare_ir_dft(false);
 	}
 
 
 private:
-	void prepare_ir_dft(;
+	void prepare_ir_dft(bool zero_tail);
 
 	/*!
 	 * @brief Find length of the non-zero portion of impulse response given it as an iterator range.
@@ -205,10 +205,11 @@ overlap_save<Real, DFT>::~overlap_save()
 }
 
 template<class Real, template<class, class> class DFT> inline
-void overlap_save<Real, DFT>::prepare_ir_dft()
+void overlap_save<Real, DFT>::prepare_ir_dft(bool zero_tail)
 {
-	std::fill_n(rbuf_ + M_, N_ - M_, value_type()); 	 // pad impulse response with
-												// 0's up to length N
+	if (zero_tail)
+		std::fill_n(rbuf_ + M_, N_ - M_, value_type()); 	 // pad impulse response with
+															// 0's up to length N
 	dft_();										// calculate the DFT of impulse response
 	std::copy(cbuf_, cbuf_ + N_, h_);			// copy calculated transform to the destination
 }
@@ -224,7 +225,7 @@ overlap_save<Real, DFT>::overlap_save(size_t frame_length, Iterator ir_begin, It
  ,	dft_(N_, rbuf_, cbuf_)
  , 	idft_(N_, cbuf_, rbuf_)
  ,	x_(rbuf_ + N_ - L_)
- ,	b_(x_ + L_)
+ ,	z_(x_ + L_)
  ,	h_(cbuf_ + N_)
 {
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
@@ -232,32 +233,36 @@ overlap_save<Real, DFT>::overlap_save(size_t frame_length, Iterator ir_begin, It
 #endif
 	std::copy(ir_begin, ir_end, rbuf_); 		// copy impulse response to rbuf to calculate its DFT
 	prepare_ir_dft(true);
-	std::fill(b_, b_ + N_ - L_, value_type());
+	std::fill(z_, z_ + N_ - L_, value_type());
 }
 
-//template<class Real, template<class, class> class DFT>
-//template<class Sample> inline
-//overlap_save<Real, DFT>::overlap_save(size_t frame_length, const Sample* ir, size_t ir_length, bool preserve_ir_length)
-// :	L_(frame_length)
-// ,	M_(preserve_ir_length ? ir_length : nonzero_length(ir, ir + ir_length))
-// ,	N_(nextpow2(L_ + M_))
-// ,	rbuf_(ralloc_.allocate(N_ + M_))
-// ,	cbuf_(calloc_.allocate(2 * N_))
-// ,	dft_(N_, rbuf_, cbuf_)
-// ,	idft_(N_, cbuf_, rbuf_)
-//{
-//#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
-//	BOOST_CONCEPT_ASSERT((boost::Convertible<Sample, Real>));
-//#endif
-//	std::copy(ir, ir + ir_length, rbuf_); 		// copy impulse response to rbuf to calculate its DFT
-//	prepare_ir_dft(true);
-//}
+template<class Real, template<class, class> class DFT>
+template<class Sample> inline
+overlap_save<Real, DFT>::overlap_save(size_t frame_length, const Sample* ir, size_t ir_length, bool preserve_ir_length)
+ :	L_(frame_length)
+ ,	M_(preserve_ir_length ? ir_length : nonzero_length(ir, ir + ir_length))
+ ,	N_(nextpow2(2 * std::max(L_, M_)))				// calculate transform size
+ , 	rbuf_(ralloc_.allocate(2 * N_ - L_))	// don't even bother with calling construct() on these, they are just numbers
+ , 	cbuf_(calloc_.allocate(2 * N_))
+ ,	dft_(N_, rbuf_, cbuf_)
+ , 	idft_(N_, cbuf_, rbuf_)
+ ,	x_(rbuf_ + N_ - L_)
+ ,	z_(x_ + L_)
+ ,	h_(cbuf_ + N_)
+{
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
+	BOOST_CONCEPT_ASSERT((boost::Convertible<Sample, Real>));
+#endif
+	std::copy(ir, ir + ir_length, rbuf_); 		// copy impulse response to rbuf to calculate its DFT
+	prepare_ir_dft(true);
+	std::fill(z_, z_ + N_ - L_, value_type());
+}
 
 template<class Real, template<class, class> class DFT> inline
 void overlap_save<Real, DFT>::operator ()()
 {
-	std::copy_n(b, N_ - L_, rbuf_);				// fill DFT input vector with N - L samples from previous frames
-	std::copy_n(rbuf_ + L_, N_ - L_, b_);		// save last N - L samples (including input frame) to "save" buffer 
+	std::copy_n(z_, N_ - L_, rbuf_);				// fill DFT input vector with N - L samples from previous frames
+	std::copy_n(rbuf_ + L_, N_ - L_, z_);		// save last N - L samples (including input frame) to "save" buffer 
 	dft_(rbuf_, cbuf_);									// obtain DFT of the joint previous and current frame
 	std::transform(cbuf_, h_, h_, cbuf_, std::multiplies<complex_type>()); // multiply the transforms
 	idft_(cbuf_, rbuf_);								// perform IDFT

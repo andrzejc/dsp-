@@ -18,9 +18,11 @@ class overlap_add_test: public CppUnit::TestFixture
 {
 	CPPUNIT_TEST_SUITE(overlap_add_test);
 	CPPUNIT_TEST(test_ola);
+	CPPUNIT_TEST(test_ols);
 	CPPUNIT_TEST_SUITE_END();
 public:
 	void test_ola();
+	void test_ols();
 };
 
 } /* namespace test */

@@ -6,6 +6,7 @@
 
 #include "overlap_add_test.h"
 #include <dsp++/overlap_add.h>
+#include <dsp++/overlap_save.h>
 #include <dsp++/fftw/dft.h>
 #include <dsp++/float.h>
 
@@ -24,6 +25,21 @@ void dsp::test::overlap_add_test::test_ola()
 		ola();
 		std::copy(ola.begin(), ola.end(), out);
 		std::copy(ref + i, ref + i + 256, test);
+		CPPUNIT_ASSERT(std::equal(out, out + L, test, dsp::within_range<float>(0.00001f)));
+	}
+}
+
+void dsp::test::overlap_add_test::test_ols()
+{
+	const size_t L = 96;
+	float out[L], test[L];
+	dsp::overlap_save<float, dsp::fft> ols(L, b, 128);
+	for (size_t i = 0; i + L <= 1024; i += L)
+	{
+		std::copy(in + i, in + i + L, ols.begin());
+		ols();
+		std::copy(ols.begin(), ols.end(), out);
+		std::copy(ref + i, ref + i + L, test);
 		CPPUNIT_ASSERT(std::equal(out, out + L, test, dsp::within_range<float>(0.00001f)));
 	}
 }
