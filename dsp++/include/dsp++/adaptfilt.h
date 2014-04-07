@@ -11,13 +11,10 @@
 #include <dsp++/utility.h>
 #include <dsp++/buffer_traits.h>
 #include <dsp++/trivial_array.h>
-#include <dsp++/algorithm.h>
 #include <dsp++/simd.h>
 #include <dsp++/complex.h>
 
 #include <algorithm>
-#include <functional>
-#include <stdexcept>
 
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 #include <boost/concept/requires.hpp>

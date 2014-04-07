@@ -248,6 +248,9 @@
     <ClInclude Include="include\dsp++\adaptfilt.h">
       <Filter>include\dsp++</Filter>
     </ClInclude>
+    <ClInclude Include="include\dsp++\overlap_save.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="doxyfile" />
