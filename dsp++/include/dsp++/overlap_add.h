@@ -76,6 +76,8 @@ public:
 	size_t frame_length() const {return L_;}
 	//! @return length of the impulse response of implemented FIR filter.
 	size_t impulse_response_length() const {return M_;}
+	//! @return transform size (N_)
+	size_t transform_size() const {return N_;}
 
 	//! @return pointer (serving as an iterator) to the first sample of the input/output frame.
 	iterator begin() {return rbuf_;}
