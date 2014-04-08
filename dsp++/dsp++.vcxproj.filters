@@ -96,6 +96,9 @@
     <ClCompile Include="src\adaptfilt.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="format_win32.cpp">
+      <Filter>src\snd</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\utility.h">

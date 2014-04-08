@@ -14,26 +14,13 @@
 
 #include "../utility.h"
 
+#ifdef _WIN32
+#include <windows.h>
+#endif 
+
 using namespace dsp::snd;
 
 namespace {
-
-const char* const channel_labels[channel::type_label_count] = {
-	NULL,
-	channel::label::left,
-	channel::label::right,
-	channel::label::center,
-	channel::label::lfe,
-	channel::label::left_surround,
-	channel::label::right_surround,
-	channel::label::left_center,
-	channel::label::right_center,
-	channel::label::surround,
-	channel::label::left_surround1,
-	channel::label::right_surround1,
-	channel::label::top,
-	NULL
-};
 
 struct file_format_entry
 {
@@ -56,9 +43,17 @@ const file_format_entry file_formats[] = {
 
 }
 
-const char* channel::label_for(channel::type ch)
-{
-	return (ch < channel::type_label_count ? channel_labels[ch] : NULL);
+unsigned channel::config::default_for(unsigned cc) {
+	switch (cc) {
+	case 1: return mono;
+	case 2: return stereo;
+	case 3:	return s3_0_stereo;
+	case 4: return s4_0_quadro;
+	case 5:	return s5_0;
+	case 6: return s5_1;
+	default:
+		return mask::unknown;
+	}
 }
 
 const char* const file_type::extension_for(const char* label)
@@ -73,20 +68,20 @@ const char* const file_type::for_extension(const char* ext)
 	return (NULL == e ? NULL : e->label);
 }
 
-sample::type sample::type_of(const char* sf)
+sample::type::label sample::type_of(const char* sf)
 {
 	size_t len;
 	if (NULL == sf || 0 == (len = strlen(sf)))
-		return sample::type_unknown;
+		return type::unknown;
 	switch (tolower(*sf)) {
 	case 's':
-		return sample::type_pcm_signed;
+		return type::pcm_signed;
 	case 'u':
-		return sample::type_pcm_unsigned;
+		return type::pcm_unsigned;
 	case 'f':
-		return sample::type_pcm_float;
+		return type::pcm_float;
 	default:
-		return sample::type_unknown;
+		return type::unknown;
 	}
 }
 
@@ -126,15 +121,15 @@ format::format(const std::string& sample_format, unsigned sample_rate, unsigned 
 }
 
 format::format()
- :	channel_layout_(channel::mask_unknown)
+ :	channel_layout_(channel::mask::unknown)
  ,	sample_rate_(0)
  ,	channel_count_(0)
 {
 }
 
-const format format::format_audio_cd(sample::label::s16, sampling_rate_audio_cd, channel::mask_stereo);
+const format format::format_audio_cd(sample::label::s16, sampling_rate_audio_cd, channel::config::stereo);
 
-unsigned format::channel_index(channel::type ch) const
+unsigned format::channel_index(channel::type::label ch) const
 {
 	if (!is_channel_present(ch))
 		return channel::not_present;
@@ -160,3 +155,4 @@ file_format::file_format(const std::string& sample_format, unsigned sample_rate,
 ,	type_(type)
 {
 }
+

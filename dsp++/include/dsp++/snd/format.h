@@ -18,37 +18,40 @@ namespace dsp { namespace snd {
 //! Constants, functions, etc. related to labeling channels in a multichannel sound file formats.
 namespace channel {
 
-//! Channel type (related to the speaker location). This is ordered according to USB Audio class definition, which is a native representation both in WAVE files and in CoreAudio.
+//! @brief Channel type indexes (related to the speaker location). 
+//! This is ordered according to USB Audio class definition, which is a native representation both in WAVE files and in CoreAudio.
 //! @see http://www.usb.org/developers/devclass_docs/audio10.pdf
 //! @see http://msdn.microsoft.com/en-us/windows/hardware/gg463006
 //! @see https://developer.apple.com/library/mac/#qa/qa1638/_index.html
-enum type {
-	type_unknown,
-	type_front_left,
-	type_front_right,
-	type_front_center,
-	type_lfe,
-	type_back_left,
-	type_back_right,
-	type_front_left_center,
-	type_front_right_center,
-	type_back_center,
-	type_side_left,
-	type_side_right,
-	type_top_center,
-	type_top_front_left,
-	type_top_front_center,
-	type_top_front_right,
-	type_top_back_left,
-	type_top_back_center,
-	type_top_back_right,
+namespace type { enum label {
+	front_left,
+	front_right,
+	front_center,
+	lfe,
+	back_left,
+	back_right,
+	front_left_center,
+	front_right_center,
+	back_center,
+	side_left,
+	side_right,
+	top_center,
+	top_front_left,
+	top_front_center,
+	top_front_right,
+	top_back_left,
+	top_back_center,
+	top_back_right,
 
-	type_label_count						//!< Number of labels defined so far.
-};
+	count_						//!< Number of labels defined so far.
+}; } // namespace type
 
-#define DSP_SND_CHANNEL_MASK(label) mask_ ## label = 1 << type_ ## label
-enum mask {
-	DSP_SND_CHANNEL_MASK(unknown),
+
+//! @brief Channel speaker assignment masks.
+//! @see refer to http://en.wikipedia.org/wiki/Surround_sound for standard speaker channel assignment
+namespace mask { enum label {
+	unknown = 0,
+#define DSP_SND_CHANNEL_MASK(label) label = 1 << (type:: ## label)
 	DSP_SND_CHANNEL_MASK(front_left),
 	DSP_SND_CHANNEL_MASK(front_right),
 	DSP_SND_CHANNEL_MASK(front_center),
@@ -67,41 +70,37 @@ enum mask {
 	DSP_SND_CHANNEL_MASK(top_back_left),
 	DSP_SND_CHANNEL_MASK(top_back_center),
 	DSP_SND_CHANNEL_MASK(top_back_right),
+#undef DSP_SND_CHANNEL_MASK
+}; } // namespace mask
 
-	mask_mono =		mask_front_center,
-	mask_stereo =	mask_front_left | mask_front_right,
-	mask_2_1 =		mask_stereo | mask_lfe,
-	mask_quadro =	mask_stereo | mask_back_left | mask_back_right,
-	mask_5_0	=	mask_quadro | mask_front_center,
-	mask_5_1	=	mask_5_0 | mask_lfe,
-};
+//! Channel speaker configuration mask combinations.
+namespace config { enum label {
+	mono =			mask::front_center,
+	stereo =		mask::front_left | mask::front_right,
+	s2_1 =			stereo | mask::lfe,
+	s3_0_stereo =	stereo | mask::front_center,
+	s3_0_surround =	stereo | mask::back_center,
+	s4_0_quadro =	stereo | mask::back_left | mask::back_right,
+	s4_0_surround =	s3_0_stereo | mask::back_center,
+	s5_0	=		s3_0_stereo | mask::back_left | mask::back_right,
+	s5_0_side =		s3_0_stereo | mask::side_left | mask::side_right,
+	s5_1 =			s5_0 | mask::lfe,
+	s5_1_side =		s5_0_side | mask::lfe,
+	s6_0 =			s5_0 | mask::back_center,
+	s6_0_side =		s5_0_side | mask::back_center,
+}; 
 
-//!Definition of channel labels in multichannel audio formats.
-namespace label {
-const char mono[] = 			"M";
-const char left[] = 			"L";
-const char right[] = 			"R";
-const char center[] = 			"C";
-const char lfe[] = 				"Wo";
-const char left_surround[] = 	"Ls";
-const char right_surround[] = 	"Rs";
-const char left_center[] = 		"Lc";
-const char right_center[] = 	"Rc";
-const char surround[] = 		"S";	//!< AKA "Rear Center"
-const char left_surround1[] = 	"Ls1";
-const char right_surround1[] = 	"Rs1";
-const char top[] =				"T";
+//! @param[in] channel_count number of channels.
+//! @return "deafult" (most typical) speaker configuration mask for given channel count.
+DSPXX_API unsigned default_for(unsigned channel_count);
 
-const char layout_stereo[] = 	"LR";
-const char layout_2_1[] =		"LRWo";
-const char layout_quadro[] =	"LRLsRs";
-const char layout_5_0[] = 		"LRCLsRs";
-const char layout_5_1[] = 		"LRCWoLsRs";
-const char layout_6_0[] = 		"LRCLsRsS";
-}
+} // namespace config
 
-DSPXX_API const char* label_for(type ch);
-typedef std::bitset<type_label_count> layout;
+//! @brief Bitset for storing channel speaker layouts.
+typedef std::bitset<type::count_> layout;
+
+//! @brief Used to denote that given channel type is missing in the layout.
+//! @see dsp::snd::format::channel_index()
 const unsigned not_present = unsigned(-1);
 }
 
@@ -118,17 +117,25 @@ const char f32[] =		"F32";	//!< Floating-point 32-bit (with a non-overdriving ra
 const char f64[] =		"F64";	//!< Floating-point 64-bit (with a non-overdriving range of [-1.0, 1.0]).
 }
 
+//! @brief Used to denote that bit size of sample is unknown in the given format.
+//! @see dsp::snd::sample::bit_size_of()
 const unsigned size_unknown = 0;
+
+//! @param[in] format_label format label to parse for sample bit size
+//! @return bit size of sample in given format, or @p size_unknown if malformed label.
 DSPXX_API unsigned bit_size_of(const char* format_label);
 
-enum type {
-	type_unknown,
-	type_pcm_unsigned,
-	type_pcm_signed,
-	type_pcm_float,
-};
+//! @brief Sample type labels as returned by dsp::snd::sample::type_of().
+namespace type { enum label {
+	unknown,
+	pcm_unsigned,
+	pcm_signed,
+	pcm_float,
+}; } // namespace type
 
-DSPXX_API type type_of(const char* format_label);
+//! @param[in] format_label format label to parse for sample type.
+//! @return sample type of given format.
+DSPXX_API type::label type_of(const char* format_label);
 }
 
 namespace file_type {
@@ -165,21 +172,21 @@ public:
 	const channel::layout& channel_layout() const {return channel_layout_;}
 	void set_channel_layout(const channel::layout& cl)
 	{channel_layout_ = cl; channel_count_ = static_cast<unsigned>(channel_layout_.count());}
-	void set_channel_mask(unsigned channel_mask)
+	void set_channel_config(unsigned channel_mask)
 	{channel_layout_ = channel::layout(static_cast<int>(channel_mask)); channel_count_ = static_cast<unsigned>(channel_layout_.count());}
-	bool is_channel_present(channel::type ch) const {return channel_layout_.test(ch);}
-	void set_channel_present(channel::type ch, bool present = true)
+	bool is_channel_present(channel::type::label ch) const {return channel_layout_.test(ch);}
+	void set_channel_present(channel::type::label ch, bool present = true)
 	{channel_layout_.set(ch, present); channel_count_ = static_cast<unsigned>(channel_layout_.count());}
-	unsigned channel_mask() const {return channel_layout_.to_ulong();}
-	unsigned channel_index(channel::type ch) const;
+	unsigned channel_config() const {return channel_layout_.to_ulong();}
+	//! @return index of specified channel in current layout or channel::not_present if missing.
+	unsigned channel_index(channel::type::label ch) const;
 	unsigned channel_count() const {return channel_count_;}
 	void set_channel_count(unsigned cc) {channel_count_ = cc;}
-	channel::type channel_at(unsigned index) const;
-	bool format_channel_layout(std::string& layout) const;
+	channel::type::label channel_at(unsigned index) const;
 
 	unsigned sample_rate() const {return sample_rate_;}
 	unsigned sample_bits() const {return sample::bit_size_of(sample_format_.c_str());}
-	sample::type sample_type() const {return sample::type_of(sample_format_.c_str());}
+	sample::type::label sample_type() const {return sample::type_of(sample_format_.c_str());}
 
 	void set_sample_format(const char* sf) {sample_format_ = sf;}
 	void set_sample_rate(unsigned sr) {sample_rate_ = sr;}
@@ -198,6 +205,11 @@ public:
 	template<class TimeS> 
 	unsigned time_to_samples(TimeS s) const 
 	{return static_cast<unsigned>(sample_rate_ * s + static_cast<TimeS>(.5));}
+
+#ifdef _WIN32
+	void render_waveformatex(void* wfx) const;
+	void render_waveformatextensible(void* wfx) const;
+#endif // _WIN32
 
 private:
 	std::string sample_format_;
