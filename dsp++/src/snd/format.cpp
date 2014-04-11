@@ -79,7 +79,7 @@ sample::type::label sample::type_of(const char* sf)
 	case 'u':
 		return type::pcm_unsigned;
 	case 'f':
-		return type::pcm_float;
+		return type::ieee_float;
 	default:
 		return type::unknown;
 	}

@@ -10,7 +10,7 @@ using namespace dsp::snd;
 void format::render_waveformatex(void* wfx) const {
 	WAVEFORMATEX* w = static_cast<WAVEFORMATEX*>(wfx);
 	switch (sample_type()) {
-	case sample::type::pcm_float:
+	case sample::type::ieee_float:
 		w->wFormatTag = WAVE_FORMAT_IEEE_FLOAT;
 		break;
 	case sample::type::pcm_unsigned:

@@ -130,7 +130,7 @@ namespace type { enum label {
 	unknown,
 	pcm_unsigned,
 	pcm_signed,
-	pcm_float,
+	ieee_float,
 }; } // namespace type
 
 //! @param[in] format_label format label to parse for sample type.

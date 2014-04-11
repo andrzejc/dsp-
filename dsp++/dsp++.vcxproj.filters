@@ -99,6 +99,9 @@
     <ClCompile Include="src\adaptfilt.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="sample.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\utility.h">
@@ -253,6 +256,15 @@
     </ClInclude>
     <ClInclude Include="include\dsp++\overlap_save.h">
       <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\snd\buffer.h">
+      <Filter>include\dsp++\snd</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\snd\convert.h">
+      <Filter>include\dsp++\snd</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\snd\sample.h">
+      <Filter>include\dsp++\snd</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

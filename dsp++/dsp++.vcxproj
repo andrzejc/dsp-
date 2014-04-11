@@ -170,6 +170,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="format_win32.cpp" />
+    <ClCompile Include="sample.cpp" />
     <ClCompile Include="src\adaptfilt.cpp" />
     <ClCompile Include="src\arch\ppc\cpu_ppc.cpp" />
     <ClCompile Include="src\arch\x86\cpu_x86.cpp" />
@@ -225,10 +226,13 @@
     <ClInclude Include="include\dsp++\platform.h" />
     <ClInclude Include="include\dsp++\pow2.h" />
     <ClInclude Include="include\dsp++\simd.h" />
+    <ClInclude Include="include\dsp++\snd\buffer.h" />
+    <ClInclude Include="include\dsp++\snd\convert.h" />
     <ClInclude Include="include\dsp++\snd\format.h" />
     <ClInclude Include="include\dsp++\snd\iobase.h" />
     <ClInclude Include="include\dsp++\snd\io_error.h" />
     <ClInclude Include="include\dsp++\snd\reader.h" />
+    <ClInclude Include="include\dsp++\snd\sample.h" />
     <ClInclude Include="include\dsp++\snd\sndfile_error.h" />
     <ClInclude Include="include\dsp++\snd\writer.h" />
     <ClInclude Include="include\dsp++\trivial_array.h" />

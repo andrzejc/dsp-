@@ -157,7 +157,7 @@ static int map_format(const file_format& f)
 	sample::type::label st = f.sample_type();
 	unsigned bs = f.sample_bits();
 	switch (st) {
-	case sample::type::pcm_float:
+	case sample::type::ieee_float:
 		if (bs <= 32)
 			res |= SF_FORMAT_FLOAT;
 		else
