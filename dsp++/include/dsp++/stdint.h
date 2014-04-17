@@ -61,6 +61,31 @@ typedef select_int<64, true>::type int64_t;
 typedef select_int<64, false>::type uint64_t;
 
 #endif
+
+template<class T> struct unsigned_of;
+template<> struct unsigned_of<signed char> {typedef unsigned char type;};
+template<> struct unsigned_of<unsigned char> {typedef unsigned char type;};
+template<> struct unsigned_of<signed short> {typedef unsigned short type;};
+template<> struct unsigned_of<unsigned short> {typedef unsigned short type;};
+template<> struct unsigned_of<signed int> {typedef unsigned int type;};
+template<> struct unsigned_of<unsigned int> {typedef unsigned int type;};
+template<> struct unsigned_of<signed long> {typedef unsigned long type;};
+template<> struct unsigned_of<unsigned long> {typedef unsigned long type;};
+template<> struct unsigned_of<signed long long> {typedef unsigned long long type;};
+template<> struct unsigned_of<unsigned long long> {typedef unsigned long long type;};
+
+template<class T> struct signed_of;
+template<> struct signed_of<signed char> {typedef signed char type;};
+template<> struct signed_of<unsigned char> {typedef signed char type;};
+template<> struct signed_of<signed short> {typedef signed short type;};
+template<> struct signed_of<unsigned short> {typedef signed short type;};
+template<> struct signed_of<signed int> {typedef signed int type;};
+template<> struct signed_of<unsigned int> {typedef signed int type;};
+template<> struct signed_of<signed long> {typedef signed long type;};
+template<> struct signed_of<unsigned long> {typedef signed long type;};
+template<> struct signed_of<signed long long> {typedef signed long long type;};
+template<> struct signed_of<unsigned long long> {typedef signed long long type;};
+
 }
 
 #endif // DSP_STDINT_H_INCLUDED

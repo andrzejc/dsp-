@@ -31,6 +31,23 @@ template<class Real> bool isinf(Real x) {return _finite(x) == 0;}
 
 namespace dsp {
 
+namespace detail {
+
+	template<class T> struct next_float {typedef void type;};
+	template<> struct next_float<float> {typedef double type;};
+	template<> struct next_float<double> {typedef long double type;};
+
+	template<int size, class T, bool is_same_size = (size == 8*sizeof(T))> struct select_sized_float;
+	template<int size, class T> struct select_sized_float<size, T, true> {typedef T type;};
+	template<int size, class T> struct select_sized_float<size, T, false> {typedef typename select_sized_float<size, typename next_float<T>::type>::type type;};
+
+}
+
+template<int size> struct select_float {typedef typename detail::select_sized_float<size, float>::type type;};
+
+typedef select_float<32>::type float32_t;
+typedef select_float<64>::type float64_t;
+
 /*!
  * @brief Test whether floating-point numbers are within +/-epsilon range from each other.
  * @param lhs left-hand side number.

@@ -266,6 +266,9 @@
     <ClInclude Include="include\dsp++\snd\sample.h">
       <Filter>include\dsp++\snd</Filter>
     </ClInclude>
+    <ClInclude Include="include\dsp++\stdint.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="doxyfile" />

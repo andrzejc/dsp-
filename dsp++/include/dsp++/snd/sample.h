@@ -10,7 +10,9 @@
 #include <dsp++/export.h>
 #include <dsp++/snd/format.h>
 #include <dsp++/stdint.h>
+#include <dsp++/float.h>
 #include <dsp++/platform.h>
+#include <dsp++/intmath.h>
 
 #include <limits>
 #include <stdexcept>
@@ -59,10 +61,10 @@ struct sample_layout {
 	//! The type of sample data must be sample::type::pcm_signed for signed Int type or sample::type::pcm_unsigned
 	//! for unsigned Int type. 
 	//! @tparam Int type of output variable
-	//! @param[out] variable which will receive read sample, full range of integer type will be used (sample will be normalized).
 	//! @param[in] data pointer to byte buffer described by this sample_layout.
+	//! @param[out] variable which will receive read sample, full range of integer type will be used (sample will be normalized).
 	template<class Int>
-	void read_pcm(Int& out, const void* data) const {
+	void read_pcm(const void* data, Int& out) const {
 		static_assert(std::is_integral<Int>::value, "Int must ba an integeral type");
 		if (!((sample::type::pcm_signed == type && std::numeric_limits<Int>::is_signed) ||
 			(sample::type::pcm_unsigned == type && !std::numeric_limits<Int>::is_signed)))
@@ -71,8 +73,8 @@ struct sample_layout {
 	}
 
 	template<class Int>
-	void read_pcm_right_aligned(Int& out, const void* data) const {
-		read_pcm(out, data);
+	void read_pcm_right_aligned(const void* data, Int& out) const {
+		read_pcm(data, out);
 		out >>= (sizeof(Int) * 8 - significant_bits); // perform arithmetic shift of output so that sign is preserved and LSB is right-aligned
 	}
 
@@ -82,7 +84,7 @@ struct sample_layout {
 	//! @param[out] variable which will receive read sample, full range of integer type will be used (sample will be normalized).
 	//! @param[in] data pointer to byte buffer described by this sample_layout.
 	template<class Float>
-	void read_ieee_float(Float& out, const void* data) const {
+	void read_ieee_float(const void* data, Float& out) const {
 		static_assert(std::is_floating_point<Float>::value, "Float must ba a floating-point type");
 		if (sample::type::ieee_float != type)
 			throw std::invalid_argument("dsp::snd::sample_layout::read_ieee_float() requires sample::type::ieee_float");
@@ -110,7 +112,25 @@ struct sample_layout {
 		write_pcm(in, data);
 	}
 
-	float read_as_float(const void* data) const;
+	template<class Float>
+	void write_ieee_float(Float in, void* out) const {
+		static_assert(std::is_floating_point<Float>::value, "Float must ba a floating-point type");
+		if (sample::type::ieee_float != type)
+			throw std::invalid_argument("dsp::snd::sample_layout::write_ieee_float() requires sample::type::ieee_float");
+		typedef typename select_int<sizeof(Float) * 8, false>::type uint;
+		union {
+			Float f;
+			uint u;
+		} v;
+		v.f = in;
+		write_bits(v.u, out);
+	}
+
+	void read_float(const void* in, float& out) const;
+	void read_float(const void* in, double& out) const;
+
+	void write_float(float in, void* out) const;
+	void write_float(double in, void* out) const;
 
 private:
 	template<class UInt>
@@ -137,25 +157,66 @@ private:
 
 	template<class UInt>
 	void write_bits(UInt bits, void* data) const {
-		const uint8_t* b;
-		int dir;
+		uint8_t* b;
 		bits >>= 8 * (sizeof(UInt) - container_bytes);
 		if (byte_order::little_endian == endianness) {
-			b = static_cast<const uint8_t*>(data);
+			b = static_cast<uint8_t*>(data);
 			for (unsigned i = 0; i < container_bytes; ++i, ++b) {
-				*b = bits;
+				*b = static_cast<uint8_t>(bits);
 				bits >>= 8;
 			}
 		}
 		else {
-			b = static_cast<const uint8_t*>(data) + container_bytes - 1;
+			b = static_cast<uint8_t*>(data) + container_bytes - 1;
 			for (unsigned i = 0; i < container_bytes; ++i, --b) {
-				*b = bits;
+				*b = static_cast<uint8_t>(bits);
 				bits >>= 8;
 			}
 		}
 	}
 };
+
+namespace detail {
+	template<class In, class Out, 
+		bool InSigned = std::numeric_limits<In>::is_signed, bool OutSigned = std::numeric_limits<Out>::is_signed,
+		bool InFloat = !std::numeric_limits<In>::is_integer, bool OutFloat = !std::numeric_limits<Out>::is_integer>
+	struct sample_cast_impl;
+
+	template<class In, class Out> // float -> float
+	struct sample_cast_impl<In, Out, true, true, true, true> {
+		static Out cast(In in) {return static_cast<Out>(in);}
+	};
+
+	template<class In, class Out> // signed int -> float
+	struct sample_cast_impl<In, Out, true, true, false, true> {
+		static Out cast(In in) {return in / -static_cast<Out>(std::numeric_limits<In>::min());}
+	};
+
+	template<class In, class Out> // unsigned int -> float
+	struct sample_cast_impl<In, Out, false, true, false, true> {
+		static Out cast(In in) {return in / (static_cast<Out>(std::numeric_limits<In>::max()) + Out(1.)) - Out(.5);}
+	};
+
+	template<class In, class Out> // float -> signed int
+	struct sample_cast_impl<In, Out, true, true, true, false> {
+		static Out cast(In in) {
+			return rint<Out, rounding::nearest,	overflow::saturate>(in * -static_cast<In>(std::numeric_limits<Out>::min()));
+		}
+	};
+
+	template<class In, class Out> // float -> unsigned int
+	struct sample_cast_impl<In, Out, true, false, true, false> {
+		static Out cast(In in) {
+			return rint<Out, rounding::nearest,	overflow::saturate>((in + In(.5)) * (static_cast<In>(std::numeric_limits<Out>::max()) + In(1.)));
+		}
+	};
+
+};
+
+template<class Out, class In>
+Out sample_cast(In in) {
+	return detail::sample_cast_impl<In, Out>::cast(in);
+}
 
 }}
 

@@ -235,6 +235,7 @@
     <ClInclude Include="include\dsp++\snd\sample.h" />
     <ClInclude Include="include\dsp++\snd\sndfile_error.h" />
     <ClInclude Include="include\dsp++\snd\writer.h" />
+    <ClInclude Include="include\dsp++\stdint.h" />
     <ClInclude Include="include\dsp++\trivial_array.h" />
     <ClInclude Include="include\dsp++\utility.h" />
     <ClInclude Include="include\dsp++\vectmath.h" />
