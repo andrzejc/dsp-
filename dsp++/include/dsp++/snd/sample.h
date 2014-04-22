@@ -56,6 +56,8 @@ struct sample_layout {
 	 ,	endianness(end)
 	{}
 
+	sample_layout(): type(sample::type::unknown), container_bytes(0), significant_bits(0), lsb_padding(0), endianness(byte_order::little_endian) {}
+
 
 	//! @brief Read integer (LPCM) sample from byte buffer described by this layout into integer variable.
 	//! The type of sample data must be sample::type::pcm_signed for signed Int type or sample::type::pcm_unsigned
