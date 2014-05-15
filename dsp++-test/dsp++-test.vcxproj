@@ -90,7 +90,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../dsp++/include;$(CPPUNIT_ROOT)/include;$(BOOST_ROOT)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4244;4305</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4244;4305;4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -107,7 +107,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../dsp++/include;$(CPPUNIT_ROOT)/include;$(BOOST_ROOT)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4244;4305</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4244;4305;4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -126,7 +126,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../dsp++/include;$(CPPUNIT_ROOT)/include;$(BOOST_ROOT)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4244;4305</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4244;4305;4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -147,7 +147,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../dsp++/include;$(CPPUNIT_ROOT)/include;$(BOOST_ROOT)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4244;4305</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4244;4305;4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
