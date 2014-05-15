@@ -191,6 +191,7 @@
     <ClCompile Include="src\simd.cpp" />
     <ClCompile Include="src\snd\format.cpp" />
     <ClCompile Include="src\snd\io.cpp" />
+    <ClCompile Include="src\snd\loudness.cpp" />
     <ClCompile Include="src\vectmath.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -231,6 +232,7 @@
     <ClInclude Include="include\dsp++\snd\format.h" />
     <ClInclude Include="include\dsp++\snd\iobase.h" />
     <ClInclude Include="include\dsp++\snd\io_error.h" />
+    <ClInclude Include="include\dsp++\snd\loudness.h" />
     <ClInclude Include="include\dsp++\snd\reader.h" />
     <ClInclude Include="include\dsp++\snd\sample.h" />
     <ClInclude Include="include\dsp++\snd\sndfile_error.h" />

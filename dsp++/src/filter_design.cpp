@@ -79,7 +79,7 @@ void dsp::biquad_design(double b[], double a[], biquad_type type, double norm_fr
 
 	double sw0 = std::sin(w0);
 	if (NULL != q)
-		alpha = sw0 / 2 * (*q);
+		alpha = sw0 / (2 * (*q));
 	else if (NULL != bw)
 		alpha = sw0 * std::sinh(DSP_M_LN2 / 2 * (*bw) * w0/sw0);
 	else if (is_eq && NULL != s)

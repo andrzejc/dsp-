@@ -478,6 +478,14 @@ protected:
 public:
 	static const size_t section_length = sos_length; 		//!< Length of coefficient vector of a single second-order-section (SOS) filter (3).
 
+	size_t section_count() const {return N_;}
+
+	template<class CoeffSample, class CoeffSize>
+	void set_coeffs(const CoeffSample (*num)[section_length], const CoeffSize* numl, const CoeffSample (*den)[section_length], const CoeffSize* denl);
+
+	template<class CoeffSample>
+	void set_coeffs(const CoeffSample* num, const CoeffSample* den);
+
 protected:
 	/*!
 	 * @brief Construct SOS-bank filter given coefficients provided as a matrix in a form compatible with
@@ -494,6 +502,8 @@ protected:
 	template<class CoeffSample>
 	sos_filter_base(size_t N, const CoeffSample* num, const CoeffSample* den);
 
+	explicit sos_filter_base(size_t N);
+
 	const size_t step_;
 	const size_t N_;				//!< number of second-order sections
 	trivial_array<Sample, typename BufferTraits::allocator_type> rbuf_;
@@ -502,6 +512,28 @@ protected:
 	Sample* const a_;
 	Sample* const w_;
 };
+
+template<class Sample, class BufferTraits>
+template<class CoeffSample, class CoeffSize> inline
+void sos_filter_base<Sample, BufferTraits>::set_coeffs(const CoeffSample (*num)[section_length], const CoeffSize* numl, const CoeffSample (*den)[section_length], const CoeffSize* denl)
+{
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
+	BOOST_CONCEPT_ASSERT((boost::Convertible<CoeffSample, Sample>));
+	BOOST_CONCEPT_ASSERT((boost::Convertible<CoeffSize, size_t>));
+#endif
+	Sample* b = b_;
+	Sample* a = a_;
+	for (size_t i = 0; i < N_; ++i, b += step_, a += step_, ++num, ++numl, ++den, ++denl) {
+		std::copy(*num, *num + *numl, b);
+		std::copy(*den, *den + *denl, a);
+		if (*denl > 0 && Sample(1) != *a) {
+			std::transform(b, b + *numl, b, std::bind2nd(std::divides<Sample>(), *a));
+			std::transform(a, a + *denl, a, std::bind2nd(std::divides<Sample>(), *a));
+		}
+		*a = Sample(); // set a[0] to 0 as an optimization for dot product calculation
+		scale_only_[i] = (*numl == 1) && (*denl <= 1);
+	}
+}
 
 template<class Sample, class BufferTraits>
 template<class CoeffSample, class CoeffSize> inline
@@ -514,21 +546,27 @@ sos_filter_base<Sample, BufferTraits>::sos_filter_base(size_t N, const CoeffSamp
  ,	a_(b_ + N_ * step_)
  ,	w_(a_ + N_ * step_)
 {
+	set_coeffs(num, numl, den, denl);
+}
+
+template<class Sample, class BufferTraits>
+template<class CoeffSample> inline
+void sos_filter_base<Sample, BufferTraits>::set_coeffs(const CoeffSample* num, const CoeffSample* den)
+{
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_ASSERT((boost::Convertible<CoeffSample, Sample>));
-	BOOST_CONCEPT_ASSERT((boost::Convertible<CoeffSize, size_t>));
 #endif
 	Sample* b = b_;
 	Sample* a = a_;
-	for (size_t i = 0; i < N; ++i, b += step_, a += step_, ++num, ++numl, ++den, ++denl) {
-		std::copy(*num, *num + *numl, b);
-		std::copy(*den, *den + *denl, a);
-		if (*denl > 0 && Sample(1) != *a) {
-			std::transform(b, b + *numl, b, std::bind2nd(std::divides<Sample>(), *a));
-			std::transform(a, a + *denl, a, std::bind2nd(std::divides<Sample>(), *a));
+	for (size_t i = 0; i < N_; ++i, b += step_, a += step_, num += section_length, den += section_length) {
+		std::copy(num, num + section_length, b);
+		std::copy(den, den + section_length, a);
+		if (Sample(1) != *a) {
+			std::transform(b, b + section_length, b, std::bind2nd(std::divides<Sample>(), *a));
+			std::transform(a, a + section_length, a, std::bind2nd(std::divides<Sample>(), *a));
 		}
 		*a = Sample(); // set a[0] to 0 as an optimization for dot product calculation
-		scale_only_[i] = (*numl == 1) && (*denl <= 1);
+		scale_only_[i] = false;
 	}
 }
 
@@ -543,21 +581,20 @@ sos_filter_base<Sample, BufferTraits>::sos_filter_base(size_t N, const CoeffSamp
  ,	a_(b_ + N_ * step_)
  ,	w_(a_ + N_ * step_)
 {
-#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
-	BOOST_CONCEPT_ASSERT((boost::Convertible<CoeffSample, Sample>));
-#endif
-	Sample* b = b_;
-	Sample* a = a_;
-	for (size_t i = 0; i < N; ++i, b += step_, a += step_, num += section_length, den += section_length) {
-		std::copy(num, num + section_length, b);
-		std::copy(den, den + section_length, a);
-		if (Sample(1) != *a) {
-			std::transform(b, b + section_length, b, std::bind2nd(std::divides<Sample>(), *a));
-			std::transform(a, a + section_length, a, std::bind2nd(std::divides<Sample>(), *a));
-		}
-		*a = Sample(); // set a[0] to 0 as an optimization for dot product calculation
-		scale_only_[i] = false;
-	}
+	set_coeffs(num, den);
+}
+
+template<class Sample, class BufferTraits>
+inline
+sos_filter_base<Sample, BufferTraits>::sos_filter_base(size_t N)
+ :	step_(step())
+ , 	N_(N)
+ ,	rbuf_(3 * step_ * N_)
+ ,	scale_only_(N_)
+ ,	b_(rbuf_.get())
+ ,	a_(b_ + N_ * step_)
+ ,	w_(a_ + N_ * step_)
+{
 }
 
 
@@ -599,6 +636,8 @@ public:
 	template<class CoeffSample>
 	filter_sos(size_t N, const CoeffSample* num, const CoeffSample* den)
 	 :	base(N, num, den) {}
+
+	explicit filter_sos(size_t N): base(N) {}
 };
 
 template<>

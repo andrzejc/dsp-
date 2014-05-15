@@ -102,6 +102,9 @@
     <ClCompile Include="sample.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\snd\loudness.cpp">
+      <Filter>src\snd</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\utility.h">
@@ -268,6 +271,9 @@
     </ClInclude>
     <ClInclude Include="include\dsp++\stdint.h">
       <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\snd\loudness.h">
+      <Filter>include\dsp++\snd</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
