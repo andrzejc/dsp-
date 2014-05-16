@@ -10,6 +10,10 @@
 #include <dsp++/export.h>
 #include <dsp++/algorithm.h>
 #include <dsp++/filter.h>
+#include <dsp++/vectmath.h>
+
+#include <boost/shared_ptr.hpp>
+#include <vector>
 
 namespace dsp { namespace snd {
 
@@ -29,10 +33,16 @@ namespace dsp { namespace snd {
 	 */
 	DSPXX_API void k_weighting_sos_design(double fs, double sos_num[2][dsp::sos_length], double sos_den[2][dsp::sos_length]);
 
+	/*!
+	 * @brief Implementation of two-stage K-weighting prefiltering used in LKFS loudness measure.
+	 * @see http://www.itu.int/dms_pubrec/itu-r/rec/bs/R-REC-BS.1770-3-201208-I!!PDF-E.pdf
+	 */
 	template<class Sample>
 	class k_weighting: public sample_based_transform<Sample> {
 	public:
 
+		//! @brief Construct K-weighting filter for given sampling rate.
+		//! @param[in] sr sampling rate.
 		explicit k_weighting(double sr)
 		 :	flt_(2) 
 		{
@@ -49,36 +59,62 @@ namespace dsp { namespace snd {
 
 	};
 
-
+	/*! 
+	 * @brief LKFS (aka LUFS) loudness measurement algorithm.
+	 * @see http://www.itu.int/dms_pubrec/itu-r/rec/bs/R-REC-BS.1770-3-201208-I!!PDF-E.pdf
+	 */
 	template<class Sample>
 	class loudness_lkfs {
 	public:
 
-		loudness_lkfs(double sr, unsigned channels, const Sample* weights = NULL);
+		/*!
+		 * @brief Initialize LKFS measurement algorithm for given sampling rate, number of channels and channel weights.
+		 * @param[in] sr sampling rate
+		 * @param[in] channels number of channels
+		 * @param[in] period gating interval in seconds, default 0.4 (400ms), set to 1.0 to use sample-by-sample sliding window
+		 * @param[in] overlap gating interval overlap, default 0.75 (75%)
+		 * @param[in] channel_weights optional vector of channel scaling weights, defaults to 1.0 for first 3 channels 
+		 *	(left, right, center in "standard" layout) and 1.41 for the remaining ones (surround channels).
+		 */
+		loudness_lkfs(double sr, unsigned channels, double period = 0.4, double overlap = 0.75, const Sample* channel_weights = NULL);
 
+		//! @return true if new reading is available (use value() to get it at any time).
+		bool operator()(Sample x);
+
+		//! @return current loudness measurement (updated each time operator() returns true).
+		Sample value() const {return val_;}
 
 	private:
 		double const sr_;			//!< Sampling rate
 		unsigned const cc_;			//!< Channel count
-		unsigned const len_;			//!< Length of gating block in samples
+		unsigned const len_;		//!< Length of gating block in samples
 		unsigned const step_;		//!< Number of samples after which gating block is advanced
-		dsp::trivial_array<Sample> buf_;	
+		unsigned i_;				//!< Current sample index
+		dsp::trivial_array<Sample> buf_;	//!< 
 		Sample* const pow_;			
 		Sample* const sum_;			//!< Power moving average for each channel
 		Sample* const w_;			//!< Channel summing weights
+		Sample val_;				//!< Current measurement
+		std::vector<boost::shared_ptr<k_weighting<Sample> > > kw_;
+		bool first_;
 	};
 
 	template<class Sample>
-	loudness_lkfs<Sample>::loudness_lkfs(double sr, unsigned channels, const Sample* weights)
+	loudness_lkfs<Sample>::loudness_lkfs(double sr, unsigned channels, double period, double overlap, const Sample* weights)
 	 :	sr_(sr)
 	 ,	cc_(channels)
-	 ,	len_(static_cast<unsigned>(.4 * sr_ + .5))
-	 ,	step_(static_cast<unsigned>(.1 * sr_ + .5))
+	 ,	len_(static_cast<unsigned>(period * sr_ + .5))
+	 ,	step_(static_cast<unsigned>((1. - overlap) * period * sr_ + .5) * cc_)
+	 ,	i_(0)
 	 ,	buf_((len_ + 2) * cc_)
 	 ,	pow_(buf_.get())
 	 ,	sum_(pow_ + len_ * cc_)
 	 ,	w_(sum_ + cc_)
+	 ,	val_(Sample())
+	 ,	first_(true)
 	{
+		std::fill_n(pow_, cc_ * len_, Sample());
+		std::fill_n(sum_, cc_, Sample());
 		if (NULL != weights) 
 			std::copy_n(weights, cc_, w_);
 		else {
@@ -86,6 +122,29 @@ namespace dsp { namespace snd {
 			if (cc_ > 3)
 				std::fill_n(w_ + 3, cc_ - 3, Sample(1.41));
 		}
+		kw_.resize(cc_);
+		for (unsigned i = 0; i < cc_; ++i)
+			kw_[i].reset(new k_weighting<Sample>(sr_));
+	}
+
+	template<class Sample>
+	bool loudness_lkfs<Sample>::operator()(Sample x) 
+	{
+		using std::pow; using std::log10;
+		unsigned c = i_ % cc_;
+		Sample kx = (*kw_[c])(x);	// k-weighting through appropriate channel prefilter
+		sum_[c] -= pow_[i];			
+		sum_[c] += pow_[i] = pow(kx, 2) / len_; // calculate moving average of power for next K-weighted sample, ITU-R BS.1770 eq. 1
+
+		++i_;
+		i_ %= (len_ * cc_);
+		bool reading = (0 == step_) || (first_ ? (0 == i_) : (0 == (i_ % step_))); // calculate LKFS value only when after full interval
+		if (!reading)
+			return false;
+
+		first_ = false;
+		val_ = Sample(-.691) + Sample(10.) * log10(dsp::dot(sum_, w_, cc_));  // weighted sum of channel power, ITU-R BS.1770 eq. 2
+		return true;
 	}
 
 } } 

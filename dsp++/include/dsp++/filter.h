@@ -671,6 +671,8 @@ public:
 	template<class CoeffSample>
 	filter_sos(size_t N, const CoeffSample* num, const CoeffSample* den)
 	 :	base(N, num, den) {}
+
+	explicit filter_sos(size_t N): base(N) {}
 };
 
 /*!
