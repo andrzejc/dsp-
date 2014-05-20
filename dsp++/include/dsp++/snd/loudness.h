@@ -14,6 +14,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <vector>
+#include <algorithm>
 
 namespace dsp { namespace snd {
 
@@ -84,6 +85,8 @@ namespace dsp { namespace snd {
 		//! @return current loudness measurement (updated each time operator() returns true).
 		Sample value() const {return val_;}
 
+		Sample power() const {return dot_;}
+
 	private:
 		double const sr_;			//!< Sampling rate
 		unsigned const cc_;			//!< Channel count
@@ -94,7 +97,7 @@ namespace dsp { namespace snd {
 		Sample* const pow_;			
 		Sample* const sum_;			//!< Power moving average for each channel
 		Sample* const w_;			//!< Channel summing weights
-		Sample val_;				//!< Current measurement
+		Sample val_, dot_;			//!< Current measurement and weighted power sum
 		std::vector<boost::shared_ptr<k_weighting<Sample> > > kw_;
 		bool first_;
 	};
@@ -143,9 +146,63 @@ namespace dsp { namespace snd {
 			return false;
 
 		first_ = false;
-		val_ = Sample(-.691) + Sample(10.) * log10(dsp::dot(sum_, w_, cc_));  // weighted sum of channel power, ITU-R BS.1770 eq. 2
+		dot_ = dsp::dot(sum_, w_, cc_);
+		val_ = Sample(-.691) + Sample(10.) * log10(dot_);  // weighted sum of channel power, ITU-R BS.1770 eq. 2
 		return true;
 	}
+
+	/*!
+	 * @brief 'EBU Mode' loudness metering according to EBU Tech 3341-2011 and EBU R 128.
+	 * @see EBU Technical Recommendation R 128 ‘Loudness normalisation and permitted maximum level of audio signals’
+	 */
+	template<class Sample>
+	class loudness_ebu {
+	public:
+
+		loudness_ebu(double sr, unsigned channels, const Sample* channel_weights = NULL)
+		 :	m_(sr, channels, 0.4, 0.75, channel_weights)
+		 ,	s_(sr, channels, 3., 2.9 / 3., channel_weights)
+		 ,	i_(Sample())
+		{
+		}
+
+		bool operator()(Sample x) 
+		{
+			using std::log10;
+			s_(x);
+			if (!m_(x))
+				return false;
+
+			Sample val = m_.value();
+			if (val < Sample(-70.))
+				return true;
+
+			g70_.push_back(m_.power());
+			size_t cnt = g70_.size();
+			Sample avg = std::accumulate(g70_.begin(), g70_.end()) / cnt;
+			Sample Tr = avg * Sample(0.08529037030705662976325140579496); // -10.691 LU
+			size_t num = 0;
+			avg = Sample();
+			for (size_t i = 0; i < cnt; ++i) {
+				if (g70_[i] > Tr) {
+					++num;
+					avg += g70_[i];
+				}
+			}
+			avg /= num;
+			i_ = Sample(-.691) + Sample(10.) * log10(avg);
+		}
+
+		Sample value_m() const {return m_.value();}
+		Sample value_s() const {return s_.value();}
+		Sample value_i() const {return i_;}
+
+	private:
+		loudness_lkfs<Sample> m_;
+		loudness_lkfs<Sample> s_;
+		std::vector<Sample> g70_;
+		Sample i_;
+	};
 
 } } 
 

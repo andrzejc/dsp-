@@ -14,6 +14,3 @@ void dsp::snd::k_weighting_sos_design(double fs, double sos_num[2][dsp::sos_leng
 	std::transform(&sos_num[1][0], &sos_num[1][0] + sos_length, &sos_num[1][0], std::bind2nd(std::divides<double>(), sos_num[1][0]));
 	std::transform(&sos_den[1][0], &sos_den[1][0] + sos_length, &sos_den[1][0], std::bind2nd(std::divides<double>(), sos_den[1][0]));
 }
-
-
-dsp::snd::loudness_lkfs<float> loud(48000, 2);
