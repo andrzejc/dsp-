@@ -90,7 +90,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../dsp++/include;$(CPPUNIT_ROOT)/include;$(BOOST_ROOT)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4244;4305;4251</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4244;4305;4251;4275</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -107,7 +107,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../dsp++/include;$(CPPUNIT_ROOT)/include;$(BOOST_ROOT)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4244;4305;4251</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4244;4305;4251;4275</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -126,7 +126,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../dsp++/include;$(CPPUNIT_ROOT)/include;$(BOOST_ROOT)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4244;4305;4251</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4244;4305;4251;4275</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -147,7 +147,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../dsp++/include;$(CPPUNIT_ROOT)/include;$(BOOST_ROOT)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4244;4305;4251</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4244;4305;4251;4275</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -167,6 +167,7 @@
     <ClCompile Include="src\intmath_test.cpp" />
     <ClCompile Include="src\lattice_test.cpp" />
     <ClCompile Include="src\levinson_test.cpp" />
+    <ClCompile Include="src\loudness_test.cpp" />
     <ClCompile Include="src\lpc_test.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\mean_test.cpp" />
@@ -185,6 +186,7 @@
     <ClInclude Include="src\intmath_test.h" />
     <ClInclude Include="src\lattice_test.h" />
     <ClInclude Include="src\levinson_test.h" />
+    <ClInclude Include="src\loudness_test.h" />
     <ClInclude Include="src\lpc_test.h" />
     <ClInclude Include="src\mean_test.h" />
     <ClInclude Include="src\overlap_add_test.h" />

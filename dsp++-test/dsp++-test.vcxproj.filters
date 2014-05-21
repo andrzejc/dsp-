@@ -63,6 +63,9 @@
     <ClCompile Include="src\adaptfilt_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\loudness_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\fft_test.h">
@@ -108,6 +111,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="src\adaptfilt_test.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\loudness_test.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -18,6 +18,7 @@
 #include "simd_test.h"
 #include "intmath_test.h"
 #include "adaptfilt_test.h"
+#include "loudness_test.h"
 
 int main(int argc, char* argv[])
 {
@@ -36,6 +37,8 @@ int main(int argc, char* argv[])
 	runner.addTest(dsp::test::mean_test::suite());
 	runner.addTest(dsp::test::intmath_test::suite());
 	runner.addTest(dsp::test::adaptfilt_test::suite());
+	runner.addTest(dsp::test::loudness_test::suite());
+
 	runner.run();
 	return 0;
 }
