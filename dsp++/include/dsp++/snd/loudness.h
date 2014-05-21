@@ -14,7 +14,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <vector>
-#include <algorithm>
+#include <numeric>
 
 namespace dsp { namespace snd {
 
@@ -60,7 +60,7 @@ public:
 
 	//! @brief Perform K-weighting filtering
 	//! @return filtered sample
-	Sample operator()(Sample x) {flt_(x);}
+	Sample operator()(Sample x) {return flt_(x);}
 
 private:
 	dsp::filter_sos<Sample> flt_;
@@ -170,8 +170,8 @@ bool loudness_lkfs<Sample>::operator()(Sample x)
 	using std::pow; using std::log10;
 	unsigned c = i_ % cc_;
 	Sample kx = (*kw_[c])(x);	// k-weighting through appropriate channel prefilter
-	sum_[c] -= pow_[i];			
-	sum_[c] += pow_[i] = pow(kx, 2) / len_; // calculate moving average of power for next K-weighted sample, ITU-R BS.1770 eq. 1
+	sum_[c] -= pow_[i_];			
+	sum_[c] += pow_[i_] = pow(kx, 2) / len_; // calculate moving average of power for next K-weighted sample, ITU-R BS.1770 eq. 1
 
 	++i_;
 	i_ %= (len_ * cc_);
@@ -188,6 +188,7 @@ bool loudness_lkfs<Sample>::operator()(Sample x)
 /*!
  * @brief 'EBU Mode' loudness metering according to EBU Tech 3341-2011 and EBU R 128, using 3 meters: M (momentary), S (short-time) and I (integrated).
  * @see EBU Technical Recommendation R 128 ‘Loudness normalisation and permitted maximum level of audio signals’ (https://tech.ebu.ch/docs/r/r128.pdf).
+ * @see https://tech.ebu.ch/docs/tech/tech3341.pdf
  */
 template<class Sample>
 class loudness_ebu {
@@ -226,7 +227,7 @@ public:
 
 		g70_.push_back(m_.power());	// store power value for further calculations
 		size_t cnt = g70_.size();
-		Sample avg = std::accumulate(g70_.begin(), g70_.end()) / cnt;	// averaged power across all readings above gating threshold -70 LUFS
+		Sample avg = std::accumulate(g70_.begin(), g70_.end(), Sample()) / cnt;	// averaged power across all readings above gating threshold -70 LUFS
 		Sample Tr = avg * Sample(0.08529037030705662976325140579496); // 'relative' gating threshold at -10.691 LU, no need to calculate logs and pows, we're operating on power levels here		
 		size_t num = 0;
 		avg = Sample();
@@ -238,6 +239,7 @@ public:
 		}
 		avg /= num;					// average of power levels above relative gating threshold
 		i_ = Sample(-.691) + Sample(10.) * log10(avg);	// final result in LUFS
+		return true;
 	}
 
 	bool next_sample(Sample x) {return operator()(x);}
