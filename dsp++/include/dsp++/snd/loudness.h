@@ -171,7 +171,11 @@ bool loudness_lkfs<Sample>::operator()(Sample x)
 	unsigned c = i_ % cc_;
 	Sample kx = (*kw_[c])(x);	// k-weighting through appropriate channel prefilter
 	sum_[c] -= pow_[i_];			
-	sum_[c] += pow_[i_] = pow(kx, 2) / len_; // calculate moving average of power for next K-weighted sample, ITU-R BS.1770 eq. 1
+	
+	if (sum_[c] < Sample()) // roundoff errors tend to accumulate and power sum may become negative after subtraction
+		sum_[c] = Sample();
+
+	sum_[c] += (pow_[i_] = pow(kx, 2) / len_); // calculate moving average of power for next K-weighted sample, ITU-R BS.1770 eq. 1
 
 	++i_;
 	i_ %= (len_ * cc_);
