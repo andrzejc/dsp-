@@ -8,12 +8,18 @@
 #include <dsp++/snd/loudness.h>
 #include <dsp++/snd/reader.h>
 #include <dsp++/float.h>
+#include <fstream>
 
 static void test_loudness_file(const char* path, float exp_level) 
 {
 	using namespace dsp::snd;
 	reader r;
 	r.open(path);
+
+	std::string dump(path);
+	dump += ".raw";
+	std::ofstream d(dump, std::ios_base::binary | std::ios_base::out);
+
 	loudness_ebu<float> met(r.sample_rate(), r.channel_count());
 
 	std::vector<float> buf;
@@ -29,6 +35,9 @@ static void test_loudness_file(const char* path, float exp_level)
 				vm = met.value_m();
 				vs = met.value_s();
 				vi = met.value_i();
+				d.write((char*)(&vm), 4);
+				d.write((char*)(&vs), 4);
+				d.write((char*)(&vi), 4);
 			}
 		}
 		if (read != len)
@@ -41,6 +50,7 @@ static void test_loudness_file(const char* path, float exp_level)
 
 void dsp::test::loudness_test::test_ebu1()
 {
+	test_loudness_file("data/coil.wav", -11.6f);
 	test_loudness_file("data/ebu_testcase1_-23dBFS.wav", -23.f);
 	test_loudness_file("data/ebu_testcase2_-33dBFS.wav", -33.f);
 	test_loudness_file("data/ebu_testcase5_-23dBFS.wav", -23.f);

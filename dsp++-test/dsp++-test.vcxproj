@@ -173,6 +173,7 @@
     <ClCompile Include="src\mean_test.cpp" />
     <ClCompile Include="src\overlap_add_test.cpp" />
     <ClCompile Include="src\pow2_test.cpp" />
+    <ClCompile Include="src\resample_test.cpp" />
     <ClCompile Include="src\simd_test.cpp" />
     <ClCompile Include="src\window_test.cpp" />
     <ClCompile Include="src\xcorr_test.cpp" />
@@ -191,6 +192,7 @@
     <ClInclude Include="src\mean_test.h" />
     <ClInclude Include="src\overlap_add_test.h" />
     <ClInclude Include="src\pow2_test.h" />
+    <ClInclude Include="src\resample_test.h" />
     <ClInclude Include="src\utils.h" />
     <ClInclude Include="src\window_test.h" />
     <ClInclude Include="src\xcorr_test.h" />

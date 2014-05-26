@@ -19,7 +19,7 @@ const float DSP_ALIGNED(16) b[] = {0.00239783083088696002960205,0.00717453286051
 
 execution_timer et;
 #ifdef NDEBUG
-static const int iter_count = 300000;
+static const int iter_count = 3000;
 #else
 static const int iter_count = 10;
 #endif
