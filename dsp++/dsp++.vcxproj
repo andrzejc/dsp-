@@ -226,6 +226,7 @@
     <ClInclude Include="include\dsp++\overlap_save.h" />
     <ClInclude Include="include\dsp++\platform.h" />
     <ClInclude Include="include\dsp++\pow2.h" />
+    <ClInclude Include="include\dsp++\resample.h" />
     <ClInclude Include="include\dsp++\simd.h" />
     <ClInclude Include="include\dsp++\snd\buffer.h" />
     <ClInclude Include="include\dsp++\snd\convert.h" />

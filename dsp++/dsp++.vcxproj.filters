@@ -275,6 +275,9 @@
     <ClInclude Include="include\dsp++\snd\loudness.h">
       <Filter>include\dsp++\snd</Filter>
     </ClInclude>
+    <ClInclude Include="include\dsp++\resample.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="doxyfile" />
