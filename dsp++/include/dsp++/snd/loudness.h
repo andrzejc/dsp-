@@ -103,7 +103,7 @@ public:
 	void reset(bool wait_full_period = true) {
 		std::fill_n(pow_, cc_ * len_, Sample());
 		std::fill_n(sum_, cc_, Sample());
-		dot_ = val_ = Sample();
+		dot_ = val_ = peak_ = Sample();
 		i_ = 0;
 		first_ = wait_full_period;
 	}
@@ -124,6 +124,9 @@ public:
 		return read;
 	}
 
+	//! @return peak reading since last reset()
+	Sample peak() const {return peak_;}
+
 private:
 	double const sr_;			//!< Sampling rate
 	unsigned const cc_;			//!< Channel count
@@ -134,7 +137,7 @@ private:
 	Sample* const pow_;			
 	Sample* const sum_;			//!< Power moving average for each channel
 	Sample* const w_;			//!< Channel summing weights
-	Sample val_, dot_;			//!< Current measurement and weighted power sum
+	Sample val_, dot_, peak_;	//!< Current measurement, weighted power sum and peak value
 	std::vector<boost::shared_ptr<k_weighting<Sample> > > kw_;
 	bool first_;
 };
@@ -186,6 +189,7 @@ bool loudness_lkfs<Sample>::operator()(Sample x)
 	first_ = false;
 	dot_ = dsp::dot(sum_, w_, cc_);						// weighted sum of channel power
 	val_ = Sample(-.691) + Sample(10.) * log10(dot_);	// power in LU, ITU-R BS.1770 eq. 2
+	peak_ = std::max(val_, peak_);
 	return true;
 }
 
@@ -278,6 +282,16 @@ public:
 		g70_.clear();
 		i_ = Sample();
 	}
+
+	//! @brief Read-only access to M (momentary) meter and its properties.
+	//! @see meter_s()
+	//! @note There's no separate I (integrated) meter, it's just gating applied to readings of M meter.
+	const loudness_lkfs<Sample>& meter_m() const {return m_;}
+
+	//! @brief Read-only access to S (short-term) meter and its properties.
+	//! @see meter_m()
+	//! @note There's no separate I (integrated) meter, it's just gating applied to readings of M meter.
+	const loudness_lkfs<Sample>& meter_s() const {return s_;}
 
 private:
 	loudness_lkfs<Sample> m_;
