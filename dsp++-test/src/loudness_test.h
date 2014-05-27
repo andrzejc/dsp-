@@ -18,9 +18,11 @@ class loudness_test: public CppUnit::TestFixture
 {
 	CPPUNIT_TEST_SUITE(loudness_test);
 	CPPUNIT_TEST(test_ebu1);
+	CPPUNIT_TEST(test_peak);
 	CPPUNIT_TEST_SUITE_END();
 public:
 	void test_ebu1();
+	void test_peak();
 };
 
 } /* namespace test */

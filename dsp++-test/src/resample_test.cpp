@@ -25,22 +25,14 @@ void dsp::test::resample_test::test_interpolator()
 	writer w;
 	w.open("data/coil_mono_up4.wav", &ff);
 
-	dsp::interpolator<float> interp(factor, 47, .2);
-
-	std::vector<float> in, out;
 	const size_t len = 1024;
-	in.resize(len);
-	out.resize(len * factor);
+	dsp::block_interpolator<float> interp(len, factor, 47, .2);
 
 	while (true) {
-		float* x = &in[0];
-		float* y = &out[0];
-		size_t read = r.read_frames(x, len);
-		for (size_t i = 0; i < read; ++i, ++x, y += factor) {
-			interp(*x);
-			std::copy(interp.begin(), interp.end(), y);
-		}
-		w.write_frames(&out[0], read * factor);
+		size_t read = r.read_frames(interp.begin(), len);
+		std::fill(interp.begin() + read, interp.input_end(), 0.f);
+		interp();
+		w.write_frames(interp.begin(), read * factor);
 		if (read != len)
 			break;
 	}

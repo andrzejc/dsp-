@@ -248,3 +248,14 @@ void intmath_test::test_rint()
 	CPPUNIT_ASSERT_THROW((dsp::rint<int>(-2147483648.5, rounding::nearest, overflow::exception)), std::overflow_error);
 	CPPUNIT_ASSERT_THROW((dsp::rint<int>(2147483647.5, rounding::nearest, overflow::exception)), std::overflow_error);
 }
+
+void intmath_test::test_gcd()
+{
+	CPPUNIT_ASSERT(dsp::gcd(1, 1) == 1);
+	CPPUNIT_ASSERT(dsp::gcd(5, 3) == 1);
+	CPPUNIT_ASSERT(dsp::gcd(3, 5) == 1);
+	CPPUNIT_ASSERT(dsp::gcd(6, 4) == 2);
+	CPPUNIT_ASSERT(dsp::gcd(8, 4) == 4);
+	CPPUNIT_ASSERT(dsp::gcd(44100, 48000) == 300);
+}
+
