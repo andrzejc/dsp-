@@ -525,6 +525,19 @@ inline R rint(F f, rounding::mode rm, overflow::mode om) {
 	return res;
 }
 
+//! @return Greatest Common Divisor calculated using Euclid's algorithm
+template<class Int>
+Int gcd(Int a, Int b) {
+	while (true) {
+		a = a % b;
+		if (0 == a)
+			return b;
+		b = b % a;
+		if (0 == b)
+			return a;
+	}
+}
+
 } // namespace dsp
 
 #endif /* DSP_INTMATH_H_INCLUDED */

@@ -11,6 +11,7 @@
 #include <dsp++/algorithm.h>
 #include <dsp++/filter.h>
 #include <dsp++/vectmath.h>
+#include <dsp++/resample.h>
 
 #include <boost/shared_ptr.hpp>
 #include <vector>
@@ -103,7 +104,8 @@ public:
 	void reset(bool wait_full_period = true) {
 		std::fill_n(pow_, cc_ * len_, Sample());
 		std::fill_n(sum_, cc_, Sample());
-		dot_ = val_ = peak_ = Sample();
+		dot_ = Sample();
+		val_ = peak_ = -std::numeric_limits<Sample>::infinity();
 		i_ = 0;
 		first_ = wait_full_period;
 	}
@@ -280,7 +282,7 @@ public:
 		m_.reset(wait_full_period);
 		s_.reset(wait_full_period);
 		g70_.clear();
-		i_ = Sample();
+		i_ = -std::numeric_limits<Sample>::infinity();
 	}
 
 	//! @brief Read-only access to M (momentary) meter and its properties.
@@ -298,6 +300,49 @@ private:
 	loudness_lkfs<Sample> s_;
 	std::vector<Sample> g70_;
 	Sample i_;
+};
+
+template<class Sample>
+class loudness_peak {
+public:
+
+	explicit loudness_peak(unsigned block_length = 1, unsigned interpolation_factor = 4)
+	 :	interp_(block_length, interpolation_factor, 47, 0.2)
+	 ,	index_(0)
+	{
+		reset();
+	}
+
+	bool operator()(Sample x) {
+		using std::abs; using std::log10;
+		interp_.begin()[index_] = x;
+		++index_;
+		if (index_ != interp_.input_length())
+			return false;
+
+		index_ = 0;
+		interp_();
+		Sample p = peak_;
+		const Sample* end = interp_.end();
+		for (const Sample* it = interp_.begin(); it != end; ++it)
+			peak_ = std::max(peak_, abs(*it));
+		if (peak_ != p)
+			peak_db_ = 20 * log10(peak_);
+		return true;
+	}
+
+	void reset() {
+		peak_ = Sample();
+		peak_db_ = -std::numeric_limits<Sample>::infinity();
+	}
+
+	Sample value() const {return peak_;}
+	Sample value_db() const {return peak_db_;}
+
+private:
+	dsp::block_interpolator<Sample> interp_;
+	Sample peak_, peak_db_;
+	unsigned index_;
 };
 
 } } 

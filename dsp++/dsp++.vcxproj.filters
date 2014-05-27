@@ -105,6 +105,9 @@
     <ClCompile Include="src\snd\loudness.cpp">
       <Filter>src\snd</Filter>
     </ClCompile>
+    <ClCompile Include="src\resample.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\utility.h">

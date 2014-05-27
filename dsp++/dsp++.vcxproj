@@ -188,6 +188,7 @@
     <ClCompile Include="src\mkfilter\complex.cpp" />
     <ClCompile Include="src\mkfilter\mkfilter.cpp" />
     <ClCompile Include="src\remez\remez.c" />
+    <ClCompile Include="src\resample.cpp" />
     <ClCompile Include="src\simd.cpp" />
     <ClCompile Include="src\snd\format.cpp" />
     <ClCompile Include="src\snd\io.cpp" />
