@@ -154,7 +154,7 @@ public:
 	{
 		const size_t m = std::distance(b_begin, b_end);
 		if (m > M_)
-			throw std::length_error("filter length exceeds previous one");
+			throw std::length_error("filter length exceeds declared one");
 		std::fill_n(b_ + m, b_ + M_, Sample());
 		std::fill_n(a_, a_ + N_, Sample());
 		std::copy(b_begin, b_end, b_);
@@ -172,7 +172,7 @@ public:
 	{
 		size_t m = std::distance(b_begin, b_end), n = std::distance(a_begin, a_end);
 		if (m > M_ || n > N_)
-			throw std::length_error("filter length exceeds previous one");
+			throw std::length_error("filter length exceeds declared one");
 
 		std::fill_n(b_ + m, b_ + M_, Sample());
 		std::copy(b_begin, b_end, b_);
@@ -192,7 +192,7 @@ public:
 	set(const BSample* b_vec, size_t b_len, const ASample* a_vec, size_t a_len)
 	{
 		if (b_len > M_ || a_len > N_)
-			throw std::length_error("filter length exceeds previous one");
+			throw std::length_error("filter length exceeds declared one");
 
 		std::fill_n(b_ + b_len, b_ + M_, Sample());
 		std::copy(b_vec, b_vec + b_len, b_);
@@ -212,7 +212,7 @@ public:
 	set(const BSample* b_vec, size_t b_len)
 	{
 		if (b_len > M_)
-			throw std::length_error("filter length exceeds previous one");
+			throw std::length_error("filter length exceeds declared one");
 		std::fill_n(b_ + b_len, b_ + M_, Sample());
 		std::fill_n(a_, a_ + N_, Sample());
 		std::copy(b_vec, b_vec + b_len, b_);
@@ -392,6 +392,15 @@ public:
 	 :	base(b_vec, b_len, 1) {}
 
 	/*!
+	 * @brief Prepare filter for operation with given number of coefficients without actually initializing them.
+	 * @param[in] b_len number of numerator (MA) coefficients
+	 * @param[in] a_len number of denominator (AR) coefficients
+	 * @see use set() to actually initialize to coefficient values
+	 */
+	explicit filter(size_t b_len, size_t a_len)
+		:	base(a_len, b_len, std::max(a_len, b_len), 1) {}
+
+	/*!
 	 * @brief Apply filtering to a single input sample x.
 	 * @param x input sample to filter.
 	 * @return filtered sample.
@@ -466,6 +475,14 @@ public:
 	filter(const BSample* b_vec, size_t b_len)
 	 :	base(b_vec, b_len, 1) {}
 
+	/*!
+	 * @brief Prepare filter for operation with given number of coefficients without actually initializing them.
+	 * @param[in] b_len number of numerator (MA) coefficients
+	 * @param[in] a_len number of denominator (AR) coefficients
+	 * @see use set() to actually initialize to coefficient values
+	 */
+	explicit filter(size_t b_len, size_t a_len)
+ 	 :	base(a_len, b_len, std::max(a_len, b_len), 1) {}
 };
 
 
@@ -481,10 +498,10 @@ public:
 	size_t section_count() const {return N_;}
 
 	template<class CoeffSample, class CoeffSize>
-	void set_coeffs(const CoeffSample (*num)[section_length], const CoeffSize* numl, const CoeffSample (*den)[section_length], const CoeffSize* denl);
+	void set(const CoeffSample (*num)[section_length], const CoeffSize* numl, const CoeffSample (*den)[section_length], const CoeffSize* denl);
 
 	template<class CoeffSample>
-	void set_coeffs(const CoeffSample* num, const CoeffSample* den);
+	void set(const CoeffSample* num, const CoeffSample* den);
 
 protected:
 	/*!
@@ -502,6 +519,11 @@ protected:
 	template<class CoeffSample>
 	sos_filter_base(size_t N, const CoeffSample* num, const CoeffSample* den);
 
+	/*!
+	 * @brief Prepare filter for operation with given number of sections without actually initializing them.
+	 * @param[in] N number of second order sections
+	 * @see use set() to actually initialize to coefficient values
+	 */
 	explicit sos_filter_base(size_t N);
 
 	const size_t step_;
@@ -515,7 +537,7 @@ protected:
 
 template<class Sample, class BufferTraits>
 template<class CoeffSample, class CoeffSize> inline
-void sos_filter_base<Sample, BufferTraits>::set_coeffs(const CoeffSample (*num)[section_length], const CoeffSize* numl, const CoeffSample (*den)[section_length], const CoeffSize* denl)
+void sos_filter_base<Sample, BufferTraits>::set(const CoeffSample (*num)[section_length], const CoeffSize* numl, const CoeffSample (*den)[section_length], const CoeffSize* denl)
 {
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_ASSERT((boost::Convertible<CoeffSample, Sample>));
@@ -546,12 +568,12 @@ sos_filter_base<Sample, BufferTraits>::sos_filter_base(size_t N, const CoeffSamp
  ,	a_(b_ + N_ * step_)
  ,	w_(a_ + N_ * step_)
 {
-	set_coeffs(num, numl, den, denl);
+	set(num, numl, den, denl);
 }
 
 template<class Sample, class BufferTraits>
 template<class CoeffSample> inline
-void sos_filter_base<Sample, BufferTraits>::set_coeffs(const CoeffSample* num, const CoeffSample* den)
+void sos_filter_base<Sample, BufferTraits>::set(const CoeffSample* num, const CoeffSample* den)
 {
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_ASSERT((boost::Convertible<CoeffSample, Sample>));
@@ -581,7 +603,7 @@ sos_filter_base<Sample, BufferTraits>::sos_filter_base(size_t N, const CoeffSamp
  ,	a_(b_ + N_ * step_)
  ,	w_(a_ + N_ * step_)
 {
-	set_coeffs(num, den);
+	set(num, den);
 }
 
 template<class Sample, class BufferTraits>
@@ -637,6 +659,11 @@ public:
 	filter_sos(size_t N, const CoeffSample* num, const CoeffSample* den)
 	 :	base(N, num, den) {}
 
+	/*!
+	 * @brief Prepare filter for operation with given number of sections without actually initializing them.
+	 * @param[in] N number of second order sections
+	 * @see use set() to actually initialize to coefficient values
+	 */
 	explicit filter_sos(size_t N): base(N) {}
 };
 
@@ -672,6 +699,11 @@ public:
 	filter_sos(size_t N, const CoeffSample* num, const CoeffSample* den)
 	 :	base(N, num, den) {}
 
+	/*!
+	 * @brief Prepare filter for operation with given number of sections without actually initializing them.
+	 * @param[in] N number of second order sections
+	 * @see use set() to actually initialize to coefficient values
+	 */
 	explicit filter_sos(size_t N): base(N) {}
 };
 
@@ -745,6 +777,18 @@ public:
 	 ,	L_(L)
 	 ,	x_(base::w_ + base::P_ + L_ - 1) {}
 
+	/*!
+	 * @brief Prepare filter for operation with given number of coefficients without actually initializing them.
+	 * @param[in] L processing block length
+	 * @param[in] b_len number of numerator (MA) coefficients
+	 * @param[in] a_len number of denominator (AR) coefficients
+	 * @see use set() to actually initialize to coefficient values
+	 */
+	block_filter(size_t L, size_t b_len, size_t a_len)
+	 :	base(a_len, b_len, std::max(b_len, a_len), L * 2)
+	 ,	L_(L)
+	 ,	x_(base::w_ + base::P_ + L_ - 1) {}
+
 	iterator begin() {return x_;}
 	iterator end() {return x_ + L_;}
 	const_iterator begin() const {return x_ ;}
@@ -799,6 +843,18 @@ public:
 	 :	base(b_vec, b_len, L * 2)
 	 ,	L_(L)
 	 ,	x_(w_ + P_ + L_ - 1) {}
+
+	/*!
+	 * @brief Prepare filter for operation with given number of coefficients without actually initializing them.
+	 * @param[in] L processing block length
+	 * @param[in] b_len number of numerator (MA) coefficients
+	 * @param[in] a_len number of denominator (AR) coefficients
+	 * @see use set() to actually initialize to coefficient values
+	 */
+	block_filter(size_t L, size_t b_len, size_t a_len)
+	 :	base(a_len, b_len, std::max(b_len, a_len), L * 2)
+	 ,	L_(L)
+	 ,	x_(base::w_ + base::P_ + L_ - 1) {}
 
 	iterator begin() {return x_;}
 	iterator end() {return x_ + L_;}

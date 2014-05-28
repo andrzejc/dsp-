@@ -56,7 +56,7 @@ public:
 		double num[2][dsp::sos_length];
 		double den[2][dsp::sos_length];
 		k_weighting_sos_design(sr, num, den);
-		flt_.set_coeffs(&num[0][0], &den[0][0]);
+		flt_.set(&num[0][0], &den[0][0]);
 	}
 
 	//! @brief Perform K-weighting filtering
@@ -65,7 +65,41 @@ public:
 
 private:
 	dsp::filter_sos<Sample> flt_;
+};
 
+template<class Sample>
+class block_k_weighting {
+public:
+
+	//! @brief Construct K-weighting filter for given sampling rate.
+	//! @param[in] sr sampling rate.
+	explicit block_k_weighting(size_t L, double sr)
+	 :	flt1_(L, 3, 3)
+	 ,	flt2_(L, 3, 3)
+	{
+		double num[2][dsp::sos_length];
+		double den[2][dsp::sos_length];
+		k_weighting_sos_design(sr, num, den);
+		flt1_.set(num[0], 3, den[0], 3);
+		flt2_.set(num[1], 3, den[1], 3);
+	}
+
+	//! @brief Perform K-weighting filtering
+	void operator()() {
+		flt1_();
+		std::copy(flt1_.begin(), flt1_.end(), flt2_.begin());
+		flt2_();
+	}
+
+	Sample* input_begin() {return flt1_.begin();}
+	Sample* input_end() {return flt1_.end();}
+
+	const Sample* output_begin() const {return flt2_.begin();}
+	const Sample* output_end() const {return flt2_.end();}
+
+private:
+	dsp::block_filter<Sample> flt1_;
+	dsp::block_filter<Sample> flt2_;
 };
 
 /*! 
@@ -112,6 +146,12 @@ public:
 
 	//! @return number of channels the loudness meter is configured for
 	unsigned channel_count() const {return cc_;}
+
+	//! @return length of gating/integration block in samples 
+	unsigned gating_block_length() const {return len_;}
+
+	//! @return length of gating step (block overlap)
+	unsigned gating_step() const {return step_;}
 
 	//! @return true if current sample index falls at frame boundary
 	bool at_frame_boundary() const {return (0 == (i_ % cc_));}
