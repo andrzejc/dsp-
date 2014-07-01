@@ -76,6 +76,24 @@ struct buffer_info: public buffer_layout {
 
 };
 
+template<class Sample>
+void buffer_deinterleave(const Sample* input, Sample* output, const unsigned channel_count, const unsigned frame_count) {
+	for (unsigned c = 0; c < channel_count; ++c) {
+		const Sample* in = input + c;
+		for (unsigned i = 0; i < frame_count; ++i, in += channel_count, ++output) 
+			*output = *in;
+	}
+}
+
+template<class Sample>
+void buffer_interleave(const Sample* input, Sample* output, const unsigned channel_count, const unsigned frame_count) {
+	for (unsigned i = 0; i < frame_count; ++i) {
+		const Sample* in = input + i;
+		for (unsigned c = 0; c < channel_count; ++c, in += frame_count, ++output) 
+			*output = *in;
+	}
+}
+
 }}
 
 #endif /* DSP_SND_BUFFER_H_INCLUDED */
