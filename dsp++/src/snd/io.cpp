@@ -25,6 +25,9 @@
 #include <algorithm>
 #include <limits>
 
+#include <fcntl.h>
+#include <sys/stat.h>
+
 #include <boost/scoped_array.hpp>
 
 #include "../utility.h"
@@ -341,6 +344,27 @@ struct dsp::snd::base_impl
 		fill_info(fmt, static_cast<SF_INFO*>(native_info));
 	}
 
+	void open(const wchar_t* path, file_format* fmt, void* native_info)
+	{
+		int flags = (read_ ? _O_RDONLY : _O_RDWR);
+		flags  |= _O_BINARY;
+		int fd = _wopen(path, flags, _S_IREAD);
+		if (fd < 0) {
+			int err = errno;
+			switch (err) {
+			case EACCES: 
+				throw sndfile_error(SF_ERR_SYSTEM, "can't access file");
+			case EMFILE:
+				throw sndfile_error(SF_ERR_SYSTEM, "no more file descriptors available");
+			case ENOENT:
+				throw sndfile_error(SF_ERR_SYSTEM, "file not found");
+			default:
+				throw sndfile_error(SF_ERR_SYSTEM, "unable to open file");
+			}
+		}
+		open(fd, true, fmt, native_info);
+	}
+
 	static sf_count_t io_size(void* p) {return static_cast<io*>(p)->size();}
 	static sf_count_t io_seek(sf_count_t offset, int whence, void* p)
 	{return static_cast<io*>(p)->seek(offset, whence);}
@@ -400,6 +424,11 @@ iobase::~iobase()
 }
 
 void iobase::open(const char* path, dsp::snd::file_format* fmt, void* native_info)
+{
+	impl_->open(path, fmt, native_info);
+}
+
+void iobase::open(const wchar_t* path, dsp::snd::file_format* fmt, void* native_info)
 {
 	impl_->open(path, fmt, native_info);
 }

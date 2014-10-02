@@ -57,6 +57,17 @@ public:
 	 */
 	void open(const char* path, file_format* fmt = NULL, void* native_info = NULL);
 	/*!
+	 * @brief Open file specified by given path.
+	 * @param path file path.
+	 * @param fmt optional format object used as hint for reader when the file type
+	 * doesn't include the necessary information (e.g. when reading raw files) and
+	 * mandatory when opening file for writing.
+	 * @param native_info alternatively to dsp::snd::format, use native (SF_INFO)
+	 * object to pass file format information.
+	 * @throw sndfile_error when libsndfile is unable to open the file.
+	 */
+	void open(const wchar_t* path, file_format* fmt = NULL, void* native_info = NULL);
+	/*!
 	 * @brief Open specified stdio stream.
 	 * @param f FILE struct to open.
 	 * @param own_file indicate whether fclose() should be called on the
