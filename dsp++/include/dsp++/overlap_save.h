@@ -41,6 +41,8 @@ public:
 	typedef typename transform_type::output_allocator complex_allocator;
 	typedef value_type* iterator;
 	typedef const value_type* const_iterator;
+	typedef complex_type* complex_iterator;
+	typedef const complex_type* const_complex_iterator;
 
 	/*!
 	 * @brief Construct Overlap-Save algorithm functor with the specified operation frame length
@@ -94,9 +96,9 @@ public:
 	 */
 	void operator()();
 	/*!
-	 * @brief Replace filter's impulse response with a new one (of the same or shorter length).
-	 * Invocation of this function will cause new impulse response transform to be calculated,
-	 * which will cause samples of current frame to be overwritten.
+	 * @brief Replace filter's impulse response \f$h(n)\f$ with a new one (of the same or shorter length).
+	 * Invocation of this function will cause new impulse response transform \f$H(z)\f$ to be calculated,
+	 * which, as a side-effect will cause samples of current frame to be overwritten.
 	 * @param begin start of new impulse response samples sequence.
 	 * @param end end of new impulse response samples sequence.
 	 * @tparam Iterator type of the iterator used for passing the impulse response sequence
@@ -116,9 +118,9 @@ public:
 	}
 
 	/*!
-	 * @brief Replace filter's impulse response with a new one (of the same or shorter length).
-	 * Invocation of this function will cause new impulse response transform to be calculated,
-	 * which will cause samples of current frame to be overwritten.
+	 * @brief Replace filter's impulse response \f$h(n)\f$ with a new one (of the same or shorter length).
+	 * Invocation of this function will cause new impulse response transform \f$H(z)\f$ to be calculated,
+	 * which, as a side-effect will cause samples of current frame to be overwritten.
 	 * @param ir start of impulse response vector.
 	 * @param ir_length length of impulse response vector.
 	 * @tparam Sample type convertible to value_type, which represents impulse response vector elements.
@@ -136,6 +138,21 @@ public:
 		std::fill_n(rbuf_ + ir_length, N_ - ir_length, value_type());
 		prepare_ir_dft(false);
 	}
+
+
+	//! @brief Read impulse response transform \f$H(z)\f$.
+	//! @return start of impulse response transform vector.
+	const_complex_iterator H_begin() const {return h_;}
+	//! @brief Read impulse response transform \f$H(z)\f$.
+	//! @return end of impulse response transform vector.
+	const_complex_iterator H_end() const {return h_ + N_;}
+
+	//! @brief Access/modify impulse response transform \f$H(z)\f$.
+	//! @return start of impulse response transform vector.
+	complex_iterator H_begin() {return h_;}
+	//! @brief Access/modify impulse response transform \f$H(z)\f$.
+	//! @return end of impulse response transform vector.
+	complex_iterator H_end() {return h_ + N_;}
 
 
 private:
@@ -195,7 +212,7 @@ private:
 
 	value_type* const x_;
 	value_type* const z_;
-	complex_type* const h_;
+	complex_type* const h_;	//!< Impulse response transform vector.
 
 };
 

@@ -40,6 +40,8 @@ public:
 	typedef typename transform_type::output_allocator complex_allocator;
 	typedef value_type* iterator;
 	typedef const value_type* const_iterator;
+	typedef complex_type* complex_iterator;
+	typedef const complex_type* const_complex_iterator;
 
 	/*!
 	 * @brief Construct Overlap-Add algorithm functor with the specified operation frame length
@@ -95,7 +97,7 @@ public:
 	/*!
 	 * @brief Replace filter's impulse response with a new one (of the same or shorter length).
 	 * Invocation of this function will cause new impulse response transform to be calculated,
-	 * which will cause samples of current frame to be overwritten.
+	 * which, as a side-effect will cause samples of current frame to be overwritten.
 	 * @param begin start of new impulse response samples sequence.
 	 * @param end end of new impulse response samples sequence.
 	 * @tparam Iterator type of the iterator used for passing the impulse response sequence
@@ -117,7 +119,7 @@ public:
 	/*!
 	 * @brief Replace filter's impulse response with a new one (of the same or shorter length).
 	 * Invocation of this function will cause new impulse response transform to be calculated,
-	 * which will cause samples of current frame to be overwritten.
+	 * which, as a side-effect will cause samples of current frame to be overwritten.
 	 * @param ir start of impulse response vector.
 	 * @param ir_length length of impulse response vector.
 	 * @tparam Sample type convertible to value_type, which represents impulse response vector elements.
@@ -136,6 +138,19 @@ public:
 		prepare_ir_dft(false);
 	}
 
+	//! @brief Read impulse response transform \f$H(z)\f$.
+	//! @return start of impulse response transform vector.
+	const_complex_iterator H_begin() const {return cbuf_ + N_;}
+	//! @brief Read impulse response transform \f$H(z)\f$.
+	//! @return end of impulse response transform vector.
+	const_complex_iterator H_end() const {return cbuf_ + 2 * N_;}
+
+	//! @brief Access/modify impulse response transform \f$H(z)\f$.
+	//! @return start of impulse response transform vector.
+	complex_iterator H_begin() {return cbuf_ + N_;}
+	//! @brief Access/modify impulse response transform \f$H(z)\f$.
+	//! @return end of impulse response transform vector.
+	complex_iterator H_end() {return cbuf_ + 2 * N_;}
 
 private:
 	void prepare_ir_dft(bool zero_tail);

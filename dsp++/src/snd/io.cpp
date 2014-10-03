@@ -15,6 +15,11 @@
 
 #if !DSP_SNDFILE_DISABLED
 
+#ifdef _WIN32
+typedef const wchar_t* LPCWSTR; 
+#define ENABLE_SNDFILE_WINDOWS_PROTOTYPES 1
+#endif // _WIN32
+
 #include <dsp++/snd/reader.h>
 #include <dsp++/snd/writer.h>
 #include <dsp++/snd/format.h>
@@ -346,7 +351,14 @@ struct dsp::snd::base_impl
 
 	void open(const wchar_t* path, file_format* fmt, void* native_info)
 	{
-		int flags = (read_ ? _O_RDONLY : _O_RDWR);
+#ifdef ENABLE_SNDFILE_WINDOWS_PROTOTYPES1
+		close();
+		init_info(fmt, static_cast<SF_INFO*>(native_info));
+		if (NULL == (sf_ =  sf_wchar_open(path, read_ ? SFM_READ : SFM_WRITE, &info_)))
+			throw_error();
+		fill_info(fmt, static_cast<SF_INFO*>(native_info));
+#else
+		int flags = (read_ ? _O_RDONLY : (_O_WRONLY | _O_CREAT | _O_TRUNC));
 		flags  |= _O_BINARY;
 		int fd = _wopen(path, flags, _S_IREAD);
 		if (fd < 0) {
@@ -363,6 +375,7 @@ struct dsp::snd::base_impl
 			}
 		}
 		open(fd, true, fmt, native_info);
+#endif // ENABLE_SNDFILE_WINDOWS_PROTOTYPES
 	}
 
 	static sf_count_t io_size(void* p) {return static_cast<io*>(p)->size();}
