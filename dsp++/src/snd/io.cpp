@@ -351,7 +351,7 @@ struct dsp::snd::base_impl
 
 	void open(const wchar_t* path, file_format* fmt, void* native_info)
 	{
-#ifdef ENABLE_SNDFILE_WINDOWS_PROTOTYPES1
+#ifdef ENABLE_SNDFILE_WINDOWS_PROTOTYPES
 		close();
 		init_info(fmt, static_cast<SF_INFO*>(native_info));
 		if (NULL == (sf_ =  sf_wchar_open(path, read_ ? SFM_READ : SFM_WRITE, &info_)))
