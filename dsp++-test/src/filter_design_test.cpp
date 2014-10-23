@@ -56,3 +56,18 @@ void filter_design_test::test_differentiator()
 	CPPUNIT_ASSERT(res);
 }
 
+void filter_design_test::test_butter_bp()
+{
+	const size_t N = 6;
+	double b[2 * N + 1], a[2 * N + 1];
+	const double fc[] = {0.1, 0.2};
+	const double a_ref[] = {1,-5.92041629838217,18.3064556556883,-37.7423139762241,57.2188065131169,-66.6720827750306,61.0355354353409,
+		-44.1451196293111,25.0682015130099,-10.9271218325737,3.49829082250256,-0.746469481246891,0.0837564796186786};
+	const double b_ref[] = {0.000340537652719436, 0,-0.00204322591631662,0,0.00510806479079154,0,-0.00681075305438872,
+		0,0.00510806479079154,0, -0.00204322591631662, 0, 0.000340537652719436};
+
+	dsp::iir_filter_design(N, b, a, dsp::iir_bandpass | dsp::iir_butterworth, fc);
+
+	CPPUNIT_ASSERT(std::equal(b, b + 2 * N + 1, b_ref, dsp::within_range<double >(0.000000001)));
+	CPPUNIT_ASSERT(std::equal(a, a + 2 * N + 1, a_ref, dsp::within_range<double >(0.000000001)));
+}
