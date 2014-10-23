@@ -118,7 +118,17 @@ void mkfilter::design(inout& params)
 
 	do_design(*ctx);
 
+	unsigned opt = ctx->options;
+	complex gain = (opt & mkfilter_opt_pi) ? ctx->hf_gain :
+		(opt & mkfilter_opt_lp) ? ctx->dc_gain :
+		(opt & mkfilter_opt_hp) ? ctx->hf_gain :
+		(opt & (mkfilter_opt_bp | mkfilter_opt_ap)) ? ctx->fc_gain :
+		(opt & mkfilter_opt_bs) ? csqrt(ctx->dc_gain * ctx->hf_gain) : complex(1.0);
+	double g = hypot(gain);
+
 	static_cast<inout_b&>(params) = *ctx;
+	for (int i = 0; i <= ctx->zplane.numzeros; ++i)
+		ctx->xcoeffs[i] /= g;
 }
 
 //static void readcmdline(char *argv[])

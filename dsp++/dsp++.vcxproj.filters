@@ -281,6 +281,9 @@
     <ClInclude Include="include\dsp++\resample.h">
       <Filter>include\dsp++</Filter>
     </ClInclude>
+    <ClInclude Include="include\dsp++\fdaf.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="doxyfile" />

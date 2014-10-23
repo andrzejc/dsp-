@@ -363,6 +363,7 @@
     <ClInclude Include="include\dsp++\doc.h" />
     <ClInclude Include="include\dsp++\dynamics.h" />
     <ClInclude Include="include\dsp++\export.h" />
+    <ClInclude Include="include\dsp++\fdaf.h" />
     <ClInclude Include="include\dsp++\fft.h" />
     <ClInclude Include="include\dsp++\fftw\allocator.h" />
     <ClInclude Include="include\dsp++\fftw\dft.h" />

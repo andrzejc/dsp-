@@ -103,15 +103,15 @@ DSPXX_API void iir_resonator_design(
 	double q					//!< [in] quality factor
 );
 
-//! @note it seems that filters designed with this functions are inherently unstable, use with caution - needs to be revised.
+//! @brief Design IIR Butterworth, Bessel or Chebyshev filter in the z-plane according to specification.
 DSPXX_API void iir_filter_design(
 	size_t order,				//!< [in] filter order
 	double b[],					//!< [out] difference equation numerator (FIR) polynomial coefficients (order + 1) or (2 * order + 1) in case of BP, BS
 	double a[],					//!< [out] difference equation denominator (IIR) polynomial coefficients (order + 1) or (2 * order + 1) in case of BP, BS
 	unsigned type,				//!< [in] filter type, characteristic and flags (combination of reasonable {@link iir_type} values)
-	double* fc,					//!< [in] normalized corner frequency/ies (0, 0.5) range
-	double* cheb_rip = NULL,	//!< [in] Chebyshev ripple in dB
-	double* zero_freq = NULL,	//!< [in] put additional zero at specified normalized frequency
+	const double* fc,				//!< [in] normalized corner frequency/ies (0, 0.5) range
+	const double* cheb_rip = NULL,	//!< [in] Chebyshev ripple in dB
+	const double* zero_freq = NULL,	//!< [in] put additional zero at specified normalized frequency
 	unsigned pole_mask = 0		//!< [in] Use only specified poles
 );
 

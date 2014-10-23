@@ -128,7 +128,7 @@ void dsp::biquad_design(double b[], double a[], biquad_type type, double norm_fr
 }
 
 
-void dsp::iir_filter_design(size_t order, double b[], double a[], unsigned type, double* fc, double* cheb_rip, double* zero_freq, unsigned pole_mask)
+void dsp::iir_filter_design(size_t order, double b[], double a[], unsigned type, const double* fc, const double* cheb_rip, const double* zero_freq, unsigned pole_mask)
 {
 	std::auto_ptr<mkfilter::inout> io(new mkfilter::inout);
 	memset(io.get(), 0, sizeof(mkfilter::inout));
@@ -196,6 +196,9 @@ void dsp::iir_filter_design(size_t order, double b[], double a[], unsigned type,
 	io->options |= mkfilter_opt_o;
 
 	mkfilter::design(*io);
-	std::copy(io->xcoeffs_r, io->xcoeffs_r + sz + 1, b);
-	std::copy(io->ycoeffs_r, io->ycoeffs_r + sz + 1, a);
+
+	for (size_t i = 0; i < sz + 1; ++i) {
+		b[i] = io->xcoeffs_r[sz - i];
+		a[i] = -io->ycoeffs_r[sz - i];
+	}
 }
