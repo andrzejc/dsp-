@@ -97,7 +97,7 @@ enum iir_type
 // XXX check number of coefficients
 DSPXX_API void iir_resonator_design(
 	double b[],					//!< [out] difference equation numerator (FIR) polynomial coefficients
-	double a[],					//!< [out] difference equation numerator (FIR) polynomial coefficients
+	double a[],					//!< [out] difference equation denominator (IIR) polynomial coefficients
 	iir_type characteristic,	//!< [in] filter characteristic ({@link iir_bandstop} (notch), {@link iir_bandpass} or {@link iir_allpass})
 	double fc,					//!< [in] normalized centre frequency (0, 0.5) range
 	double q					//!< [in] quality factor
@@ -107,7 +107,7 @@ DSPXX_API void iir_resonator_design(
 DSPXX_API void iir_filter_design(
 	size_t order,				//!< [in] filter order
 	double b[],					//!< [out] difference equation numerator (FIR) polynomial coefficients (order + 1) or (2 * order + 1) in case of BP, BS
-	double a[],					//!< [out] difference equation numerator (FIR) polynomial coefficients (order + 1) or (2 * order + 1) in case of BP, BS
+	double a[],					//!< [out] difference equation denominator (IIR) polynomial coefficients (order + 1) or (2 * order + 1) in case of BP, BS
 	unsigned type,				//!< [in] filter type, characteristic and flags (combination of reasonable {@link iir_type} values)
 	double* fc,					//!< [in] normalized corner frequency/ies (0, 0.5) range
 	double* cheb_rip = NULL,	//!< [in] Chebyshev ripple in dB
