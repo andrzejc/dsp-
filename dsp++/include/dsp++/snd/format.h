@@ -182,6 +182,7 @@ public:
 	unsigned channel_index(channel::type::label ch) const;
 	unsigned channel_count() const {return channel_count_;}
 	void set_channel_count(unsigned cc) {channel_count_ = cc;}
+	bool is_channel_count_set() const {return 0 != channel_count_;}
 	channel::type::label channel_at(unsigned index) const;
 
 	unsigned sample_rate() const {return sample_rate_;}
@@ -190,6 +191,7 @@ public:
 
 	void set_sample_format(const char* sf) {sample_format_ = sf;}
 	void set_sample_rate(unsigned sr) {sample_rate_ = sr;}
+	bool is_sample_rate_set() const {return 0 != sample_rate_;}
 
 	static const format format_audio_cd;
 

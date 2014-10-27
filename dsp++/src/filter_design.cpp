@@ -197,6 +197,7 @@ void dsp::iir_filter_design(size_t order, double b[], double a[], unsigned type,
 
 	mkfilter::design(*io);
 
+	// inverse coeffs order - mkfilter produces vectors in the format for its own internal filter implementation which uses inversed vectors (and negative denominator)
 	for (size_t i = 0; i < sz + 1; ++i) {
 		b[i] = io->xcoeffs_r[sz - i];
 		a[i] = -io->ycoeffs_r[sz - i];
