@@ -250,7 +250,7 @@ overlap_save<Real, DFT>::overlap_save(size_t frame_length, Iterator ir_begin, It
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_ASSERT((boost::BidirectionalIterator<Iterator>));
 #endif
-	std::copy(ir_begin, ir_end, rbuf_); 		// copy impulse response to rbuf to calculate its DFT
+	std::copy_n(ir_begin, M_, rbuf_); 		// copy impulse response to rbuf to calculate its DFT
 	prepare_ir_dft(true);
 	std::fill(z_, z_ + N_ - L_, value_type());
 }
@@ -272,7 +272,7 @@ overlap_save<Real, DFT>::overlap_save(size_t frame_length, const Sample* ir, siz
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_ASSERT((boost::Convertible<Sample, Real>));
 #endif
-	std::copy(ir, ir + ir_length, rbuf_); 		// copy impulse response to rbuf to calculate its DFT
+	std::copy_n(ir, M_, rbuf_); 		// copy impulse response to rbuf to calculate its DFT
 	prepare_ir_dft(true);
 	std::fill(z_, z_ + N_ - L_, value_type());
 }
