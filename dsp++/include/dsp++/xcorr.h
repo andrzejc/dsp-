@@ -97,7 +97,7 @@ public:
 	{do_calc(&x, &y, &out, scaling);}
 
 	/*!
-	 * @brief Calculate LPC with pre-filled internal x and y buffers.
+	 * @brief Calculate cross-correlation with pre-filled internal x and y buffers.
 	 * This may be more efficient in some cases than copying the data around with the other operator() overloads.
 	 * Access the internal buffers with x_begin() and y_begin() and the output with [begin(), end()). Be warned,
 	 * that the input sequence will be overwritten upon the completion.
