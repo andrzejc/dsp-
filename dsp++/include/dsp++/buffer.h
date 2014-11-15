@@ -114,7 +114,13 @@ public:
 	}
 
 	size_type frame_count() const
-	{return base_type::size() / size_type(difference_type(frame_) - overlap_);}
+	{
+		size_type sz = base_type::size();
+		if (sz < frame_)
+			return 0;
+		else
+			return 1 + (sz - frame_) / size_type(difference_type(frame_) - overlap_);
+	}
 
 	size_type frame_size() const {return frame_;}
 	difference_type frame_overlap() const {return overlap_;}
@@ -151,6 +157,79 @@ public:
 private:
 	size_type frame_;
 	difference_type overlap_;
+};
+
+// TODO this is work in progress and needs to be reworked (as well as dsp::buffer which must not use boost::circular_buffer)
+template<class Elem>
+class overlap {
+public:
+	typedef std::vector<Elem> storage_type;
+	typedef typename storage_type::iterator iterator;
+	typedef typename storage_type::const_iterator const_iterator;
+	typedef typename storage_type::value_type value_type;
+	typedef typename storage_type::reference reference;
+	typedef typename storage_type::const_reference const_reference;
+
+
+	// TODO check if overlap < frame_length
+	overlap(size_t frame_length, size_t overlap)
+	 :	frame_(frame_length)
+	 ,	overlap_(overlap) 
+	{
+	}
+
+	size_t size() const {return buf_.size();}
+	size_t free_size() const {
+		size_t sz = size();
+		return (sz < overlap_ ? 0 : (sz - overlap_));
+	}
+
+	size_t frame_count() const {return size() / frame_;}
+	size_t free_frame_count() const {return free_size() / frame_;}
+
+	size_t frame_length() const {return frame_;}
+	size_t overlap_length() const {return overlap_;}
+
+	iterator begin() {return buf_.begin();}
+	iterator end() {return buf_.end();}
+	const_iterator begin() const {return buf_.begin();}
+	const_iterator end() const {return buf_.end();}
+
+	iterator frame_begin(size_t n = 0) {return buf_.begin() + n * frame_;}
+	const_iterator frame_begin(size_t n = 0) const {return buf_.begin() + n * frame_;}
+	iterator frame_end(size_t n = 0) {return buf_.begin() + (n + 1) * frame_;}
+	const_iterator frame_end(size_t n = 0) const {return buf_.begin() + (n + 1) * frame_;}
+
+	void pop_frames(size_t count) {
+		size_t num = count * frame_;
+		assert(num <= size());
+		buf_.erase(buf_.begin(), buf_.begin() + num);
+	}
+
+	void pop_frame() {pop_frames(1);}
+
+	template<class InputIterator>
+	void push_frame(InputIterator it) {
+		if (buf_.empty()) {
+			buf_.resize(frame_);
+			std::copy_n(it, frame_, buf_.begin());
+		}
+		else {
+			assert(buf_.size() >= overlap_);
+			buf_.resize(buf_.size() + (frame_ - overlap_));
+			iterator dest = buf_.end() - frame_;
+			for (unsigned i = 0; i < overlap_; ++i, ++dest, ++it) {
+				// TODO: do mixing
+				double mix = double(i + 1) / (overlap_ + 1);
+				*dest = (1. - mix) * (*dest) + mix * (*it);
+			}
+			std::copy_n(it, (frame_ - overlap_), dest);
+		}
+	}
+
+private:
+	size_t frame_, overlap_;
+	std::vector<Elem> buf_;
 };
 
 }
