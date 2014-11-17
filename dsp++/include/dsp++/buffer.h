@@ -29,24 +29,24 @@ extern const nodelay_t nodelay;
  * 	@tparam Elem type of stored elements
  * 	@tparam Storage collection used as a storage.
  */
-template<class Elem, class Storage = boost::circular_buffer<Elem> > class buffer: public Storage
+template<class Elem, class Storage = boost::circular_buffer<Elem> > class buffer
 {
 public:
 
-	typedef Storage base_type;
-	typedef typename base_type::value_type value_type;
-	typedef typename base_type::pointer pointer;
-	typedef typename base_type::const_pointer const_pointer;
-	typedef typename base_type::reference reference;
-	typedef typename base_type::const_reference const_reference;
-	typedef typename base_type::difference_type difference_type;
-	typedef typename base_type::size_type size_type;
-	typedef typename base_type::allocator_type allocator_type;
-	typedef typename base_type::const_iterator const_iterator;
-	typedef typename base_type::iterator iterator;
-	typedef typename base_type::const_reverse_iterator const_reverse_iterator;
-	typedef typename base_type::reverse_iterator reverse_iterator;
-	typedef typename base_type::capacity_type capacity_type;
+	typedef Storage storage_type;
+	typedef typename storage_type::value_type value_type;
+	typedef typename storage_type::pointer pointer;
+	typedef typename storage_type::const_pointer const_pointer;
+	typedef typename storage_type::reference reference;
+	typedef typename storage_type::const_reference const_reference;
+	typedef typename storage_type::difference_type difference_type;
+	typedef typename storage_type::size_type size_type;
+	typedef typename storage_type::allocator_type allocator_type;
+	typedef typename storage_type::const_iterator const_iterator;
+	typedef typename storage_type::iterator iterator;
+	typedef typename storage_type::const_reverse_iterator const_reverse_iterator;
+	typedef typename storage_type::reverse_iterator reverse_iterator;
+	typedef typename storage_type::capacity_type capacity_type;
 	typedef std::pair<const_iterator, const_iterator> const_iterator_range;
 	typedef std::pair<iterator, iterator> iterator_range;
 
@@ -61,9 +61,9 @@ public:
 	 */
 	explicit buffer(capacity_type capacity, size_type frame_size,
 			difference_type overlap = 0, const_reference initial_value = value_type())
-	 :	base_type(capacity)
-	 ,	frame_(frame_size)
+	 :	frame_(frame_size)
 	 ,	overlap_(overlap)
+	 ,	buf_(capacity)
 	{
 		if (frame_size > capacity)
 			throw std::invalid_argument("frame_length must not be greater than buffer capacity");
@@ -71,7 +71,7 @@ public:
 		{
 			if (size_type(overlap) >= frame_size)
 				throw std::invalid_argument("overlap must be less than frame_length");
-			insert(base_type::begin(), overlap, initial_value);
+			buf_.insert(base_type::begin(), overlap, initial_value);
 		}
 		else if (overlap < 0)
 		{
@@ -88,34 +88,34 @@ public:
 	 * @param initial_values the buffer is pre-filled with overlap frames taken from
 	 * initial_values vector
 	 */
-	explicit buffer(capacity_type capacity, size_type frame_size,
-			size_type overlap, const_pointer initial_values)
-	 :	base_type(capacity)
-	 ,	frame_(frame_size)
+	explicit buffer(capacity_type capacity, size_type frame_size, size_type overlap, const_pointer initial_values)
+	 :	frame_(frame_size)
 	 ,	overlap_(overlap)
+	 ,	buf_(capacity)
 	{
 		if (frame_size > capacity)
 			throw std::invalid_argument("dsp::buffer frame_length must not be greater than buffer capacity");
 		if (overlap >= frame_size)
 			throw std::invalid_argument("dsp::buffer overlap must be less than frame_length");
-		insert(base_type::begin(), initial_values, initial_values + overlap);
+		buf_.insert(base_type::begin(), initial_values, initial_values + overlap);
 	}
 
-	explicit buffer(capacity_type capacity, size_type frame_size,
-			size_type overlap, const nodelay_t tag)
-	 : 	base_type(capacity)
-	 ,	frame_(frame_size)
+	explicit buffer(capacity_type capacity, size_type frame_size, size_type overlap, const nodelay_t tag)
+	 :	frame_(frame_size)
 	 ,	overlap_(overlap)
+	 ,	buf_(capacity)
 	{
 		if (frame_size > capacity)
 			throw std::invalid_argument("dsp::buffer frame_length must not be greater than buffer capacity");
 		if (overlap >= frame_size)
 			throw std::invalid_argument("dsp::buffer overlap must be less than frame_length");
 	}
+
+	size_type size() const {return buf_.size();}
 
 	size_type frame_count() const
 	{
-		size_type sz = base_type::size();
+		size_type sz = buf_.size();
 		if (sz < frame_)
 			return 0;
 		else
@@ -126,9 +126,9 @@ public:
 	difference_type frame_overlap() const {return overlap_;}
 
 	iterator frame_begin(size_type n = 0)
-	{return base_type::begin() + n * size_type(difference_type(frame_) - overlap_);}
+	{return buf_.begin() + n * size_type(difference_type(frame_) - overlap_);}
 	const_iterator frame_begin(size_type n = 0) const
-	{return base_type::begin() + n * size_type(difference_type(frame_) - overlap_);}
+	{return buf_.begin() + n * size_type(difference_type(frame_) - overlap_);}
 
 	iterator frame_end(size_type n  = 0) {return frame_begin(n) + frame_;}
 	const_iterator frame_end(size_type n = 0) const {return frame_begin(n) + frame_;}
@@ -144,26 +144,27 @@ public:
 	void pop_frames(size_type count)
 	{
 		size_type num = count * size_type(difference_type(frame_) - overlap_);
-		base_type::rerase(base_type::begin(), base_type::begin() + num);
+		buf_.rerase(buf_.begin(), buf_.begin() + num);
 	}
 
 	void pop_frame()
 	{pop_frames(1);}
 
 	//! @return true, if the number of stored elements is not less than configured frame size.
-	bool has_frame() const {return base_type::size() >= frame_;}
+	bool has_frame() const {return buf_.size() >= frame_;}
 
 
 private:
 	size_type frame_;
 	difference_type overlap_;
+	storage_type buf_;
 };
 
 // TODO this is work in progress and needs to be reworked (as well as dsp::buffer which must not use boost::circular_buffer)
-template<class Elem>
+template<class Elem, class Storage = std::vector<Elem> > 
 class overlap {
 public:
-	typedef std::vector<Elem> storage_type;
+	typedef Storage storage_type;
 	typedef typename storage_type::iterator iterator;
 	typedef typename storage_type::const_iterator const_iterator;
 	typedef typename storage_type::value_type value_type;
@@ -176,6 +177,8 @@ public:
 	 :	frame_(frame_length)
 	 ,	overlap_(overlap) 
 	{
+		if (overlap >= frame_length)
+			throw throw std::invalid_argument("frame_length must be greater than overlap");
 	}
 
 	size_t size() const {return buf_.size();}
@@ -219,7 +222,6 @@ public:
 			buf_.resize(buf_.size() + (frame_ - overlap_));
 			iterator dest = buf_.end() - frame_;
 			for (unsigned i = 0; i < overlap_; ++i, ++dest, ++it) {
-				// TODO: do mixing
 				double mix = double(i + 1) / (overlap_ + 1);
 				*dest = (1. - mix) * (*dest) + mix * (*it);
 			}
@@ -229,7 +231,7 @@ public:
 
 private:
 	size_t frame_, overlap_;
-	std::vector<Elem> buf_;
+	storage_type buf_;
 };
 
 }
