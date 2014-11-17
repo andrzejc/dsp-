@@ -89,6 +89,7 @@ Sample filter_sample_adapt_nlms(const Sample d, const Sample* x, Sample* h, cons
 template<class Sample, class BufferTraits = dsp::buffer_traits<Sample> >
 class lms_filter_base {
 public:
+	typedef Sample value_type;
 	typedef Sample* iterator;				//!< Type of iterator used to access the estimated filter response.
 	typedef const Sample* const_iterator;	//!< Type of const iterator used to access the estimated filter response.
 
@@ -99,16 +100,16 @@ public:
 	//! @return One-past-end of the estimated filter response sequence \f$\hat{h}(n)\f$.
 	const_iterator response_end() const {return h_ + P_;}
 	//! @return Step size \f$\mu\f$ of the LMS algorithm.
-	Sample step_size() const {return mu_;}
+	value_type step_size() const {return mu_;}
 	//! @brief Modify step size \f$\mu\f$ of the LMS algorithm. @param[in] mu new step size used during subsequent iterations.
-	void set_step_size(const Sample mu) {mu_ = mu;}
+	void set_step_size(const value_type mu) {mu_ = mu;}
 	//! @return Step size \f$\mu\f$ of the LMS algorithm.
-	Sample mu() const {return mu_;}
+	value_type mu() const {return mu_;}
 	//! @brief Modify step size \f$\mu\f$ of the LMS algorithm. @param[in] mu new step size used during subsequent iterations.
-	void set_mu(const Sample mu) {mu_ = mu;}
+	void set_mu(const value_type mu) {mu_ = mu;}
 
-	Sample leakage() const {return lambda_;}
-	void set_leakage(const Sample lambda) {lambda_ = lambda;}
+	value_type leakage() const {return lambda_;}
+	void set_leakage(const value_type lambda) {lambda_ = lambda;}
 
 protected:
 	lms_filter_base(const size_t P, const Sample mu, const Sample lambda = Sample(1), const Sample* initial_h = NULL)

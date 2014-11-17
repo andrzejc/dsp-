@@ -24,11 +24,11 @@
 
 namespace dsp {
 
-template<class Real, template<class, class> class DFT = dsp::fft>
+template<class Sample, template<class, class> class DFT = dsp::fft>
 class fdaf_overlap_save: private noncopyable
 {
 public:
-	typedef Real value_type;
+	typedef Sample value_type;
 	typedef std::complex<value_type> complex_type;
 	typedef DFT<value_type, complex_type> transform_type;
 	typedef DFT<complex_type, value_type> inverse_transform_type;
@@ -42,27 +42,28 @@ public:
 
 	~fdaf_overlap_save() {
 		calloc_.deallocate(cbuf_, 6*N_);
-		ralloc_.deallocate(rbuf_, 4*N_);
+		ralloc_.deallocate(rbuf_, 6*N_);
 	}
 
-	fdaf_overlap_save(size_t block_length, Real mu)
+	fdaf_overlap_save(size_t block_length, value_type mu, value_type leakage = value_type(1))
 	 :	N_(block_length)
-	 ,	rbuf_(ralloc_.allocate(4*N_))
+	 ,	rbuf_(ralloc_.allocate(6*N_))
 	 ,	cbuf_(calloc_.allocate(6*N_))
 	 ,	dft_(2*N_, rbuf_, cbuf_)
 	 ,	idft_(2*N_, cbuf_, rbuf_)
 	 ,	x_(rbuf_)
 	 ,	e_(x_ + 2*N_)
-	 ,	y_(e_)
+	 ,	y_(e_ + 2*N_)
 	 ,	d_(e_ + N_)
 	 ,	v_(e_)
 	 ,	X_(cbuf_)
 	 ,	E_(X_ + 2*N_)
 	 ,	W_(E_ + 2*N_)
 	 ,	mu_(mu)
+	 ,	lambda_(leakage)
 	{
-		std::fill_n(rbuf_, 4*N_, real_value());
-		std::fill_n(cbuf_, 6*N_, complex_value());
+		std::fill_n(rbuf_, 6*N_, value_type());
+		std::fill_n(cbuf_, 6*N_, complex_type());
 	}
 
 	iterator x_begin() {return x_ + N_;}
@@ -92,27 +93,40 @@ public:
 	std::pair<iterator, iterator> W() {return std::make_pair(W_begin(), W_end());}
 	std::pair<const_iterator, const_iterator> W() const {return std::make_pair(W_begin(), W_end());}
 
-	value_type forgetting_factor() const {return mu_;}
+	//! @return Step size \f$\mu\f$ of the LMS algorithm.
+	value_type step_size() const {return mu_;}
+	//! @brief Modify step size \f$\mu\f$ of the LMS algorithm. @param[in] mu new step size used during subsequent iterations.
+	void set_step_size(const value_type mu) {mu_ = mu;}
+	//! @return Step size \f$\mu\f$ of the LMS algorithm.
 	value_type mu() const {return mu_;}
-	void set_mu(value_type mu) {mu_ = mu;}
-	void set_forgetting_factor(value_type mu) {mu_ = mu;}
+	//! @brief Modify step size \f$\mu\f$ of the LMS algorithm. @param[in] mu new step size used during subsequent iterations.
+	void set_mu(const value_type mu) {mu_ = mu;}
+
+	value_type leakage() const {return lambda_;}
+	void set_leakage(const value_type lambda) {lambda_ = lambda;}
 
 	void operator()() {
 		dft_(x_, X_);													// calculate FFT of x() and put it into X
-		std::transform(d_, d_ + N_, y_, d_, std::minus<value_type>());	// subtract y() from d() to form 2nd half of e()
+		std::transform(X_, X_ + 2*N_, W_, E_, std::multiplies<complex_type>());			// y = IFFT{X * W}, using E_ as temporary variable
+		idft_(E_, y_);						
+		std::transform(y_ + N_, y_ + 2*N_, y_ + N_, std::bind2nd(std::divides<value_type>(), 2*N_)); // scale IFFT and store output into 2nd half of y
+		std::transform(d_, d_ + N_, y_ + N_, d_, std::minus<value_type>());	// subtract y() from d() to form 2nd half of e()
+		std::transform(e_ + N_, e_ + 2*N_, e_ + N_, std::bind2nd(std::multiplies<value_type>(), mu_));	// apply step_size e() = e() * mu
 		std::fill_n(e_, N_, value_type());								// zero first half of e()
 		dft_(e_, E_);													// put FFT of zero-prepended e() into E
-		for (size_t i = 0; i < 2*N_; ++i)								// multiply F{e()} with conjugate copy of F{x()} (no functor for 2 operations at once?)
-			E_[i] *= std::conj(X_[i]);
+		complex_iterator E = E_, X = X_;
+		for (size_t i = 0; i < 2*N_; ++i, ++E, ++X)						// multiply F{e()} with conjugate copy of F{x()} (no functor for 2 operations at once?)
+			(*E) *= std::conj(*X);
 		idft_(E_, v_);													// perform IFFT on multiplication result, calculate gradient constraint
+		std::transform(v_, v_ + N_, v_, std::bind2nd(std::divides<value_type>(), 2*N_));		// scale IFFT output, but only for the useful half
 		std::fill_n(v_ + N_, N_, value_type());							// discard and zero-fill 2nd half of v()
 		dft_(v_, E_);													// FFT v() back to DFT domain
-		for (size_t i = 0; i < 2*N_; ++i) {								// update W with forgetting-factor-multiplied error transform
-			W[i] += E[i] * 2* mu_;										// W(k + 1) = W(k) + 2uF{v(n)}
-			X[i] *= W[i];												// calculate Y(k) = X(k) * W(k) in the same loop
+		complex_iterator W = W_; E = E_, X = X_;
+		for (size_t i = 0; i < 2*N_; ++i, ++W, ++E, ++X) {				// update W with forgetting-factor-multiplied error transform
+			*W *= lambda_;
+			*W += (*E);													// W(k + 1) = W(k) + 2uF{v(n)}
 		}
-		idft_(X_, e_);													// calculate y(n) = IFFT{Y(k)}
-		std::copy(e_ + N_, e_ + 2*N_, y_);								// store only 2nd half of the y(), copy it into y output vector
+		std::copy(x_ + N_, x_ + 2*N_, x_);								// store current x input in the 1st half of x as "previous" frame
 	}
 
 private:
@@ -128,14 +142,16 @@ private:
 
 	value_type* const x_;	//!< (2N) input vector, x[0..N) is old (saved) input frame frame, x[N..2N) is the new input frame upon input 
 	value_type* const e_;	//!< (2N) error input vector, e[0..N) will be filled with 0s, e[N..2N) is d() - y()
-	value_type* const y_;	//!< (N) output vector, this is convenience only as it will point to the first half of e_ 
+	value_type* const y_;	//!< (2N) output vector 
 	value_type* const d_;	//!< (N) desired response input vector, this is convenience as it will point to the 2nd half of e_
 	value_type* const v_;	//!< (2N) gradient constraint calculation vector, this is convenience only as e_ will be reused
 	complex_type* const X_;	//!< (2N) FFT(x()) output
 	complex_type* const E_;	//!< (2N) FFT(e()) output
 	complex_type* const W_; //!< (2N) adaptive weights transform
 
-	Real mu_;				//!< forgetting factor mu
+	value_type mu_;				//!< step size mu
+	value_type lambda_;			//!< leakage factor 
+
 };
 
 }
