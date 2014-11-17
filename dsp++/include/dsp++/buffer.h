@@ -162,6 +162,8 @@ public:
 	template<class InputIterator>
 	void insert(iterator pos, InputIterator first, InputIterator last) {buf_.insert(pos, first, last);}
 
+	void push_back(const value_type& val) {buf_.push_back(val);}
+
 private:
 	size_type frame_;
 	difference_type overlap_;
