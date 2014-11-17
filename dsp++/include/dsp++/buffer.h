@@ -71,7 +71,7 @@ public:
 		{
 			if (size_type(overlap) >= frame_size)
 				throw std::invalid_argument("overlap must be less than frame_length");
-			buf_.insert(base_type::begin(), overlap, initial_value);
+			buf_.insert(buf_.begin(), overlap, initial_value);
 		}
 		else if (overlap < 0)
 		{
@@ -97,7 +97,7 @@ public:
 			throw std::invalid_argument("dsp::buffer frame_length must not be greater than buffer capacity");
 		if (overlap >= frame_size)
 			throw std::invalid_argument("dsp::buffer overlap must be less than frame_length");
-		buf_.insert(base_type::begin(), initial_values, initial_values + overlap);
+		buf_.insert(buf_.begin(), initial_values, initial_values + overlap);
 	}
 
 	explicit buffer(capacity_type capacity, size_type frame_size, size_type overlap, const nodelay_t tag)
@@ -153,6 +153,14 @@ public:
 	//! @return true, if the number of stored elements is not less than configured frame size.
 	bool has_frame() const {return buf_.size() >= frame_;}
 
+	iterator begin() {return buf_.begin();}
+	const_iterator begin() const {return buf_.begin();}
+	iterator end() {return buf_.end();}
+	const_iterator end() const {return buf_.end();}
+
+	iterator insert(iterator pos, const value_type& val) {return buf_.insert(pos, val);}
+	template<class InputIterator>
+	void insert(iterator pos, InputIterator first, InputIterator last) {buf_.insert(pos, first, last);}
 
 private:
 	size_type frame_;
@@ -178,7 +186,7 @@ public:
 	 ,	overlap_(overlap) 
 	{
 		if (overlap >= frame_length)
-			throw throw std::invalid_argument("frame_length must be greater than overlap");
+			throw std::invalid_argument("frame_length must be greater than overlap");
 	}
 
 	size_t size() const {return buf_.size();}
