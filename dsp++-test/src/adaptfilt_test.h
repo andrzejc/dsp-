@@ -19,10 +19,13 @@ class adaptfilt_test: public CppUnit::TestFixture
 	CPPUNIT_TEST_SUITE(adaptfilt_test);
 	CPPUNIT_TEST(test_lms);
 	CPPUNIT_TEST(test_nlms);
+	CPPUNIT_TEST(test_fdaf_overlap_save);
 	CPPUNIT_TEST_SUITE_END();
 public:
 	void test_lms();
 	void test_nlms();
+
+	void test_fdaf_overlap_save();
 };
 
 } /* namespace test */
