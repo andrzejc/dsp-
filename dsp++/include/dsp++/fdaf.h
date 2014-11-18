@@ -136,8 +136,8 @@ public:
 		}
 		idft_(E_, w_);													// perform IFFT on multiplication result, calculate gradient constraint
 		std::transform(w_, w_ + N_, w_, std::bind2nd(std::divides<value_type>(), 2*N_));	// scale IFFT output, but only for the useful half
-		std::fill_n(w_ + N_, N_, value_type());							// discard and zero-fill 2nd half of v()
-		dft_(w_, E_);													// FFT v() back to DFT domain
+		std::fill_n(w_ + N_, N_, value_type());							// discard and zero-fill 2nd half of w_
+		dft_(w_, E_);													// FFT w_ back to DFT domain
 		complex_iterator W = W_; E = E_;
 		for (size_t i = 0; i < 2*N_; ++i, ++W, ++E) 					// update W with forgetting-factor-multiplied error transform
 			(*W *= lambda_) += *E;
