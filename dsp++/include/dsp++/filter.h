@@ -270,8 +270,8 @@ df2_filter_base<Sample, BufferTraits>::df2_filter_base(BIterator b_begin, BItera
  ,	w_(b_ + M_pad_)
 {
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
-	BOOST_CONCEPT_ASSERT((boost::OutputIterator<AIterator, Sample>));
-	BOOST_CONCEPT_ASSERT((boost::OutputIterator<BIterator, Sample>));
+	BOOST_CONCEPT_ASSERT((boost::InputIterator<AIterator>));
+	BOOST_CONCEPT_ASSERT((boost::InputIterator<BIterator>));
 #endif
 
 	std::copy(a_begin, a_end, a_);
@@ -291,7 +291,7 @@ df2_filter_base<Sample, BufferTraits>::df2_filter_base(BIterator b_begin, BItera
  ,	w_(b_ + M_pad_)
 {
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
-	BOOST_CONCEPT_ASSERT((boost::OutputIterator<BIterator, Sample>));
+	BOOST_CONCEPT_ASSERT((boost::InputIterator<BIterator>));
 #endif
 
 	std::copy(b_begin, b_end, b_);
