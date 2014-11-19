@@ -20,6 +20,11 @@
 #include <dsp++/snd/writer.h>
 #include <dsp++/snd/format.h>
 
+#ifdef _WIN32
+#define ENABLE_SNDFILE_WINDOWS_PROTOTYPES 1
+typedef const wchar_t* LPCWSTR;
+#endif // _WIN32
+
 #include <sndfile.h>
 #include <cassert>
 #include <cstring>
@@ -40,8 +45,6 @@ io::~io()
 }
 
 #ifdef _WIN32
-typedef const wchar_t* LPCWSTR;
-
 #if defined(_MSC_VER) || (__MSVCRT_VERSION__ >= 0x800)
 #define off_t  __int64
 #define ftello _ftelli64
