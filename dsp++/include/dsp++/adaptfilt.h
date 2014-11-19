@@ -155,7 +155,7 @@ public:
 	 * @param[in] initial_h override initial filter response estimate with specified vector of length P.
 	 */
 	filter_adapt_lms(const size_t P, const Sample mu, const Sample lambda = Sample(1), const Sample* initial_h = NULL)
-	 :	lms_filter_base(P, mu, lambda, initial_h) {}
+	 :	base(P, mu, lambda, initial_h) {}
 
 	/*!
 	 * @brief Perform single step of LMS algorithm, storing estimated system response in internal vector [response_begin(), response_end()).
@@ -168,7 +168,7 @@ public:
 	{
 		delay(base::x_, base::P_);
 		*base::x_ = x;
-		return filter_sample_adapt_lms(d, base::x_, base::h_, P_, base::mu_, base::lambda_);
+		return filter_sample_adapt_lms(d, base::x_, base::h_, base::P_, base::mu_, base::lambda_);
 	}
 };
 
@@ -190,7 +190,7 @@ public:
 	 * @param[in] initial_h override initial filter response estimate with specified vector of length P.
 	 */
 	filter_adapt_nlms(const size_t P, const Sample mu, const Sample gamma = Sample(), const Sample lambda = Sample(1), const Sample* initial_h = NULL)
-	 :	lms_filter_base(P, mu, lambda, initial_h) 
+	 :	base(P, mu, lambda, initial_h)
 	 ,	gamma_(gamma)
 	{}
 
@@ -205,7 +205,7 @@ public:
 	{
 		delay(base::x_, base::P_);
 		*base::x_ = x;
-		return filter_sample_adapt_nlms(d, base::x_, base::h_, P_, base::mu_, gamma_, base::lambda_);
+		return filter_sample_adapt_nlms(d, base::x_, base::h_, base::P_, base::mu_, gamma_, base::lambda_);
 	}
 
 	//! @return Correction coefficient \f$\gamma\f$.

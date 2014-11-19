@@ -4,6 +4,7 @@
 
 #include <limits>
 #include <cassert>
+#include <cstring>
 
 using namespace dsp::snd;
 
@@ -138,7 +139,7 @@ inline void write_sample_as_float(const dsp::snd::sample_layout& sl, Float in, v
 static dsp::snd::byte_order::label platform_test() {
 	int16_t i = 1;
 	int8_t buf[2];
-	memcpy(buf, &i, 2);
+	std::memcpy(buf, &i, 2);
 	return ((buf[0] != 0) ? dsp::snd::byte_order::little_endian : dsp::snd::byte_order::big_endian);
 }
 

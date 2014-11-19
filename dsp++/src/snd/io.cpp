@@ -15,23 +15,17 @@
 
 #if !DSP_SNDFILE_DISABLED
 
-#ifdef _WIN32
-typedef const wchar_t* LPCWSTR; 
-#define ENABLE_SNDFILE_WINDOWS_PROTOTYPES 1
-#endif // _WIN32
 
 #include <dsp++/snd/reader.h>
 #include <dsp++/snd/writer.h>
 #include <dsp++/snd/format.h>
+
 #include <sndfile.h>
 #include <cassert>
 #include <cstring>
 #include <functional>
 #include <algorithm>
 #include <limits>
-
-#include <fcntl.h>
-#include <sys/stat.h>
 
 #include <boost/scoped_array.hpp>
 
@@ -46,6 +40,8 @@ io::~io()
 }
 
 #ifdef _WIN32
+typedef const wchar_t* LPCWSTR;
+
 #if defined(_MSC_VER) || (__MSVCRT_VERSION__ >= 0x800)
 #define off_t  __int64
 #define ftello _ftelli64
@@ -349,34 +345,16 @@ struct dsp::snd::base_impl
 		fill_info(fmt, static_cast<SF_INFO*>(native_info));
 	}
 
+#ifdef _WIN32
 	void open(const wchar_t* path, file_format* fmt, void* native_info)
 	{
-#ifdef ENABLE_SNDFILE_WINDOWS_PROTOTYPES
 		close();
 		init_info(fmt, static_cast<SF_INFO*>(native_info));
 		if (NULL == (sf_ =  sf_wchar_open(path, read_ ? SFM_READ : SFM_WRITE, &info_)))
 			throw_error();
 		fill_info(fmt, static_cast<SF_INFO*>(native_info));
-#else
-		int flags = (read_ ? _O_RDONLY : (_O_WRONLY | _O_CREAT | _O_TRUNC));
-		flags  |= _O_BINARY;
-		int fd = _wopen(path, flags, _S_IREAD);
-		if (fd < 0) {
-			int err = errno;
-			switch (err) {
-			case EACCES: 
-				throw sndfile_error(SF_ERR_SYSTEM, "can't access file");
-			case EMFILE:
-				throw sndfile_error(SF_ERR_SYSTEM, "no more file descriptors available");
-			case ENOENT:
-				throw sndfile_error(SF_ERR_SYSTEM, "file not found");
-			default:
-				throw sndfile_error(SF_ERR_SYSTEM, "unable to open file");
-			}
-		}
-		open(fd, true, fmt, native_info);
-#endif // ENABLE_SNDFILE_WINDOWS_PROTOTYPES
 	}
+#endif // _WIN32
 
 	static sf_count_t io_size(void* p) {return static_cast<io*>(p)->size();}
 	static sf_count_t io_seek(sf_count_t offset, int whence, void* p)
@@ -441,10 +419,12 @@ void iobase::open(const char* path, dsp::snd::file_format* fmt, void* native_inf
 	impl_->open(path, fmt, native_info);
 }
 
+#ifdef _WIN32
 void iobase::open(const wchar_t* path, dsp::snd::file_format* fmt, void* native_info)
 {
 	impl_->open(path, fmt, native_info);
 }
+#endif // _WIN32
 
 void iobase::open(int fd, bool own_fd, dsp::snd::file_format* fmt, void* native_info)
 {

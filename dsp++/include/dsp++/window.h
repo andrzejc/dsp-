@@ -393,7 +393,7 @@ struct blackman: public window_function<Result>
 {
 #if DSP_CONFORM_CPP0X
 	//! Default value of alpha parameter.
-	static const Result alpha_default = DSP_WND_BLACKMAN_ALPHA_DEFAULT;
+	static constexpr  Result alpha_default = DSP_WND_BLACKMAN_ALPHA_DEFAULT;
 #endif // DSP_CONFORM_CPP0X
 	/*!
 	 * @copydoc window_function::window_function()
@@ -573,7 +573,7 @@ struct gausswin: public window_function<Result>
 {
 #if DSP_CONFORM_CPP0X
 	//! @brief Default value of @f$\sigma@f$ parameter.
-	static const Result sigma_default = DSP_WND_GAUSSWIN_SIGMA_DEFAULT;
+	static constexpr Result sigma_default = DSP_WND_GAUSSWIN_SIGMA_DEFAULT;
 #endif 
 	//! @copydoc window_function::window_function()
 	//! @param sigma \f$\sigma\f$ parameter in the equation above.
@@ -629,7 +629,7 @@ struct kaiser: public window_function<Result>
 {
 #if DSP_CONFORM_CPP0X
 	//! Default value of @f$\alpha@f$ parameter.
-	static const Result alpha_default = DSP_WND_KAISER_ALPHA_DEFAULT;
+	static constexpr Result alpha_default = DSP_WND_KAISER_ALPHA_DEFAULT;
 #endif
 	//! @copydoc window_function::window_function()
 	//! @param alpha @f$\alpha@f$ parameter in the equation above.

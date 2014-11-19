@@ -73,8 +73,8 @@ public:
 
 	//! @brief Pass next sample to the interpolator, outputting M (factor) resulting samples in internal buffer [begin(), end()).
 	void operator()(Sample x) {
-		for (size_t i = 0; i < M_; ++i) 
-			buf_[i] = (*flt_[i])(x);
+		for (size_t i = 0; i < base::M_; ++i)
+			base::buf_[i] = (*flt_[i])(x);
 	}
 
 private:
@@ -118,6 +118,7 @@ class block_interpolator: public interpolator_base<Sample> {
 	typedef interpolator_base<Sample> base;
 public:
 	typedef typename dsp::trivial_array<Sample>::iterator iterator;
+	typedef typename dsp::trivial_array<Sample>::const_iterator const_iterator;
 
 	//! @brief Initialize iterpolator for given factor M, using lowpass FIR of order P and given transition region width as an antialiasing filter.
 	//! @param[in] L input block length (output block will have L*M samples)
@@ -146,7 +147,7 @@ public:
 		}
 		size_t total = output_length();
 		for (size_t i = 0; i < base::M_; ++i) {
-			filter_type::const_iterator it = flt_[i]->begin();
+			typename filter_type::const_iterator it = flt_[i]->begin();
 			for (size_t j = i; j < total; j += base::M_, ++it)
 				base::buf_[j] = *it;
 		}
@@ -160,7 +161,7 @@ public:
 	//! @return length of input sequence
 	size_t input_length() const {return L_;}
 	//! @return length of output sequence
-	size_t output_length() const {return L_ * M_;}
+	size_t output_length() const {return L_ * base::M_;}
 
 	iterator begin() {return base::buf_.begin();}
 	iterator input_end() {return base::buf_.begin() + L_;}

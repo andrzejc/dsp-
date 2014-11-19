@@ -16,6 +16,7 @@
 #include <boost/shared_ptr.hpp>
 #include <vector>
 #include <numeric>
+#include <algorithm>
 
 namespace dsp { namespace snd {
 
@@ -237,7 +238,7 @@ bool loudness_lkfs<Sample>::operator()(Sample x)
 
 /*!
  * @brief 'EBU Mode' loudness metering according to EBU Tech 3341-2011 and EBU R 128, using 3 meters: M (momentary), S (short-time) and I (integrated).
- * @see EBU Technical Recommendation R 128 ‘Loudness normalisation and permitted maximum level of audio signals’ (https://tech.ebu.ch/docs/r/r128.pdf).
+ * @see EBU Technical Recommendation R 128 ï¿½Loudness normalisation and permitted maximum level of audio signalsï¿½ (https://tech.ebu.ch/docs/r/r128.pdf).
  * @see https://tech.ebu.ch/docs/tech/tech3341.pdf
  */
 template<class Sample>

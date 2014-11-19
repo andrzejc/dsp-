@@ -8,7 +8,7 @@
 
 #if (__cplusplus >= 201103L) || (defined(_MSC_VER) && (_MSC_VER >= 1600))
 #include <cstdint>
-#define DSP_STDINT(type) std:: ## type
+#define DSP_STDINT(type) std:: type
 #elif (__STDC_VERSION__ >= 199901L) || defined(__posix__)
 #include <stdint.h>
 #define DSP_STDINT(type) :: ## type

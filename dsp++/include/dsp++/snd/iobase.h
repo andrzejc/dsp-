@@ -56,6 +56,8 @@ public:
 	 * @throw sndfile_error when libsndfile is unable to open the file.
 	 */
 	void open(const char* path, file_format* fmt = NULL, void* native_info = NULL);
+
+#ifdef _WIN32
 	/*!
 	 * @brief Open file specified by given path.
 	 * @param path file path.
@@ -67,6 +69,8 @@ public:
 	 * @throw sndfile_error when libsndfile is unable to open the file.
 	 */
 	void open(const wchar_t* path, file_format* fmt = NULL, void* native_info = NULL);
+#endif // _WIN32
+
 	/*!
 	 * @brief Open specified stdio stream.
 	 * @param f FILE struct to open.

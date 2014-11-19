@@ -51,7 +51,7 @@ namespace type { enum label {
 //! @see refer to http://en.wikipedia.org/wiki/Surround_sound for standard speaker channel assignment
 namespace mask { enum label {
 	unknown = 0,
-#define DSP_SND_CHANNEL_MASK(label) label = 1 << (type:: ## label)
+#define DSP_SND_CHANNEL_MASK(label) label = 1 << (type:: label)
 	DSP_SND_CHANNEL_MASK(front_left),
 	DSP_SND_CHANNEL_MASK(front_right),
 	DSP_SND_CHANNEL_MASK(front_center),
