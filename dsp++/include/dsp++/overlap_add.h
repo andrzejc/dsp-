@@ -144,6 +144,7 @@ public:
 	//! @brief Read impulse response transform \f$H(z)\f$.
 	//! @return end of impulse response transform vector.
 	const_complex_iterator H_end() const {return cbuf_ + 2 * N_;}
+	std::pair<const_complex_iterator, const_complex_iterator> H() const {return std::make_pair(H_begin(), H_end());}
 
 	//! @brief Access/modify impulse response transform \f$H(z)\f$.
 	//! @return start of impulse response transform vector.
@@ -151,6 +152,7 @@ public:
 	//! @brief Access/modify impulse response transform \f$H(z)\f$.
 	//! @return end of impulse response transform vector.
 	complex_iterator H_end() {return cbuf_ + 2 * N_;}
+	std::pair<complex_iterator, complex_iterator> H() {return std::make_pair(H_begin(), H_end());}
 
 private:
 	void prepare_ir_dft(bool zero_tail);
