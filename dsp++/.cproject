@@ -74,7 +74,7 @@
 									<listOptionValue builtIn="false" value="_DEBUG"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.optimization.flags.803596033" name="Other optimization flags" superClass="gnu.cpp.compiler.option.optimization.flags" value="" valueType="string"/>
-								<option id="gnu.cpp.compiler.option.dialect.std.1711157119" superClass="gnu.cpp.compiler.option.dialect.std" value="gnu.cpp.compiler.dialect.default" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.dialect.std.1711157119" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" value="gnu.cpp.compiler.dialect.default" valueType="enumerated"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1948073065" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.macosx.so.debug.898492047" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.macosx.so.debug">
@@ -286,7 +286,7 @@
 								<option id="gnu.cpp.compiler.option.debugging.level.727233519" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.optimization.flags.873101720" name="Other optimization flags" superClass="gnu.cpp.compiler.option.optimization.flags" value="" valueType="string"/>
 								<option id="gnu.cpp.compiler.option.other.other.1391760254" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 " valueType="string"/>
-								<option id="gnu.cpp.compiler.option.dialect.std.1415366879" superClass="gnu.cpp.compiler.option.dialect.std" value="gnu.cpp.compiler.dialect.default" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.dialect.std.1415366879" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" value="gnu.cpp.compiler.dialect.default" valueType="enumerated"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1442774072" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.mingw.base.898042150" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.mingw.base">
@@ -567,7 +567,6 @@
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.1473941108" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="DSPXX_EXPORTS"/>
-									<listOptionValue builtIn="false" value="_SCL_SECURE_NO_WARNINGS"/>
 									<listOptionValue builtIn="false" value="_DEBUG"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.optimization.level.1870319010" name="Optimization Level" superClass="gnu.cpp.compiler.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
@@ -680,7 +679,6 @@
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.1752893099" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="DSPXX_EXPORTS"/>
-									<listOptionValue builtIn="false" value="_SCL_SECURE_NO_WARNINGS"/>
 									<listOptionValue builtIn="false" value="NDEBUG"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.optimization.level.1241909197" name="Optimization Level" superClass="gnu.cpp.compiler.option.optimization.level" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
@@ -688,7 +686,7 @@
 								<option id="gnu.cpp.compiler.option.other.other.2118301934" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0  -fvisibility=hidden" valueType="string"/>
 								<option id="gnu.cpp.compiler.option.optimization.flags.513428469" name="Other optimization flags" superClass="gnu.cpp.compiler.option.optimization.flags" value="-msse3" valueType="string"/>
 								<option id="gnu.cpp.compiler.option.other.pic.1978198702" name="Position Independent Code (-fPIC)" superClass="gnu.cpp.compiler.option.other.pic" value="true" valueType="boolean"/>
-								<option id="gnu.cpp.compiler.option.dialect.std.1373277476" superClass="gnu.cpp.compiler.option.dialect.std" value="gnu.cpp.compiler.dialect.c++11" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.dialect.std.1373277476" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" value="gnu.cpp.compiler.dialect.c++11" valueType="enumerated"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.2115826039" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.base.2063756191" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
@@ -704,6 +702,7 @@
 								</option>
 								<option id="gnu.c.compiler.option.optimization.flags.457657017" name="Other optimization flags" superClass="gnu.c.compiler.option.optimization.flags" value="-msse3" valueType="string"/>
 								<option id="gnu.c.compiler.option.misc.pic.5160463" name="Position Independent Code (-fPIC)" superClass="gnu.c.compiler.option.misc.pic" value="true" valueType="boolean"/>
+								<option id="gnu.c.compiler.option.dialect.std.181675917" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1670435176" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.1262002556" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base">
@@ -866,10 +865,10 @@
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.debug.428674351.1797277979;cdt.managedbuild.config.macosx.so.debug.428674351.1797277979.;cdt.managedbuild.tool.gnu.c.compiler.base.1182402494;cdt.managedbuild.tool.gnu.c.compiler.input.1146675857">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.921189489">
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.921189489.1325268385;cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.921189489.1325268385.;org.eclipse.cdt.msvc.cl.c.dll.debug.1610069621;org.eclipse.cdt.msvc.cl.inputType.c.1148886471">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.msw.build.clScannerInfo"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.921189489.1325268385;cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.921189489.1325268385.;org.eclipse.cdt.msvc.cl.c.dll.debug.1610069621;org.eclipse.cdt.msvc.cl.inputType.c.1148886471">
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.921189489">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.msw.build.clScannerInfo"/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.921189489;cdt.managedbuild.config.macosx.so.debug.428674351.2101117628.921189489.;org.eclipse.cdt.msvc.cl.dll.debug.2053108989;org.eclipse.cdt.msvc.cl.inputType.2057896838">

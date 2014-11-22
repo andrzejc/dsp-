@@ -135,18 +135,21 @@ inline void write_sample_as_float(const dsp::snd::sample_layout& sl, Float in, v
 	}
 }
 
+}
 
+#if !defined(DSP_ENDIAN_LITTLE) && !defined(DSP_ENDIAN_BIG)
+
+namespace {
 static dsp::snd::byte_order::label platform_test() {
 	int16_t i = 1;
 	int8_t buf[2];
 	std::memcpy(buf, &i, 2);
 	return ((buf[0] != 0) ? dsp::snd::byte_order::little_endian : dsp::snd::byte_order::big_endian);
 }
-
 }
 
-#if !defined(DSP_ENDIAN_LITTLE) && !defined(DSP_ENDIAN_BIG)
 const dsp::snd::byte_order::label dsp::snd::byte_order::platform = platform_test();
+
 #endif
 
 void dsp::snd::sample_layout::read_float(const void* data, float& out) const {

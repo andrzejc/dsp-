@@ -142,7 +142,7 @@ public:
 	template<class Iterator>
 	void operator()(Iterator in) {
 		for (size_t i = 0; i < base::M_; ++i) {
-			std::copy_n(in, L_, flt_[i]->begin());
+			dsp::copy_n(in, L_, flt_[i]->begin());
 			(*flt_[i])();
 		}
 		size_t total = output_length();
