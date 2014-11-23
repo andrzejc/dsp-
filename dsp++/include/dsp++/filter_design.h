@@ -43,37 +43,60 @@ DSPXX_API bool firpm(
 		);
 
 /*!
- * @brief FIR filter design with frequency sampling method.
+ * @brief FIR filter design with frequency sampling method with result in the spectrum domain.
  * @throw std::bad_alloc if unable to allocate memory for internal arrays.
  * @throw std::domain_error if any frequency in freqs is outside [0, 0.5] range.
  * @throw std::invalid_argument if freqs is not a monotonically increasing sequence or (point_count < 2) or (freqs[0] != 0) or (freqs[point_count - 1] != 0.5)
- * @return number of frequency response samples returned in H.
- * @see MATLAB fir2() function
+ * @return number of frequency response samples returned in H (which typically is @p order + 1, but may be @p order in case there's 0 at DC and @p order is odd).
+ * @note Unlike its MATLAB counterpart, this function will not do anything to widen transition region in case the modeled amplitude response
+ *		has steps. This is the caller's responsibility to design the transition region.
+ * @see http://www.mathworks.com/help/signal/ref/fir2.html
  */
 DSPXX_API size_t fir_freq_samp(
 		size_t order,				//!< [in] filter order, number of coefficients will be order + 1.
 		std::complex<double> H[], 	//!< [out] filter response designed in the spectrum domain [order + 1].
 		size_t point_count, 		//!< [in] number of points in the filter specification
-		double freqs[], 			//!< [in] frequency points in [0, 0.5] range
-		double amps[]				//!< [in] amplitude characteristic at each frequency point
+		const double freqs[], 		//!< [in] frequency points in [0, 0.5] range
+		const double amps[]			//!< [in] amplitude characteristic at each frequency point
 		);
 
 /*!
  * @brief FIR filter design with frequency sampling method.
  * @throw std::bad_alloc if unable to allocate memory for internal arrays.
  * @throw std::domain_error if any frequency in freqs is outside [0, 0.5] range.
- * @throw std::invalid_argument if freqs is not a monotonically increasing sequence.
- * @return impulse response length.
- * @see MATLAB fir2() function
+ * @throw std::invalid_argument if freqs is not a monotonically increasing sequence or (point_count < 2) or (freqs[0] != 0) or (freqs[point_count - 1] != 0.5)
+ * @return impulse response length (which typically is @p order + 1, but may be @p order in case there's 0 at DC and @p order is odd).
+ * @note Unlike its MATLAB counterpart, this function will not do anything to widen transition region in case the modeled amplitude response
+ *		has steps. This is the caller's responsibility to design the transition region.
+ * @see http://www.mathworks.com/help/signal/ref/fir2.html
  */
 DSPXX_API size_t fir_freq_samp(
 		size_t order,				//!< [in] filter order, number of coefficients will be order + 1.
 		double h[], 				//!< [out] designed filter impulse response [order + 1].
 		size_t point_count, 		//!< [in] number of points in the filter specification
-		double freqs[], 			//!< [in] frequency points in [0, 0.5] range
-		double amps[],				//!< [in] amplitude characteristic at each frequency point
-		const double window[] = NULL	//!< [in] 
+		const double freqs[], 		//!< [in] frequency points in [0, 0.5] range
+		const double amps[],		//!< [in] amplitude characteristic at each frequency point
+		const double wnd[]			//!< [in] window function to apply to the impulse response, needs to be of appropriate length. If explicitly set to NULL, no windowing will be used.
 		);
+
+/*!
+ * @brief FIR filter design with frequency sampling method and Hamming window applied to impulse response.
+ * @throw std::bad_alloc if unable to allocate memory for internal arrays.
+ * @throw std::domain_error if any frequency in freqs is outside [0, 0.5] range.
+ * @throw std::invalid_argument if freqs is not a monotonically increasing sequence or (point_count < 2) or (freqs[0] != 0) or (freqs[point_count - 1] != 0.5)
+ * @return impulse response length (which typically is @p order + 1, but may be @p order in case there's 0 at DC and @p order is odd).
+ * @note Unlike its MATLAB counterpart, this function will not do anything to widen transition region in case the modeled amplitude response
+ *		has steps. This is the caller's responsibility to design the transition region.
+ * @see http://www.mathworks.com/help/signal/ref/fir2.html
+ */
+DSPXX_API size_t fir_freq_samp(
+		size_t order,				//!< [in] filter order, number of coefficients will be order + 1.
+		double h[], 				//!< [out] designed filter impulse response [order + 1].
+		size_t point_count, 		//!< [in] number of points in the filter specification
+		const double freqs[], 		//!< [in] frequency points in [0, 0.5] range
+		const double amps[]			//!< [in] amplitude characteristic at each frequency point
+		);
+
 /*!
  * @brief Specifies type of biquad section to design with biquad_design().
  */

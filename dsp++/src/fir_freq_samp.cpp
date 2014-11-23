@@ -1,26 +1,31 @@
+#include <dsp++/config.h>
 #include <dsp++/filter_design.h>
 
 #include <complex>
-#include <vector>
 
 #include <dsp++/const.h>
-#include <dsp++/fftw/dft.h>
 #include <dsp++/pow2.h>
 #include <dsp++/fft.h>
 #include <dsp++/window.h>
+#include <dsp++/trivial_array.h>
+#include <dsp++/debug.h>
+
+#if !DSP_FFTW_DISABLED
+#include <dsp++/fftw/dft.h>
+#endif // !DSP_FFTW_DISABLED
 
 using namespace dsp;
 
+namespace {
 
+static inline size_t fir_freq_samp_length(size_t order, const double amps[]) {
+	size_t N = order + 1; 
+	if (0. == amps[0] && (0 == (N % 2)))
+		--N;
+	return N;
+}
 
-size_t dsp::fir_freq_samp(
-		size_t order,				//!< [in] filter order, number of coefficients will be order + 1.
-		std::complex<double> H[], 	//!< [out] filter response designed in the spectrum domain [order + 1].
-		size_t point_count, 		//!< [in] number of points in the filter specification
-		double freqs[], 			//!< [in] frequency points in [0, 0.5] range
-		double amps[]				//!< [in] amplitude characteristic at each frequency point
-)
-{
+static inline void fir_freq_samp_check_preconditions(size_t point_count, const double freqs[]) {
 	const char* msg = NULL;
 	if (point_count < 2)
 		msg = "point_count < 2";
@@ -32,12 +37,22 @@ size_t dsp::fir_freq_samp(
 		msg = "freqs not monotonically increasing";
 	if (NULL != msg)
 		throw std::invalid_argument(msg);
+}
 
-	size_t N = order + 1; 
-	if (0. == amps[0] && (0 == (N % 2))) {
-		--N;
+}
+
+size_t dsp::fir_freq_samp(
+		size_t order,				//!< [in] filter order, number of coefficients will be order + 1.
+		std::complex<double> H[], 	//!< [out] filter response designed in the spectrum domain [order + 1].
+		size_t point_count, 		//!< [in] number of points in the filter specification
+		const double freqs[], 		//!< [in] frequency points in [0, 0.5] range
+		const double amps[]			//!< [in] amplitude characteristic at each frequency point
+)
+{
+	fir_freq_samp_check_preconditions(point_count, freqs);
+	size_t N = fir_freq_samp_length(order, amps);
+	if (N == order)
 		H[N] = 0.;
-	}
 
 	size_t Nfft = N / 2 + 1; 
 	H[0] = amps[0];
@@ -66,42 +81,77 @@ size_t dsp::fir_freq_samp(
 	return N;
 }
 
+namespace {
+size_t fir_freq_samp_impl(
+		size_t order,				//!< [in] filter order, number of coefficients will be order + 1.
+		double h[], 				//!< [out] designed filter impulse response [order + 1].
+		size_t point_count, 		//!< [in] number of points in the filter specification
+		const double freqs[], 		//!< [in] frequency points in [0, 0.5] range
+		const double amps[],		//!< [in] amplitude characteristic at each frequency point
+		const double win[]			//!< [in] 
+)
+{
+#if DSP_FFTW_DISABLED
+	fir_freq_samp_check_preconditions(point_count, freqs);
+	if (!ispow2(fir_freq_samp_length(order, amps)))
+		throw std::invalid_argument("with fftw disabled only filters of power-of-2 length allowed");
+	dsp::trivial_array<std::complex<double>> H(order + 1);
+#else // !DSP_FFTW_DISABLED
+	dsp::trivial_array<std::complex<double>, dsp::fftw::allocator<std::complex<double> > > H(order + 1);
+#endif // !DSP_FFTW_DISABLED
+
+	size_t n = fir_freq_samp(order, H.begin(), point_count, freqs, amps);
+	if (ispow2(n)) {
+		dsp::fft<std::complex<double>, double> fft(n, H.begin(), h);
+		fft();
+	}
+#if !DSP_FFTW_DISABLED
+	else {
+		dsp::fftw::dft<std::complex<double>, double> fft(n, H.begin(), h);
+		fft();
+	}
+#endif // !DSP_FFTW_DISABLED
+
+	std::transform(h, h + n, h, std::bind2nd(std::multiplies<double>(), 1./n));
+	std::fill(h + n, h + order + 1, 0.);
+	if (NULL != win) 
+		std::transform(h, h + n, win, h, std::multiplies<double>());
+	return n;
+}
+}
+
 size_t dsp::fir_freq_samp(
 		size_t order,				//!< [in] filter order, number of coefficients will be order + 1.
 		double h[], 				//!< [out] designed filter impulse response [order + 1].
 		size_t point_count, 		//!< [in] number of points in the filter specification
-		double freqs[], 			//!< [in] frequency points in [0, 0.5] range
-		double amps[],				//!< [in] amplitude characteristic at each frequency point
-		const double window[]		//!< [in] 
+		const double freqs[], 		//!< [in] frequency points in [0, 0.5] range
+		const double amps[],		//!< [in] amplitude characteristic at each frequency point
+		const double win[]			//!< [in] 
 )
 {
-	std::vector<std::complex<double>, dsp::fftw::allocator<std::complex<double> > > H(order + 1);
-	size_t n = fir_freq_samp(order, &H[0], point_count, freqs, amps);
-	if (ispow2(n)) {
-		dsp::fft<std::complex<double>, double> fft(n, &H[0], h);
-		fft();
-	}
-	else {
-		dsp::fftw::dft<std::complex<double>, double> fft(n, &H[0], h);
-		fft();
-	}
-	std::transform(h, h + n, h, std::bind2nd(std::multiplies<double>(), 1./n));
-	std::fill(h + n, h + order + 1, 0.);
-	if (NULL != window) 
-		std::transform(h, h + n, window, h, std::multiplies<double>());
-	else 
-		dsp::wnd::apply<dsp::wnd::hamming>(h, h + n); 
+	return fir_freq_samp_impl(order, h, point_count, freqs, amps, win);
+}
+
+size_t dsp::fir_freq_samp(
+		size_t order,				//!< [in] filter order, number of coefficients will be order + 1.
+		double h[], 				//!< [out] designed filter impulse response [order + 1].
+		size_t point_count, 		//!< [in] number of points in the filter specification
+		const double freqs[], 		//!< [in] frequency points in [0, 0.5] range
+		const double amps[]		//!< [in] amplitude characteristic at each frequency point
+)
+{
+	size_t n = fir_freq_samp_impl(order, h, point_count, freqs, amps, NULL);
+	dsp::wnd::apply<dsp::wnd::hamming>(h, h + n);
 	return n;
 }
 
-
-#if 1
+#if 0
 namespace {
 
 	static bool test_freq_samp1() {
 		size_t order = 30;
 		std::complex<double> H[31];
-		double f[] = {0, 0.3, 0.3, 0.5};
+		double f[] = {0, 0.3, 0.34, 0.5};
 		double a[] = {1, 1, 0, 0};
 		size_t n = dsp::fir_freq_samp(order, H, 4, f, a);
 		return (n == 31);
@@ -110,9 +160,10 @@ namespace {
 	static bool test_freq_samp2() {
 		size_t order = 31;
 		double h[32];
-		double f[] = {0, 0.3, 0.3, 0.5};
+		double f[] = {0, 0.3, 0.34, 0.5};
 		double a[] = {1, 1, 0, 0};
 		size_t n = dsp::fir_freq_samp(order, h, 4, f, a);
+		dsp::dbg::clipbrd_copy(h, n);
 		return (n == 32);
 	}
 

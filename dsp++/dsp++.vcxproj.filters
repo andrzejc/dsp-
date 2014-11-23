@@ -111,6 +111,9 @@
     <ClCompile Include="src\fir_freq_samp.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\debug.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\utility.h">
@@ -285,6 +288,9 @@
       <Filter>include\dsp++</Filter>
     </ClInclude>
     <ClInclude Include="include\dsp++\fdaf.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\debug.h">
       <Filter>include\dsp++</Filter>
     </ClInclude>
   </ItemGroup>
