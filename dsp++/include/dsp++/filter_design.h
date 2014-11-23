@@ -7,6 +7,7 @@
 
 #include <dsp++/export.h>
 #include <cstddef>
+#include <complex>
 
 namespace dsp {
 
@@ -33,7 +34,7 @@ DSPXX_API bool firpm(
 		size_t order, 				//!< [in] filter order, number of coefficients will be order + 1.
 		double h[], 				//!< [out] designed filter impulse response [order + 1].
 		size_t band_count, 			//!< [in] number of bands in the filter specification.
-		double freqs[], 			//!< [in] band edges [band_count * 2].
+		double freqs[], 			//!< [in] band edges [band_count * 2], all freqs must fall into [0, 0.5] range.
 		const double amps[], 		//!< [in] amplitude characteristic at each band edge [band_count * 2].
 		const double weights[], 	//!< [in] error weights for each band [band_count].
 		filter_type type = filter_type_default, 	//!< [in] type of filter to design.
@@ -41,6 +42,38 @@ DSPXX_API bool firpm(
 		size_t max_iterations = 32 	//!< [in] max iteration count.
 		);
 
+/*!
+ * @brief FIR filter design with frequency sampling method.
+ * @throw std::bad_alloc if unable to allocate memory for internal arrays.
+ * @throw std::domain_error if any frequency in freqs is outside [0, 0.5] range.
+ * @throw std::invalid_argument if freqs is not a monotonically increasing sequence or (point_count < 2) or (freqs[0] != 0) or (freqs[point_count - 1] != 0.5)
+ * @return number of frequency response samples returned in H.
+ * @see MATLAB fir2() function
+ */
+DSPXX_API size_t fir_freq_samp(
+		size_t order,				//!< [in] filter order, number of coefficients will be order + 1.
+		std::complex<double> H[], 	//!< [out] filter response designed in the spectrum domain [order + 1].
+		size_t point_count, 		//!< [in] number of points in the filter specification
+		double freqs[], 			//!< [in] frequency points in [0, 0.5] range
+		double amps[]				//!< [in] amplitude characteristic at each frequency point
+		);
+
+/*!
+ * @brief FIR filter design with frequency sampling method.
+ * @throw std::bad_alloc if unable to allocate memory for internal arrays.
+ * @throw std::domain_error if any frequency in freqs is outside [0, 0.5] range.
+ * @throw std::invalid_argument if freqs is not a monotonically increasing sequence.
+ * @return impulse response length.
+ * @see MATLAB fir2() function
+ */
+DSPXX_API size_t fir_freq_samp(
+		size_t order,				//!< [in] filter order, number of coefficients will be order + 1.
+		double h[], 				//!< [out] designed filter impulse response [order + 1].
+		size_t point_count, 		//!< [in] number of points in the filter specification
+		double freqs[], 			//!< [in] frequency points in [0, 0.5] range
+		double amps[],				//!< [in] amplitude characteristic at each frequency point
+		const double window[] = NULL	//!< [in] 
+		);
 /*!
  * @brief Specifies type of biquad section to design with biquad_design().
  */

@@ -341,6 +341,7 @@
     <ClCompile Include="src\fftw\traits.cpp" />
     <ClCompile Include="src\filter.cpp" />
     <ClCompile Include="src\filter_design.cpp" />
+    <ClCompile Include="src\fir_freq_samp.cpp" />
     <ClCompile Include="src\fixed.cpp" />
     <ClCompile Include="src\mkfilter\complex.cpp" />
     <ClCompile Include="src\mkfilter\mkfilter.cpp" />
