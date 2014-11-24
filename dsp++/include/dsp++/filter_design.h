@@ -54,11 +54,13 @@ DSPXX_API bool firpm(
  */
 DSPXX_API size_t fir_freq_samp(
 		size_t order,				//!< [in] filter order, number of coefficients will be order + 1.
-		std::complex<double> H[], 	//!< [out] filter response designed in the spectrum domain [order + 1].
+		std::complex<double> H[], 	//!< [out] filter response designed in the spectrum domain [order + 1] or [nfft * 2] if nfft set.
 		size_t point_count, 		//!< [in] number of points in the filter specification
 		const double freqs[], 		//!< [in] frequency points in [0, 0.5] range
 		const double amps[]			//!< [in] amplitude characteristic at each frequency point
 		);
+///		size_t nfft = 0				//!< [in] if set, specifies number of points of the frequency characteristic being sampled/interpolated; in such case H should be set to twice of that.
+
 
 /*!
  * @brief FIR filter design with frequency sampling method.
