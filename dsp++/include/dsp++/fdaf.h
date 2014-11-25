@@ -70,6 +70,8 @@ public:
 		std::fill_n(norm_, 2*N_, complex_type(init_pow));
 	}
 
+	size_t transform_size() const {return 2*N_;}
+
 	iterator x_begin() {return x_ + N_;}
 	const_iterator x_begin() const {return x_ + N_;}
 	iterator x_end() {return x_ + 2*N_;}
