@@ -94,6 +94,33 @@ void buffer_interleave(const Sample* input, Sample* output, const unsigned chann
 	}
 }
 
+template<class Sample>
+void mixdown_interleaved(const Sample* input, Sample* output, const unsigned channel_count, const unsigned frame_count) {
+	for (unsigned i = 0; i < frame_count; ++i, ++output) {
+		*output = *input;
+		++input;
+		for (unsigned c = 1; c < channel_count; ++c, ++input)
+			*output += *input;
+		*output /= channel_count;
+	}
+}
+
+template<class InputIterator, class OutputIterator> 
+void mixdown_interleaved(InputIterator begin, InputIterator end, OutputIterator dest, const unsigned channel_count) 
+{
+	if (1 == channel_count) 
+		std::copy(begin, end, dest);
+	else {
+		for (; begin != end; ++dest) {
+			*dest = *begin;
+			++begin;
+			for (unsigned c = 1; c < channel_count; ++c, ++begin) 
+				*dest += *begin;
+			*dest /= channel_count;
+		}
+	}
+}
+
 }}
 
 #endif /* DSP_SND_BUFFER_H_INCLUDED */
