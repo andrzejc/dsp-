@@ -119,6 +119,15 @@ public:
 	value_type averaging_factor() const {return beta_;}
 	void set_averaging_factor(value_type beta) {beta_ = beta;}
 
+	//! @brief Store current x input vector as previous frame.
+	//! This is useful in the cases when adaptation needs to be paused while the data is running.
+	void tick_input() {
+		std::copy(x_ + N_, x_ + 2*N_, x_);								// store current x input in the 1st half of x as "previous" frame
+	}
+
+	//! @brief Process single buffer of data through adaptive algoritm, taking [x_begin(), x_end()) as x input and [d_begin(), d_end()) as the expected filter output.
+	//! The results are stored in [y_begin(), y_end()) (filter output) and [e_begin(), e_end()) (output error w/ regard to d). 
+	//! The FFT of filter weights (coefficients) may be read from [W_begin(), W_end()).
 	void operator()() {
 		dft_(x_, X_);															// X = FFT{x()}
 		std::transform(X_, X_ + 2*N_, W_, E_, std::multiplies<complex_type>());	// y() = IFFT{X * W}, using E_ as temporary variable
@@ -144,8 +153,9 @@ public:
 		for (size_t i = 0; i < 2*N_; ++i, ++W, ++E) 					// update W with forgetting-factor-multiplied error transform
 			(*W *= lambda_) += *E;
 
-		std::copy(x_ + N_, x_ + 2*N_, x_);								// store current x input in the 1st half of x as "previous" frame
+		tick_input();
 	}
+
 
 private:
 
