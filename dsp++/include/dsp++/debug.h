@@ -11,6 +11,8 @@
 #include <dsp++/export.h>
 #include <string>
 
+namespace std {template<class Real> class complex;}
+
 namespace dsp { namespace dbg {
 
 DSPXX_API void dump_str(std::string& str, const float* vec, size_t len);
@@ -18,6 +20,12 @@ DSPXX_API void dump_str(std::string& str, const double* vec, size_t len);
 
 DSPXX_API void dump_csv(const char* path, const float* vec, size_t len);
 DSPXX_API void dump_csv(const char* path, const double* vec, size_t len);
+
+DSPXX_API void dump_bin(const char* path, const double* vec, size_t len);
+DSPXX_API void dump_bin(const char* path, const float* vec, size_t len);
+DSPXX_API void dump_bin(const char* path, const std::complex<double>* vec, size_t len);
+DSPXX_API void dump_bin(const char* path, const std::complex<float>* vec, size_t len);
+
 
 DSPXX_API void clipbrd_copy(const float* vec, size_t len);
 DSPXX_API void clipbrd_copy(const double* vec, size_t len);

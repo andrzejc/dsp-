@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iterator>
 #include <sstream>
+#include <complex>
 
 #ifdef _WIN32
 #include <windows.h> // Clipboard access functions
@@ -56,6 +57,46 @@ void dsp::dbg::dump_str(std::string& str, const double* vec, size_t len)
 	std::ostringstream s;
 	dump_stream(s, vec, len);
 	str = s.str();
+}
+
+void dsp::dbg::dump_bin(const char* path, const double* vec, size_t len)
+{
+	FILE* f = std::fopen(path, "wb");
+	if (NULL == f)
+		return;
+
+	fwrite(vec, sizeof(*vec), len, f);
+	fclose(f);
+}
+
+void dsp::dbg::dump_bin(const char* path, const float* vec, size_t len)
+{
+	FILE* f = std::fopen(path, "wb");
+	if (NULL == f)
+		return;
+
+	fwrite(vec, sizeof(*vec), len, f);
+	fclose(f);
+}
+
+void dsp::dbg::dump_bin(const char* path, const std::complex<double>* vec, size_t len)
+{
+	FILE* f = std::fopen(path, "wb");
+	if (NULL == f)
+		return;
+
+	fwrite(vec, sizeof(*vec), len, f);
+	fclose(f);
+}
+
+void dsp::dbg::dump_bin(const char* path, const std::complex<float>* vec, size_t len)
+{
+	FILE* f = std::fopen(path, "wb");
+	if (NULL == f)
+		return;
+
+	fwrite(vec, sizeof(*vec), len, f);
+	fclose(f);
 }
 
 namespace {

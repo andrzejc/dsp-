@@ -71,6 +71,7 @@ public:
 	}
 
 	size_t transform_size() const {return 2*N_;}
+	size_t block_length() const {return N_;}
 
 	iterator x_begin() {return x_ + N_;}
 	const_iterator x_begin() const {return x_ + N_;}
@@ -98,8 +99,13 @@ public:
 	const_complex_iterator W_begin() const {return W_;}
 	complex_iterator W_end() {return W_ + 2*N_;}
 	const_complex_iterator W_end() const {return W_+2*N_;}
+	complex_iterator W_half_end() {return W_ + N_ + 1;}
+	const_complex_iterator W_half_end() const {return W_ + N_ + 1;}
 	std::pair<iterator, iterator> W() {return std::make_pair(W_begin(), W_end());}
 	std::pair<const_iterator, const_iterator> W() const {return std::make_pair(W_begin(), W_end());}
+	std::pair<iterator, iterator> W_half() {return std::make_pair(W_begin(), W_half_end());}
+	std::pair<const_iterator, const_iterator> W_half() const {return std::make_pair(W_begin(), W_half_end());}
+	size_t transform_half_size() const {return N_ + 1;}
 
 	//! @return Step size \f$\mu\f$ of the LMS algorithm.
 	value_type step_size() const {return mu_;}
