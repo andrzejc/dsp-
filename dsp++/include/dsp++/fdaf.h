@@ -107,6 +107,13 @@ public:
 	std::pair<const_iterator, const_iterator> W_half() const {return std::make_pair(W_begin(), W_half_end());}
 	size_t transform_half_size() const {return N_ + 1;}
 
+	complex_iterator power_begin() {return norm_;}
+	const_complex_iterator power_begin() const {return norm_;}
+	complex_iterator power_end() {return norm_ + 2*N_;}
+	const_complex_iterator power_end() const {return norm_+2*N_;}
+	std::pair<iterator, iterator> power() {return std::make_pair(power_begin(), power_end());}
+	std::pair<const_iterator, const_iterator> power() const {return std::make_pair(power_begin(), power_end());}
+
 	//! @return Step size \f$\mu\f$ of the LMS algorithm.
 	value_type step_size() const {return mu_;}
 	//! @return Step size \f$\mu\f$ of the LMS algorithm.

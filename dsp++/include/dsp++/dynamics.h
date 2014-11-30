@@ -105,19 +105,19 @@ public:
 	Sample operator()(Sample x) 
 	{
 		using std::abs; // allow for ADL with non-std abs
-		float a = static_cast<float>(abs(x));
+		Sample a = static_cast<Sample>(abs(x));
 		if (a <= threshold_)
 			return x;
-		float in = (a - threshold_)/swing_;
-		float out = functor_(in);
-		float gain = (threshold_ + out * swing_) / a;
-		return static_cast<Sample>(x * gain);
+		Sample in = (a - threshold_)/swing_;
+		Sample out = functor_(in);
+		Sample gain = (threshold_ + out * swing_) / a;
+		return x * gain;
 	}
 
 private:
 	Functor functor_;
-	float threshold_;
-	float swing_;
+	Sample threshold_;
+	Sample swing_;
 };
 
 }
