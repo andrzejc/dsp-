@@ -86,7 +86,7 @@ private:
 
 template<class In> 
 struct tanh: public sample_based_transform<In> {
-	In operator()(In x) const {return std::tanh(x);}
+	In operator()(In x) const {using std::tanh; return tanh(x);}
 };
 
 template<class Sample, class Functor = dsp::tanh<Sample> >
@@ -97,10 +97,10 @@ public:
 	 :	functor_(fun) 
 	{set_threshold_dB(-1);}
 
-	float threshold_dB() const {return 20.f * std::log10(threshold_);}
-	float threshold() const {return threshold_;}
-	void set_threshold_dB(float t) {set_threshold(std::pow(10.f, t/20.f));}
-	void set_threshold(float t) {threshold_ = t; swing_ = 1.f - threshold_;}
+	Sample threshold_dB() const {using std::log10; return Sample(20) * log10(threshold_);}
+	Sample threshold() const {return threshold_;}
+	void set_threshold_dB(Sample t) {using std::pow; set_threshold(pow(Sample(10), t/20));}
+	void set_threshold(Sample t) {threshold_ = t; swing_ = 1 - threshold_;}
 
 	Sample operator()(Sample x) 
 	{
