@@ -118,6 +118,7 @@ private:
 	Functor functor_;
 	Sample threshold_;
 	Sample swing_;
+	Sample limit_;
 };
 
 }
