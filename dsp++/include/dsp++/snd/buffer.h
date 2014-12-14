@@ -76,6 +76,8 @@ struct buffer_info: public buffer_layout {
 
 };
 
+// TODO rewrite functions below using stride_iterator for consistency
+
 template<class Sample>
 void buffer_deinterleave(const Sample* input, Sample* output, const unsigned channel_count, const unsigned frame_count) {
 	for (unsigned c = 0; c < channel_count; ++c) {
