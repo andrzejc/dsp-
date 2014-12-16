@@ -148,7 +148,7 @@ DSPXX_API void* dsp::simd::aligned_alloc(size_t size)
 	ptr = _aligned_malloc(size, alignment_);
 #else
 	if (DSP_SIMD_FEATURES & feat_x86_sse)
-		ptr = dsp::simd::detail::x86_sse_alloc(size, alignment_);
+		ptr = dsp::simd::detail::x86_sse_alloc(static_cast<int>(size), static_cast<int>(alignment_));
 	else
 		ptr = dsp::simd::detail::generic_aligned_alloc(size);
 #endif

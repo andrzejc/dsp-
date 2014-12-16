@@ -113,15 +113,15 @@ SSE_FVV(dsp::simd::detail::x86_sse_rsqrtf, rcp_ps)
 //! @brief Piecewise complex vector multiplication using SSE instructions
 void dsp::simd::detail::x86_sse_mulcf(std::complex<float>* res_c, const std::complex<float>* a_c, const std::complex<float>* b_c, size_t len)
 {
-	register float *res = reinterpret_cast<float*>(res_c);
-	register const float* a = reinterpret_cast<const float*>(a_c);
-	register const float* b = reinterpret_cast<const float*>(b_c);
+	float *res = reinterpret_cast<float*>(res_c);
+	const float* a = reinterpret_cast<const float*>(a_c);
+	const float* b = reinterpret_cast<const float*>(b_c);
 
-	register __m128 x0, x1, x2, x3, x4;
+	__m128 x0, x1, x2, x3, x4;
 	float DSP_ALIGNED(16) mul[] = {-1.0f, 1.0f, -1.0f, 1.0f};
-	register size_t n = len / 2; // each complex has 2 floats, so divide by 2 not 4
+	size_t n = len / 2; // each complex has 2 floats, so divide by 2 not 4
 	x4 = _mm_load_ps(mul);
-	for (register size_t i = 0; i < n; ++i, a += 4, b += 4, res += 4) {
+	for (size_t i = 0; i < n; ++i, a += 4, b += 4, res += 4) {
 		x1 = _mm_load_ps(b);
 		x0 = _mm_load_ps(a);
 		x2 = x1;
@@ -141,14 +141,14 @@ void dsp::simd::detail::x86_sse_mulcf(std::complex<float>* res_c, const std::com
 //! @brief Dot product of complex vectors using SSE instructions
 std::complex<float> dsp::simd::detail::x86_sse_dotcf(const std::complex<float>* a_c, const std::complex<float>* b_c, size_t len)
 {
-	register const float* a = reinterpret_cast<const float*>(a_c);
-	register const float* b = reinterpret_cast<const float*>(b_c);
-	register __m128 x0, x1, x2, x3, x4, x5;
+	const float* a = reinterpret_cast<const float*>(a_c);
+	const float* b = reinterpret_cast<const float*>(b_c);
+	__m128 x0, x1, x2, x3, x4, x5;
 	float DSP_ALIGNED(16) mul[] = {-1.0f, 1.0f, -1.0f, 1.0f};
-	register size_t n = len / 2; // each complex has 2 floats, so divide by 2 not 4
+	size_t n = len / 2; // each complex has 2 floats, so divide by 2 not 4
 	x5 = _mm_set1_ps(0.f); // write zeros to result
 	x4 = _mm_load_ps(mul);
-	for (register size_t i = 0; i < n; ++i, a += 4, b += 4) {
+	for (size_t i = 0; i < n; ++i, a += 4, b += 4) {
 		x0 = _mm_load_ps(a);
 		x1 = _mm_load_ps(b);
 		x2 = x1;
@@ -172,11 +172,11 @@ std::complex<float> dsp::simd::detail::x86_sse_dotcf(const std::complex<float>* 
 float dsp::simd::detail::x86_sse_filter_df2(float* w, const float* b, const size_t M, const float* a, const size_t N)
 {
 	float ardot = 0.f, madot = 0, *ws = w, b0 = *b;
-	register __m128 c0, c1, c2, c3, x0, x1, x2, x3;
-	register size_t L = std::min(N, M);
-	register size_t n = L / 16;
+	__m128 c0, c1, c2, c3, x0, x1, x2, x3;
+	size_t L = std::min(N, M);
+	size_t n = L / 16;
 	// Simultaneous calculation of both AR- and MA- component dot products, first in 16-, then 4- element chunks
-	for (register size_t i = 0; i < n; ++i, a += 16, w += 16, b += 16) {
+	for (size_t i = 0; i < n; ++i, a += 16, w += 16, b += 16) {
 		SSE_LOADU16(x, w);				// x = w
 		SSE_LOAD16(c, a);				// c = a
 		SSE_MUL16(c, c, x); 			// c *= x (c = w * a)
@@ -189,7 +189,7 @@ float dsp::simd::detail::x86_sse_filter_df2(float* w, const float* b, const size
 		madot += _mm_cvtss_f32(c0);
 	}
 	n = (L % 16) / 4;
-	for (register size_t i = 0; i < n; ++i, a += 4, w += 4, b += 4) {
+	for (size_t i = 0; i < n; ++i, a += 4, w += 4, b += 4) {
 		x0 = _mm_loadu_ps(w);
 		c0 = _mm_load_ps(a);
 		c0 = _mm_mul_ps(c0, x0);
@@ -205,7 +205,7 @@ float dsp::simd::detail::x86_sse_filter_df2(float* w, const float* b, const size
 	n = L / 16;
 	if (N > M) {
 		// Calculate only the remaining AR-component product
-		for (register size_t i = 0; i < n; ++i, a += 16, w += 16) {
+		for (size_t i = 0; i < n; ++i, a += 16, w += 16) {
 			SSE_LOADU16(x, w);				// x = w
 			SSE_LOAD16(c, a);				// c = a
 			SSE_MUL16(c, c, x); 			// c *= x (c = w * a)
@@ -213,7 +213,7 @@ float dsp::simd::detail::x86_sse_filter_df2(float* w, const float* b, const size
 			ardot += _mm_cvtss_f32(c0);
 		}
 		n = (L % 16) / 4;
-		for (register size_t i = 0; i < n; ++i, a += 4, w += 4) {
+		for (size_t i = 0; i < n; ++i, a += 4, w += 4) {
 			x0 = _mm_loadu_ps(w);
 			c0 = _mm_load_ps(a);
 			c0 = _mm_mul_ps(c0, x0);
@@ -223,7 +223,7 @@ float dsp::simd::detail::x86_sse_filter_df2(float* w, const float* b, const size
 	}
 	else {
 		// Calculate only the remaining MA-component
-		for (register size_t i = 0; i < n; ++i, b += 16, w += 16) {
+		for (size_t i = 0; i < n; ++i, b += 16, w += 16) {
 			SSE_LOADU16(x, w);				// x = w
 			SSE_LOAD16(c, b);				// c = b
 			SSE_MUL16(c, c, x);				// c *= x (x = w * b)
@@ -231,7 +231,7 @@ float dsp::simd::detail::x86_sse_filter_df2(float* w, const float* b, const size
 			madot += _mm_cvtss_f32(c0);
 		}
 		n = (L % 16) / 4;
-		for (register size_t i = 0; i < n; ++i, b += 4, w += 4) {
+		for (size_t i = 0; i < n; ++i, b += 4, w += 4) {
 			x0 = _mm_loadu_ps(w);
 			c0 = _mm_load_ps(b);
 			c0 = _mm_mul_ps(c0, x0);
@@ -250,9 +250,9 @@ float dsp::simd::detail::x86_sse_filter_df2(float* w, const float* b, const size
 
 float dsp::simd::detail::x86_sse_filter_sos_df2(float x, size_t N, const bool* scale_only, float* w, const float* b, const float* a, size_t step)
 {
-	register __m128 cx, wx, xx, slack;
+	__m128 cx, wx, xx, slack;
 	xx = _mm_set_ss(x);				// xx[0] = x; xx[1-3] = 0; xx[0] will hold the result between the steps
-	for (register size_t i = 0; i < N; ++i, w += step, b += step, a += step, ++scale_only) {
+	for (size_t i = 0; i < N; ++i, w += step, b += step, a += step, ++scale_only) {
 		if (*scale_only) {
 			cx = _mm_load_ss(b);		// load only 0th element from b
 			xx = _mm_mul_ss(xx, cx);	// xx[0] *= cx[0]; 		don't need to write intermediate results back to w for scale-only section (we don't use it)
@@ -276,10 +276,10 @@ float dsp::simd::detail::x86_sse_filter_sos_df2(float x, size_t N, const bool* s
 
 float dsp::simd::detail::x86_sse_accf(const float* x, size_t N)
 {
-	register __m128 x0, x1, x2, x3, x4, x5, x6, r;
+	__m128 x0, x1, x2, x3, x4, x5, x6, r;
 	r = _mm_setzero_ps();
-	register size_t n = N / 28;
-	for (register size_t i = 0; i < n; ++i, x += 28) {
+	size_t n = N / 28;
+	for (size_t i = 0; i < n; ++i, x += 28) {
 		x0 = _mm_load_ps(x);
 		x1 = _mm_load_ps(x + 4);
 		x2 = _mm_load_ps(x + 8);
@@ -297,7 +297,7 @@ float dsp::simd::detail::x86_sse_accf(const float* x, size_t N)
 		r = _mm_add_ps(r, x0);
 	}
 	n = (n % 28) / 4;
-	for (register size_t i = 0; i < n; ++i, x += 4) {
+	for (size_t i = 0; i < n; ++i, x += 4) {
 		x0 = _mm_load_ps(x);
 		r = _mm_add_ps(r, x0);
 	}

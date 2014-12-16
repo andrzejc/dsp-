@@ -97,11 +97,11 @@ unsigned sample::bit_size_of(const char* sf)
 	char* end;
 	int err = 0;
 	std::swap(err, errno);
-	unsigned sz = strtoul(sf, &end, 10);
+	unsigned long sz = strtoul(sf, &end, 10);
 	std::swap(err, errno);
 	if (0 != err)
 		return sample::size_unknown;
-	return sz;
+	return static_cast<unsigned>(sz);
 }
 
 format::format(const char* sample_format, unsigned sample_rate, unsigned channel_mask)

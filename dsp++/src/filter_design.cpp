@@ -54,13 +54,13 @@ void dsp::biquad_design(double b[], double a[], biquad_type type, double norm_fr
 	double w0 = DSP_M_PI * 2. * norm_freq; 	// 2 * pi * f0 / Fs
 	double cw0 = std::cos(w0);
 
-	double A, 	// sqrt(10^(gain_db/20))
+	double A = 0, 	// sqrt(10^(gain_db/20))
 		alpha,
-		Am1,	// A - 1
-		Ap1, 	// A + 1
-		Am1c, 	// (A-1)*cos(w0)
-		Ap1c, 	// (A+1)*cos(w0)
-		sqAa2;	// 2 * sqrt(A) * alpha
+		Am1 = 0,	// A - 1
+		Ap1 = 0, 	// A + 1
+		Am1c = 0, 	// (A-1)*cos(w0)
+		Ap1c = 0, 	// (A+1)*cos(w0)
+		sqAa2 = 0;	// 2 * sqrt(A) * alpha
 	bool is_eq;
 	switch (type) {
 	case biquad_type_peaking_eq:
