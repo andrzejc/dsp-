@@ -10,8 +10,7 @@
 
 #include <dsp++/export.h>
 #include <string>
-
-namespace std {template<class Real> class complex;}
+#include <complex>
 
 namespace dsp { namespace dbg {
 

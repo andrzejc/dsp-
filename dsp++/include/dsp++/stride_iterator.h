@@ -26,7 +26,7 @@ public:
 	stride_iterator(Iter i, difference_type stride): iter_(i), stride_(stride) 
 	{ }
 
-	Iter base() const { return i_;}
+	Iter base() const { return iter_;}
 
 	difference_type stride() const { return stride_; }
 

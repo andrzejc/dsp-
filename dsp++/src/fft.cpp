@@ -220,6 +220,8 @@ public:
 		if (dsp::dft_sign_backward == sign)
 			swap_real_imag(in_out);
 	}
+
+    fft_impl() {}
 };
 
 #define FFT_IMPL_NAME(p, type) type ## p

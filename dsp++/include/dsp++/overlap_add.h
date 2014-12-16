@@ -130,7 +130,7 @@ public:
 #else
 	void
 #endif
-	set_impulse_response(const Sample* ir, size_t ir_length = impulse_response_length())
+	set_impulse_response(const Sample* ir, size_t ir_length)
 	{
 		ir_length = std::min(M_, ir_length);
 		std::copy(ir, ir + ir_length, rbuf_);

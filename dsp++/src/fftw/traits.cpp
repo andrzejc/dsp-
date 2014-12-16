@@ -373,12 +373,11 @@ double traits<type>::estimate_cost(const plan_type p)\
 double traits<type>::cost(const plan_type p)\
 {return MANGLE(prefix, cost)(p);} \
 \
-template class DSPXX_API dft<type, type>; \
-template class DSPXX_API dft<type, std::complex<type> >; \
-template class DSPXX_API dft<std::complex<type>, type>; \
-template class DSPXX_API dft<std::complex<type>, std::complex<type> >;
-
-
+template class DSPXX_API dsp::fftw::dft<type, type>; \
+template class DSPXX_API dsp::fftw::dft<type, std::complex<type> >; \
+template class DSPXX_API dsp::fftw::dft<std::complex<type>, type>; \
+template class DSPXX_API dsp::fftw::dft<std::complex<type>, std::complex<type> >;
+    
 #if DSP_FFTW_HAVE_FLOAT
 DEFINE_TRAITS(fftwf_, float)
 #endif // DSP_FFTW_HAVE_FLOAT
@@ -428,6 +427,8 @@ void allocator_base::deallocate(void* p)
 			free(p);
 #endif
 }
+    
+
 
 #endif // !DSP_FFTW3_DISABLED
 
