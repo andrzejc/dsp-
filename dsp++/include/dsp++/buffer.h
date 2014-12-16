@@ -233,7 +233,7 @@ public:
 			iterator dest = buf_.end() - frame_;
 			for (unsigned i = 0; i < overlap_; ++i, ++dest, ++it) {
 				double mix = double(i + 1) / (overlap_ + 1);
-				*dest = (1. - mix) * (*dest) + mix * (*it);
+				*dest = static_cast<Elem>((1. - mix) * (*dest) + mix * (*it));
 			}
 			std::copy_n(it, (frame_ - overlap_), dest);
 		}
