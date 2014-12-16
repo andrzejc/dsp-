@@ -104,7 +104,7 @@ unsigned sample::bit_size_of(const char* sf)
 	return static_cast<unsigned>(sz);
 }
 
-format::format(const char* sample_format, unsigned sample_rate, unsigned channel_mask)
+format::format(unsigned sample_rate, unsigned channel_mask, dsp::snd::format_tag_, const char* sample_format)
  :	sample_format_(NULL != sample_format ? sample_format : "")
  ,	channel_layout_(static_cast<int>(channel_mask))
  ,	sample_rate_(sample_rate)
@@ -112,11 +112,27 @@ format::format(const char* sample_format, unsigned sample_rate, unsigned channel
 {
 }
 
-format::format(const std::string& sample_format, unsigned sample_rate, unsigned channel_mask)
+format::format(unsigned sample_rate, unsigned channel_count, const char* sample_format)
+ :	sample_format_(NULL != sample_format ? sample_format : "")
+ ,	channel_layout_(channel::mask::unknown)
+ ,	sample_rate_(sample_rate)
+ ,	channel_count_(channel_count)
+{
+}
+
+format::format(unsigned sample_rate, unsigned channel_mask, dsp::snd::format_tag_, const std::string& sample_format)
  :	sample_format_(sample_format)
  ,	channel_layout_(static_cast<int>(channel_mask))
  ,	sample_rate_(sample_rate)
  ,	channel_count_(static_cast<unsigned>(channel_layout_.count()))
+{
+}
+
+format::format(unsigned sample_rate, unsigned channel_count, const std::string& sample_format)
+ :	sample_format_(sample_format)
+ ,	channel_layout_(channel::mask::unknown)
+ ,	sample_rate_(sample_rate)
+ ,	channel_count_(channel_count)
 {
 }
 
@@ -127,7 +143,7 @@ format::format()
 {
 }
 
-const format format::format_audio_cd(sample::label::s16, sampling_rate_audio_cd, channel::config::stereo);
+const format format::format_audio_cd(sampling_rate_audio_cd, channel::config::stereo, dsp::snd::format_channel_mask, sample::label::s16);
 
 unsigned format::channel_index(channel::type::label ch) const
 {
@@ -144,14 +160,26 @@ file_format::file_format()
 {
 }
 
-file_format::file_format(const char* sample_format, unsigned sample_rate, unsigned channel_mask, const char* type)
- :	format(sample_format, sample_rate, channel_mask)
+file_format::file_format(unsigned sample_rate, unsigned channel_mask, dsp::snd::format_tag_ tag, const char* sample_format, const char* type)
+ :	format(sample_rate, channel_mask, tag, sample_format)
  ,	type_(NULL != type ? type : "")
 {
 }
 
-file_format::file_format(const std::string& sample_format, unsigned sample_rate, unsigned channel_mask, const std::string& type)
-:	format(sample_format, sample_rate, channel_mask)
+file_format::file_format(unsigned sample_rate, unsigned channel_mask, dsp::snd::format_tag_ tag, const std::string& sample_format, const std::string& type)
+:	format(sample_rate, channel_mask, tag, sample_format)
+,	type_(type)
+{
+}
+
+file_format::file_format(unsigned sample_rate, unsigned channel_count, const char* sample_format, const char* type)
+ :	format(sample_rate, channel_count, sample_format)
+ ,	type_(NULL != type ? type : "")
+{
+}
+
+file_format::file_format(unsigned sample_rate, unsigned channel_count, const std::string& sample_format, const std::string& type)
+:	format(sample_rate, channel_count, sample_format)
 ,	type_(type)
 {
 }

@@ -163,6 +163,10 @@ const unsigned sampling_rate_phone_wide = 16000;
 const unsigned sampling_rate_dat_lp = 32000;
 const unsigned sampling_rate_dat = 48000;
 
+enum format_tag_ {
+	format_channel_mask
+};
+
 class DSPXX_API format
 {
 public:
@@ -195,8 +199,11 @@ public:
 
 	static const format format_audio_cd;
 
-	format(const char* sample_format, unsigned sample_rate, unsigned channel_mask);
-	format(const std::string& sample_format, unsigned sample_rate, unsigned channel_mask);
+	format(unsigned sample_rate, unsigned channel_count, const char* sample_format = NULL);
+	format(unsigned sample_rate, unsigned channel_count, const std::string& sample_format);
+
+	format(unsigned sample_rate, unsigned channel_mask, format_tag_, const char* sample_format = NULL);
+	format(unsigned sample_rate, unsigned channel_mask, format_tag_, const std::string& sample_format);
 
 	format();
 
@@ -229,8 +236,12 @@ public:
 	const char* const extension() const {return file_type::extension_for(type_.c_str());}
 
 	file_format();
-	file_format(const char* sample_format, unsigned sample_rate, unsigned channel_mask, const char* type);
-	file_format(const std::string& sample_format, unsigned sample_rate, unsigned channel_mask, const std::string& type);
+
+	file_format(unsigned sample_rate, unsigned channel_count, const char* sample_format = NULL, const char* type = NULL);
+	file_format(unsigned sample_rate, unsigned channel_count, const std::string& sample_format, const std::string& type);
+
+	file_format(unsigned sample_rate, unsigned channel_mask, format_tag_, const char* sample_format = NULL, const char* type = NULL);
+	file_format(unsigned sample_rate, unsigned channel_mask, format_tag_, const std::string& sample_format, const std::string& type);
 
 private:
 	std::string type_;
