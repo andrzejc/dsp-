@@ -9,7 +9,7 @@
 
 #include <dsp++/export.h>
 #include <dsp++/snd/format.h>
-#include <dsp++/dspint.h>
+#include <dsp++/stdint.h>
 #include <dsp++/float.h>
 #include <dsp++/platform.h>
 #include <dsp++/intmath.h>

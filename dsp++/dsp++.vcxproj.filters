@@ -290,11 +290,11 @@
     <ClInclude Include="include\dsp++\stride_iterator.h">
       <Filter>include\dsp++</Filter>
     </ClInclude>
-    <ClInclude Include="include\dsp++\dspint.h">
-      <Filter>include\dsp++</Filter>
-    </ClInclude>
     <ClInclude Include="src\mkfilter\mkfcplx.h">
       <Filter>src\mkfilter</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\stdint.h">
+      <Filter>include\dsp++</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
