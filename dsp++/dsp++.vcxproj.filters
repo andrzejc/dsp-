@@ -93,13 +93,7 @@
     <ClCompile Include="src\fixed.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="format_win32.cpp">
-      <Filter>src\snd</Filter>
-    </ClCompile>
     <ClCompile Include="src\adaptfilt.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="sample.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\snd\loudness.cpp">
@@ -113,6 +107,12 @@
     </ClCompile>
     <ClCompile Include="src\debug.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sample.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\format_win32.cpp">
+      <Filter>src\snd</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -278,9 +278,6 @@
     <ClInclude Include="include\dsp++\snd\sample.h">
       <Filter>include\dsp++\snd</Filter>
     </ClInclude>
-    <ClInclude Include="include\dsp++\stdint.h">
-      <Filter>include\dsp++</Filter>
-    </ClInclude>
     <ClInclude Include="include\dsp++\snd\loudness.h">
       <Filter>include\dsp++\snd</Filter>
     </ClInclude>
@@ -294,6 +291,9 @@
       <Filter>include\dsp++</Filter>
     </ClInclude>
     <ClInclude Include="include\dsp++\stride_iterator.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\dspint.h">
       <Filter>include\dsp++</Filter>
     </ClInclude>
   </ItemGroup>

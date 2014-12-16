@@ -336,8 +336,6 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="format_win32.cpp" />
-    <ClCompile Include="sample.cpp" />
     <ClCompile Include="src\adaptfilt.cpp" />
     <ClCompile Include="src\arch\ppc\cpu_ppc.cpp" />
     <ClCompile Include="src\arch\x86\cpu_x86.cpp" />
@@ -356,10 +354,12 @@
     <ClCompile Include="src\filter_design.cpp" />
     <ClCompile Include="src\fir_freq_samp.cpp" />
     <ClCompile Include="src\fixed.cpp" />
+    <ClCompile Include="src\format_win32.cpp" />
     <ClCompile Include="src\mkfilter\complex.cpp" />
     <ClCompile Include="src\mkfilter\mkfilter.cpp" />
     <ClCompile Include="src\remez\remez.c" />
     <ClCompile Include="src\resample.cpp" />
+    <ClCompile Include="src\sample.cpp" />
     <ClCompile Include="src\simd.cpp" />
     <ClCompile Include="src\snd\format.cpp" />
     <ClCompile Include="src\snd\io.cpp" />
@@ -412,7 +412,7 @@
     <ClInclude Include="include\dsp++\snd\sample.h" />
     <ClInclude Include="include\dsp++\snd\sndfile_error.h" />
     <ClInclude Include="include\dsp++\snd\writer.h" />
-    <ClInclude Include="include\dsp++\stdint.h" />
+    <ClInclude Include="include\dsp++\dspint.h" />
     <ClInclude Include="include\dsp++\stride_iterator.h" />
     <ClInclude Include="include\dsp++\trivial_array.h" />
     <ClInclude Include="include\dsp++\utility.h" />

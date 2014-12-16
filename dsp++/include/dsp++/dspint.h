@@ -1,9 +1,9 @@
 /*!
- * @file dsp++/stdint.h
+ * @file dsp++/dspint.h
  * @brief Wrapper/reimplementation of part of C++ cstdint or C99 stdint.h headers (fixed-size typedefs).
  */
-#ifndef DSP_STDINT_H_INCLUDED
-#define DSP_STDINT_H_INCLUDED
+#ifndef DSP_DSPINT_H_INCLUDED
+#define DSP_DSPINT_H_INCLUDED
 #pragma once
 
 #if (__cplusplus >= 201103L) || (defined(_MSC_VER) && (_MSC_VER >= 1600))
@@ -88,4 +88,4 @@ template<> struct signed_of<unsigned long long> {typedef signed long long type;}
 
 }
 
-#endif // DSP_STDINT_H_INCLUDED
+#endif // DSP_DSPINT_H_INCLUDED
