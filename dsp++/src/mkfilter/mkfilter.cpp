@@ -15,7 +15,7 @@ September 1992 */
 
 #include "mkfltif.h"
 #include "mkfilter.h"
-#include "complex.h"
+#include "mkfcplx.h"
 
 using namespace mkfilter;
 

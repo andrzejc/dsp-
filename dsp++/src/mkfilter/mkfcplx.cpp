@@ -9,7 +9,7 @@
 #include <cstring>
 
 #include "mkfilter.h"
-#include "complex.h"
+#include "mkfcplx.h"
 
 using namespace mkfilter;
 
