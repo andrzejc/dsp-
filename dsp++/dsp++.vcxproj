@@ -359,6 +359,7 @@
     <ClCompile Include="src\mkfilter\mkfilter.cpp" />
     <ClCompile Include="src\remez\remez.c" />
     <ClCompile Include="src\resample.cpp" />
+    <ClCompile Include="src\rpoly\rpoly.cpp" />
     <ClCompile Include="src\sample.cpp" />
     <ClCompile Include="src\simd.cpp" />
     <ClCompile Include="src\snd\format.cpp" />
@@ -399,6 +400,7 @@
     <ClInclude Include="include\dsp++\overlap_add.h" />
     <ClInclude Include="include\dsp++\overlap_save.h" />
     <ClInclude Include="include\dsp++\platform.h" />
+    <ClInclude Include="include\dsp++\polyroots.h" />
     <ClInclude Include="include\dsp++\pow2.h" />
     <ClInclude Include="include\dsp++\resample.h" />
     <ClInclude Include="include\dsp++\simd.h" />

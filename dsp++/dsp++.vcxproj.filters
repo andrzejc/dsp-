@@ -40,6 +40,9 @@
     <Filter Include="src\arch\ppc">
       <UniqueIdentifier>{ec891776-654c-49bf-9ad6-e363a5bc9b49}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\rpoly">
+      <UniqueIdentifier>{e9b84dab-d9f4-45fd-832b-4f20e284d0ba}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\fft.cpp">
@@ -113,6 +116,9 @@
     </ClCompile>
     <ClCompile Include="src\mkfilter\mkfcplx.cpp">
       <Filter>src\mkfilter</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rpoly\rpoly.cpp">
+      <Filter>src\rpoly</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -294,6 +300,9 @@
       <Filter>src\mkfilter</Filter>
     </ClInclude>
     <ClInclude Include="include\dsp++\stdint.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\polyroots.h">
       <Filter>include\dsp++</Filter>
     </ClInclude>
   </ItemGroup>
