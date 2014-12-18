@@ -30,11 +30,11 @@ complex mkfilter::evaluate(complex topco[], int nz, complex botco[], int np, con
 	return eval(topco, nz, z) / eval(botco, np, z);
 }
 
-static double Xsqrt(double x)
-{ /* because of deficiencies in hypot on Sparc, it's possible for arg of Xsqrt to be small and -ve,
-  which logically it can't be (since r >= |x.re|).	 Take it as 0. */
-	return (x >= 0.0) ? sqrt(x) : 0.0;
-} 
+//static double Xsqrt(double x)
+//{ /* because of deficiencies in hypot on Sparc, it's possible for arg of Xsqrt to be small and -ve,
+//  which logically it can't be (since r >= |x.re|).	 Take it as 0. */
+//	return (x >= 0.0) ? sqrt(x) : 0.0;
+//} 
 
 complex mkfilter::expj(double theta)
 { 

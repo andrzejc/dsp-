@@ -71,8 +71,8 @@ struct rpoly_solver
 		sec = clock();
 
 		/*  The following statements set machine constants. */
-		base = DBL_RADIX;
-		eta = DBL_EPSILON;
+        base = std::numeric_limits<double>::radix;
+        eta = std::numeric_limits<double>::epsilon();
 
 		infin = 3.4e38; 
 		smalno = 1.2e-38;
@@ -285,7 +285,7 @@ _110:
 		} 
 		/*  Return with failure if no convergence after 20 shifts. */
 _99:
-		info[ 0 ] = clock() - sec;
+		info[ 0 ] = static_cast<int>(static_cast<long>(clock()) - sec);
 		info[ 0 ] *= 1000;
 		info[ 0 ] /= CLOCKS_PER_SEC;
 
@@ -351,7 +351,7 @@ _99:
 			*/
 			vtry = 0;
 			stry = 0;
-			if (spass && (!vpass) || tss < tvv) goto _40;
+			if ((spass && (!vpass)) || tss < tvv) goto _40;
 _20:        
 			quadit(&ui,&vi, nz);
 			if (*nz > 0) return;

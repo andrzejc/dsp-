@@ -31,6 +31,8 @@
 		FE75BAE81A40BEF80068A27C /* format_win32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE75BAE61A40BEF80068A27C /* format_win32.cpp */; };
 		FE75BAE91A40BEF80068A27C /* sample.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE75BAE71A40BEF80068A27C /* sample.cpp */; };
 		FE75BAEE1A40C5850068A27C /* mkfcplx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE75BAEC1A40C5850068A27C /* mkfcplx.cpp */; };
+		FEF973371A43977D008B0B86 /* rpoly.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEF973351A43977D008B0B86 /* rpoly.cpp */; };
+		FEF973381A43977D008B0B86 /* zeropole.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEF973361A43977D008B0B86 /* zeropole.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -119,6 +121,8 @@
 		FE75BAE71A40BEF80068A27C /* sample.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sample.cpp; sourceTree = "<group>"; };
 		FE75BAEC1A40C5850068A27C /* mkfcplx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mkfcplx.cpp; sourceTree = "<group>"; };
 		FE75BAED1A40C5850068A27C /* mkfcplx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mkfcplx.h; sourceTree = "<group>"; };
+		FEF973351A43977D008B0B86 /* rpoly.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rpoly.cpp; sourceTree = "<group>"; };
+		FEF973361A43977D008B0B86 /* zeropole.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = zeropole.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -243,6 +247,8 @@
 		FE75BA6A1A40BD9E0068A27C /* src */ = {
 			isa = PBXGroup;
 			children = (
+				FEF973341A43977D008B0B86 /* rpoly */,
+				FEF973361A43977D008B0B86 /* zeropole.cpp */,
 				FE75BAE61A40BEF80068A27C /* format_win32.cpp */,
 				FE75BAE71A40BEF80068A27C /* sample.cpp */,
 				FE75BA6B1A40BD9E0068A27C /* adaptfilt.cpp */,
@@ -335,6 +341,14 @@
 			path = snd;
 			sourceTree = "<group>";
 		};
+		FEF973341A43977D008B0B86 /* rpoly */ = {
+			isa = PBXGroup;
+			children = (
+				FEF973351A43977D008B0B86 /* rpoly.cpp */,
+			);
+			path = rpoly;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -416,9 +430,11 @@
 				FE75BADE1A40BD9E0068A27C /* resample.cpp in Sources */,
 				FE75BAD51A40BD9E0068A27C /* fir_freq_samp.cpp in Sources */,
 				FE75BADC1A40BD9E0068A27C /* remez.c in Sources */,
+				FEF973381A43977D008B0B86 /* zeropole.cpp in Sources */,
 				FE75BADF1A40BD9E0068A27C /* simd.cpp in Sources */,
 				FE75BAD91A40BD9E0068A27C /* mkfilter.cpp in Sources */,
 				FE75BAEE1A40C5850068A27C /* mkfcplx.cpp in Sources */,
+				FEF973371A43977D008B0B86 /* rpoly.cpp in Sources */,
 				FE75BAE31A40BD9E0068A27C /* loudness.cpp in Sources */,
 				FE75BACD1A40BD9E0068A27C /* sse41.cpp in Sources */,
 				FE75BAD41A40BD9E0068A27C /* filter_design.cpp in Sources */,
