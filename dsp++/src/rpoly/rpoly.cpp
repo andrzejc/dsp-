@@ -796,7 +796,7 @@ unsigned dsp::rpoly(unsigned degree, const double* poly, std::complex<double>* r
 	return static_cast<unsigned>(res);
 }
 
-#if 1
+#if 0
 namespace {
 
 static bool test_rpoly() {

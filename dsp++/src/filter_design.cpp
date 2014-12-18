@@ -127,24 +127,22 @@ void dsp::biquad_design(double b[], double a[], biquad_type type, double norm_fr
 	}
 }
 
+namespace {
 
-void dsp::iir_filter_design(size_t order, double b[], double a[], unsigned type, const double* fc, const double* cheb_rip, const double* zero_freq, unsigned pole_mask)
+static size_t init_mkfilter(mkfilter::context& ctx, size_t order, double b[], double a[], unsigned type, const double* fc, const double* cheb_rip, const double* zero_freq, unsigned pole_mask)
 {
-	std::auto_ptr<mkfilter::inout> io(new mkfilter::inout);
-	memset(io.get(), 0, sizeof(mkfilter::inout));
 	size_t sz = order;
-
 	const unsigned type_mask = 0x0003;
 	switch (type & type_mask) {
 	case iir_bessel: 
-		io->options |= mkfilter_opt_be; 
+		ctx.options |= mkfilter::opt_be; 
 		break;
 	case iir_chebyshev: 
-		io->options |= mkfilter_opt_ch; 
-		io->chebrip = (NULL == cheb_rip ? 3. : *cheb_rip);
+		ctx.options |= mkfilter::opt_ch; 
+		ctx.chebrip = (NULL == cheb_rip ? 3. : *cheb_rip);
 		break;
 	case iir_butterworth: 
-		io->options |= mkfilter_opt_bu; 
+		ctx.options |= mkfilter::opt_bu; 
 		break;
 	default:
 		throw std::invalid_argument("invalid filter type specification");
@@ -153,53 +151,79 @@ void dsp::iir_filter_design(size_t order, double b[], double a[], unsigned type,
 	const unsigned char_mask = 0x01f0;
 	switch (type & char_mask) {
 	case iir_lowpass: 
-		io->options |= mkfilter_opt_lp | mkfilter_opt_a;
-		io->raw_alpha1 = *fc;
+		ctx.options |= mkfilter::opt_lp | mkfilter::opt_a;
+		ctx.raw_alpha1 = *fc;
 		break;
 	case iir_highpass:
-		io->options |= mkfilter_opt_hp | mkfilter_opt_a;
-		io->raw_alpha1 = *fc;
+		ctx.options |= mkfilter::opt_hp | mkfilter::opt_a;
+		ctx.raw_alpha1 = *fc;
 		break;
 	case iir_bandpass:
-		io->options |= mkfilter_opt_bp | mkfilter_opt_a;
-		io->raw_alpha1 = fc[0];
-		io->raw_alpha2 = fc[1];
+		ctx.options |= mkfilter::opt_bp | mkfilter::opt_a;
+		ctx.raw_alpha1 = fc[0];
+		ctx.raw_alpha2 = fc[1];
 		sz = 2 * order;
 		break;
 	case iir_bandstop:
-		io->options |= mkfilter_opt_bs | mkfilter_opt_a;
-		io->raw_alpha1 = fc[0];
-		io->raw_alpha2 = fc[1];
+		ctx.options |= mkfilter::opt_bs | mkfilter::opt_a;
+		ctx.raw_alpha1 = fc[0];
+		ctx.raw_alpha2 = fc[1];
 		sz = 2 * order;
 		break;
 	case iir_allpass:
-		io->options |= mkfilter_opt_ap | mkfilter_opt_a;
-		io->raw_alpha1 = *fc;
+		ctx.options |= mkfilter::opt_ap | mkfilter::opt_a;
+		ctx.raw_alpha1 = *fc;
 		break;
 	default:
 		throw std::invalid_argument("missing filter type specification");
 	}
 
 	if (NULL != zero_freq) {
-		io->options |= mkfilter_opt_Z;
-		io->raw_alphaz = *zero_freq;
+		ctx.options |= mkfilter::opt_Z;
+		ctx.raw_alphaz = *zero_freq;
 	}
 	if (0 != pole_mask) {
-		io->options |= mkfilter_opt_p;
-		io->polemask = pole_mask;
+		ctx.options |= mkfilter::opt_p;
+		ctx.polemask = pole_mask;
 	}
 	if (type & iir_prewrap)
-		io->options |= mkfilter_opt_w;
+		ctx.options |= mkfilter::opt_w;
 	if (type & iir_matched_z)
-		io->options |= mkfilter_opt_z;
-	io->order = static_cast<int>(order);
-	io->options |= mkfilter_opt_o;
+		ctx.options |= mkfilter::opt_z;
+	ctx.order = static_cast<int>(order);
+	ctx.options |= mkfilter::opt_o;
+	return sz;
+}
 
-	mkfilter::design(*io);
+}
+
+
+void dsp::iir_filter_design(size_t order, double b[], double a[], unsigned type, const double* fc, const double* cheb_rip, const double* zero_freq, unsigned pole_mask)
+{
+	mkfilter::context ctx = {0};
+	size_t sz = init_mkfilter(ctx, order, b, a, type, fc, cheb_rip, zero_freq, pole_mask);
+
+	mkfilter::design(ctx);
 
 	// inverse coeffs order - mkfilter produces vectors in the format for its own internal filter implementation which uses inversed vectors (and negative denominator)
-	for (size_t i = 0; i < sz + 1; ++i) {
-		b[i] = io->xcoeffs_r[sz - i];
-		a[i] = -io->ycoeffs_r[sz - i];
+	for (size_t i = 0; i < sz + 1; ++i) 
+	{
+		b[i] = ctx.xcoeffs[sz - i];
+		a[i] = -ctx.ycoeffs[sz - i];
 	}
 }
+
+#if 0
+namespace {
+
+static bool test_iir() {
+	double b[21], a[21];
+	double fc[2] = {100./44100, 300./44100};
+	iir_filter_design(10, b, a, dsp::iir_bandpass, fc);
+	return true;
+}
+
+static const bool test = test_iir();
+
+}
+#endif

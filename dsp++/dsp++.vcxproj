@@ -366,6 +366,7 @@
     <ClCompile Include="src\snd\io.cpp" />
     <ClCompile Include="src\snd\loudness.cpp" />
     <ClCompile Include="src\vectmath.cpp" />
+    <ClCompile Include="src\zeropole.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\dsp++\adaptfilt.h" />
@@ -421,9 +422,11 @@
     <ClInclude Include="include\dsp++\vectmath.h" />
     <ClInclude Include="include\dsp++\window.h" />
     <ClInclude Include="include\dsp++\xcorr.h" />
+    <ClInclude Include="include\dsp++\zeropole.h" />
     <ClInclude Include="src\arch\x86\sse.h" />
     <ClInclude Include="src\arch\x86\sse_utils.h" />
     <ClInclude Include="src\mkfilter\mkfcplx.h" />
+    <ClInclude Include="src\mkfilter\mkfcplxt.h" />
     <ClInclude Include="src\mkfilter\mkfilter.h" />
     <ClInclude Include="src\mkfilter\mkfltif.h" />
     <ClInclude Include="src\remez\remez.h" />

@@ -19,23 +19,6 @@ September 1992 */
 
 using namespace mkfilter;
 
-struct pzrep
-{ 
-	complex poles[mkfilter::max_pz], zeros[mkfilter::max_pz];
-	int numpoles, numzeros;
-};
-
-struct context: public mkfilter::inout_b 
-{
-	pzrep splane, zplane;
-	complex dc_gain, fc_gain, hf_gain;
-	double warped_alpha1, warped_alpha2;
-	bool optsok;
-
-	double *xcoeffs, *ycoeffs;
-
-};
-
 static const c_complex bessel_poles[] =
 { /* table produced by /usr/fisher/bessel --	N.B. only one member of each C.Conj. pair is listed */
 	{ -1.00000000000e+00, 0.00000000000e+00}, { -1.10160133059e+00, 6.36009824757e-01},
@@ -55,10 +38,6 @@ static const c_complex bessel_poles[] =
 	{ -1.36069227838e+00, 1.73350574267e+00}, { -8.65756901707e-01, 2.29260483098e+00},
 };
 
-//static void readcmdline(char*[]);
-//static uint /*decodeoptions(char*),*/ optbit(char);
-//static double getfarg(char*);
-//static int getiarg(char*);
 static bool checkoptions(context& ctx);
 static void /* usage(), opterror(char*, int = 0, int = 0), */ setdefaults(context& ctx);
 static void compute_s(context& ctx), choosepole(context& ctx, complex), prewarp(context& ctx), normalize(context& ctx), compute_z_blt(context& ctx);
@@ -77,14 +56,14 @@ static void do_design(context& ctx)
 	//readcmdline(argv);
 	checkoptions(ctx);
 	setdefaults(ctx);
-	if (ctx.options & mkfilter_opt_re) 
+	if (ctx.options & opt_re) 
 	{ 
-		if (ctx.options & mkfilter_opt_bp) compute_bpres(ctx);	   /* bandpass resonator	 */
-		if (ctx.options & mkfilter_opt_bs) compute_notch(ctx);	   /* bandstop resonator (notch) */
-		if (ctx.options & mkfilter_opt_ap) compute_apres(ctx);	   /* allpass resonator		 */
+		if (ctx.options & opt_bp) compute_bpres(ctx);	   /* bandpass resonator	 */
+		if (ctx.options & opt_bs) compute_notch(ctx);	   /* bandstop resonator (notch) */
+		if (ctx.options & opt_ap) compute_apres(ctx);	   /* allpass resonator		 */
 	}
 	else { 
-		if (ctx.options & mkfilter_opt_pi) 
+		if (ctx.options & opt_pi) 
 		{ 
 			prewarp(ctx);
 			ctx.splane.poles[0] = 0.0;
@@ -96,177 +75,75 @@ static void do_design(context& ctx)
 			prewarp(ctx);
 			normalize(ctx);
 		}
-		if (ctx.options & mkfilter_opt_z) 
+		if (ctx.options & opt_z) 
 			compute_z_mzt(ctx); 
 		else 
 			compute_z_blt(ctx);
 	}
-	if (ctx.options & mkfilter_opt_Z) 
+	if (ctx.options & opt_Z) 
 		add_extra_zero(ctx);
 
 	expandpoly(ctx);
 	//printresults(ctx, argv);
 }
 
-void mkfilter::design(inout& params)
+void mkfilter::design(context& ctx)
 {
-	std::auto_ptr<context> ctx(new context);
-	memset(ctx.get(), 0, sizeof(context));
-	static_cast<inout_b&>(*ctx) = params;
-	ctx->xcoeffs = params.xcoeffs_r;
-	ctx->ycoeffs = params.ycoeffs_r;
+	do_design(ctx);
 
-	do_design(*ctx);
-
-	unsigned opt = ctx->options;
-	complex gain = (opt & mkfilter_opt_pi) ? ctx->hf_gain :
-		(opt & mkfilter_opt_lp) ? ctx->dc_gain :
-		(opt & mkfilter_opt_hp) ? ctx->hf_gain :
-		(opt & (mkfilter_opt_bp | mkfilter_opt_ap)) ? ctx->fc_gain :
-		(opt & mkfilter_opt_bs) ? csqrt(ctx->dc_gain * ctx->hf_gain) : complex(1.0);
+	unsigned opt = ctx.options;
+	complex gain = (opt & opt_pi) ? ctx.hf_gain :
+		(opt & opt_lp) ? ctx.dc_gain :
+		(opt & opt_hp) ? ctx.hf_gain :
+		(opt & (opt_bp | opt_ap)) ? ctx.fc_gain :
+		(opt & opt_bs) ? csqrt(ctx.dc_gain * ctx.hf_gain) : complex(1.0);
 	double g = hypot(gain);
 
-	static_cast<inout_b&>(params) = *ctx;
-	for (int i = 0; i <= ctx->zplane.numzeros; ++i)
-		ctx->xcoeffs[i] /= g;
+	for (int i = 0; i <= ctx.zplane.numzeros; ++i)
+		ctx.xcoeffs[i] /= g;
 }
-
-//static void readcmdline(char *argv[])
-//  { options = order = polemask = 0;
-//    int ap = 0;
-//    unless (argv[ap] == NULL) ap++; /* skip program name */
-//    until (argv[ap] == NULL)
-//      { uint m = decodeoptions(argv[ap++]);
-//	if (m & mkfilter_opt_ch) chebrip = getfarg(argv[ap++]);
-//	if (m & mkfilter_opt_a)
-//	  { raw_alpha1 = getfarg(argv[ap++]);
-//	    raw_alpha2 = (argv[ap] != NULL && argv[ap][0] != '-') ? getfarg(argv[ap++]) : raw_alpha1;
-//	  }
-//	if (m & mkfilter_opt_Z) raw_alphaz = getfarg(argv[ap++]);
-//	if (m & mkfilter_opt_o) order = getiarg(argv[ap++]);
-//	if (m & mkfilter_opt_p)
-//	  { while (argv[ap] != NULL && argv[ap][0] >= '0' && argv[ap][0] <= '9')
-//	      { int p = atoi(argv[ap++]);
-//		if (p < 0 || p > 31) p = 31; /* out-of-range value will be picked up later */
-//		polemask |= (1 << p);
-//	      }
-//	  }
-//	if (m & mkfilter_opt_re)
-//	  { char *s = argv[ap++];
-//	    if (s != NULL && seq(s,"Inf")) infq = true;
-//	    else { qfactor = getfarg(s); infq = false; }
-//	  }
-//	options |= m;
-//    }
-//}
-
-//static uint decodeoptions(char *s)
-//  { unless (*(s++) == '-') usage();
-//    uint m = 0;
-//    if (seq(s,"Be")) m |= mkfilter_opt_be;
-//    else if (seq(s,"Bu")) m |= mkfilter_opt_bu;
-//    else if (seq(s, "Ch")) m |= mkfilter_opt_ch;
-//    else if (seq(s, "Re")) m |= mkfilter_opt_re;
-//    else if (seq(s, "Pi")) m |= mkfilter_opt_pi;
-//    else if (seq(s, "Lp")) m |= mkfilter_opt_lp;
-//    else if (seq(s, "Hp")) m |= mkfilter_opt_hp;
-//    else if (seq(s, "Bp")) m |= mkfilter_opt_bp;
-//    else if (seq(s, "Bs")) m |= mkfilter_opt_bs;
-//    else if (seq(s, "Ap")) m |= mkfilter_opt_ap;
-//    else
-//      { until (*s == '\0')
-//	  { uint bit = optbit(*(s++));
-//	    if (bit == 0) usage();
-//	    m |= bit;
-//	  }
-//      }
-//    return m;
-//  }
-
-//static uint optbit(char c)
-//  { switch (c)
-//      { default:    return 0;
-//	case 'a':   return mkfilter_opt_a;
-//	case 'l':   return mkfilter_opt_l;
-//	case 'o':   return mkfilter_opt_o;
-//	case 'p':   return mkfilter_opt_p;
-//	case 'w':   return mkfilter_opt_w;
-//	case 'z':   return mkfilter_opt_z;
-//	case 'Z':   return mkfilter_opt_Z;
-//      }
-//  }
-
-//static double getfarg(char *s)
-//  { if (s == NULL) usage();
-//    return atof(s);
-//  }
-
-//static int getiarg(char *s)
-//  { if (s == NULL) usage();
-//    return atoi(s);
-//  }
-
-//static void usage()
-//  { fprintf(stderr, "Mkfilter V.%s from <fisher@minster.york.ac.uk>\n", VERSION);
-//    fprintf(stderr, "Usage: mkfilter [-Be | -Bu | -Ch <r> | -Pi] [-Lp | -Hp | -Bp | -Bs] [-p <n1> <n2> ...] [-{lwz}] "
-//				     "[-Z <alphaz>] "
-//				     "-o <order> -a <alpha1> [ <alpha2> ]\n");
-//    fprintf(stderr, "       mkfilter -Re <q> [-Bp | -Bs | -Ap] [-l] -a <alpha>\n\n");
-//    fprintf(stderr, "  -Be, Bu             = Bessel, Butterworth\n");
-//    fprintf(stderr, "  -Ch <r>             = Chebyshev (r = dB ripple)\n");
-//    fprintf(stderr, "  -Pi                 = Proportional-Integral\n");
-//    fprintf(stderr, "  -Re <q>             = 2-pole resonator (q = Q-factor)\n");
-//    fprintf(stderr, "  -Lp, Hp, Bp, Bs, Ap = lowpass, highpass, bandpass, bandstop, allpass\n");
-//    fprintf(stderr, "  -p                  = use listed poles only (ni = 0 .. order-1)\n");
-//    fprintf(stderr, "  -l                  = just list <order> parameters\n");
-//    fprintf(stderr, "  -w                  = don't pre-warp frequencies\n");
-//    fprintf(stderr, "  -z                  = use matched z-transform\n");
-//    fprintf(stderr, "  -Z                  = additional z-plane zero\n");
-//    fprintf(stderr, "  order = 1..%d;  alpha = f(corner)/f(sample)\n\n", MAXORDER);
-//    exit(1);
-//  }
 
 static bool checkoptions(context& ctx)
 { 
 	ctx.optsok = true;
-	unless (onebit(ctx.options & (mkfilter_opt_be | mkfilter_opt_bu | mkfilter_opt_ch | mkfilter_opt_re | mkfilter_opt_pi))) 
+	unless (onebit(ctx.options & (opt_be | opt_bu | opt_ch | opt_re | opt_pi))) 
 	{
 		throw std::invalid_argument("missing filter design method");
 		//opterror("must specify exactly one of -Be, -Bu, -Ch, -Re, -Pi");
 	}
-	if (ctx.options & mkfilter_opt_re) 
+	if (ctx.options & opt_re) 
 	{ 
-		unless (onebit(ctx.options & (mkfilter_opt_bp | mkfilter_opt_bs | mkfilter_opt_ap))) 
+		unless (onebit(ctx.options & (opt_bp | opt_bs | opt_ap))) 
 			throw std::invalid_argument("missing resonator type");
 		//opterror("must specify exactly one of -Bp, -Bs, -Ap with -Re");
 
-		if (ctx.options & (mkfilter_opt_lp | mkfilter_opt_hp | mkfilter_opt_o | mkfilter_opt_p | mkfilter_opt_w | mkfilter_opt_z))
+		if (ctx.options & (opt_lp | opt_hp | opt_o | opt_p | opt_w | opt_z))
 			throw std::invalid_argument("options incompatible with 2-pole resonator filter");
 		//opterror("can't use -Lp, -Hp, -o, -p, -w, -z with -Re");
 	}
-	else if (ctx.options & mkfilter_opt_pi) 
+	else if (ctx.options & opt_pi) 
 	{ 
-		if (ctx.options & (mkfilter_opt_lp | mkfilter_opt_hp | mkfilter_opt_bp | mkfilter_opt_bs | mkfilter_opt_ap))
+		if (ctx.options & (opt_lp | opt_hp | opt_bp | opt_bs | opt_ap))
 			throw std::invalid_argument("options incompatible with proportional integrator");
 		//opterror("-Lp, -Hp, -Bp, -Bs, -Ap illegal in conjunction with -Pi");
-		unless ((ctx.options & mkfilter_opt_o) && (ctx.order == 1)) 
+		unless ((ctx.options & opt_o) && (ctx.order == 1)) 
 			throw std::out_of_range("proportional integrator allows only order of 1");
 		// opterror("-Pi implies -o 1");
 	}
 	else 
 	{ 
-		unless (onebit(ctx.options & (mkfilter_opt_lp | mkfilter_opt_hp | mkfilter_opt_bp | mkfilter_opt_bs)))
+		unless (onebit(ctx.options & (opt_lp | opt_hp | opt_bp | opt_bs)))
 			throw std::invalid_argument("missing filter type");
 		// opterror("must specify exactly one of -Lp, -Hp, -Bp, -Bs");
-		if (ctx.options & mkfilter_opt_ap)
+		if (ctx.options & opt_ap)
 			throw std::invalid_argument("allpass characteristic avaialable only with 2-pole resonator");
 		// opterror("-Ap implies -Re");
-		if (ctx.options & mkfilter_opt_o) 
+		if (ctx.options & opt_o) 
 		{ 
 			unless (ctx.order >= 1 && ctx.order <= mkfilter::max_order) 
 				throw std::out_of_range("filter order out of range");
 			//	opterror("order must be in range 1 .. %d", mkfilter::max_order);
-			if (ctx.options & mkfilter_opt_p) 
+			if (ctx.options & opt_p) 
 			{ 
 				uint m = (1 << ctx.order) - 1; /* "order" bits set */
 				if ((ctx.polemask & ~m) != 0)
@@ -278,30 +155,25 @@ static bool checkoptions(context& ctx)
 			throw std::invalid_argument("missing filter order");
 		//opterror("must specify -o");
 	}
-	unless (ctx.options & mkfilter_opt_a) 
+	unless (ctx.options & opt_a) 
 		throw std::invalid_argument("missing normalized corner frequency");
 	//opterror("must specify -a");
 
 	return (ctx.optsok);
 }
 
-//static void opterror(context& ctx, char *msg, int p1, int p2)
-//  { fprintf(stderr, "mkfilter: "); fprintf(stderr, msg, p1, p2); putc('\n', stderr);
-//    ctx.optsok = false;
-//  }
-
 static void setdefaults(context& ctx)
 { 
-	unless (ctx.options & mkfilter_opt_p) 
+	unless (ctx.options & opt_p) 
 		ctx.polemask = ~0; /* use all poles */
-	unless (ctx.options & (mkfilter_opt_bp | mkfilter_opt_bs)) 
+	unless (ctx.options & (opt_bp | opt_bs)) 
 		ctx.raw_alpha2 = ctx.raw_alpha1;
 }
 
 static void compute_s(context& ctx) /* compute S-plane poles for prototype LP filter */
 { 
 	ctx.splane.numpoles = 0;
-	if (ctx.options & mkfilter_opt_be)
+	if (ctx.options & opt_be)
 	{ /* Bessel filter */
 		int p = (ctx.order*ctx.order)/4; /* ptr into table */
 		if (ctx.order & 1) 
@@ -313,7 +185,7 @@ static void compute_s(context& ctx) /* compute S-plane poles for prototype LP fi
 			p++;
 		}
 	}
-	if (ctx.options & (mkfilter_opt_bu | mkfilter_opt_ch))
+	if (ctx.options & (opt_bu | opt_ch))
 	{ /* Butterworth filter */
 		for (int i = 0; i < 2*ctx.order; i++)
 		{ 
@@ -321,7 +193,7 @@ static void compute_s(context& ctx) /* compute S-plane poles for prototype LP fi
 			choosepole(ctx, expj(theta));
 		}
 	}
-	if (ctx.options & mkfilter_opt_ch)
+	if (ctx.options & opt_ch)
 	{ /* modify for Chebyshev (p. 136 DeFatta et al.) */
 		if (ctx.chebrip >= 0.0)
 		{ 
@@ -350,14 +222,15 @@ static void choosepole(context& ctx, complex z)
 { 
 	if (z.re < 0.0)
 	{ 
-		if (ctx.polemask & 1) ctx.splane.poles[ctx.splane.numpoles++] = z;
+		if (ctx.polemask & 1) 
+			ctx.splane.poles[ctx.splane.numpoles++] = z;
 		ctx.polemask >>= 1;
 	}
 }
 
 static void prewarp(context& ctx)
 { /* for bilinear transform, perform pre-warp on alpha values */
-	if (ctx.options & (mkfilter_opt_w | mkfilter_opt_z))
+	if (ctx.options & (opt_w | opt_z))
 	{ 
 		ctx.warped_alpha1 = ctx.raw_alpha1;
 		ctx.warped_alpha2 = ctx.raw_alpha2;
@@ -374,15 +247,15 @@ static void normalize(context& ctx)		/* called for trad, not for -Re or -Pi */
 	double w1 = TWOPI * ctx.warped_alpha1;
 	double w2 = TWOPI * ctx.warped_alpha2;
 	/* transform prototype into appropriate filter type (lp/hp/bp/bs) */
-	switch (ctx.options & (mkfilter_opt_lp | mkfilter_opt_hp | mkfilter_opt_bp| mkfilter_opt_bs)) { 
-	case mkfilter_opt_lp: { 
+	switch (ctx.options & (opt_lp | opt_hp | opt_bp| opt_bs)) { 
+	case opt_lp: { 
 		for (int i = 0; i < ctx.splane.numpoles; i++) 
 			ctx.splane.poles[i] = ctx.splane.poles[i] * w1;
 		ctx.splane.numzeros = 0;
 		break;
 				 }
 
-	case mkfilter_opt_hp: { 
+	case opt_hp: { 
 		int i;
 		for (i=0; i < ctx.splane.numpoles; i++) 
 			ctx.splane.poles[i] = w1 / ctx.splane.poles[i];
@@ -392,7 +265,7 @@ static void normalize(context& ctx)		/* called for trad, not for -Re or -Pi */
 		break;
 				 }
 
-	case mkfilter_opt_bp: { 
+	case opt_bp: { 
 		double w0 = sqrt(w1*w2), bw = w2-w1; int i;
 		for (i=0; i < ctx.splane.numpoles; i++) { 
 			complex hba = 0.5 * (ctx.splane.poles[i] * bw);
@@ -407,7 +280,7 @@ static void normalize(context& ctx)		/* called for trad, not for -Re or -Pi */
 		break;
 				 }
 
-	case mkfilter_opt_bs: { 
+	case opt_bs: { 
 		double w0 = sqrt(w1*w2), bw = w2-w1; int i;
 		for (i=0; i < ctx.splane.numpoles; i++)	{ 
 			complex hba = 0.5 * (bw / ctx.splane.poles[i]);
@@ -563,126 +436,3 @@ static void multin(complex w, int npz, complex coeffs[])
 		coeffs[i] = (nw * coeffs[i]) + coeffs[i-1];
 	coeffs[0] = nw * coeffs[0];
 }
-
-//static void printresults(const context& ctx, char *argv[])
-//{
-//	if (ctx.options & mkfilter_opt_l)
-//	{ /* just list parameters */
-//		printcmdline(argv);
-//		complex gain = (ctx.options & mkfilter_opt_pi) ? ctx.hf_gain :
-//			(ctx.options & mkfilter_opt_lp) ? ctx.dc_gain :
-//			(ctx.options & mkfilter_opt_hp) ? ctx.hf_gain :
-//			(ctx.options & (mkfilter_opt_bp | mkfilter_opt_ap)) ? ctx.fc_gain :
-//			(ctx.options & mkfilter_opt_bs) ? csqrt(ctx.dc_gain * ctx.hf_gain) : complex(1.0);
-//		printf("G  = %.10e\n", hypot(gain));
-//		printcoeffs("NZ", ctx.zplane.numzeros, ctx.xcoeffs);
-//		printcoeffs("NP", ctx.zplane.numpoles, ctx.ycoeffs);
-//	}
-//	else
-//	{
-//		printf("Command line: ");
-//		printcmdline(argv);
-//		printfilter(ctx);
-//	}
-//}
-
-//static void printcmdline(char *argv[])
-//{
-//	int k = 0;
-//	until (argv[k] == NULL)
-//	{
-//		if (k > 0) putchar(' ');
-//		fputs(argv[k++], stdout);
-//	}
-//	putchar('\n');
-//}
-
-//static void printcoeffs(const char *pz, int npz, const double coeffs[])
-//{
-//	printf("%s = %d\n", pz, npz);
-//	for (int i = 0; i <= npz; i++) printf("%18.10e\n", coeffs[i]);
-//}
-
-//static void printfilter(const context& ctx)
-//{
-//	printf("raw alpha1    = %14.10f\n", ctx.raw_alpha1);
-//	printf("raw alpha2    = %14.10f\n", ctx.raw_alpha2);
-//	unless (ctx.options & (mkfilter_opt_re | mkfilter_opt_w | mkfilter_opt_z))
-//	{
-//		printf("warped alpha1 = %14.10f\n", ctx.warped_alpha1);
-//		printf("warped alpha2 = %14.10f\n", ctx.warped_alpha2);
-//	}
-//	printgain("dc    ", ctx.dc_gain);
-//	printgain("centre", ctx.fc_gain);
-//	printgain("hf    ", ctx.hf_gain);
-//	putchar('\n');
-//	unless (ctx.options & mkfilter_opt_re) printrat_s(ctx);
-//	printrat_z(ctx);
-//	printrecurrence(ctx);
-//}
-
-//static void printgain(const char *str, complex gain)
-//{
-//	double r = hypot(gain);
-//	printf("gain at %s:   mag = %15.9e", str, r);
-//	if (r > EPS) printf("   phase = %14.10f pi", atan2(gain) / PI);
-//	putchar('\n');
-//}
-//
-//static void printrat_s(const context& ctx)	/* print S-plane poles and zeros */
-//{
-//	printf("S-plane zeros:\n");
-//	printpz(ctx.splane.zeros, ctx.splane.numzeros);
-//	printf("S-plane poles:\n");
-//	printpz(ctx.splane.poles, ctx.splane.numpoles);
-//}
-//
-//static void printrat_z(const context& ctx)	/* print Z-plane poles and zeros */
-//{
-//	printf("Z-plane zeros:\n");
-//	printpz(ctx.zplane.zeros, ctx.zplane.numzeros);
-//	printf("Z-plane poles:\n");
-//	printpz(ctx.zplane.poles, ctx.zplane.numpoles);
-//}
-//
-//static void printpz(const complex *pzvec, int num)
-//{
-//	int n1 = 0;
-//	while (n1 < num)
-//	{
-//		putchar('\t'); prcomplex(pzvec[n1]);
-//		int n2 = n1+1;
-//		while (n2 < num && pzvec[n2] == pzvec[n1]) n2++;
-//		if (n2-n1 > 1) printf("\t%d times", n2-n1);
-//		putchar('\n');
-//		n1 = n2;
-//	}
-//	putchar('\n');
-//}
-//
-//static void printrecurrence(const context& ctx) /* given (real) Z-plane poles & zeros, compute & print recurrence relation */
-//{
-//	printf("Recurrence relation:\n");
-//	printf("y[n] = ");
-//	int i;
-//	for (i = 0; i < ctx.zplane.numzeros+1; i++)
-//	{
-//		if (i > 0) printf("     + ");
-//		double x = ctx.xcoeffs[i];
-//		double f = fmod(fabs(x), 1.0);
-//		const char *fmt = (f < EPS || f > 1.0-EPS) ? "%3g" : "%14.10f";
-//		putchar('('); printf(fmt, x); printf(" * x[n-%2d])\n", ctx.zplane.numzeros-i);
-//	}
-//	putchar('\n');
-//	for (i = 0; i < ctx.zplane.numpoles; i++)
-//	{
-//		printf("     + (%14.10f * y[n-%2d])\n", ctx.ycoeffs[i], ctx.zplane.numpoles-i);
-//	}
-//	putchar('\n');
-//}
-//
-//static void prcomplex(complex z)
-//{
-//	printf("%14.10f + j %14.10f", z.re, z.im);
-//}
-
