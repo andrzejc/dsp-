@@ -173,6 +173,19 @@ DSPXX_API void iir_filter_design(
 	unsigned pole_mask = 0		//!< [in] Use only specified poles
 );
 
+//! @brief Design IIR Butterworth, Bessel or Chebyshev filter in the z-plane according to specification.
+//! @return gain
+DSPXX_API double iir_filter_design(
+	size_t order,				//!< [in] filter order
+	std::complex<double> z[],	//!< [out] z-plane zeros (order) or (2 * order) in case of BP, BS
+	std::complex<double> p[],	//!< [out] z-plane poles (order) or (2 * order) in case of BP, BS
+	unsigned type,				//!< [in] filter type, characteristic and flags (combination of reasonable {@link iir_type} values)
+	const double* fc,				//!< [in] normalized corner frequency/ies (0, 0.5) range
+	const double* cheb_rip = NULL,	//!< [in] Chebyshev ripple in dB
+	const double* zero_freq = NULL,	//!< [in] put additional zero at specified normalized frequency
+	unsigned pole_mask = 0		//!< [in] Use only specified poles
+);
+
 }
 
 #endif /* DSP_FILTER_DESIGN_H_INCLUDED */

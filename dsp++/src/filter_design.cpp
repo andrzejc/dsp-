@@ -11,6 +11,7 @@
 #include <memory>
 #include <cstring>
 #include <algorithm>
+#include <cassert>
 
 #include <dsp++/const.h>
 
@@ -129,7 +130,7 @@ void dsp::biquad_design(double b[], double a[], biquad_type type, double norm_fr
 
 namespace {
 
-static size_t init_mkfilter(mkfilter::context& ctx, size_t order, double b[], double a[], unsigned type, const double* fc, const double* cheb_rip, const double* zero_freq, unsigned pole_mask)
+static size_t init_mkfilter(mkfilter::context& ctx, size_t order, unsigned type, const double* fc, const double* cheb_rip, const double* zero_freq, unsigned pole_mask)
 {
 	size_t sz = order;
 	const unsigned type_mask = 0x0003;
@@ -201,25 +202,46 @@ static size_t init_mkfilter(mkfilter::context& ctx, size_t order, double b[], do
 void dsp::iir_filter_design(size_t order, double b[], double a[], unsigned type, const double* fc, const double* cheb_rip, const double* zero_freq, unsigned pole_mask)
 {
 	mkfilter::context ctx = {0};
-	size_t sz = init_mkfilter(ctx, order, b, a, type, fc, cheb_rip, zero_freq, pole_mask);
+	size_t sz = init_mkfilter(ctx, order, type, fc, cheb_rip, zero_freq, pole_mask);
+	ctx.xcoeffs = b;
+	ctx.ycoeffs = a;
 
 	mkfilter::design(ctx);
 
-	// inverse coeffs order - mkfilter produces vectors in the format for its own internal filter implementation which uses inversed vectors (and negative denominator)
-	for (size_t i = 0; i < sz + 1; ++i) 
+	// inverse coeffs order - mkfilter produces vectors in the format for its own internal filter implementation which uses inversed vectors
+	for (size_t i = 0; i < (sz + 1) / 2; ++i) 
 	{
-		b[i] = ctx.xcoeffs[sz - i];
-		a[i] = -ctx.ycoeffs[sz - i];
+		std::swap(b[i], b[sz - i]);
+		std::swap(a[i], a[sz - i]);
 	}
 }
+
+double dsp::iir_filter_design(size_t order,	std::complex<double> z[], std::complex<double> p[],	unsigned type, 
+	const double* fc, const double* cheb_rip, const double* zero_freq, unsigned pole_mask)
+{
+	mkfilter::context ctx = {0};
+	size_t sz = init_mkfilter(ctx, order, type, fc, cheb_rip, zero_freq, pole_mask);
+
+	mkfilter::design(ctx);
+
+	assert(ctx.zplane.numzeros == sz);
+	assert(ctx.zplane.numpoles == sz);
+	std::copy(ctx.zplane.zeros, ctx.zplane.zeros + sz, z);
+	std::copy(ctx.zplane.poles, ctx.zplane.poles + sz, p);
+	return 1/gain(ctx);
+}
+
 
 #if 0
 namespace {
 
 static bool test_iir() {
-	double b[21], a[21];
+	//double b[21], a[21];
 	double fc[2] = {100./44100, 300./44100};
-	iir_filter_design(10, b, a, dsp::iir_bandpass, fc);
+	//iir_filter_design(10, b, a, dsp::iir_bandpass, fc);
+
+	std::complex<double> z[20], p[20];
+	double k = iir_filter_design(4, z, p, dsp::iir_bandpass, fc);
 	return true;
 }
 

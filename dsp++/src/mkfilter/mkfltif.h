@@ -25,8 +25,8 @@ static const unsigned opt_w =  0x04000;	/* -w		don't pre-warp		       */
 static const unsigned opt_z =  0x08000;	/* -z		use matched z-transform	       */
 static const unsigned opt_Z =  0x10000;	/* -Z		additional zero		       */
 
-const int max_pz = 512;
 const int max_order = 10;
+const int max_pz = max_order * 2;
 
 struct pzrep
 { 
@@ -48,10 +48,13 @@ struct context
 	double warped_alpha1, warped_alpha2;
 	bool optsok;
 
-	double xcoeffs[max_pz + 1], ycoeffs[max_pz + 1];
+	double* xcoeffs;
+	double* ycoeffs;
 };
 
 
 void design(context& params);
+
+double gain(const context& params);
 
 }

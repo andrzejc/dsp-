@@ -19,6 +19,8 @@ September 1992 */
 
 using namespace mkfilter;
 
+namespace {
+
 static const c_complex bessel_poles[] =
 { /* table produced by /usr/fisher/bessel --	N.B. only one member of each C.Conj. pair is listed */
 	{ -1.00000000000e+00, 0.00000000000e+00}, { -1.10160133059e+00, 6.36009824757e-01},
@@ -38,70 +40,23 @@ static const c_complex bessel_poles[] =
 	{ -1.36069227838e+00, 1.73350574267e+00}, { -8.65756901707e-01, 2.29260483098e+00},
 };
 
+inline complex cc(const c_complex& z) {return complex(z.re, z.im);}
+
 static bool checkoptions(context& ctx);
-static void /* usage(), opterror(char*, int = 0, int = 0), */ setdefaults(context& ctx);
-static void compute_s(context& ctx), choosepole(context& ctx, complex), prewarp(context& ctx), normalize(context& ctx), compute_z_blt(context& ctx);
-static complex blt(complex);
+static void setdefaults(context& ctx);
+static void compute_s(context& ctx);
+static void choosepole(context& ctx, const complex&);
+static void prewarp(context& ctx);
+static void normalize(context& ctx);
+static void compute_z_blt(context& ctx);
 static void compute_z_mzt(context& ctx);
-static void compute_notch(context& ctx), compute_apres(context& ctx);
-static complex reflect(complex);
-static void compute_bpres(context& ctx), add_extra_zero(context& ctx);
-static void expandpoly(context& ctx), expand(complex[], int, complex[]), multin(complex, int, complex[]);
-//static void /*printresults(const context& ctx, char*[]),*/ /*printcmdline(char*[]),*/ /*printfilter(const context& ctx),*/ printgain(const char*, complex);
-//static void printcoeffs(const char*, int, const double[]);
-//static void printrat_s(const context& ctx), printrat_z(const context& ctx), printpz(const complex*, int), printrecurrence(const context& ctx), prcomplex(complex);
-
-static void do_design(context& ctx)
-{ 
-	//readcmdline(argv);
-	checkoptions(ctx);
-	setdefaults(ctx);
-	if (ctx.options & opt_re) 
-	{ 
-		if (ctx.options & opt_bp) compute_bpres(ctx);	   /* bandpass resonator	 */
-		if (ctx.options & opt_bs) compute_notch(ctx);	   /* bandstop resonator (notch) */
-		if (ctx.options & opt_ap) compute_apres(ctx);	   /* allpass resonator		 */
-	}
-	else { 
-		if (ctx.options & opt_pi) 
-		{ 
-			prewarp(ctx);
-			ctx.splane.poles[0] = 0.0;
-			ctx.splane.zeros[0] = -TWOPI * ctx.warped_alpha1;
-			ctx.splane.numpoles = ctx.splane.numzeros = 1;
-		}
-		else { 
-			compute_s(ctx);
-			prewarp(ctx);
-			normalize(ctx);
-		}
-		if (ctx.options & opt_z) 
-			compute_z_mzt(ctx); 
-		else 
-			compute_z_blt(ctx);
-	}
-	if (ctx.options & opt_Z) 
-		add_extra_zero(ctx);
-
-	expandpoly(ctx);
-	//printresults(ctx, argv);
-}
-
-void mkfilter::design(context& ctx)
-{
-	do_design(ctx);
-
-	unsigned opt = ctx.options;
-	complex gain = (opt & opt_pi) ? ctx.hf_gain :
-		(opt & opt_lp) ? ctx.dc_gain :
-		(opt & opt_hp) ? ctx.hf_gain :
-		(opt & (opt_bp | opt_ap)) ? ctx.fc_gain :
-		(opt & opt_bs) ? csqrt(ctx.dc_gain * ctx.hf_gain) : complex(1.0);
-	double g = hypot(gain);
-
-	for (int i = 0; i <= ctx.zplane.numzeros; ++i)
-		ctx.xcoeffs[i] /= g;
-}
+static void compute_notch(context& ctx);
+static void compute_apres(context& ctx);
+static void compute_bpres(context& ctx);
+static void add_extra_zero(context& ctx);
+static void expandpoly(context& ctx);
+static void expand(complex[], int, complex[]);
+static void multin(const complex&, int, complex[]);
 
 static bool checkoptions(context& ctx)
 { 
@@ -145,7 +100,7 @@ static bool checkoptions(context& ctx)
 			//	opterror("order must be in range 1 .. %d", mkfilter::max_order);
 			if (ctx.options & opt_p) 
 			{ 
-				uint m = (1 << ctx.order) - 1; /* "order" bits set */
+				unsigned m = (1 << ctx.order) - 1; /* "order" bits set */
 				if ((ctx.polemask & ~m) != 0)
 					throw std::out_of_range("selected poles out of range");
 				//opterror("order=%d, so args to -p must be in range 0 .. %d", ctx.order, ctx.order-1);
@@ -175,13 +130,16 @@ static void compute_s(context& ctx) /* compute S-plane poles for prototype LP fi
 	ctx.splane.numpoles = 0;
 	if (ctx.options & opt_be)
 	{ /* Bessel filter */
+		if (ctx.order > 10) 
+			throw std::invalid_argument("max order for Bessel filter is 10");
+
 		int p = (ctx.order*ctx.order)/4; /* ptr into table */
 		if (ctx.order & 1) 
-			choosepole(ctx, bessel_poles[p++]);
-		for (int i = 0; i < ctx.order/2; i++)
+			choosepole(ctx, cc(bessel_poles[p++]));
+		for (int i = 0; i < ctx.order / 2; i++)
 		{ 
-			choosepole(ctx, bessel_poles[p]);
-			choosepole(ctx, cconj(bessel_poles[p]));
+			choosepole(ctx, cc(bessel_poles[p]));
+			choosepole(ctx, conj(cc(bessel_poles[p])));
 			p++;
 		}
 	}
@@ -212,15 +170,15 @@ static void compute_s(context& ctx) /* compute S-plane poles for prototype LP fi
 		}
 		for (int i = 0; i < ctx.splane.numpoles; i++)
 		{ 
-			ctx.splane.poles[i].re *= sinh(y);
-			ctx.splane.poles[i].im *= cosh(y);
+			ctx.splane.poles[i].real(real(ctx.splane.poles[i]) * sinh(y));
+			ctx.splane.poles[i].imag(imag(ctx.splane.poles[i]) * cosh(y));
 		}
 	}
 }
 
-static void choosepole(context& ctx, complex z)
+static void choosepole(context& ctx, const complex& z)
 { 
-	if (z.re < 0.0)
+	if (real(z) < 0.0)
 	{ 
 		if (ctx.polemask & 1) 
 			ctx.splane.poles[ctx.splane.numpoles++] = z;
@@ -269,7 +227,7 @@ static void normalize(context& ctx)		/* called for trad, not for -Re or -Pi */
 		double w0 = sqrt(w1*w2), bw = w2-w1; int i;
 		for (i=0; i < ctx.splane.numpoles; i++) { 
 			complex hba = 0.5 * (ctx.splane.poles[i] * bw);
-			complex temp = csqrt(1.0 - sqr(w0 / hba));
+			complex temp = sqrt(1.0 - sqr(w0 / hba));
 			ctx.splane.poles[i] = hba * (1.0 + temp);
 			ctx.splane.poles[ctx.splane.numpoles+i] = hba * (1.0 - temp);
 		}
@@ -284,7 +242,7 @@ static void normalize(context& ctx)		/* called for trad, not for -Re or -Pi */
 		double w0 = sqrt(w1*w2), bw = w2-w1; int i;
 		for (i=0; i < ctx.splane.numpoles; i++)	{ 
 			complex hba = 0.5 * (bw / ctx.splane.poles[i]);
-			complex temp = csqrt(1.0 - sqr(w0 / hba));
+			complex temp = sqrt(1.0 - sqr(w0 / hba));
 			ctx.splane.poles[i] = hba * (1.0 + temp);
 			ctx.splane.poles[ctx.splane.numpoles+i] = hba * (1.0 - temp);
 		}
@@ -299,7 +257,7 @@ static void normalize(context& ctx)		/* called for trad, not for -Re or -Pi */
 	}
 }
 
-static complex blt(complex pz) { return (2.0 + pz) / (2.0 - pz);}
+inline complex blt(const complex& pz) { return (2.0 + pz) / (2.0 - pz);}
 
 static void compute_z_blt(context& ctx) /* given S-plane poles & zeros, compute Z-plane poles & zeros, by bilinear transform */
 { 
@@ -320,9 +278,9 @@ static void compute_z_mzt(context& ctx) /* given S-plane poles & zeros, compute 
 	ctx.zplane.numpoles = ctx.splane.numpoles;
 	ctx.zplane.numzeros = ctx.splane.numzeros;
 	for (i=0; i < ctx.zplane.numpoles; i++) 
-		ctx.zplane.poles[i] = cexp(ctx.splane.poles[i]);
+		ctx.zplane.poles[i] = exp(ctx.splane.poles[i]);
 	for (i=0; i < ctx.zplane.numzeros; i++) 
-		ctx.zplane.zeros[i] = cexp(ctx.splane.zeros[i]);
+		ctx.zplane.zeros[i] = exp(ctx.splane.zeros[i]);
 }
 
 static void compute_notch(context& ctx)
@@ -330,7 +288,13 @@ static void compute_notch(context& ctx)
 	compute_bpres(ctx);		/* iterate to place poles */
 	double theta = TWOPI * ctx.raw_alpha1;
 	complex zz = expj(theta);	/* place zeros exactly */
-	ctx.zplane.zeros[0] = zz; ctx.zplane.zeros[1] = cconj(zz);
+	ctx.zplane.zeros[0] = zz; ctx.zplane.zeros[1] = conj(zz);
+}
+
+inline complex reflect(const complex& z)
+{ 
+	double r = hypot(z);
+	return z / sqr(r);
 }
 
 static void compute_apres(context& ctx)
@@ -338,12 +302,6 @@ static void compute_apres(context& ctx)
 	compute_bpres(ctx);		/* iterate to place poles */
 	ctx.zplane.zeros[0] = reflect(ctx.zplane.poles[0]);
 	ctx.zplane.zeros[1] = reflect(ctx.zplane.poles[1]);
-}
-
-static complex reflect(complex z)
-{ 
-	double r = hypot(z);
-	return z / sqr(r);
 }
 
 static void compute_bpres(context& ctx)
@@ -354,7 +312,7 @@ static void compute_bpres(context& ctx)
 	if (ctx.infq)
 	{ /* oscillator */
 		complex zp = expj(theta);
-		ctx.zplane.poles[0] = zp; ctx.zplane.poles[1] = cconj(zp);
+		ctx.zplane.poles[0] = zp; ctx.zplane.poles[1] = conj(zp);
 	}
 	else
 	{ /* must iterate to find exact pole positions */
@@ -366,10 +324,10 @@ static void compute_bpres(context& ctx)
 		for (int i=0; i < 50 && !cvg; i++)
 		{ 
 			complex zp = r * expj(thm);
-			ctx.zplane.poles[0] = zp; ctx.zplane.poles[1] = cconj(zp);
+			ctx.zplane.poles[0] = zp; ctx.zplane.poles[1] = conj(zp);
 			complex botcoeffs[mkfilter::max_pz+1]; expand(ctx.zplane.poles, ctx.zplane.numpoles, botcoeffs);
 			complex g = evaluate(topcoeffs, ctx.zplane.numzeros, botcoeffs, ctx.zplane.numpoles, expj(theta));
-			double phi = g.im / g.re; /* approx to atan2 */
+			double phi = imag(g) / real(g); /* approx to atan2 */
 			if (phi > 0.0) th2 = thm; else th1 = thm;
 			if (fabs(phi) < EPS) cvg = true;
 			thm = 0.5 * (th1+th2);
@@ -386,12 +344,11 @@ static void add_extra_zero(context& ctx)
 	{ 
 		throw std::runtime_error("too many zeros");
 		//  fprintf(stderr, "mkfilter: too many zeros; can't do -Z\n");
-		//exit(1);
 	}
 	double theta = TWOPI * ctx.raw_alphaz;
 	complex zz = expj(theta);
 	ctx.zplane.zeros[ctx.zplane.numzeros++] = zz;
-	ctx.zplane.zeros[ctx.zplane.numzeros++] = cconj(zz);
+	ctx.zplane.zeros[ctx.zplane.numzeros++] = conj(zz);
 	while (ctx.zplane.numpoles < ctx.zplane.numzeros) 
 		ctx.zplane.poles[ctx.zplane.numpoles++] = 0.0;	 /* ensure causality */
 }
@@ -405,22 +362,29 @@ static void expandpoly(context& ctx) /* given Z-plane poles & zeros, compute top
 	double theta = TWOPI * 0.5 * (ctx.raw_alpha1 + ctx.raw_alpha2); /* "jwT" for centre freq. */
 	ctx.fc_gain = evaluate(topcoeffs, ctx.zplane.numzeros, botcoeffs, ctx.zplane.numpoles, expj(theta));
 	ctx.hf_gain = evaluate(topcoeffs, ctx.zplane.numzeros, botcoeffs, ctx.zplane.numpoles, -1.0);
-	for (i = 0; i <= ctx.zplane.numzeros; i++) 
-		ctx.xcoeffs[i] = +(topcoeffs[i].re / botcoeffs[ctx.zplane.numpoles].re);
-	for (i = 0; i <= ctx.zplane.numpoles; i++) 
-		ctx.ycoeffs[i] = -(botcoeffs[i].re / botcoeffs[ctx.zplane.numpoles].re);
+
+	if (NULL != ctx.xcoeffs) {
+		for (i = 0; i <= ctx.zplane.numzeros; i++) 
+			ctx.xcoeffs[i] = (real(topcoeffs[i]) / real(botcoeffs[ctx.zplane.numpoles]));
+	}
+	if (NULL != ctx.ycoeffs) {
+		for (i = 0; i <= ctx.zplane.numpoles; i++) 
+			ctx.ycoeffs[i] = (real(botcoeffs[i]) / real(botcoeffs[ctx.zplane.numpoles]));
+	}
 }
 
 static void expand(complex pz[], int npz, complex coeffs[])
 { /* compute product of poles or zeros as a polynomial of z */
 	int i;
 	coeffs[0] = 1.0;
-	for (i=0; i < npz; i++) coeffs[i+1] = 0.0;
-	for (i=0; i < npz; i++) multin(pz[i], npz, coeffs);
+	for (i=0; i < npz; i++) 
+		coeffs[i+1] = 0.0;
+	for (i=0; i < npz; i++) 
+		multin(pz[i], npz, coeffs);
 	/* check computed coeffs of z^k are all real */
 	for (i=0; i < npz+1; i++)
 	{ 
-		if (fabs(coeffs[i].im) > EPS)
+		if (fabs(imag(coeffs[i])) > EPS)
 		{ 
 			throw std::runtime_error("poles/zeros not complex conjugates");
 			//fprintf(stderr, "mkfilter: coeff of z^%d is not real; poles/zeros are not complex conjugates\n", i);
@@ -429,10 +393,74 @@ static void expand(complex pz[], int npz, complex coeffs[])
 	}
 }
 
-static void multin(complex w, int npz, complex coeffs[])
+static void multin(const complex& w, int npz, complex coeffs[])
 { /* multiply factor (z-w) into coeffs */
 	complex nw = -w;
 	for (int i = npz; i >= 1; i--) 
 		coeffs[i] = (nw * coeffs[i]) + coeffs[i-1];
 	coeffs[0] = nw * coeffs[0];
+}
+
+static void do_design(context& ctx)
+{ 
+	//readcmdline(argv);
+	checkoptions(ctx);
+	setdefaults(ctx);
+	if (ctx.options & opt_re) 
+	{ 
+		if (ctx.options & opt_bp) 
+			compute_bpres(ctx);	   /* bandpass resonator	 */
+		if (ctx.options & opt_bs) 
+			compute_notch(ctx);	   /* bandstop resonator (notch) */
+		if (ctx.options & opt_ap) 
+			compute_apres(ctx);	   /* allpass resonator		 */
+	}
+	else 
+	{ 
+		if (ctx.options & opt_pi) 
+		{ 
+			prewarp(ctx);
+			ctx.splane.poles[0] = 0.0;
+			ctx.splane.zeros[0] = -TWOPI * ctx.warped_alpha1;
+			ctx.splane.numpoles = ctx.splane.numzeros = 1;
+		}
+		else 
+		{ 
+			compute_s(ctx);
+			prewarp(ctx);
+			normalize(ctx);
+		}
+		if (ctx.options & opt_z) 
+			compute_z_mzt(ctx); 
+		else 
+			compute_z_blt(ctx);
+	}
+	if (ctx.options & opt_Z) 
+		add_extra_zero(ctx);
+
+	expandpoly(ctx);
+}
+}
+
+double mkfilter::gain(const context& ctx)
+{
+	unsigned opt = ctx.options;
+	complex gain = (opt & opt_pi) ? ctx.hf_gain :
+		(opt & opt_lp) ? ctx.dc_gain :
+		(opt & opt_hp) ? ctx.hf_gain :
+		(opt & (opt_bp | opt_ap)) ? ctx.fc_gain :
+		(opt & opt_bs) ? sqrt(ctx.dc_gain * ctx.hf_gain) : complex(1.0);
+	double g = hypot(gain);
+	return g;
+}
+
+void mkfilter::design(context& ctx)
+{
+	do_design(ctx);
+
+	double g = gain(ctx);
+	if (NULL != ctx.xcoeffs) {
+		for (int i = 0; i <= ctx.zplane.numzeros; ++i)
+			ctx.xcoeffs[i] /= g;
+	}
 }

@@ -18,10 +18,8 @@ namespace mkfilter {
 	//#define mkfilter::max_pz	    512	    /* .ge. 2*MAXORDER, to allow for doubling of poles in BP filter;
 	//			       high values needed for FIR filters */
 
-typedef unsigned int uint;
-
 inline double sqr(double x)	    {return x*x;}
-inline bool onebit(uint m)	    {return (m != 0) && ((m & (m-1)) == 0);}
+inline bool onebit(unsigned m)	    {return (m != 0) && ((m & (m-1)) == 0);}
 
 inline double asinh(double x)
 { /* Microsoft C++ does not define */
