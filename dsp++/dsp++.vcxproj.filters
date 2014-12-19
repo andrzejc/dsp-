@@ -93,9 +93,6 @@
     <ClCompile Include="src\fixed.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\adaptfilt.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\snd\loudness.cpp">
       <Filter>src\snd</Filter>
     </ClCompile>

@@ -14,10 +14,10 @@ namespace dsp {
 
 //! @brief Solve polynomial for roots using rpoly algorithm.
 //! @return number of roots returned in @p roots vector.
-DSPXX_API unsigned rpoly(
+DSPXX_API unsigned roots(
 	unsigned degree,				//!< [in] polynomial degree (highest exponent of the variable).
-	const double poly[],			//!< [in] polynomial coefficients [degree + 1]
-	std::complex<double> roots[]	//!< [out] roots of the polynomial [degree]
+	const double poly[],			//!< [in] polynomial coefficients (degree + 1)
+	std::complex<double> roots[]	//!< [out] roots of the polynomial (degree)
 );
 
 }

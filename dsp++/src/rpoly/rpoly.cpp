@@ -780,7 +780,7 @@ namespace {
 
 }
 
-unsigned dsp::rpoly(unsigned degree, const double* poly, std::complex<double>* roots)
+unsigned dsp::roots(unsigned degree, const double* poly, std::complex<double>* roots)
 {
 	boost::scoped_array<double> zeror, zeroi;
 	boost::scoped_array<int> info(new int[degree + 1]);
@@ -790,7 +790,7 @@ unsigned dsp::rpoly(unsigned degree, const double* poly, std::complex<double>* r
 	rpoly_solver slv;
 	int res = slv.rpoly(poly, static_cast<int>(degree), zeror.get(), zeroi.get(), info.get());
 	if (res < 0)
-		throw std::logic_error("leading coefficient for rpoly can't be 0");
+		throw std::logic_error("leading coefficient for roots() can't be 0");
 
 	std::transform(zeror.get(), zeror.get() + degree, zeroi.get(), roots, make_complex());
 	return static_cast<unsigned>(res);

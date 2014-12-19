@@ -45,7 +45,7 @@ inline complex cc(const c_complex& z) {return complex(z.re, z.im);}
 
 static const double PI = 3.1415926535897932384626433832795;
 static const double TWOPI = 6.283185307179586476925286766559;
-static const double EPS = 1e-10;
+static const double EPS = DBL_EPSILON; // 1e-10;
 
 //#define MAXORDER    10
 //#define mkfilter::max_pz	    512	    /* .ge. 2*MAXORDER, to allow for doubling of poles in BP filter;

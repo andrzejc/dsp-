@@ -58,7 +58,7 @@ const size_t sos_length = 3; //!< Length of coefficient vector of a single secon
  * @param[in,out] w vector used for storing intermediate calculation results - N step-length delay line vectors (step * N).
  * @param[in] b vector with MA coefficients for each section (step * N)
  * @param[in] a vector with AR coefficients for each section (step * N)
- * @param[in] step length of each section coefficient and delay line subvectors.
+ * @param[in] step length of each section coefficient and delay line subvectors (this may differ to @p sos_length due to padding).
  */
 template<class Sample> inline
 Sample filter_sample_sos_df2(Sample x, size_t N, const bool* scale_only, Sample* w, const Sample* b, const Sample* a, size_t step)

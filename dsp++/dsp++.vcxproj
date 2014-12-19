@@ -336,7 +336,6 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\adaptfilt.cpp" />
     <ClCompile Include="src\arch\ppc\cpu_ppc.cpp" />
     <ClCompile Include="src\arch\x86\cpu_x86.cpp" />
     <ClCompile Include="src\arch\x86\sse.cpp">

@@ -244,7 +244,7 @@ double dsp::iir::design(size_t order,	std::complex<double> z[], std::complex<dou
 }
 
 
-#if 1
+#if 0
 namespace {
 
 static bool test_iir() {
