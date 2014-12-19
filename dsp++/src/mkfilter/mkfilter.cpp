@@ -151,7 +151,7 @@ static bool checkoptions(context& ctx)
 		// opterror("-Ap implies -Re");
 		if (ctx.options & opt_o) 
 		{ 
-			unless (ctx.order >= 1 && ctx.order <= mkfilter::max_order) 
+			unless (ctx.order >= 1 /* && ctx.order <= mkfilter::max_order*/) 
 				throw std::out_of_range("filter order out of range");
 			//	opterror("order must be in range 1 .. %d", mkfilter::max_order);
 			if (ctx.options & opt_p) 
@@ -406,11 +406,12 @@ static void compute_bpres(context& ctx)
 
 static void add_extra_zero(context& ctx)
 { 
-	if (ctx.zplane.numzeros+2 > mkfilter::max_pz)
-	{ 
-		throw std::runtime_error("too many zeros");
-		//  fprintf(stderr, "mkfilter: too many zeros; can't do -Z\n");
-	}
+	//if (ctx.zplane.numzeros+2 > mkfilter::max_pz)
+	//{ 
+	//	throw std::runtime_error("too many zeros");
+	//	//  fprintf(stderr, "mkfilter: too many zeros; can't do -Z\n");
+	//}
+
 	double theta = TWOPI * ctx.raw_alphaz;
 	complex zz = expj(theta);
 	ctx.zplane.zeros[ctx.zplane.numzeros++] = zz;
@@ -429,13 +430,15 @@ static void find_gains(context& ctx)
 
 static void expandpoly(context& ctx) /* given Z-plane poles & zeros, compute top & bot polynomials in Z, and then recurrence relation */
 { 
-	complex topcoeffs[mkfilter::max_pz+1], botcoeffs[mkfilter::max_pz+1]; int i;
-	expand(ctx.zplane.zeros, ctx.zplane.numzeros, topcoeffs);
-	expand(ctx.zplane.poles, ctx.zplane.numpoles, botcoeffs);
-	ctx.dc_gain = evaluate(topcoeffs, ctx.zplane.numzeros, botcoeffs, ctx.zplane.numpoles, 1.0);
+	std::vector<complex> topcoeffs(ctx.zplane.numzeros + 1), botcoeffs(ctx.zplane.numpoles + 1);
+	/*complex topcoeffs[mkfilter::max_pz+1], botcoeffs[mkfilter::max_pz+1]; */
+	int i;
+	expand(ctx.zplane.zeros, ctx.zplane.numzeros, &topcoeffs[0]);
+	expand(ctx.zplane.poles, ctx.zplane.numpoles, &botcoeffs[0]);
+	ctx.dc_gain = evaluate(&topcoeffs[0], ctx.zplane.numzeros, &botcoeffs[0], ctx.zplane.numpoles, 1.0);
 	double theta = TWOPI * 0.5 * (ctx.raw_alpha1 + ctx.raw_alpha2); /* "jwT" for centre freq. */
-	ctx.fc_gain = evaluate(topcoeffs, ctx.zplane.numzeros, botcoeffs, ctx.zplane.numpoles, expj(theta));
-	ctx.hf_gain = evaluate(topcoeffs, ctx.zplane.numzeros, botcoeffs, ctx.zplane.numpoles, -1.0);
+	ctx.fc_gain = evaluate(&topcoeffs[0], ctx.zplane.numzeros, &botcoeffs[0], ctx.zplane.numpoles, expj(theta));
+	ctx.hf_gain = evaluate(&topcoeffs[0], ctx.zplane.numzeros, &botcoeffs[0], ctx.zplane.numpoles, -1.0);
 
 	find_gains(ctx);
 
