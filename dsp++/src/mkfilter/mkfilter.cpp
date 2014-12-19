@@ -14,7 +14,7 @@ September 1992 */
 #include <memory>
 #include <cassert>
 
-#include "mkfltif.h"
+#include "mkfilter.h"
 
 namespace {
 

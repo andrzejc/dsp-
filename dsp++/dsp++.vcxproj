@@ -424,7 +424,7 @@
     <ClInclude Include="include\dsp++\zeropole.h" />
     <ClInclude Include="src\arch\x86\sse.h" />
     <ClInclude Include="src\arch\x86\sse_utils.h" />
-    <ClInclude Include="src\mkfilter\mkfltif.h" />
+    <ClInclude Include="src\mkfilter\mkfilter.h" />
     <ClInclude Include="src\remez\remez.h" />
     <ClInclude Include="src\simd.h" />
     <ClInclude Include="src\utility.h" />

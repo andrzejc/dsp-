@@ -233,9 +233,6 @@
     <ClInclude Include="include\dsp++\dynamics.h">
       <Filter>include\dsp++</Filter>
     </ClInclude>
-    <ClInclude Include="src\mkfilter\mkfltif.h">
-      <Filter>src\mkfilter</Filter>
-    </ClInclude>
     <ClInclude Include="include\dsp++\platform.h">
       <Filter>include\dsp++</Filter>
     </ClInclude>
@@ -301,6 +298,9 @@
     </ClInclude>
     <ClInclude Include="include\dsp++\zeropole.h">
       <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mkfilter\mkfilter.h">
+      <Filter>src\mkfilter</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

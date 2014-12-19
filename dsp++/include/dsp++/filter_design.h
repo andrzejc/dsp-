@@ -99,20 +99,23 @@ DSPXX_API size_t fir_freq_samp(
 		const double amps[]			//!< [in] amplitude characteristic at each frequency point
 		);
 
+namespace biquad {
+
+namespace type {
 /*!
  * @brief Specifies type of biquad section to design with biquad_design().
  */
-enum biquad_type
+enum spec
 {
-	biquad_type_lowpass,      //!< Lowpass biquad filter.
-	biquad_type_highpass,     //!< Highpass biquad filter.
-	biquad_type_bandpass,     //!< Bandpass biquad filter.
-	biquad_type_notch,        //!< Notch biquad filter.
-	biquad_type_allpass,      //!< Allpass biquad filter.
-	biquad_type_peaking_eq,   //!< Peaking equalizer.
-	biquad_type_low_shelf_eq, //!< Low shelf equalizer.
-	biquad_type_high_shelf_eq,//!< High shelf equalizer.
-};
+	lowpass,      //!< Lowpass biquad filter.
+	highpass,     //!< Highpass biquad filter.
+	bandpass,     //!< Bandpass biquad filter.
+	notch,        //!< Notch biquad filter.
+	allpass,      //!< Allpass biquad filter.
+	peaking_eq,   //!< Peaking equalizer.
+	low_shelf_eq, //!< Low shelf equalizer.
+	high_shelf_eq,//!< High shelf equalizer.
+}; }
 
 /*!
  * @brief Biquad section design.
@@ -123,10 +126,10 @@ enum biquad_type
  * @throw std::domain_error if norm_freq is outside [0, 0.5] range
  * @throw std::invalid_argument if gain_db or one of q, bw, s is not provided for equalizer filter.
  */
-DSPXX_API void biquad_design(
+DSPXX_API void design(
 		double b[],				//!< [out] difference equation numerator (FIR) polynomial coefficients [3].
 		double a[], 			//!< [out] difference equation denominator (IIR) polynomial coefficients [3].
-		biquad_type type, 		//!< [in] type of biquad section to design.
+		type::spec type, 		//!< [in] type of biquad section to design.
 		double norm_freq,		//!< [in] normalized characteristic frequency of designed filter (@f$f_0/F_s@f$; center frequency, corner frequency, shelf midpoint frequency).
 		const double* gain_db, 	//!< [in] gain in dB, used only for peaking and shelving eq filters.
 		const double* q,		//!< [in] filter quality.
@@ -134,39 +137,50 @@ DSPXX_API void biquad_design(
 		const double* s			//!< [in] shelf slope, if set to 1 - as steep as it can be, proportional to slope in dB/octave.
 );
 
+}
+
+namespace iir {
+
 //! @brief Specifies type of filter and design flags to filter design design with iir_design()
-enum iir_type 
+namespace type { enum spec 
 {	
-	iir_butterworth		=	0,	//!< Design Butterworth LP, HP, BP or BS filter
-	iir_bessel			=	1,	//!< Design Bessel LP, HP, BP or BS filter
-	iir_chebyshev		=	2,	//!< Design Chebyshev LP, HP, BP or BS filter
+	butterworth		=	0,	//!< Design Butterworth LP, HP, BP or BS filter
+	bessel			=	1,	//!< Design Bessel LP, HP, BP or BS filter
+	chebyshev		=	2,	//!< Design Chebyshev LP, HP, BP or BS filter
+}; }
 
-	iir_lowpass			=  16,	//!< Lowpass characteristic
-	iir_highpass		=  32,	//!< Highpass characteristic
-	iir_bandpass		=  64,	//!< Bandpass characteristic
-	iir_bandstop		= 128,	//!< Bandstop characteristic
-	iir_allpass			= 256,	//!< Allpass characteristic, only in conjunction with {@link iir_resonator_design()}
+namespace resp { enum spec 
+{
+	lowpass			=  16,	//!< Lowpass characteristic
+	highpass		=  32,	//!< Highpass characteristic
+	bandpass		=  64,	//!< Bandpass characteristic
+	bandstop		= 128,	//!< Bandstop characteristic
+	allpass			= 256,	//!< Allpass characteristic, only in conjunction with {@link iir_resonator_design()}
+}; }
 
-	iir_prewrap			= 512,	//!< 
-	iir_matched_z		=1024,	//!< Use matched Z-transform instead of bilinear transform
-};
+namespace flag { enum spec
+{
+	prewrap			= 512,	//!< 
+	matched_z		=1024,	//!< Use matched Z-transform instead of bilinear transform
+}; }
 
 //! @brief Design IIR resonator filter in the z-plane
 // XXX check number of coefficients
-DSPXX_API void iir_resonator_design(
-	double b[],					//!< [out] difference equation numerator (FIR) polynomial coefficients
-	double a[],					//!< [out] difference equation denominator (IIR) polynomial coefficients
-	iir_type characteristic,	//!< [in] filter characteristic ({@link iir_bandstop} (notch), {@link iir_bandpass} or {@link iir_allpass})
-	double fc,					//!< [in] normalized centre frequency (0, 0.5) range
-	double q					//!< [in] quality factor
+DSPXX_API void resonator_design(
+	size_t order,
+	double b[],						//!< [out] difference equation numerator (FIR) polynomial coefficients
+	double a[],						//!< [out] difference equation denominator (IIR) polynomial coefficients
+	resp::spec characteristic,		//!< [in] filter characteristic ({@link iir::resp::bandstop} (notch), {@link iir::resp::bandpass} or {@link iir::resp::allpass})
+	double fc,						//!< [in] normalized centre frequency (0, 0.5) range
+	double q						//!< [in] quality factor
 );
 
 //! @brief Design IIR Butterworth, Bessel or Chebyshev filter in the z-plane according to specification.
-DSPXX_API void iir_filter_design(
+DSPXX_API void design(
 	size_t order,				//!< [in] filter order
 	double b[],					//!< [out] difference equation numerator (FIR) polynomial coefficients (order + 1) or (2 * order + 1) in case of BP, BS
 	double a[],					//!< [out] difference equation denominator (IIR) polynomial coefficients (order + 1) or (2 * order + 1) in case of BP, BS
-	unsigned type,				//!< [in] filter type, characteristic and flags (combination of reasonable {@link iir_type} values)
+	unsigned type,				//!< [in] filter type, characteristic and flags (combination of reasonable {@link iir::type}, {@link iir::resp} &amp; {@link iir::flag} values)
 	const double* fc,				//!< [in] normalized corner frequency/ies (0, 0.5) range
 	const double* cheb_rip = NULL,	//!< [in] Chebyshev ripple in dB
 	const double* zero_freq = NULL,	//!< [in] put additional zero at specified normalized frequency
@@ -175,16 +189,18 @@ DSPXX_API void iir_filter_design(
 
 //! @brief Design IIR Butterworth, Bessel or Chebyshev filter in the z-plane according to specification.
 //! @return gain
-DSPXX_API double iir_filter_design(
+DSPXX_API double design(
 	size_t order,				//!< [in] filter order
 	std::complex<double> z[],	//!< [out] z-plane zeros (order) or (2 * order) in case of BP, BS
 	std::complex<double> p[],	//!< [out] z-plane poles (order) or (2 * order) in case of BP, BS
-	unsigned type,				//!< [in] filter type, characteristic and flags (combination of reasonable {@link iir_type} values)
+	unsigned type,				//!< [in] filter type, characteristic and flags (combination of reasonable {@link iir::type}, {@link iir::resp} &amp; {@link iir::flag} values)
 	const double* fc,				//!< [in] normalized corner frequency/ies (0, 0.5) range
 	const double* cheb_rip = NULL,	//!< [in] Chebyshev ripple in dB
 	const double* zero_freq = NULL,	//!< [in] put additional zero at specified normalized frequency
 	unsigned pole_mask = 0		//!< [in] Use only specified poles
 );
+
+}
 
 }
 
