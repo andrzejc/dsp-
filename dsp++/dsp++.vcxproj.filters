@@ -114,9 +114,6 @@
     <ClCompile Include="src\format_win32.cpp">
       <Filter>src\snd</Filter>
     </ClCompile>
-    <ClCompile Include="src\mkfilter\mkfcplx.cpp">
-      <Filter>src\mkfilter</Filter>
-    </ClCompile>
     <ClCompile Include="src\rpoly\rpoly.cpp">
       <Filter>src\rpoly</Filter>
     </ClCompile>
@@ -236,9 +233,6 @@
     <ClInclude Include="include\dsp++\dynamics.h">
       <Filter>include\dsp++</Filter>
     </ClInclude>
-    <ClInclude Include="src\mkfilter\mkfilter.h">
-      <Filter>src\mkfilter</Filter>
-    </ClInclude>
     <ClInclude Include="src\mkfilter\mkfltif.h">
       <Filter>src\mkfilter</Filter>
     </ClInclude>
@@ -299,9 +293,6 @@
     <ClInclude Include="include\dsp++\stride_iterator.h">
       <Filter>include\dsp++</Filter>
     </ClInclude>
-    <ClInclude Include="src\mkfilter\mkfcplx.h">
-      <Filter>src\mkfilter</Filter>
-    </ClInclude>
     <ClInclude Include="include\dsp++\stdint.h">
       <Filter>include\dsp++</Filter>
     </ClInclude>
@@ -310,9 +301,6 @@
     </ClInclude>
     <ClInclude Include="include\dsp++\zeropole.h">
       <Filter>include\dsp++</Filter>
-    </ClInclude>
-    <ClInclude Include="src\mkfilter\mkfcplxt.h">
-      <Filter>src\mkfilter</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

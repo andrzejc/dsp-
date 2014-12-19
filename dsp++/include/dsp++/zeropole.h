@@ -9,6 +9,7 @@
 #pragma once
 #include <dsp++/export.h>
 #include <complex>
+#include <functional>
 
 namespace dsp {
 
@@ -25,7 +26,6 @@ DSPXX_API double tf2zp(
 	unsigned& pn,				//!< [out] length of @p p vector
 	std::complex<double> p[]	//!< [out] transfer function poles, should have space for @p an - 1 elements [an - 1], may be NULL if @p a is NULL.
 );
-
 
 }
 

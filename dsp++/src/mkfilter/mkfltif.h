@@ -1,7 +1,7 @@
 //! @brief external interface to mkfilter module
 #pragma once
-#include "mkfcplxt.h"
 #include <vector>
+#include <complex>
 
 namespace mkfilter {
 
@@ -28,10 +28,27 @@ static const unsigned opt_Z =  0x10000;	/* -Z		additional zero		       */
 const int max_order = 10;
 const int max_pz = max_order * 2;
 
+struct c_complex { 
+	double re, im;
+};
+
+typedef std::complex<double> complex;
+
 struct pzrep
 { 
-	complex poles[max_pz], zeros[max_pz];
+	complex* poles, *zeros;
 	int numpoles, numzeros;
+
+	
+	~pzrep();
+
+	pzrep(): poles(NULL), zeros(NULL) {}
+
+	void init(size_t num);
+
+private:
+	pzrep(const pzrep&);
+	pzrep& operator=(const pzrep&);
 };
 
 struct context

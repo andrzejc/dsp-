@@ -355,7 +355,6 @@
     <ClCompile Include="src\fir_freq_samp.cpp" />
     <ClCompile Include="src\fixed.cpp" />
     <ClCompile Include="src\format_win32.cpp" />
-    <ClCompile Include="src\mkfilter\mkfcplx.cpp" />
     <ClCompile Include="src\mkfilter\mkfilter.cpp" />
     <ClCompile Include="src\remez\remez.c" />
     <ClCompile Include="src\resample.cpp" />
@@ -425,9 +424,6 @@
     <ClInclude Include="include\dsp++\zeropole.h" />
     <ClInclude Include="src\arch\x86\sse.h" />
     <ClInclude Include="src\arch\x86\sse_utils.h" />
-    <ClInclude Include="src\mkfilter\mkfcplx.h" />
-    <ClInclude Include="src\mkfilter\mkfcplxt.h" />
-    <ClInclude Include="src\mkfilter\mkfilter.h" />
     <ClInclude Include="src\mkfilter\mkfltif.h" />
     <ClInclude Include="src\remez\remez.h" />
     <ClInclude Include="src\simd.h" />

@@ -191,8 +191,12 @@ static size_t init_mkfilter(mkfilter::context& ctx, size_t order, unsigned type,
 		ctx.options |= mkfilter::opt_w;
 	if (type & iir_matched_z)
 		ctx.options |= mkfilter::opt_z;
+
 	ctx.order = static_cast<int>(order);
 	ctx.options |= mkfilter::opt_o;
+
+	ctx.splane.init(sz);
+	ctx.zplane.init(sz);
 	return sz;
 }
 
@@ -201,13 +205,18 @@ static size_t init_mkfilter(mkfilter::context& ctx, size_t order, unsigned type,
 
 void dsp::iir_filter_design(size_t order, double b[], double a[], unsigned type, const double* fc, const double* cheb_rip, const double* zero_freq, unsigned pole_mask)
 {
-	mkfilter::context ctx = {0};
+	mkfilter::context ctx;
+	memset(&ctx, 0, sizeof(ctx));
 	size_t sz = init_mkfilter(ctx, order, type, fc, cheb_rip, zero_freq, pole_mask);
 	ctx.xcoeffs = b;
 	ctx.ycoeffs = a;
 
 	mkfilter::design(ctx);
 
+	assert(ctx.splane.numzeros <= sz);
+	assert(ctx.splane.numpoles <= sz);
+	assert(ctx.zplane.numzeros == sz);
+	assert(ctx.zplane.numpoles == sz);
 	// inverse coeffs order - mkfilter produces vectors in the format for its own internal filter implementation which uses inversed vectors
 	for (size_t i = 0; i < (sz + 1) / 2; ++i) 
 	{
@@ -219,11 +228,14 @@ void dsp::iir_filter_design(size_t order, double b[], double a[], unsigned type,
 double dsp::iir_filter_design(size_t order,	std::complex<double> z[], std::complex<double> p[],	unsigned type, 
 	const double* fc, const double* cheb_rip, const double* zero_freq, unsigned pole_mask)
 {
-	mkfilter::context ctx = {0};
+	mkfilter::context ctx;
+	memset(&ctx, 0, sizeof(ctx));
 	size_t sz = init_mkfilter(ctx, order, type, fc, cheb_rip, zero_freq, pole_mask);
 
 	mkfilter::design(ctx);
 
+	assert(ctx.splane.numzeros <= sz);
+	assert(ctx.splane.numpoles <= sz);
 	assert(ctx.zplane.numzeros == sz);
 	assert(ctx.zplane.numpoles == sz);
 	std::copy(ctx.zplane.zeros, ctx.zplane.zeros + sz, z);
@@ -241,7 +253,7 @@ static bool test_iir() {
 	//iir_filter_design(10, b, a, dsp::iir_bandpass, fc);
 
 	std::complex<double> z[20], p[20];
-	double k = iir_filter_design(8, z, p, dsp::iir_bandpass, fc);
+	double k = iir_filter_design(4, z, p, dsp::iir_highpass, fc);
 	return true;
 }
 

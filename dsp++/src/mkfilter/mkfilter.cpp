@@ -12,14 +12,13 @@ September 1992 */
 #include <cstring>
 #include <stdexcept>
 #include <memory>
+#include <cassert>
 
 #include "mkfltif.h"
-#include "mkfilter.h"
-#include "mkfcplx.h"
-
-using namespace mkfilter;
 
 namespace {
+
+using namespace mkfilter;
 
 static const c_complex bessel_poles[] =
 { /* table produced by /usr/fisher/bessel --	N.B. only one member of each C.Conj. pair is listed */
@@ -42,6 +41,24 @@ static const c_complex bessel_poles[] =
 
 inline complex cc(const c_complex& z) {return complex(z.re, z.im);}
 
+#define unless(x)   if (!(x))
+
+static const double PI = 3.1415926535897932384626433832795;
+static const double TWOPI = 6.283185307179586476925286766559;
+static const double EPS = 1e-10;
+
+//#define MAXORDER    10
+//#define mkfilter::max_pz	    512	    /* .ge. 2*MAXORDER, to allow for doubling of poles in BP filter;
+//			       high values needed for FIR filters */
+
+inline double sqr(double x)	    {return x*x;}
+inline bool onebit(unsigned m)	    {return (m != 0) && ((m & (m-1)) == 0);}
+inline double asinh(double x) {return log(x + sqrt(1.0 + sqr(x)));}
+inline double fix(double x) {return (x >= 0.0) ? floor(0.5+x) : -floor(0.5-x);}
+inline double atan2(const complex& z) {return std::atan2(z.imag(), z.real()); }
+inline complex sqr(const complex& z) {return z * z;}
+inline complex expj(double theta) {return complex(cos(theta), sin(theta));}
+
 static bool checkoptions(context& ctx);
 static void setdefaults(context& ctx);
 static void compute_s(context& ctx);
@@ -55,8 +72,47 @@ static void compute_apres(context& ctx);
 static void compute_bpres(context& ctx);
 static void add_extra_zero(context& ctx);
 static void expandpoly(context& ctx);
-static void expand(complex[], int, complex[]);
+static void expand(const complex[], int, complex[]);
 static void multin(const complex&, int, complex[]);
+
+static complex eval(const complex coeffs[], int npz, const complex& z)
+{ /* evaluate polynomial in z, substituting for z */
+	complex sum(0);
+	for (int i = npz; i >= 0; i--) 
+		sum = (sum * z) + coeffs[i];
+	return sum;
+}
+
+static complex evaluate(const complex topco[], int nz, const complex botco[], int np, const complex& z)
+{ /* evaluate response, substituting for z */
+	return eval(topco, nz, z) / eval(botco, np, z);
+}
+
+static complex evaluate_zp(const complex zeros[], int nz, const complex poles[], int np, const complex& z)
+{ /* evaluate response based on zeros/poles, substituting for z */
+	// using exp of sum of logs instead of multiplication to get sane behavior with very large numbers
+	complex res = 0;
+	for (int i = 0; i < nz; ++i)
+		res += log(z - zeros[i]);
+	for (int i = 0; i < np; ++i)
+		res -= log(z - poles[i]);
+	return exp(res);
+}
+
+static double hypot(const complex& z)
+{
+	double ar, ai;
+
+	ar = fabs(real(z));
+	ai = fabs(imag(z));
+	if( ar < ai )
+		return ai * sqrt( 1.0 + pow( ( ar / ai ), 2.0 ) );
+
+	if( ar > ai )
+		return ar * sqrt( 1.0 + pow( ( ai / ar ), 2.0 ) );
+
+	return ar * sqrt( 2.0 );
+}
 
 static bool checkoptions(context& ctx)
 { 
@@ -161,7 +217,7 @@ static void compute_s(context& ctx) /* compute S-plane poles for prototype LP fi
 		}
 		double rip = pow(10.0, -ctx.chebrip / 10.0);
 		double eps = sqrt(rip - 1.0);
-		double y = mkfilter::asinh(1.0 / eps) / (double) ctx.order;
+		double y = asinh(1.0 / eps) / (double) ctx.order;
 		if (y <= 0.0)
 		{ 
 			throw std::domain_error("Chebyshev y must be > 0");
@@ -257,7 +313,8 @@ static void normalize(context& ctx)		/* called for trad, not for -Re or -Pi */
 	}
 }
 
-inline complex blt(const complex& pz) { return (2.0 + pz) / (2.0 - pz);}
+// bilinear substitution
+inline complex blt(const complex& s) {return (2.0 + s) / (2.0 - s);}
 
 static void compute_z_blt(context& ctx) /* given S-plane poles & zeros, compute Z-plane poles & zeros, by bilinear transform */
 { 
@@ -316,8 +373,9 @@ static void compute_bpres(context& ctx)
 	}
 	else
 	{ /* must iterate to find exact pole positions */
-		complex topcoeffs[mkfilter::max_pz+1]; 
-		expand(ctx.zplane.zeros, ctx.zplane.numzeros, topcoeffs);
+		//complex topcoeffs[mkfilter::max_pz+1]; 
+		//expand(ctx.zplane.zeros, ctx.zplane.numzeros, topcoeffs);
+
 		double r = exp(-theta / (2.0 * ctx.qfactor));
 		double thm = theta, th1 = 0.0, th2 = PI;
 		bool cvg = false;
@@ -325,11 +383,19 @@ static void compute_bpres(context& ctx)
 		{ 
 			complex zp = r * expj(thm);
 			ctx.zplane.poles[0] = zp; ctx.zplane.poles[1] = conj(zp);
-			complex botcoeffs[mkfilter::max_pz+1]; expand(ctx.zplane.poles, ctx.zplane.numpoles, botcoeffs);
-			complex g = evaluate(topcoeffs, ctx.zplane.numzeros, botcoeffs, ctx.zplane.numpoles, expj(theta));
+
+			//complex botcoeffs[mkfilter::max_pz+1]; 
+			//expand(ctx.zplane.poles, ctx.zplane.numpoles, botcoeffs);
+			//complex g = evaluate(topcoeffs, ctx.zplane.numzeros, botcoeffs, ctx.zplane.numpoles, expj(theta));
+			complex g = evaluate_zp(ctx.zplane.zeros, ctx.zplane.numzeros, ctx.zplane.poles, ctx.zplane.numpoles, expj(theta));
+
 			double phi = imag(g) / real(g); /* approx to atan2 */
-			if (phi > 0.0) th2 = thm; else th1 = thm;
-			if (fabs(phi) < EPS) cvg = true;
+			if (phi > 0.0) 
+				th2 = thm; 
+			else 
+				th1 = thm;
+			if (fabs(phi) < EPS) 
+				cvg = true;
 			thm = 0.5 * (th1+th2);
 		}
 		unless (cvg) 
@@ -383,7 +449,7 @@ static void expandpoly(context& ctx) /* given Z-plane poles & zeros, compute top
 	}
 }
 
-static void expand(complex pz[], int npz, complex coeffs[])
+static void expand(const complex pz[], int npz, complex coeffs[])
 { /* compute product of poles or zeros as a polynomial of z */
 	int i;
 	coeffs[0] = 1.0;
@@ -413,7 +479,6 @@ static void multin(const complex& w, int npz, complex coeffs[])
 
 static void do_design(context& ctx)
 { 
-	//readcmdline(argv);
 	checkoptions(ctx);
 	setdefaults(ctx);
 	if (ctx.options & opt_re) 
@@ -476,4 +541,18 @@ void mkfilter::design(context& ctx)
 		for (int i = 0; i <= ctx.zplane.numzeros; ++i)
 			ctx.xcoeffs[i] /= g;
 	}
+}
+
+mkfilter::pzrep::~pzrep()
+{
+	delete [] poles;
+	delete [] zeros;
+}
+
+void mkfilter::pzrep::init(size_t num)
+{
+	assert(NULL == poles);
+	assert(NULL == zeros);
+	poles = new complex[num];
+	zeros = new complex[num];
 }
