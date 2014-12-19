@@ -66,7 +66,7 @@ void filter_design_test::test_butter_bp()
 	const double b_ref[] = {0.000340537652719436, 0,-0.00204322591631662,0,0.00510806479079154,0,-0.00681075305438872,
 		0,0.00510806479079154,0, -0.00204322591631662, 0, 0.000340537652719436};
 
-	dsp::iir_filter_design(N, b, a, dsp::iir_bandpass | dsp::iir_butterworth, fc);
+	dsp::iir::design(N, b, a, dsp::iir::resp::bandpass, fc);
 
 	CPPUNIT_ASSERT(std::equal(b, b + 2 * N + 1, b_ref, dsp::within_range<double >(0.000000001)));
 	CPPUNIT_ASSERT(std::equal(a, a + 2 * N + 1, a_ref, dsp::within_range<double >(0.000000001)));
