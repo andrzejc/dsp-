@@ -50,7 +50,7 @@ bool dsp::firpm(size_t order, double h[], size_t band_count, double freqs[], con
 void dsp::biquad::design(double b[], double a[], biquad::type::spec type, double norm_freq, const double* gain_db, const double* q, const double* bw, const double* s)
 {
 	if (norm_freq < 0. || norm_freq > 0.5)
-		throw std::domain_error(__FUNCTION__  ": norm_freq outside [0, 0.5]");
+		throw std::domain_error("dsp::biquad::design(): norm_freq outside [0, 0.5]");
 
 	double w0 = DSP_M_PI * 2. * norm_freq; 	// 2 * pi * f0 / Fs
 	double cw0 = std::cos(w0);
@@ -68,7 +68,7 @@ void dsp::biquad::design(double b[], double a[], biquad::type::spec type, double
 	case biquad::type::low_shelf_eq:
 	case biquad::type::high_shelf_eq:
 		if (NULL == gain_db)
-			throw std::invalid_argument(__FUNCTION__  ": gain_db not specified");
+			throw std::invalid_argument("dsp::biquad::design(): gain_db not specified");
 		A = std::pow(10., *gain_db / 40.);
 		Am1 = A - 1; Ap1 = A + 1; Am1c = Am1 * cw0; Ap1c = Ap1 * cw0;
 		is_eq = true;
@@ -86,7 +86,7 @@ void dsp::biquad::design(double b[], double a[], biquad::type::spec type, double
 	else if (is_eq && NULL != s)
 		alpha = sw0 / 2 * std::sqrt((A + 1/A) * (1/(*s) -1) + 2);
 	else
-		throw std::invalid_argument(__FUNCTION__  ": q, bw, s not specified");
+		throw std::invalid_argument("dsp::biquad::design(): q, bw, s not specified");
 
 	if (is_eq)
 		sqAa2 = 2 * std::sqrt(A) * alpha;

@@ -45,7 +45,7 @@ inline complex cc(const c_complex& z) {return complex(z.re, z.im);}
 
 static const double PI = 3.1415926535897932384626433832795;
 static const double TWOPI = 6.283185307179586476925286766559;
-static const double EPS = DBL_EPSILON; // 1e-10;
+static const double EPS = 1e-15; // DBL_EPSILON; // 1e-10;
 
 //#define MAXORDER    10
 //#define mkfilter::max_pz	    512	    /* .ge. 2*MAXORDER, to allow for doubling of poles in BP filter;
@@ -54,8 +54,8 @@ static const double EPS = DBL_EPSILON; // 1e-10;
 inline double sqr(double x)	    {return x*x;}
 inline bool onebit(unsigned m)	    {return (m != 0) && ((m & (m-1)) == 0);}
 inline double asinh(double x) {return log(x + sqrt(1.0 + sqr(x)));}
-inline double fix(double x) {return (x >= 0.0) ? floor(0.5+x) : -floor(0.5-x);}
-inline double atan2(const complex& z) {return std::atan2(z.imag(), z.real()); }
+//inline double fix(double x) {return (x >= 0.0) ? floor(0.5+x) : -floor(0.5-x);}
+//inline double atan2(const complex& z) {return std::atan2(z.imag(), z.real()); }
 inline complex sqr(const complex& z) {return z * z;}
 inline complex expj(double theta) {return complex(cos(theta), sin(theta));}
 

@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		FE75BAC71A40BD9E0068A27C /* adaptfilt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE75BA6B1A40BD9E0068A27C /* adaptfilt.cpp */; };
 		FE75BAC81A40BD9E0068A27C /* cpu_ppc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE75BA6E1A40BD9E0068A27C /* cpu_ppc.cpp */; };
 		FE75BAC91A40BD9E0068A27C /* cpu_x86.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE75BA701A40BD9E0068A27C /* cpu_x86.cpp */; };
 		FE75BACA1A40BD9E0068A27C /* sse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE75BA711A40BD9E0068A27C /* sse.cpp */; };
@@ -21,7 +20,7 @@
 		FE75BAD51A40BD9E0068A27C /* fir_freq_samp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE75BA7E1A40BD9E0068A27C /* fir_freq_samp.cpp */; };
 		FE75BAD61A40BD9E0068A27C /* fixed.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE75BA7F1A40BD9E0068A27C /* fixed.cpp */; };
 		FE75BAD91A40BD9E0068A27C /* mkfilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE75BA831A40BD9E0068A27C /* mkfilter.cpp */; };
-		FE75BADC1A40BD9E0068A27C /* remez.c in Sources */ = {isa = PBXBuildFile; fileRef = FE75BA871A40BD9E0068A27C /* remez.c */; };
+		FE75BADC1A40BD9E0068A27C /* remez.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE75BA871A40BD9E0068A27C /* remez.cpp */; };
 		FE75BADE1A40BD9E0068A27C /* resample.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE75BA891A40BD9E0068A27C /* resample.cpp */; };
 		FE75BADF1A40BD9E0068A27C /* simd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE75BA8A1A40BD9E0068A27C /* simd.cpp */; };
 		FE75BAE11A40BD9E0068A27C /* format.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE75BA8D1A40BD9E0068A27C /* format.cpp */; };
@@ -30,7 +29,6 @@
 		FE75BAE51A40BD9E0068A27C /* vectmath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE75BA911A40BD9E0068A27C /* vectmath.cpp */; };
 		FE75BAE81A40BEF80068A27C /* format_win32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE75BAE61A40BEF80068A27C /* format_win32.cpp */; };
 		FE75BAE91A40BEF80068A27C /* sample.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE75BAE71A40BEF80068A27C /* sample.cpp */; };
-		FE75BAEE1A40C5850068A27C /* mkfcplx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE75BAEC1A40C5850068A27C /* mkfcplx.cpp */; };
 		FEF973371A43977D008B0B86 /* rpoly.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEF973351A43977D008B0B86 /* rpoly.cpp */; };
 		FEF973381A43977D008B0B86 /* zeropole.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEF973361A43977D008B0B86 /* zeropole.cpp */; };
 /* End PBXBuildFile section */
@@ -89,7 +87,6 @@
 		FE75BA671A40BD9E0068A27C /* vectmath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vectmath.h; sourceTree = "<group>"; };
 		FE75BA681A40BD9E0068A27C /* window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = window.h; sourceTree = "<group>"; };
 		FE75BA691A40BD9E0068A27C /* xcorr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xcorr.h; sourceTree = "<group>"; };
-		FE75BA6B1A40BD9E0068A27C /* adaptfilt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = adaptfilt.cpp; sourceTree = "<group>"; };
 		FE75BA6E1A40BD9E0068A27C /* cpu_ppc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cpu_ppc.cpp; sourceTree = "<group>"; };
 		FE75BA701A40BD9E0068A27C /* cpu_x86.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cpu_x86.cpp; sourceTree = "<group>"; };
 		FE75BA711A40BD9E0068A27C /* sse.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sse.cpp; sourceTree = "<group>"; };
@@ -106,8 +103,7 @@
 		FE75BA7F1A40BD9E0068A27C /* fixed.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fixed.cpp; sourceTree = "<group>"; };
 		FE75BA831A40BD9E0068A27C /* mkfilter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mkfilter.cpp; sourceTree = "<group>"; };
 		FE75BA841A40BD9E0068A27C /* mkfilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mkfilter.h; sourceTree = "<group>"; };
-		FE75BA851A40BD9E0068A27C /* mkfltif.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mkfltif.h; sourceTree = "<group>"; };
-		FE75BA871A40BD9E0068A27C /* remez.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = remez.c; sourceTree = "<group>"; };
+		FE75BA871A40BD9E0068A27C /* remez.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = remez.cpp; sourceTree = "<group>"; };
 		FE75BA881A40BD9E0068A27C /* remez.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = remez.h; sourceTree = "<group>"; };
 		FE75BA891A40BD9E0068A27C /* resample.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = resample.cpp; sourceTree = "<group>"; };
 		FE75BA8A1A40BD9E0068A27C /* simd.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = simd.cpp; sourceTree = "<group>"; };
@@ -119,10 +115,9 @@
 		FE75BA911A40BD9E0068A27C /* vectmath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vectmath.cpp; sourceTree = "<group>"; };
 		FE75BAE61A40BEF80068A27C /* format_win32.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = format_win32.cpp; sourceTree = "<group>"; };
 		FE75BAE71A40BEF80068A27C /* sample.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sample.cpp; sourceTree = "<group>"; };
-		FE75BAEC1A40C5850068A27C /* mkfcplx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mkfcplx.cpp; sourceTree = "<group>"; };
-		FE75BAED1A40C5850068A27C /* mkfcplx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mkfcplx.h; sourceTree = "<group>"; };
 		FEF973351A43977D008B0B86 /* rpoly.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rpoly.cpp; sourceTree = "<group>"; };
 		FEF973361A43977D008B0B86 /* zeropole.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = zeropole.cpp; sourceTree = "<group>"; };
+		FEF973401A44ECC0008B0B86 /* prefix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = prefix.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -251,7 +246,6 @@
 				FEF973361A43977D008B0B86 /* zeropole.cpp */,
 				FE75BAE61A40BEF80068A27C /* format_win32.cpp */,
 				FE75BAE71A40BEF80068A27C /* sample.cpp */,
-				FE75BA6B1A40BD9E0068A27C /* adaptfilt.cpp */,
 				FE75BA6C1A40BD9E0068A27C /* arch */,
 				FE75BA781A40BD9E0068A27C /* debug.cpp */,
 				FE75BA791A40BD9E0068A27C /* fft.cpp */,
@@ -268,6 +262,7 @@
 				FE75BA8C1A40BD9E0068A27C /* snd */,
 				FE75BA901A40BD9E0068A27C /* utility.h */,
 				FE75BA911A40BD9E0068A27C /* vectmath.cpp */,
+				FEF973401A44ECC0008B0B86 /* prefix.h */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -313,11 +308,8 @@
 		FE75BA801A40BD9E0068A27C /* mkfilter */ = {
 			isa = PBXGroup;
 			children = (
-				FE75BAEC1A40C5850068A27C /* mkfcplx.cpp */,
-				FE75BAED1A40C5850068A27C /* mkfcplx.h */,
 				FE75BA831A40BD9E0068A27C /* mkfilter.cpp */,
 				FE75BA841A40BD9E0068A27C /* mkfilter.h */,
-				FE75BA851A40BD9E0068A27C /* mkfltif.h */,
 			);
 			path = mkfilter;
 			sourceTree = "<group>";
@@ -325,7 +317,7 @@
 		FE75BA861A40BD9E0068A27C /* remez */ = {
 			isa = PBXGroup;
 			children = (
-				FE75BA871A40BD9E0068A27C /* remez.c */,
+				FE75BA871A40BD9E0068A27C /* remez.cpp */,
 				FE75BA881A40BD9E0068A27C /* remez.h */,
 			);
 			path = remez;
@@ -424,16 +416,14 @@
 				FE75BAC91A40BD9E0068A27C /* cpu_x86.cpp in Sources */,
 				FE75BAD11A40BD9E0068A27C /* fft.cpp in Sources */,
 				FE75BAE11A40BD9E0068A27C /* format.cpp in Sources */,
-				FE75BAC71A40BD9E0068A27C /* adaptfilt.cpp in Sources */,
 				FE75BACC1A40BD9E0068A27C /* sse3.cpp in Sources */,
 				FE75BAE51A40BD9E0068A27C /* vectmath.cpp in Sources */,
 				FE75BADE1A40BD9E0068A27C /* resample.cpp in Sources */,
 				FE75BAD51A40BD9E0068A27C /* fir_freq_samp.cpp in Sources */,
-				FE75BADC1A40BD9E0068A27C /* remez.c in Sources */,
+				FE75BADC1A40BD9E0068A27C /* remez.cpp in Sources */,
 				FEF973381A43977D008B0B86 /* zeropole.cpp in Sources */,
 				FE75BADF1A40BD9E0068A27C /* simd.cpp in Sources */,
 				FE75BAD91A40BD9E0068A27C /* mkfilter.cpp in Sources */,
-				FE75BAEE1A40C5850068A27C /* mkfcplx.cpp in Sources */,
 				FEF973371A43977D008B0B86 /* rpoly.cpp in Sources */,
 				FE75BAE31A40BD9E0068A27C /* loudness.cpp in Sources */,
 				FE75BACD1A40BD9E0068A27C /* sse41.cpp in Sources */,
@@ -535,6 +525,8 @@
 				EXECUTABLE_PREFIX = lib;
 				GCC_ENABLE_CPP_EXCEPTIONS = YES;
 				GCC_ENABLE_CPP_RTTI = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = src/prefix.h;
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
 				HEADER_SEARCH_PATHS = (
@@ -571,6 +563,8 @@
 				EXECUTABLE_PREFIX = lib;
 				GCC_ENABLE_CPP_EXCEPTIONS = YES;
 				GCC_ENABLE_CPP_RTTI = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = src/prefix.h;
 				GCC_PREPROCESSOR_DEFINITIONS = NDEBUG;
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
