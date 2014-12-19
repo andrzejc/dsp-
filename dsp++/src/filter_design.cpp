@@ -232,7 +232,7 @@ double dsp::iir_filter_design(size_t order,	std::complex<double> z[], std::compl
 }
 
 
-#if 0
+#if 1
 namespace {
 
 static bool test_iir() {
@@ -241,7 +241,7 @@ static bool test_iir() {
 	//iir_filter_design(10, b, a, dsp::iir_bandpass, fc);
 
 	std::complex<double> z[20], p[20];
-	double k = iir_filter_design(4, z, p, dsp::iir_bandpass, fc);
+	double k = iir_filter_design(8, z, p, dsp::iir_bandpass, fc);
 	return true;
 }
 

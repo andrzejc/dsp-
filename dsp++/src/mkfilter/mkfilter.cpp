@@ -353,6 +353,14 @@ static void add_extra_zero(context& ctx)
 		ctx.zplane.poles[ctx.zplane.numpoles++] = 0.0;	 /* ensure causality */
 }
 
+static void find_gains(context& ctx)
+{
+	ctx.dc_gain = evaluate_zp(ctx.zplane.zeros, ctx.zplane.numzeros, ctx.zplane.poles, ctx.zplane.numpoles, 1.0);
+	double theta = TWOPI * 0.5 * (ctx.raw_alpha1 + ctx.raw_alpha2); /* "jwT" for centre freq. */
+	ctx.fc_gain = evaluate_zp(ctx.zplane.zeros, ctx.zplane.numzeros, ctx.zplane.poles, ctx.zplane.numpoles, expj(theta));
+	ctx.hf_gain = evaluate_zp(ctx.zplane.zeros, ctx.zplane.numzeros, ctx.zplane.poles, ctx.zplane.numpoles, -1.0);
+}
+
 static void expandpoly(context& ctx) /* given Z-plane poles & zeros, compute top & bot polynomials in Z, and then recurrence relation */
 { 
 	complex topcoeffs[mkfilter::max_pz+1], botcoeffs[mkfilter::max_pz+1]; int i;
@@ -362,6 +370,8 @@ static void expandpoly(context& ctx) /* given Z-plane poles & zeros, compute top
 	double theta = TWOPI * 0.5 * (ctx.raw_alpha1 + ctx.raw_alpha2); /* "jwT" for centre freq. */
 	ctx.fc_gain = evaluate(topcoeffs, ctx.zplane.numzeros, botcoeffs, ctx.zplane.numpoles, expj(theta));
 	ctx.hf_gain = evaluate(topcoeffs, ctx.zplane.numzeros, botcoeffs, ctx.zplane.numpoles, -1.0);
+
+	find_gains(ctx);
 
 	if (NULL != ctx.xcoeffs) {
 		for (i = 0; i <= ctx.zplane.numzeros; i++) 
@@ -438,7 +448,10 @@ static void do_design(context& ctx)
 	if (ctx.options & opt_Z) 
 		add_extra_zero(ctx);
 
-	expandpoly(ctx);
+	if (NULL != ctx.xcoeffs || NULL != ctx.ycoeffs)
+		expandpoly(ctx);
+	else
+		find_gains(ctx);
 }
 }
 
