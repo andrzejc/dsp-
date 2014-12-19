@@ -19,7 +19,7 @@ double dsp::tf2zp(unsigned bn, const double b[], unsigned an, const double a[], 
 		--bn;
 	}
 	if (0 == bn) 
-		throw std::invalid_argument("numerator vector must not be empty");
+		throw std::invalid_argument("dsp::tf2zp(): numerator vector must not be empty");
 
 	double k = *b / *a;
 	zn = (bn > 1 ? dsp::roots(bn - 1, b, z) : 0);
@@ -76,7 +76,7 @@ static bool next_zp(unsigned& i, const unsigned n, const std::complex<double> v[
 		return true;
 	}
 	if (cplx)
-		throw std::invalid_argument("missing conjugate pair");
+		throw std::invalid_argument("dsp::zp2sos(): missing conjugate pair (roundoff error too high?)");
 
 	v2 = NULL;
 	return true;
@@ -108,7 +108,7 @@ unsigned dsp::zp2sos(unsigned zn, const std::complex<double> z[], unsigned pn, c
 		return N;
 
 	if (NULL == z || NULL == p)
-		throw std::invalid_argument("zero or pole vector must not be NULL");
+		throw std::invalid_argument("dsp::zp2sos(): zero or pole vector must not be NULL");
 
 	std::vector<bool> z_used(zn, false);
 	std::vector<bool> p_used(pn, false);

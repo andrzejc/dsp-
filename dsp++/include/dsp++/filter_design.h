@@ -167,21 +167,22 @@ namespace flag { enum spec
 //! @brief Design IIR resonator filter in the z-plane
 // XXX check number of coefficients
 DSPXX_API void resonator_design(
-	size_t order,
-	double b[],						//!< [out] difference equation numerator (FIR) polynomial coefficients
-	double a[],						//!< [out] difference equation denominator (IIR) polynomial coefficients
+	unsigned order,
 	resp::spec characteristic,		//!< [in] filter characteristic ({@link iir::resp::bandstop} (notch), {@link iir::resp::bandpass} or {@link iir::resp::allpass})
 	double fc,						//!< [in] normalized centre frequency (0, 0.5) range
-	double q						//!< [in] quality factor
+	double q,						//!< [in] quality factor
+	double b[],						//!< [out] difference equation numerator (FIR) polynomial coefficients
+	double a[]						//!< [out] difference equation denominator (IIR) polynomial coefficients
 );
 
 //! @brief Design IIR Butterworth, Bessel or Chebyshev filter in the z-plane according to specification.
-DSPXX_API void design(
-	size_t order,				//!< [in] filter order
-	double b[],					//!< [out] difference equation numerator (FIR) polynomial coefficients (order + 1) or (2 * order + 1) in case of BP, BS
-	double a[],					//!< [out] difference equation denominator (IIR) polynomial coefficients (order + 1) or (2 * order + 1) in case of BP, BS
+//! @return required length of @p b and @p a vectors.
+DSPXX_API unsigned design(
+	unsigned order,				//!< [in] filter order
 	unsigned type,				//!< [in] filter type, characteristic and flags (combination of reasonable {@link iir::type}, {@link iir::resp} &amp; {@link iir::flag} values)
-	const double* fc,				//!< [in] normalized corner frequency/ies (0, 0.5) range
+	const double* fc,			//!< [in] normalized corner frequency/ies (0, 0.5) range
+	double b[],					//!< [out] difference equation numerator (FIR) polynomial coefficients (order + 1) or (2 * order + 1) in case of BP, BS; if NULL only required length is returned
+	double a[],					//!< [out] difference equation denominator (IIR) polynomial coefficients (order + 1) or (2 * order + 1) in case of BP, BS; if NULL only required length is returned
 	const double* cheb_rip = NULL,	//!< [in] Chebyshev ripple in dB
 	const double* zero_freq = NULL,	//!< [in] put additional zero at specified normalized frequency
 	unsigned pole_mask = 0		//!< [in] Use only specified poles
@@ -190,11 +191,11 @@ DSPXX_API void design(
 //! @brief Design IIR Butterworth, Bessel or Chebyshev filter in the z-plane according to specification.
 //! @return gain
 DSPXX_API double design(
-	size_t order,				//!< [in] filter order
+	unsigned order,				//!< [in] filter order
+	unsigned type,				//!< [in] filter type, characteristic and flags (combination of reasonable {@link iir::type}, {@link iir::resp} &amp; {@link iir::flag} values)
+	const double* fc,			//!< [in] normalized corner frequency/ies (0, 0.5) range
 	std::complex<double> z[],	//!< [out] z-plane zeros (order) or (2 * order) in case of BP, BS
 	std::complex<double> p[],	//!< [out] z-plane poles (order) or (2 * order) in case of BP, BS
-	unsigned type,				//!< [in] filter type, characteristic and flags (combination of reasonable {@link iir::type}, {@link iir::resp} &amp; {@link iir::flag} values)
-	const double* fc,				//!< [in] normalized corner frequency/ies (0, 0.5) range
 	const double* cheb_rip = NULL,	//!< [in] Chebyshev ripple in dB
 	const double* zero_freq = NULL,	//!< [in] put additional zero at specified normalized frequency
 	unsigned pole_mask = 0		//!< [in] Use only specified poles

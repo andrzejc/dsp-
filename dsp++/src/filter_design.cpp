@@ -50,7 +50,7 @@ bool dsp::firpm(size_t order, double h[], size_t band_count, double freqs[], con
 void dsp::biquad::design(double b[], double a[], biquad::type::spec type, double norm_freq, const double* gain_db, const double* q, const double* bw, const double* s)
 {
 	if (norm_freq < 0. || norm_freq > 0.5)
-		throw std::domain_error("dsp::biquad_design(): norm_freq outside [0, 0.5]");
+		throw std::domain_error(__FUNCTION__  ": norm_freq outside [0, 0.5]");
 
 	double w0 = DSP_M_PI * 2. * norm_freq; 	// 2 * pi * f0 / Fs
 	double cw0 = std::cos(w0);
@@ -68,7 +68,7 @@ void dsp::biquad::design(double b[], double a[], biquad::type::spec type, double
 	case biquad::type::low_shelf_eq:
 	case biquad::type::high_shelf_eq:
 		if (NULL == gain_db)
-			throw std::invalid_argument("dsp::biquad_design(): gain_db not specified");
+			throw std::invalid_argument(__FUNCTION__  ": gain_db not specified");
 		A = std::pow(10., *gain_db / 40.);
 		Am1 = A - 1; Ap1 = A + 1; Am1c = Am1 * cw0; Ap1c = Ap1 * cw0;
 		is_eq = true;
@@ -86,7 +86,7 @@ void dsp::biquad::design(double b[], double a[], biquad::type::spec type, double
 	else if (is_eq && NULL != s)
 		alpha = sw0 / 2 * std::sqrt((A + 1/A) * (1/(*s) -1) + 2);
 	else
-		throw std::invalid_argument("dsp::biquad_design(): q, bw, s not specified");
+		throw std::invalid_argument(__FUNCTION__  ": q, bw, s not specified");
 
 	if (is_eq)
 		sqAa2 = 2 * std::sqrt(A) * alpha;
@@ -130,9 +130,9 @@ void dsp::biquad::design(double b[], double a[], biquad::type::spec type, double
 
 namespace {
 
-static size_t init_mkfilter(mkfilter::context& ctx, size_t order, unsigned type, const double* fc, const double* cheb_rip, const double* zero_freq, unsigned pole_mask)
+static unsigned init_mkfilter(mkfilter::context& ctx, unsigned order, unsigned type, const double* fc, const double* cheb_rip, const double* zero_freq, unsigned pole_mask)
 {
-	size_t sz = order;
+	unsigned sz = order;
 	const unsigned type_mask = 0x0003;
 	switch (type & type_mask) {
 	case iir::type::bessel: 
@@ -146,7 +146,7 @@ static size_t init_mkfilter(mkfilter::context& ctx, size_t order, unsigned type,
 		ctx.options |= mkfilter::opt_bu; 
 		break;
 	default:
-		throw std::invalid_argument("invalid filter type specification");
+		throw std::invalid_argument("dsp::iir::design(): invalid filter type specification");
 	}
 
 	const unsigned char_mask = 0x01f0;
@@ -176,12 +176,13 @@ static size_t init_mkfilter(mkfilter::context& ctx, size_t order, unsigned type,
 		ctx.raw_alpha1 = *fc;
 		break;
 	default:
-		throw std::invalid_argument("missing filter type specification");
+		throw std::invalid_argument("dsp::iir::design(): missing filter type specification");
 	}
 
 	if (NULL != zero_freq) {
 		ctx.options |= mkfilter::opt_Z;
 		ctx.raw_alphaz = *zero_freq;
+		sz += 2;
 	}
 	if (0 != pole_mask) {
 		ctx.options |= mkfilter::opt_p;
@@ -203,11 +204,16 @@ static size_t init_mkfilter(mkfilter::context& ctx, size_t order, unsigned type,
 }
 
 
-void dsp::iir::design(size_t order, double b[], double a[], unsigned type, const double* fc, const double* cheb_rip, const double* zero_freq, unsigned pole_mask)
+unsigned dsp::iir::design(unsigned order, unsigned type, const double* fc, 
+	double b[], double a[], 
+	const double* cheb_rip, const double* zero_freq, unsigned pole_mask)
 {
 	mkfilter::context ctx;
 	memset(&ctx, 0, sizeof(ctx));
-	size_t sz = init_mkfilter(ctx, order, type, fc, cheb_rip, zero_freq, pole_mask);
+	unsigned sz = init_mkfilter(ctx, order, type, fc, cheb_rip, zero_freq, pole_mask);
+	if (NULL == b || NULL == a)
+		return sz + 1;
+
 	ctx.xcoeffs = b;
 	ctx.ycoeffs = a;
 
@@ -223,14 +229,16 @@ void dsp::iir::design(size_t order, double b[], double a[], unsigned type, const
 		std::swap(b[i], b[sz - i]);
 		std::swap(a[i], a[sz - i]);
 	}
+	return sz + 1;
 }
 
-double dsp::iir::design(size_t order,	std::complex<double> z[], std::complex<double> p[],	unsigned type, 
-	const double* fc, const double* cheb_rip, const double* zero_freq, unsigned pole_mask)
+double dsp::iir::design(unsigned order, unsigned type, const double* fc, 
+	std::complex<double> z[], std::complex<double> p[], 
+	const double* cheb_rip, const double* zero_freq, unsigned pole_mask)
 {
 	mkfilter::context ctx;
 	memset(&ctx, 0, sizeof(ctx));
-	size_t sz = init_mkfilter(ctx, order, type, fc, cheb_rip, zero_freq, pole_mask);
+	unsigned sz = init_mkfilter(ctx, order, type, fc, cheb_rip, zero_freq, pole_mask);
 
 	mkfilter::design(ctx);
 
