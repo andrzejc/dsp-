@@ -20,7 +20,7 @@ void dsp::test::overlap_add_test::test_ola()
 {
 	const size_t L = 256;
 	float out[L], test[L];
-	dsp::overlap_add<float, dsp::fft> ola(L, b, L/2);
+	dsp::overlap_add<float, dsp::dft::fft> ola(L, b, L/2);
 	for (size_t i = 0; i < 1024; i += L)
 	{
 		std::copy(in + i, in + i + L, ola.begin());
@@ -35,7 +35,7 @@ void dsp::test::overlap_add_test::test_ols()
 {
 	const size_t L = 96;
 	float out[L], test[L];
-	dsp::overlap_save<float, dsp::fft> ols(L, b, 128);
+	dsp::overlap_save<float, dsp::dft::fft> ols(L, b, 128);
 	for (size_t i = 0; i + L <= 1024; i += L)
 	{
 		std::copy(in + i, in + i + L, ols.begin());
@@ -77,7 +77,7 @@ void dsp::test::overlap_add_test::test_ola_long_csv()
 	csvread("data//y.csv", y);
 	std::vector<double> res(x.size(), 0.);
 
-	dsp::overlap_add<double, dsp::fft> ola(L, &lpf[0], lpf.size());
+	dsp::overlap_add<double, dsp::dft::fft> ola(L, &lpf[0], lpf.size());
 	size_t count = x.size() / L;
 
 	for (size_t i = 0; i < count; ++i)

@@ -16,11 +16,11 @@
 #include <functional>
 #include <algorithm>
 
-typedef std::vector<std::complex<float>, dsp::fftw::allocator<std::complex<float> > > fcvec;
-typedef std::vector<float, dsp::fftw::allocator<float> > fvec;
+typedef std::vector<std::complex<float>, dsp::dft::fftw::allocator<std::complex<float> > > fcvec;
+typedef std::vector<float, dsp::dft::fftw::allocator<float> > fvec;
 
 using namespace dsp::test;
-typedef dsp::fft<std::complex<float>, std::complex<float> > fftf;
+typedef dsp::dft::fft<std::complex<float>, std::complex<float> > fftf;
 
 void fft_test::test_fft_64()
 {
@@ -42,8 +42,8 @@ void fft_test::test_fft_equals_fftw()
 	std::complex<float> in1[64] = {0}, in2[64] = {0};
 	std::complex<float> out1[64], out2[64];
 
-	dsp::fft<std::complex<float>, std::complex<float> > fft(64, in1, out1);
-	dsp::fftw::dft<std::complex<float>, std::complex<float> > dft(64, in2, out2, dsp::dft_sign_forward);
+	dsp::dft::fft<std::complex<float>, std::complex<float> > fft(64, in1, out1, dsp::dft::sign::forward);
+	dsp::dft::fftw::dft<std::complex<float>, std::complex<float> > dft(64, in2, out2, dsp::dft::sign::forward);
 
 	for (size_t i = 0; i < 64; ++i)
 		in1[i] = in2[i] = sin(20 * DSP_M_PI * i / 64);
@@ -62,13 +62,13 @@ void fft_test::test_fft_r2c()
 	const size_t N = 1024;
 	fvec in(N);
 	fcvec out(N);
-	dsp::fftw::dft<float, std::complex<float> > fftw(N, &in[0], &out[0]);
+	dsp::dft::fftw::dft<float, std::complex<float> > fftw(N, &in[0], &out[0]);
 	std::copy(fin, fin + N, in.begin());
 	fftw();
 
 	fcvec ref = out;
 
-	dsp::fft<float, std::complex<float> > fft(N, &in[0], &out[0]);
+	dsp::dft::fft<float, std::complex<float> > fft(N, &in[0], &out[0]);
 	fft();
 
 	CPPUNIT_ASSERT(std::equal(ref.begin(), ref.begin() + N / 2 + 1, out.begin(),
@@ -81,12 +81,12 @@ void fft_test::test_fft_two_way()
 	fvec in(N), res(N);
 	fcvec out(N);
 
-	dsp::fft<float, std::complex<float> > fft(N, &in[0], &out[0]);
+	dsp::dft::fft<float, std::complex<float> > fft(N, &in[0], &out[0]);
 	std::copy(fin, fin + N, in.begin());
 
 	fft();
 
- 	dsp::fft<std::complex<float>, float> ifft(N, &out[0], &res[0]);
+ 	dsp::dft::fft<std::complex<float>, float> ifft(N, &out[0], &res[0]);
 	ifft();
 
 	std::transform(res.begin(), res.end(), res.begin(), std::bind2nd(std::divides<float>(), (float)N));
