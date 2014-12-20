@@ -14,7 +14,7 @@ namespace dsp {
 
 //! @brief Design antialiasing lowpass FIR filter for interpolator/decimator with given factor.
 //! Uses Parks-McClellan algorithm internally.
-//! @see firpm()
+//! @see dsp::fir::pm::design()
 //! @param[in] order filter order, filter will have (order + 1) coefficients
 //! @param[out] coeffs vector with space for (order + 1) FIR filter coefficients returned upon completion
 //! @param[in] factor interpolator/decimator (integer) factor

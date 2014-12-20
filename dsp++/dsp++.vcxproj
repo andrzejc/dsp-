@@ -350,12 +350,14 @@
     <ClCompile Include="src\fft.cpp" />
     <ClCompile Include="src\fftw\traits.cpp" />
     <ClCompile Include="src\filter.cpp" />
-    <ClCompile Include="src\filter_design.cpp" />
-    <ClCompile Include="src\fir_freq_samp.cpp" />
+    <ClCompile Include="src\flt_iir.cpp" />
+    <ClCompile Include="src\flt_fs.cpp" />
     <ClCompile Include="src\fixed.cpp" />
+    <ClCompile Include="src\flt_biquad.cpp" />
+    <ClCompile Include="src\flt_pm.cpp" />
     <ClCompile Include="src\format_win32.cpp" />
     <ClCompile Include="src\mkfilter\mkfilter.cpp" />
-    <ClCompile Include="src\remez\remez.c" />
+    <ClCompile Include="src\remez\remez.cpp" />
     <ClCompile Include="src\resample.cpp" />
     <ClCompile Include="src\rpoly\rpoly.cpp" />
     <ClCompile Include="src\sample.cpp" />
@@ -389,6 +391,9 @@
     <ClInclude Include="include\dsp++\filter_design.h" />
     <ClInclude Include="include\dsp++\fixed.h" />
     <ClInclude Include="include\dsp++\float.h" />
+    <ClInclude Include="include\dsp++\flt\biquad_design.h" />
+    <ClInclude Include="include\dsp++\flt\fir_design.h" />
+    <ClInclude Include="include\dsp++\flt\iir_design.h" />
     <ClInclude Include="include\dsp++\intmath.h" />
     <ClInclude Include="include\dsp++\lattice.h" />
     <ClInclude Include="include\dsp++\levinson.h" />

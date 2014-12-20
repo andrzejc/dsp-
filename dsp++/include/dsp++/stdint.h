@@ -1,5 +1,5 @@
 /*!
- * @file dsp++/dspint.h
+ * @file dsp++/stdint.h
  * @brief Wrapper/reimplementation of part of C++ cstdint or C99 stdint.h headers (fixed-size typedefs).
  */
 #ifndef DSP_DSPINT_H_INCLUDED

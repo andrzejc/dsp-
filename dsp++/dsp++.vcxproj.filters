@@ -43,12 +43,12 @@
     <Filter Include="src\rpoly">
       <UniqueIdentifier>{e9b84dab-d9f4-45fd-832b-4f20e284d0ba}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\dsp++\flt">
+      <UniqueIdentifier>{24dfdb1c-da38-48ea-8559-9a3e1812b8e1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\fft.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\filter_design.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\snd\format.cpp">
@@ -56,9 +56,6 @@
     </ClCompile>
     <ClCompile Include="src\snd\io.cpp">
       <Filter>src\snd</Filter>
-    </ClCompile>
-    <ClCompile Include="src\remez\remez.c">
-      <Filter>src\remez</Filter>
     </ClCompile>
     <ClCompile Include="src\fftw\traits.cpp">
       <Filter>src\fftw</Filter>
@@ -99,9 +96,6 @@
     <ClCompile Include="src\resample.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\fir_freq_samp.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\debug.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -115,6 +109,21 @@
       <Filter>src\rpoly</Filter>
     </ClCompile>
     <ClCompile Include="src\zeropole.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\flt_pm.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\remez\remez.cpp">
+      <Filter>src\remez</Filter>
+    </ClCompile>
+    <ClCompile Include="src\flt_biquad.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\flt_iir.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\flt_fs.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -298,6 +307,15 @@
     </ClInclude>
     <ClInclude Include="src\mkfilter\mkfilter.h">
       <Filter>src\mkfilter</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\flt\iir_design.h">
+      <Filter>include\dsp++\flt</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\flt\biquad_design.h">
+      <Filter>include\dsp++\flt</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\flt\fir_design.h">
+      <Filter>include\dsp++\flt</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
