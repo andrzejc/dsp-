@@ -11,6 +11,8 @@
 #if !DSP_FFTW_DISABLED
 
 #include <dsp++/export.h>
+#include <dsp++/dft.h>
+
 #include <complex>
 #include <cstdio>
 
@@ -35,7 +37,11 @@ typedef struct fftw_iodim_do_not_use_me fftw_iodim;
 typedef void (*fftw_write_char_func)(char c, void* );
 typedef int (*fftw_read_char_func)(void* );
 
-namespace dsp { namespace fftw {
+namespace dsp { 
+
+using std::complex;
+	
+namespace dft { namespace fftw {
 
 	//! @brief Implementation details. Do not use.
 	namespace detail {
@@ -48,20 +54,20 @@ namespace dsp { namespace fftw {
 	 * performed through @c BOOST_STATIC_ASSERT() in traits.cpp.
 	 * @see fftw_r2r_kind
 	 */
-	enum r2r_kind
+	namespace r2r { enum kind
 	{
-		kind_R2HC=0,
-		kind_HC2R=1,
-		kind_DHT=2,
-		kind_REDFT00=3,
-		kind_REDFT01=4,
-		kind_REDFT10=5,
-		kind_REDFT11=6,
-		kind_RODFT00=7,
-		kind_RODFT01=8,
-		kind_RODFT10=9,
-		kind_RODFT11=10
-	};
+		R2HC=0,
+		HC2R=1,
+		DHT=2,
+		REDFT00=3,
+		REDFT01=4,
+		REDFT10=5,
+		REDFT11=6,
+		RODFT00=7,
+		RODFT01=8,
+		RODFT10=9,
+		RODFT11=10
+	};}
 
 	/*!
 	 * @brief Traits class representing whole libfftw3 API for a specific real type.
@@ -72,50 +78,50 @@ namespace dsp { namespace fftw {
 	public:
 		typedef Real real_type;
 		//! @brief C++ complex type for the given @c real_type.
-		typedef std::complex<Real> complex_type;
+		typedef complex<Real> complex_type;
 		typedef void* plan_type;
 		typedef void plan_value_type;
 
 		static void execute(const plan_type p);
 
-		static plan_type plan_dft(int rank, const int* n,
-				    complex_type* in, complex_type* out, int sign, unsigned flags);
+		static plan_type plan_dft(size_t rank, const unsigned* n,
+				    complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags);
 
-		static plan_type plan_dft_1d(int n, complex_type* in, complex_type* out, int sign,
+		static plan_type plan_dft_1d(size_t n, complex_type* in, complex_type* out, dsp::dft::sign::spec sign,
 				       unsigned flags);
-		static plan_type plan_dft_2d(int n0, int n1,
-				       complex_type* in, complex_type* out, int sign, unsigned flags);
-		static plan_type plan_dft_3d(int n0, int n1, int n2,
-				       complex_type* in, complex_type* out, int sign, unsigned flags);
+		static plan_type plan_dft_2d(size_t n0, size_t n1,
+				       complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags);
+		static plan_type plan_dft_3d(size_t n0, size_t n1, size_t n2,
+				       complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags);
 
-		static plan_type plan_many_dft(int rank, const int* n,
-		                         int howmany,
+		static plan_type plan_many_dft(size_t rank, const unsigned* n,
+		                         size_t howmany,
 		                         complex_type* in, const int* inembed,
 		                         int istride, int idist,
 		                         complex_type* out, const int* onembed,
 		                         int ostride, int odist,
-		                         int sign, unsigned flags);
+		                         dsp::dft::sign::spec sign, unsigned flags);
 
-		static plan_type plan_guru_dft(int rank, const fftw_iodim* dims,
-					 int howmany_rank,
+		static plan_type plan_guru_dft(size_t rank, const fftw_iodim* dims,
+					 size_t howmany_rank,
 					 const fftw_iodim* howmany_dims,
 					 complex_type* in, complex_type* out,
-					 int sign, unsigned flags);
-		static plan_type plan_guru_split_dft(int rank, const fftw_iodim* dims,
-					 int howmany_rank,
+					 dsp::dft::sign::spec sign, unsigned flags);
+		static plan_type plan_guru_split_dft(size_t rank, const fftw_iodim* dims,
+					 size_t howmany_rank,
 					 const fftw_iodim* howmany_dims,
 					 real_type* ri, real_type* ii, real_type* ro, real_type* io,
 					 unsigned flags);
 
-		static plan_type plan_guru64_dft(int rank,
+		static plan_type plan_guru64_dft(size_t rank,
 		                         const fftw_iodim64* dims,
-					 int howmany_rank,
+					 size_t howmany_rank,
 					 const fftw_iodim64* howmany_dims,
 					 complex_type* in, complex_type* out,
-					 int sign, unsigned flags);
-		static plan_type plan_guru64_split_dft(int rank,
+					 dsp::dft::sign::spec sign, unsigned flags);
+		static plan_type plan_guru64_split_dft(size_t rank,
 		                         const fftw_iodim64* dims,
-					 int howmany_rank,
+					 size_t howmany_rank,
 					 const fftw_iodim64* howmany_dims,
 					 real_type* ri, real_type* ii, real_type* ro, real_type* io,
 					 unsigned flags);
@@ -124,89 +130,88 @@ namespace dsp { namespace fftw {
 		static void execute_split_dft(const plan_type p, real_type* ri, real_type* ii,
 		                                      real_type* ro, real_type* io);
 
-		static plan_type plan_many_dft_r2c(int rank, const int* n,
-		                             int howmany,
+		static plan_type plan_many_dft_r2c(size_t rank, const unsigned* n,
+		                             size_t howmany,
 		                             real_type* in, const int* inembed,
 		                             int istride, int idist,
 		                             complex_type* out, const int* onembed,
 		                             int ostride, int odist,
 		                             unsigned flags);
 
-		static plan_type plan_dft_r2c(int rank, const int* n,
+		static plan_type plan_dft_r2c(size_t rank, const unsigned* n,
 		                        real_type* in, complex_type* out, unsigned flags);
 
-		static plan_type plan_dft_r2c_1d(int n,real_type* in,complex_type* out,unsigned flags);
-		static plan_type plan_dft_r2c_2d(int n0, int n1,
+		static plan_type plan_dft_r2c_1d(size_t n,real_type* in,complex_type* out,unsigned flags);
+		static plan_type plan_dft_r2c_2d(size_t n0, size_t n1,
 					   real_type* in, complex_type* out, unsigned flags);
-		static plan_type plan_dft_r2c_3d(int n0, int n1,
-					   int n2,
+		static plan_type plan_dft_r2c_3d(size_t n0, size_t n1, size_t n2,
 					   real_type* in, complex_type* out, unsigned flags);
 
 
-		static plan_type plan_many_dft_c2r(int rank, const int* n,
-					     int howmany,
+		static plan_type plan_many_dft_c2r(size_t rank, const unsigned* n,
+					     size_t howmany,
 					     complex_type* in, const int* inembed,
 					     int istride, int idist,
 					     real_type* out, const int* onembed,
 					     int ostride, int odist,
 					     unsigned flags);
 
-		static plan_type plan_dft_c2r(int rank, const int* n,
+		static plan_type plan_dft_c2r(size_t rank, const unsigned* n,
 		                        complex_type* in, real_type* out, unsigned flags);
 
-		static plan_type plan_dft_c2r_1d(int n,complex_type* in,real_type* out,unsigned flags);
-		static plan_type plan_dft_c2r_2d(int n0, int n1,
+		static plan_type plan_dft_c2r_1d(size_t n,complex_type* in,real_type* out,unsigned flags);
+		static plan_type plan_dft_c2r_2d(size_t n0, size_t n1,
 					   complex_type* in, real_type* out, unsigned flags);
-		static plan_type plan_dft_c2r_3d(int n0, int n1,
-					   int n2,
+		static plan_type plan_dft_c2r_3d(size_t n0, size_t n1,
+					   size_t n2,
 					   complex_type* in, real_type* out, unsigned flags);
 
-		static plan_type plan_guru_dft_r2c(int rank, const fftw_iodim* dims,
-					     int howmany_rank,
+		static plan_type plan_guru_dft_r2c(size_t rank, const fftw_iodim* dims,
+					     size_t howmany_rank,
 					     const fftw_iodim* howmany_dims,
 					     real_type* in, complex_type* out,
 					     unsigned flags);
-		static plan_type plan_guru_dft_c2r(int rank, const fftw_iodim* dims,
-					     int howmany_rank,
+		static plan_type plan_guru_dft_c2r(size_t rank, const fftw_iodim* dims,
+					     size_t howmany_rank,
 					     const fftw_iodim* howmany_dims,
 					     complex_type* in, real_type* out,
 					     unsigned flags);
 
 		static plan_type plan_guru_split_dft_r2c(
-		                             int rank, const fftw_iodim* dims,
-					     int howmany_rank,
+		                             size_t rank, const fftw_iodim* dims,
+					     size_t howmany_rank,
 					     const fftw_iodim* howmany_dims,
 					     real_type* in, real_type* ro, real_type* io,
 					     unsigned flags);
 		static plan_type plan_guru_split_dft_c2r(
-		                             int rank, const fftw_iodim* dims,
-					     int howmany_rank,
+		                             size_t rank, const fftw_iodim* dims,
+					     size_t howmany_rank,
 					     const fftw_iodim* howmany_dims,
 					     real_type* ri, real_type* ii, real_type* out,
 					     unsigned flags);
 
-		static plan_type plan_guru64_dft_r2c(int rank,
+		static plan_type plan_guru64_dft_r2c(size_t rank,
 		                             const fftw_iodim64* dims,
-					     int howmany_rank,
+					     size_t howmany_rank,
 					     const fftw_iodim64* howmany_dims,
 					     real_type* in, complex_type* out,
 					     unsigned flags);
-		static plan_type plan_guru64_dft_c2r(int rank,
+		static plan_type plan_guru64_dft_c2r(size_t rank,
 		                             const fftw_iodim64* dims,
-					     int howmany_rank,
+					     size_t howmany_rank,
 					     const fftw_iodim64* howmany_dims,
 					     complex_type* in, real_type* out,
 					     unsigned flags);
 
 		static plan_type plan_guru64_split_dft_r2c(
-		                             int rank, const fftw_iodim64* dims,
-					     int howmany_rank,
+		                             size_t rank, const fftw_iodim64* dims,
+					     size_t howmany_rank,
 					     const fftw_iodim64* howmany_dims,
 					     real_type* in, real_type* ro, real_type* io,
 					     unsigned flags);
 		static plan_type plan_guru64_split_dft_c2r(
-		                             int rank, const fftw_iodim64* dims,
-					     int howmany_rank,
+		                             size_t rank, const fftw_iodim64* dims,
+					     size_t howmany_rank,
 					     const fftw_iodim64* howmany_dims,
 					     real_type* ri, real_type* ii, real_type* out,
 					     unsigned flags);
@@ -219,38 +224,38 @@ namespace dsp { namespace fftw {
 		static void execute_split_dft_c2r(const plan_type p,
 		                                          real_type* ri, real_type* ii, real_type* out);
 
-		static plan_type plan_many_r2r(int rank, const int* n,
-		                         int howmany,
+		static plan_type plan_many_r2r(size_t rank, const unsigned* n,
+		                         size_t howmany,
 		                         real_type* in, const int* inembed,
 		                         int istride, int idist,
 		                         real_type* out, const int* onembed,
 		                         int ostride, int odist,
-		                         const r2r_kind* k, unsigned flags);
+		                         const r2r::kind* k, unsigned flags);
 
-		static plan_type plan_r2r(int rank, const int* n, real_type* in, real_type* out,
-		                    const r2r_kind* k, unsigned flags);
+		static plan_type plan_r2r(size_t rank, const unsigned* n, real_type* in, real_type* out,
+		                    const r2r::kind* k, unsigned flags);
 
-		static plan_type plan_r2r_1d(int n, real_type* in, real_type* out,
-		                       r2r_kind kind, unsigned flags);
-		static plan_type plan_r2r_2d(int n0, int n1, real_type* in, real_type* out,
-		                       r2r_kind kind0, r2r_kind kind1,
+		static plan_type plan_r2r_1d(size_t n, real_type* in, real_type* out,
+		                       r2r::kind kind, unsigned flags);
+		static plan_type plan_r2r_2d(size_t n0, size_t n1, real_type* in, real_type* out,
+		                       r2r::kind kind0, r2r::kind kind1,
 		                       unsigned flags);
-		static plan_type plan_r2r_3d(int n0, int n1, int n2,
-		                       real_type* in, real_type* out, r2r_kind kind0,
-		                       r2r_kind kind1, r2r_kind kind2,
+		static plan_type plan_r2r_3d(size_t n0, size_t n1, size_t n2,
+		                       real_type* in, real_type* out, r2r::kind kind0,
+		                       r2r::kind kind1, r2r::kind kind2,
 		                       unsigned flags);
 
-		static plan_type plan_guru_r2r(int rank, const fftw_iodim* dims,
-		                         int howmany_rank,
+		static plan_type plan_guru_r2r(size_t rank, const fftw_iodim* dims,
+		                         size_t howmany_rank,
 		                         const fftw_iodim* howmany_dims,
 		                         real_type* in, real_type* out,
-		                         const r2r_kind* k, unsigned flags);
+		                         const r2r::kind* k, unsigned flags);
 
-		static plan_type plan_guru64_r2r(int rank, const fftw_iodim64* dims,
-		                         int howmany_rank,
+		static plan_type plan_guru64_r2r(size_t rank, const fftw_iodim64* dims,
+		                         size_t howmany_rank,
 		                         const fftw_iodim64* howmany_dims,
 		                         real_type* in, real_type* out,
-		                         const r2r_kind* k, unsigned flags);
+		                         const r2r::kind* k, unsigned flags);
 
 		static void execute_r2r(const plan_type p, real_type* in, real_type* out);
 
@@ -260,7 +265,7 @@ namespace dsp { namespace fftw {
 
 		static void set_timelimit(double t);
 
-		static void plan_with_nthreads(int nthreads);
+		static void plan_with_nthreads(unsigned nthreads);
 		static int init_threads(void);
 		static void cleanup_threads(void);
 
@@ -297,141 +302,122 @@ namespace dsp { namespace fftw {
 	class DSPXX_API traits<float> {
 	public:
 		typedef float real_type;
-		typedef std::complex<float> complex_type;
+		typedef complex<float> complex_type;
 		typedef fftwf_plan plan_type;
 		typedef fftwf_plan_s plan_value_type;
 
 		static void execute(const plan_type p);
 
-		static plan_type plan_dft(int rank, const int* n,
-				    complex_type* in, complex_type* out, int sign, unsigned flags);
+		static plan_type plan_dft(size_t rank, const unsigned* n, complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags);
+		static plan_type plan_dft_1d(size_t n, complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags);
+		static plan_type plan_dft_2d(size_t n0, size_t n1, complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags);
+		static plan_type plan_dft_3d(size_t n0, size_t n1, size_t n2, complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags);
 
-		static plan_type plan_dft_1d(int n, complex_type* in, complex_type* out, int sign,
-				       unsigned flags);
-		static plan_type plan_dft_2d(int n0, int n1,
-				       complex_type* in, complex_type* out, int sign, unsigned flags);
-		static plan_type plan_dft_3d(int n0, int n1, int n2,
-				       complex_type* in, complex_type* out, int sign, unsigned flags);
+		static plan_type plan_many_dft(size_t rank, const unsigned* n, size_t howmany,
+		                         complex_type* in, const int* inembed, int istride, int idist,
+		                         complex_type* out, const int* onembed, int ostride, int odist,
+		                         dsp::dft::sign::spec sign, unsigned flags);
 
-		static plan_type plan_many_dft(int rank, const int* n,
-		                         int howmany,
-		                         complex_type* in, const int* inembed,
-		                         int istride, int idist,
-		                         complex_type* out, const int* onembed,
-		                         int ostride, int odist,
-		                         int sign, unsigned flags);
-
-		static plan_type plan_guru_dft(int rank, const fftw_iodim* dims,
-					 int howmany_rank,
-					 const fftw_iodim* howmany_dims,
+		static plan_type plan_guru_dft(size_t rank, const fftw_iodim* dims, size_t howmany_rank, const fftw_iodim* howmany_dims,
 					 complex_type* in, complex_type* out,
-					 int sign, unsigned flags);
-		static plan_type plan_guru_split_dft(int rank, const fftw_iodim* dims,
-					 int howmany_rank,
-					 const fftw_iodim* howmany_dims,
+					 dsp::dft::sign::spec sign, unsigned flags);
+		static plan_type plan_guru_split_dft(size_t rank, const fftw_iodim* dims, size_t howmany_rank, const fftw_iodim* howmany_dims,
 					 real_type* ri, real_type* ii, real_type* ro, real_type* io,
 					 unsigned flags);
 
-		static plan_type plan_guru64_dft(int rank,
-		                         const fftw_iodim64* dims,
-					 int howmany_rank,
-					 const fftw_iodim64* howmany_dims,
+		static plan_type plan_guru64_dft(size_t rank, const fftw_iodim64* dims, size_t howmany_rank, const fftw_iodim64* howmany_dims,
 					 complex_type* in, complex_type* out,
-					 int sign, unsigned flags);
-		static plan_type plan_guru64_split_dft(int rank,
-		                         const fftw_iodim64* dims,
-					 int howmany_rank,
-					 const fftw_iodim64* howmany_dims,
+					 dsp::dft::sign::spec sign, unsigned flags);
+		static plan_type plan_guru64_split_dft(size_t rank, const fftw_iodim64* dims, size_t howmany_rank, const fftw_iodim64* howmany_dims,
 					 real_type* ri, real_type* ii, real_type* ro, real_type* io,
 					 unsigned flags);
 
 		static void execute_dft(const plan_type p, complex_type* in, complex_type* out);
-		static void execute_split_dft(const plan_type p, real_type* ri, real_type* ii,
-		                                      real_type* ro, real_type* io);
+		static void execute_split_dft(const plan_type p, real_type* ri, real_type* ii, real_type* ro, real_type* io);
 
-		static plan_type plan_many_dft_r2c(int rank, const int* n,
-		                             int howmany,
+		static plan_type plan_many_dft_r2c(size_t rank, const unsigned* n,
+		                             size_t howmany,
 		                             real_type* in, const int* inembed,
 		                             int istride, int idist,
 		                             complex_type* out, const int* onembed,
 		                             int ostride, int odist,
 		                             unsigned flags);
 
-		static plan_type plan_dft_r2c(int rank, const int* n,
+		static plan_type plan_dft_r2c(size_t rank, const unsigned* n,
 		                        real_type* in, complex_type* out, unsigned flags);
 
-		static plan_type plan_dft_r2c_1d(int n,real_type* in,complex_type* out,unsigned flags);
-		static plan_type plan_dft_r2c_2d(int n0, int n1,
+		static plan_type plan_dft_r2c_1d(size_t n,real_type* in,complex_type* out,unsigned flags);
+		static plan_type plan_dft_r2c_2d(size_t n0, size_t n1,
 					   real_type* in, complex_type* out, unsigned flags);
-		static plan_type plan_dft_r2c_3d(int n0, int n1,
-					   int n2,
+		static plan_type plan_dft_r2c_3d(size_t n0, size_t n1,
+					   size_t n2,
 					   real_type* in, complex_type* out, unsigned flags);
 
 
-		static plan_type plan_many_dft_c2r(int rank, const int* n,
-					     int howmany,
+		static plan_type plan_many_dft_c2r(size_t rank, const unsigned* n,
+					     size_t howmany,
 					     complex_type* in, const int* inembed,
 					     int istride, int idist,
 					     real_type* out, const int* onembed,
 					     int ostride, int odist,
 					     unsigned flags);
 
-		static plan_type plan_dft_c2r(int rank, const int* n,
+		static plan_type plan_dft_c2r(size_t rank, const unsigned* n,
 		                        complex_type* in, real_type* out, unsigned flags);
 
-		static plan_type plan_dft_c2r_1d(int n,complex_type* in,real_type* out,unsigned flags);
-		static plan_type plan_dft_c2r_2d(int n0, int n1,
+		static plan_type plan_dft_c2r_1d(size_t n,complex_type* in,real_type* out,unsigned flags);
+		static plan_type plan_dft_c2r_2d(size_t n0, size_t n1,
 					   complex_type* in, real_type* out, unsigned flags);
-		static plan_type plan_dft_c2r_3d(int n0, int n1,
-					   int n2,
+		static plan_type plan_dft_c2r_3d(size_t n0, size_t n1,
+					   size_t n2,
 					   complex_type* in, real_type* out, unsigned flags);
 
-		static plan_type plan_guru_dft_r2c(int rank, const fftw_iodim* dims,
-					     int howmany_rank,
+		static plan_type plan_guru_dft_r2c(size_t rank, const fftw_iodim* dims,
+					     size_t howmany_rank,
 					     const fftw_iodim* howmany_dims,
 					     real_type* in, complex_type* out,
 					     unsigned flags);
-		static plan_type plan_guru_dft_c2r(int rank, const fftw_iodim* dims,
-					     int howmany_rank,
+		static plan_type plan_guru_dft_c2r(size_t rank, const fftw_iodim* dims,
+					     size_t howmany_rank,
 					     const fftw_iodim* howmany_dims,
 					     complex_type* in, real_type* out,
 					     unsigned flags);
 
 		static plan_type plan_guru_split_dft_r2c(
-		                             int rank, const fftw_iodim* dims,
-					     int howmany_rank,
+		                             size_t rank, const fftw_iodim* dims,
+					     size_t howmany_rank,
 					     const fftw_iodim* howmany_dims,
 					     real_type* in, real_type* ro, real_type* io,
 					     unsigned flags);
 		static plan_type plan_guru_split_dft_c2r(
-		                             int rank, const fftw_iodim* dims,
-					     int howmany_rank,
+		                             size_t rank, const fftw_iodim* dims,
+					     size_t howmany_rank,
 					     const fftw_iodim* howmany_dims,
 					     real_type* ri, real_type* ii, real_type* out,
 					     unsigned flags);
 
-		static plan_type plan_guru64_dft_r2c(int rank,
+		static plan_type plan_guru64_dft_r2c(size_t rank,
 		                             const fftw_iodim64* dims,
-					     int howmany_rank,
+					     size_t howmany_rank,
 					     const fftw_iodim64* howmany_dims,
 					     real_type* in, complex_type* out,
 					     unsigned flags);
-		static plan_type plan_guru64_dft_c2r(int rank,
+		static plan_type plan_guru64_dft_c2r(size_t rank,
 		                             const fftw_iodim64* dims,
-					     int howmany_rank,
+					     size_t howmany_rank,
 					     const fftw_iodim64* howmany_dims,
 					     complex_type* in, real_type* out,
 					     unsigned flags);
 
 		static plan_type plan_guru64_split_dft_r2c(
-		                             int rank, const fftw_iodim64* dims,
-					     int howmany_rank,
+		                             size_t rank, const fftw_iodim64* dims,
+					     size_t howmany_rank,
 					     const fftw_iodim64* howmany_dims,
 					     real_type* in, real_type* ro, real_type* io,
 					     unsigned flags);
 		static plan_type plan_guru64_split_dft_c2r(
-		                             int rank, const fftw_iodim64* dims,
-					     int howmany_rank,
+		                             size_t rank, const fftw_iodim64* dims,
+					     size_t howmany_rank,
 					     const fftw_iodim64* howmany_dims,
 					     real_type* ri, real_type* ii, real_type* out,
 					     unsigned flags);
@@ -444,38 +430,38 @@ namespace dsp { namespace fftw {
 		static void execute_split_dft_c2r(const plan_type p,
 		                                          real_type* ri, real_type* ii, real_type* out);
 
-		static plan_type plan_many_r2r(int rank, const int* n,
-		                         int howmany,
+		static plan_type plan_many_r2r(size_t rank, const unsigned* n,
+		                         size_t howmany,
 		                         real_type* in, const int* inembed,
 		                         int istride, int idist,
 		                         real_type* out, const int* onembed,
 		                         int ostride, int odist,
-		                         const r2r_kind* k, unsigned flags);
+		                         const r2r::kind* k, unsigned flags);
 
-		static plan_type plan_r2r(int rank, const int* n, real_type* in, real_type* out,
-		                    const r2r_kind* k, unsigned flags);
+		static plan_type plan_r2r(size_t rank, const unsigned* n, real_type* in, real_type* out,
+		                    const r2r::kind* k, unsigned flags);
 
-		static plan_type plan_r2r_1d(int n, real_type* in, real_type* out,
-		                       r2r_kind kind, unsigned flags);
-		static plan_type plan_r2r_2d(int n0, int n1, real_type* in, real_type* out,
-		                       r2r_kind kind0, r2r_kind kind1,
+		static plan_type plan_r2r_1d(size_t n, real_type* in, real_type* out,
+		                       r2r::kind kind, unsigned flags);
+		static plan_type plan_r2r_2d(size_t n0, size_t n1, real_type* in, real_type* out,
+		                       r2r::kind kind0, r2r::kind kind1,
 		                       unsigned flags);
-		static plan_type plan_r2r_3d(int n0, int n1, int n2,
-		                       real_type* in, real_type* out, r2r_kind kind0,
-		                       r2r_kind kind1, r2r_kind kind2,
+		static plan_type plan_r2r_3d(size_t n0, size_t n1, size_t n2,
+		                       real_type* in, real_type* out, r2r::kind kind0,
+		                       r2r::kind kind1, r2r::kind kind2,
 		                       unsigned flags);
 
-		static plan_type plan_guru_r2r(int rank, const fftw_iodim* dims,
-		                         int howmany_rank,
+		static plan_type plan_guru_r2r(size_t rank, const fftw_iodim* dims,
+		                         size_t howmany_rank,
 		                         const fftw_iodim* howmany_dims,
 		                         real_type* in, real_type* out,
-		                         const r2r_kind* k, unsigned flags);
+		                         const r2r::kind* k, unsigned flags);
 
-		static plan_type plan_guru64_r2r(int rank, const fftw_iodim64* dims,
-		                         int howmany_rank,
+		static plan_type plan_guru64_r2r(size_t rank, const fftw_iodim64* dims,
+		                         size_t howmany_rank,
 		                         const fftw_iodim64* howmany_dims,
 		                         real_type* in, real_type* out,
-		                         const r2r_kind* k, unsigned flags);
+		                         const r2r::kind* k, unsigned flags);
 
 		static void execute_r2r(const plan_type p, real_type* in, real_type* out);
 
@@ -485,7 +471,7 @@ namespace dsp { namespace fftw {
 
 		static void set_timelimit(double t);
 
-		static void plan_with_nthreads(int nthreads);
+		static void plan_with_nthreads(unsigned nthreads);
 		static int init_threads(void);
 		static void cleanup_threads(void);
 
@@ -523,50 +509,50 @@ namespace dsp { namespace fftw {
 	class DSPXX_API traits<double> {
 	public:
 		typedef double real_type;
-		typedef std::complex<double> complex_type;
+		typedef complex<double> complex_type;
 		typedef fftw_plan plan_type;
 		typedef fftw_plan_s plan_value_type;
 
 		static void execute(const plan_type p);
 
-		static plan_type plan_dft(int rank, const int* n,
-				    complex_type* in, complex_type* out, int sign, unsigned flags);
+		static plan_type plan_dft(size_t rank, const unsigned* n,
+				    complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags);
 
-		static plan_type plan_dft_1d(int n, complex_type* in, complex_type* out, int sign,
+		static plan_type plan_dft_1d(size_t n, complex_type* in, complex_type* out, dsp::dft::sign::spec sign,
 				       unsigned flags);
-		static plan_type plan_dft_2d(int n0, int n1,
-				       complex_type* in, complex_type* out, int sign, unsigned flags);
-		static plan_type plan_dft_3d(int n0, int n1, int n2,
-				       complex_type* in, complex_type* out, int sign, unsigned flags);
+		static plan_type plan_dft_2d(size_t n0, size_t n1,
+				       complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags);
+		static plan_type plan_dft_3d(size_t n0, size_t n1, size_t n2,
+				       complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags);
 
-		static plan_type plan_many_dft(int rank, const int* n,
-		                         int howmany,
+		static plan_type plan_many_dft(size_t rank, const unsigned* n,
+		                         size_t howmany,
 		                         complex_type* in, const int* inembed,
 		                         int istride, int idist,
 		                         complex_type* out, const int* onembed,
 		                         int ostride, int odist,
-		                         int sign, unsigned flags);
+		                         dsp::dft::sign::spec sign, unsigned flags);
 
-		static plan_type plan_guru_dft(int rank, const fftw_iodim* dims,
-					 int howmany_rank,
+		static plan_type plan_guru_dft(size_t rank, const fftw_iodim* dims,
+					 size_t howmany_rank,
 					 const fftw_iodim* howmany_dims,
 					 complex_type* in, complex_type* out,
-					 int sign, unsigned flags);
-		static plan_type plan_guru_split_dft(int rank, const fftw_iodim* dims,
-					 int howmany_rank,
+					 dsp::dft::sign::spec sign, unsigned flags);
+		static plan_type plan_guru_split_dft(size_t rank, const fftw_iodim* dims,
+					 size_t howmany_rank,
 					 const fftw_iodim* howmany_dims,
 					 real_type* ri, real_type* ii, real_type* ro, real_type* io,
 					 unsigned flags);
 
-		static plan_type plan_guru64_dft(int rank,
+		static plan_type plan_guru64_dft(size_t rank,
 		                         const fftw_iodim64* dims,
-					 int howmany_rank,
+					 size_t howmany_rank,
 					 const fftw_iodim64* howmany_dims,
 					 complex_type* in, complex_type* out,
-					 int sign, unsigned flags);
-		static plan_type plan_guru64_split_dft(int rank,
+					 dsp::dft::sign::spec sign, unsigned flags);
+		static plan_type plan_guru64_split_dft(size_t rank,
 		                         const fftw_iodim64* dims,
-					 int howmany_rank,
+					 size_t howmany_rank,
 					 const fftw_iodim64* howmany_dims,
 					 real_type* ri, real_type* ii, real_type* ro, real_type* io,
 					 unsigned flags);
@@ -575,89 +561,89 @@ namespace dsp { namespace fftw {
 		static void execute_split_dft(const plan_type p, real_type* ri, real_type* ii,
 		                                      real_type* ro, real_type* io);
 
-		static plan_type plan_many_dft_r2c(int rank, const int* n,
-		                             int howmany,
+		static plan_type plan_many_dft_r2c(size_t rank, const unsigned* n,
+		                             size_t howmany,
 		                             real_type* in, const int* inembed,
 		                             int istride, int idist,
 		                             complex_type* out, const int* onembed,
 		                             int ostride, int odist,
 		                             unsigned flags);
 
-		static plan_type plan_dft_r2c(int rank, const int* n,
+		static plan_type plan_dft_r2c(size_t rank, const unsigned* n,
 		                        real_type* in, complex_type* out, unsigned flags);
 
-		static plan_type plan_dft_r2c_1d(int n,real_type* in,complex_type* out,unsigned flags);
-		static plan_type plan_dft_r2c_2d(int n0, int n1,
+		static plan_type plan_dft_r2c_1d(size_t n,real_type* in,complex_type* out,unsigned flags);
+		static plan_type plan_dft_r2c_2d(size_t n0, size_t n1,
 					   real_type* in, complex_type* out, unsigned flags);
-		static plan_type plan_dft_r2c_3d(int n0, int n1,
-					   int n2,
+		static plan_type plan_dft_r2c_3d(size_t n0, size_t n1,
+					   size_t n2,
 					   real_type* in, complex_type* out, unsigned flags);
 
 
-		static plan_type plan_many_dft_c2r(int rank, const int* n,
-					     int howmany,
+		static plan_type plan_many_dft_c2r(size_t rank, const unsigned* n,
+					     size_t howmany,
 					     complex_type* in, const int* inembed,
 					     int istride, int idist,
 					     real_type* out, const int* onembed,
 					     int ostride, int odist,
 					     unsigned flags);
 
-		static plan_type plan_dft_c2r(int rank, const int* n,
+		static plan_type plan_dft_c2r(size_t rank, const unsigned* n,
 		                        complex_type* in, real_type* out, unsigned flags);
 
-		static plan_type plan_dft_c2r_1d(int n,complex_type* in,real_type* out,unsigned flags);
-		static plan_type plan_dft_c2r_2d(int n0, int n1,
+		static plan_type plan_dft_c2r_1d(size_t n,complex_type* in,real_type* out,unsigned flags);
+		static plan_type plan_dft_c2r_2d(size_t n0, size_t n1,
 					   complex_type* in, real_type* out, unsigned flags);
-		static plan_type plan_dft_c2r_3d(int n0, int n1,
-					   int n2,
+		static plan_type plan_dft_c2r_3d(size_t n0, size_t n1,
+					   size_t n2,
 					   complex_type* in, real_type* out, unsigned flags);
 
-		static plan_type plan_guru_dft_r2c(int rank, const fftw_iodim* dims,
-					     int howmany_rank,
+		static plan_type plan_guru_dft_r2c(size_t rank, const fftw_iodim* dims,
+					     size_t howmany_rank,
 					     const fftw_iodim* howmany_dims,
 					     real_type* in, complex_type* out,
 					     unsigned flags);
-		static plan_type plan_guru_dft_c2r(int rank, const fftw_iodim* dims,
-					     int howmany_rank,
+		static plan_type plan_guru_dft_c2r(size_t rank, const fftw_iodim* dims,
+					     size_t howmany_rank,
 					     const fftw_iodim* howmany_dims,
 					     complex_type* in, real_type* out,
 					     unsigned flags);
 
 		static plan_type plan_guru_split_dft_r2c(
-		                             int rank, const fftw_iodim* dims,
-					     int howmany_rank,
+		                             size_t rank, const fftw_iodim* dims,
+					     size_t howmany_rank,
 					     const fftw_iodim* howmany_dims,
 					     real_type* in, real_type* ro, real_type* io,
 					     unsigned flags);
 		static plan_type plan_guru_split_dft_c2r(
-		                             int rank, const fftw_iodim* dims,
-					     int howmany_rank,
+		                             size_t rank, const fftw_iodim* dims,
+					     size_t howmany_rank,
 					     const fftw_iodim* howmany_dims,
 					     real_type* ri, real_type* ii, real_type* out,
 					     unsigned flags);
 
-		static plan_type plan_guru64_dft_r2c(int rank,
+		static plan_type plan_guru64_dft_r2c(size_t rank,
 		                             const fftw_iodim64* dims,
-					     int howmany_rank,
+					     size_t howmany_rank,
 					     const fftw_iodim64* howmany_dims,
 					     real_type* in, complex_type* out,
 					     unsigned flags);
-		static plan_type plan_guru64_dft_c2r(int rank,
+		static plan_type plan_guru64_dft_c2r(size_t rank,
 		                             const fftw_iodim64* dims,
-					     int howmany_rank,
+					     size_t howmany_rank,
 					     const fftw_iodim64* howmany_dims,
 					     complex_type* in, real_type* out,
 					     unsigned flags);
 
 		static plan_type plan_guru64_split_dft_r2c(
-		                             int rank, const fftw_iodim64* dims,
-					     int howmany_rank,
+		                             size_t rank, const fftw_iodim64* dims,
+					     size_t howmany_rank,
 					     const fftw_iodim64* howmany_dims,
 					     real_type* in, real_type* ro, real_type* io,
 					     unsigned flags);
 		static plan_type plan_guru64_split_dft_c2r(
-		                             int rank, const fftw_iodim64* dims,
-					     int howmany_rank,
+		                             size_t rank, const fftw_iodim64* dims,
+					     size_t howmany_rank,
 					     const fftw_iodim64* howmany_dims,
 					     real_type* ri, real_type* ii, real_type* out,
 					     unsigned flags);
@@ -670,38 +656,38 @@ namespace dsp { namespace fftw {
 		static void execute_split_dft_c2r(const plan_type p,
 		                                          real_type* ri, real_type* ii, real_type* out);
 
-		static plan_type plan_many_r2r(int rank, const int* n,
-		                         int howmany,
+		static plan_type plan_many_r2r(size_t rank, const unsigned* n,
+		                         size_t howmany,
 		                         real_type* in, const int* inembed,
 		                         int istride, int idist,
 		                         real_type* out, const int* onembed,
 		                         int ostride, int odist,
-		                         const r2r_kind* k, unsigned flags);
+		                         const r2r::kind* k, unsigned flags);
 
-		static plan_type plan_r2r(int rank, const int* n, real_type* in, real_type* out,
-		                    const r2r_kind* k, unsigned flags);
+		static plan_type plan_r2r(size_t rank, const unsigned* n, real_type* in, real_type* out,
+		                    const r2r::kind* k, unsigned flags);
 
-		static plan_type plan_r2r_1d(int n, real_type* in, real_type* out,
-		                       r2r_kind kind, unsigned flags);
-		static plan_type plan_r2r_2d(int n0, int n1, real_type* in, real_type* out,
-		                       r2r_kind kind0, r2r_kind kind1,
+		static plan_type plan_r2r_1d(size_t n, real_type* in, real_type* out,
+		                       r2r::kind kind, unsigned flags);
+		static plan_type plan_r2r_2d(size_t n0, size_t n1, real_type* in, real_type* out,
+		                       r2r::kind kind0, r2r::kind kind1,
 		                       unsigned flags);
-		static plan_type plan_r2r_3d(int n0, int n1, int n2,
-		                       real_type* in, real_type* out, r2r_kind kind0,
-		                       r2r_kind kind1, r2r_kind kind2,
+		static plan_type plan_r2r_3d(size_t n0, size_t n1, size_t n2,
+		                       real_type* in, real_type* out, r2r::kind kind0,
+		                       r2r::kind kind1, r2r::kind kind2,
 		                       unsigned flags);
 
-		static plan_type plan_guru_r2r(int rank, const fftw_iodim* dims,
-		                         int howmany_rank,
+		static plan_type plan_guru_r2r(size_t rank, const fftw_iodim* dims,
+		                         size_t howmany_rank,
 		                         const fftw_iodim* howmany_dims,
 		                         real_type* in, real_type* out,
-		                         const r2r_kind* k, unsigned flags);
+		                         const r2r::kind* k, unsigned flags);
 
-		static plan_type plan_guru64_r2r(int rank, const fftw_iodim64* dims,
-		                         int howmany_rank,
+		static plan_type plan_guru64_r2r(size_t rank, const fftw_iodim64* dims,
+		                         size_t howmany_rank,
 		                         const fftw_iodim64* howmany_dims,
 		                         real_type* in, real_type* out,
-		                         const r2r_kind* k, unsigned flags);
+		                         const r2r::kind* k, unsigned flags);
 
 		static void execute_r2r(const plan_type p, real_type* in, real_type* out);
 
@@ -711,7 +697,7 @@ namespace dsp { namespace fftw {
 
 		static void set_timelimit(double t);
 
-		static void plan_with_nthreads(int nthreads);
+		static void plan_with_nthreads(unsigned nthreads);
 		static int init_threads(void);
 		static void cleanup_threads(void);
 
@@ -749,50 +735,50 @@ namespace dsp { namespace fftw {
 	class DSPXX_API traits<long double> {
 	public:
 		typedef long double real_type;
-		typedef std::complex<long double> complex_type;
+		typedef complex<long double> complex_type;
 		typedef fftwl_plan plan_type;
 		typedef fftwl_plan_s plan_value_type;
 
 		static void execute(const plan_type p);
 
-		static plan_type plan_dft(int rank, const int* n,
-				    complex_type* in, complex_type* out, int sign, unsigned flags);
+		static plan_type plan_dft(size_t rank, const unsigned* n,
+				    complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags);
 
-		static plan_type plan_dft_1d(int n, complex_type* in, complex_type* out, int sign,
+		static plan_type plan_dft_1d(size_t n, complex_type* in, complex_type* out, dsp::dft::sign::spec sign,
 				       unsigned flags);
-		static plan_type plan_dft_2d(int n0, int n1,
-				       complex_type* in, complex_type* out, int sign, unsigned flags);
-		static plan_type plan_dft_3d(int n0, int n1, int n2,
-				       complex_type* in, complex_type* out, int sign, unsigned flags);
+		static plan_type plan_dft_2d(size_t n0, size_t n1,
+				       complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags);
+		static plan_type plan_dft_3d(size_t n0, size_t n1, size_t n2,
+				       complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags);
 
-		static plan_type plan_many_dft(int rank, const int* n,
-		                         int howmany,
+		static plan_type plan_many_dft(size_t rank, const unsigned* n,
+		                         size_t howmany,
 		                         complex_type* in, const int* inembed,
 		                         int istride, int idist,
 		                         complex_type* out, const int* onembed,
 		                         int ostride, int odist,
-		                         int sign, unsigned flags);
+		                         dsp::dft::sign::spec sign, unsigned flags);
 
-		static plan_type plan_guru_dft(int rank, const fftw_iodim* dims,
-					 int howmany_rank,
+		static plan_type plan_guru_dft(size_t rank, const fftw_iodim* dims,
+					 size_t howmany_rank,
 					 const fftw_iodim* howmany_dims,
 					 complex_type* in, complex_type* out,
-					 int sign, unsigned flags);
-		static plan_type plan_guru_split_dft(int rank, const fftw_iodim* dims,
-					 int howmany_rank,
+					 dsp::dft::sign::spec sign, unsigned flags);
+		static plan_type plan_guru_split_dft(size_t rank, const fftw_iodim* dims,
+					 size_t howmany_rank,
 					 const fftw_iodim* howmany_dims,
 					 real_type* ri, real_type* ii, real_type* ro, real_type* io,
 					 unsigned flags);
 
-		static plan_type plan_guru64_dft(int rank,
+		static plan_type plan_guru64_dft(size_t rank,
 		                         const fftw_iodim64* dims,
-					 int howmany_rank,
+					 size_t howmany_rank,
 					 const fftw_iodim64* howmany_dims,
 					 complex_type* in, complex_type* out,
-					 int sign, unsigned flags);
-		static plan_type plan_guru64_split_dft(int rank,
+					 dsp::dft::sign::spec sign, unsigned flags);
+		static plan_type plan_guru64_split_dft(size_t rank,
 		                         const fftw_iodim64* dims,
-					 int howmany_rank,
+					 size_t howmany_rank,
 					 const fftw_iodim64* howmany_dims,
 					 real_type* ri, real_type* ii, real_type* ro, real_type* io,
 					 unsigned flags);
@@ -801,89 +787,89 @@ namespace dsp { namespace fftw {
 		static void execute_split_dft(const plan_type p, real_type* ri, real_type* ii,
 		                                      real_type* ro, real_type* io);
 
-		static plan_type plan_many_dft_r2c(int rank, const int* n,
-		                             int howmany,
+		static plan_type plan_many_dft_r2c(size_t rank, const unsigned* n,
+		                             size_t howmany,
 		                             real_type* in, const int* inembed,
 		                             int istride, int idist,
 		                             complex_type* out, const int* onembed,
 		                             int ostride, int odist,
 		                             unsigned flags);
 
-		static plan_type plan_dft_r2c(int rank, const int* n,
+		static plan_type plan_dft_r2c(size_t rank, const unsigned* n,
 		                        real_type* in, complex_type* out, unsigned flags);
 
-		static plan_type plan_dft_r2c_1d(int n,real_type* in,complex_type* out,unsigned flags);
-		static plan_type plan_dft_r2c_2d(int n0, int n1,
+		static plan_type plan_dft_r2c_1d(size_t n,real_type* in,complex_type* out,unsigned flags);
+		static plan_type plan_dft_r2c_2d(size_t n0, size_t n1,
 					   real_type* in, complex_type* out, unsigned flags);
-		static plan_type plan_dft_r2c_3d(int n0, int n1,
-					   int n2,
+		static plan_type plan_dft_r2c_3d(size_t n0, size_t n1,
+					   size_t n2,
 					   real_type* in, complex_type* out, unsigned flags);
 
 
-		static plan_type plan_many_dft_c2r(int rank, const int* n,
-					     int howmany,
+		static plan_type plan_many_dft_c2r(size_t rank, const unsigned* n,
+					     size_t howmany,
 					     complex_type* in, const int* inembed,
 					     int istride, int idist,
 					     real_type* out, const int* onembed,
 					     int ostride, int odist,
 					     unsigned flags);
 
-		static plan_type plan_dft_c2r(int rank, const int* n,
+		static plan_type plan_dft_c2r(size_t rank, const unsigned* n,
 		                        complex_type* in, real_type* out, unsigned flags);
 
-		static plan_type plan_dft_c2r_1d(int n,complex_type* in,real_type* out,unsigned flags);
-		static plan_type plan_dft_c2r_2d(int n0, int n1,
+		static plan_type plan_dft_c2r_1d(size_t n,complex_type* in,real_type* out,unsigned flags);
+		static plan_type plan_dft_c2r_2d(size_t n0, size_t n1,
 					   complex_type* in, real_type* out, unsigned flags);
-		static plan_type plan_dft_c2r_3d(int n0, int n1,
-					   int n2,
+		static plan_type plan_dft_c2r_3d(size_t n0, size_t n1,
+					   size_t n2,
 					   complex_type* in, real_type* out, unsigned flags);
 
-		static plan_type plan_guru_dft_r2c(int rank, const fftw_iodim* dims,
-					     int howmany_rank,
+		static plan_type plan_guru_dft_r2c(size_t rank, const fftw_iodim* dims,
+					     size_t howmany_rank,
 					     const fftw_iodim* howmany_dims,
 					     real_type* in, complex_type* out,
 					     unsigned flags);
-		static plan_type plan_guru_dft_c2r(int rank, const fftw_iodim* dims,
-					     int howmany_rank,
+		static plan_type plan_guru_dft_c2r(size_t rank, const fftw_iodim* dims,
+					     size_t howmany_rank,
 					     const fftw_iodim* howmany_dims,
 					     complex_type* in, real_type* out,
 					     unsigned flags);
 
 		static plan_type plan_guru_split_dft_r2c(
-		                             int rank, const fftw_iodim* dims,
-					     int howmany_rank,
+		                             size_t rank, const fftw_iodim* dims,
+					     size_t howmany_rank,
 					     const fftw_iodim* howmany_dims,
 					     real_type* in, real_type* ro, real_type* io,
 					     unsigned flags);
 		static plan_type plan_guru_split_dft_c2r(
-		                             int rank, const fftw_iodim* dims,
-					     int howmany_rank,
+		                             size_t rank, const fftw_iodim* dims,
+					     size_t howmany_rank,
 					     const fftw_iodim* howmany_dims,
 					     real_type* ri, real_type* ii, real_type* out,
 					     unsigned flags);
 
-		static plan_type plan_guru64_dft_r2c(int rank,
+		static plan_type plan_guru64_dft_r2c(size_t rank,
 		                             const fftw_iodim64* dims,
-					     int howmany_rank,
+					     size_t howmany_rank,
 					     const fftw_iodim64* howmany_dims,
 					     real_type* in, complex_type* out,
 					     unsigned flags);
-		static plan_type plan_guru64_dft_c2r(int rank,
+		static plan_type plan_guru64_dft_c2r(size_t rank,
 		                             const fftw_iodim64* dims,
-					     int howmany_rank,
+					     size_t howmany_rank,
 					     const fftw_iodim64* howmany_dims,
 					     complex_type* in, real_type* out,
 					     unsigned flags);
 
 		static plan_type plan_guru64_split_dft_r2c(
-		                             int rank, const fftw_iodim64* dims,
-					     int howmany_rank,
+		                             size_t rank, const fftw_iodim64* dims,
+					     size_t howmany_rank,
 					     const fftw_iodim64* howmany_dims,
 					     real_type* in, real_type* ro, real_type* io,
 					     unsigned flags);
 		static plan_type plan_guru64_split_dft_c2r(
-		                             int rank, const fftw_iodim64* dims,
-					     int howmany_rank,
+		                             size_t rank, const fftw_iodim64* dims,
+					     size_t howmany_rank,
 					     const fftw_iodim64* howmany_dims,
 					     real_type* ri, real_type* ii, real_type* out,
 					     unsigned flags);
@@ -896,38 +882,38 @@ namespace dsp { namespace fftw {
 		static void execute_split_dft_c2r(const plan_type p,
 		                                          real_type* ri, real_type* ii, real_type* out);
 
-		static plan_type plan_many_r2r(int rank, const int* n,
-		                         int howmany,
+		static plan_type plan_many_r2r(size_t rank, const unsigned* n,
+		                         size_t howmany,
 		                         real_type* in, const int* inembed,
 		                         int istride, int idist,
 		                         real_type* out, const int* onembed,
 		                         int ostride, int odist,
-		                         const r2r_kind* k, unsigned flags);
+		                         const r2r::kind* k, unsigned flags);
 
-		static plan_type plan_r2r(int rank, const int* n, real_type* in, real_type* out,
-		                    const r2r_kind* k, unsigned flags);
+		static plan_type plan_r2r(size_t rank, const unsigned* n, real_type* in, real_type* out,
+		                    const r2r::kind* k, unsigned flags);
 
-		static plan_type plan_r2r_1d(int n, real_type* in, real_type* out,
-		                       r2r_kind kind, unsigned flags);
-		static plan_type plan_r2r_2d(int n0, int n1, real_type* in, real_type* out,
-		                       r2r_kind kind0, r2r_kind kind1,
+		static plan_type plan_r2r_1d(size_t n, real_type* in, real_type* out,
+		                       r2r::kind kind, unsigned flags);
+		static plan_type plan_r2r_2d(size_t n0, size_t n1, real_type* in, real_type* out,
+		                       r2r::kind kind0, r2r::kind kind1,
 		                       unsigned flags);
-		static plan_type plan_r2r_3d(int n0, int n1, int n2,
-		                       real_type* in, real_type* out, r2r_kind kind0,
-		                       r2r_kind kind1, r2r_kind kind2,
+		static plan_type plan_r2r_3d(size_t n0, size_t n1, size_t n2,
+		                       real_type* in, real_type* out, r2r::kind kind0,
+		                       r2r::kind kind1, r2r::kind kind2,
 		                       unsigned flags);
 
-		static plan_type plan_guru_r2r(int rank, const fftw_iodim* dims,
-		                         int howmany_rank,
+		static plan_type plan_guru_r2r(size_t rank, const fftw_iodim* dims,
+		                         size_t howmany_rank,
 		                         const fftw_iodim* howmany_dims,
 		                         real_type* in, real_type* out,
-		                         const r2r_kind* k, unsigned flags);
+		                         const r2r::kind* k, unsigned flags);
 
-		static plan_type plan_guru64_r2r(int rank, const fftw_iodim64* dims,
-		                         int howmany_rank,
+		static plan_type plan_guru64_r2r(size_t rank, const fftw_iodim64* dims,
+		                         size_t howmany_rank,
 		                         const fftw_iodim64* howmany_dims,
 		                         real_type* in, real_type* out,
-		                         const r2r_kind* k, unsigned flags);
+		                         const r2r::kind* k, unsigned flags);
 
 		static void execute_r2r(const plan_type p, real_type* in, real_type* out);
 
@@ -937,7 +923,7 @@ namespace dsp { namespace fftw {
 
 		static void set_timelimit(double t);
 
-		static void plan_with_nthreads(int nthreads);
+		static void plan_with_nthreads(unsigned nthreads);
 		static int init_threads(void);
 		static void cleanup_threads(void);
 
@@ -976,50 +962,50 @@ namespace dsp { namespace fftw {
 	class DSPXX_API traits<quad> {
 	public:
 		typedef long double real_type;
-		typedef std::complex<quad> complex_type;
+		typedef complex<quad> complex_type;
 		typedef fftwq_plan plan_type;
 		typedef fftwq_plan_s plan_value_type;
 
 		static void execute(const plan_type p);
 
-		static plan_type plan_dft(int rank, const int* n,
-				    complex_type* in, complex_type* out, int sign, unsigned flags);
+		static plan_type plan_dft(size_t rank, const unsigned* n,
+				    complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags);
 
-		static plan_type plan_dft_1d(int n, complex_type* in, complex_type* out, int sign,
+		static plan_type plan_dft_1d(size_t n, complex_type* in, complex_type* out, dsp::dft::sign::spec sign,
 				       unsigned flags);
-		static plan_type plan_dft_2d(int n0, int n1,
-				       complex_type* in, complex_type* out, int sign, unsigned flags);
-		static plan_type plan_dft_3d(int n0, int n1, int n2,
-				       complex_type* in, complex_type* out, int sign, unsigned flags);
+		static plan_type plan_dft_2d(size_t n0, size_t n1,
+				       complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags);
+		static plan_type plan_dft_3d(size_t n0, size_t n1, size_t n2,
+				       complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags);
 
-		static plan_type plan_many_dft(int rank, const int* n,
-		                         int howmany,
+		static plan_type plan_many_dft(size_t rank, const unsigned* n,
+		                         size_t howmany,
 		                         complex_type* in, const int* inembed,
 		                         int istride, int idist,
 		                         complex_type* out, const int* onembed,
 		                         int ostride, int odist,
-		                         int sign, unsigned flags);
+		                         dsp::dft::sign::spec sign, unsigned flags);
 
-		static plan_type plan_guru_dft(int rank, const fftw_iodim* dims,
-					 int howmany_rank,
+		static plan_type plan_guru_dft(size_t rank, const fftw_iodim* dims,
+					 size_t howmany_rank,
 					 const fftw_iodim* howmany_dims,
 					 complex_type* in, complex_type* out,
-					 int sign, unsigned flags);
-		static plan_type plan_guru_split_dft(int rank, const fftw_iodim* dims,
-					 int howmany_rank,
+					 dsp::dft::sign::spec sign, unsigned flags);
+		static plan_type plan_guru_split_dft(size_t rank, const fftw_iodim* dims,
+					 size_t howmany_rank,
 					 const fftw_iodim* howmany_dims,
 					 real_type* ri, real_type* ii, real_type* ro, real_type* io,
 					 unsigned flags);
 
-		static plan_type plan_guru64_dft(int rank,
+		static plan_type plan_guru64_dft(size_t rank,
 		                         const fftw_iodim64* dims,
-					 int howmany_rank,
+					 size_t howmany_rank,
 					 const fftw_iodim64* howmany_dims,
 					 complex_type* in, complex_type* out,
-					 int sign, unsigned flags);
-		static plan_type plan_guru64_split_dft(int rank,
+					 dsp::dft::sign::spec sign, unsigned flags);
+		static plan_type plan_guru64_split_dft(size_t rank,
 		                         const fftw_iodim64* dims,
-					 int howmany_rank,
+					 size_t howmany_rank,
 					 const fftw_iodim64* howmany_dims,
 					 real_type* ri, real_type* ii, real_type* ro, real_type* io,
 					 unsigned flags);
@@ -1028,89 +1014,89 @@ namespace dsp { namespace fftw {
 		static void execute_split_dft(const plan_type p, real_type* ri, real_type* ii,
 		                                      real_type* ro, real_type* io);
 
-		static plan_type plan_many_dft_r2c(int rank, const int* n,
-		                             int howmany,
+		static plan_type plan_many_dft_r2c(size_t rank, const unsigned* n,
+		                             size_t howmany,
 		                             real_type* in, const int* inembed,
 		                             int istride, int idist,
 		                             complex_type* out, const int* onembed,
 		                             int ostride, int odist,
 		                             unsigned flags);
 
-		static plan_type plan_dft_r2c(int rank, const int* n,
+		static plan_type plan_dft_r2c(size_t rank, const unsigned* n,
 		                        real_type* in, complex_type* out, unsigned flags);
 
-		static plan_type plan_dft_r2c_1d(int n,real_type* in,complex_type* out,unsigned flags);
-		static plan_type plan_dft_r2c_2d(int n0, int n1,
+		static plan_type plan_dft_r2c_1d(size_t n,real_type* in,complex_type* out,unsigned flags);
+		static plan_type plan_dft_r2c_2d(size_t n0, size_t n1,
 					   real_type* in, complex_type* out, unsigned flags);
-		static plan_type plan_dft_r2c_3d(int n0, int n1,
-					   int n2,
+		static plan_type plan_dft_r2c_3d(size_t n0, size_t n1,
+					   size_t n2,
 					   real_type* in, complex_type* out, unsigned flags);
 
 
-		static plan_type plan_many_dft_c2r(int rank, const int* n,
-					     int howmany,
+		static plan_type plan_many_dft_c2r(size_t rank, const unsigned* n,
+					     size_t howmany,
 					     complex_type* in, const int* inembed,
 					     int istride, int idist,
 					     real_type* out, const int* onembed,
 					     int ostride, int odist,
 					     unsigned flags);
 
-		static plan_type plan_dft_c2r(int rank, const int* n,
+		static plan_type plan_dft_c2r(size_t rank, const unsigned* n,
 		                        complex_type* in, real_type* out, unsigned flags);
 
-		static plan_type plan_dft_c2r_1d(int n,complex_type* in,real_type* out,unsigned flags);
-		static plan_type plan_dft_c2r_2d(int n0, int n1,
+		static plan_type plan_dft_c2r_1d(size_t n,complex_type* in,real_type* out,unsigned flags);
+		static plan_type plan_dft_c2r_2d(size_t n0, size_t n1,
 					   complex_type* in, real_type* out, unsigned flags);
-		static plan_type plan_dft_c2r_3d(int n0, int n1,
-					   int n2,
+		static plan_type plan_dft_c2r_3d(size_t n0, size_t n1,
+					   size_t n2,
 					   complex_type* in, real_type* out, unsigned flags);
 
-		static plan_type plan_guru_dft_r2c(int rank, const fftw_iodim* dims,
-					     int howmany_rank,
+		static plan_type plan_guru_dft_r2c(size_t rank, const fftw_iodim* dims,
+					     size_t howmany_rank,
 					     const fftw_iodim* howmany_dims,
 					     real_type* in, complex_type* out,
 					     unsigned flags);
-		static plan_type plan_guru_dft_c2r(int rank, const fftw_iodim* dims,
-					     int howmany_rank,
+		static plan_type plan_guru_dft_c2r(size_t rank, const fftw_iodim* dims,
+					     size_t howmany_rank,
 					     const fftw_iodim* howmany_dims,
 					     complex_type* in, real_type* out,
 					     unsigned flags);
 
 		static plan_type plan_guru_split_dft_r2c(
-		                             int rank, const fftw_iodim* dims,
-					     int howmany_rank,
+		                             size_t rank, const fftw_iodim* dims,
+					     size_t howmany_rank,
 					     const fftw_iodim* howmany_dims,
 					     real_type* in, real_type* ro, real_type* io,
 					     unsigned flags);
 		static plan_type plan_guru_split_dft_c2r(
-		                             int rank, const fftw_iodim* dims,
-					     int howmany_rank,
+		                             size_t rank, const fftw_iodim* dims,
+					     size_t howmany_rank,
 					     const fftw_iodim* howmany_dims,
 					     real_type* ri, real_type* ii, real_type* out,
 					     unsigned flags);
 
-		static plan_type plan_guru64_dft_r2c(int rank,
+		static plan_type plan_guru64_dft_r2c(size_t rank,
 		                             const fftw_iodim64* dims,
-					     int howmany_rank,
+					     size_t howmany_rank,
 					     const fftw_iodim64* howmany_dims,
 					     real_type* in, complex_type* out,
 					     unsigned flags);
-		static plan_type plan_guru64_dft_c2r(int rank,
+		static plan_type plan_guru64_dft_c2r(size_t rank,
 		                             const fftw_iodim64* dims,
-					     int howmany_rank,
+					     size_t howmany_rank,
 					     const fftw_iodim64* howmany_dims,
 					     complex_type* in, real_type* out,
 					     unsigned flags);
 
 		static plan_type plan_guru64_split_dft_r2c(
-		                             int rank, const fftw_iodim64* dims,
-					     int howmany_rank,
+		                             size_t rank, const fftw_iodim64* dims,
+					     size_t howmany_rank,
 					     const fftw_iodim64* howmany_dims,
 					     real_type* in, real_type* ro, real_type* io,
 					     unsigned flags);
 		static plan_type plan_guru64_split_dft_c2r(
-		                             int rank, const fftw_iodim64* dims,
-					     int howmany_rank,
+		                             size_t rank, const fftw_iodim64* dims,
+					     size_t howmany_rank,
 					     const fftw_iodim64* howmany_dims,
 					     real_type* ri, real_type* ii, real_type* out,
 					     unsigned flags);
@@ -1123,38 +1109,38 @@ namespace dsp { namespace fftw {
 		static void execute_split_dft_c2r(const plan_type p,
 		                                          real_type* ri, real_type* ii, real_type* out);
 
-		static plan_type plan_many_r2r(int rank, const int* n,
-		                         int howmany,
+		static plan_type plan_many_r2r(size_t rank, const unsigned* n,
+		                         size_t howmany,
 		                         real_type* in, const int* inembed,
 		                         int istride, int idist,
 		                         real_type* out, const int* onembed,
 		                         int ostride, int odist,
-		                         const r2r_kind* k, unsigned flags);
+		                         const r2r::kind* k, unsigned flags);
 
-		static plan_type plan_r2r(int rank, const int* n, real_type* in, real_type* out,
-		                    const r2r_kind* k, unsigned flags);
+		static plan_type plan_r2r(size_t rank, const int* n, real_type* in, real_type* out,
+		                    const r2r::kind* k, unsigned flags);
 
-		static plan_type plan_r2r_1d(int n, real_type* in, real_type* out,
-		                       r2r_kind kind, unsigned flags);
-		static plan_type plan_r2r_2d(int n0, int n1, real_type* in, real_type* out,
-		                       r2r_kind kind0, r2r_kind kind1,
+		static plan_type plan_r2r_1d(size_t n, real_type* in, real_type* out,
+		                       r2r::kind kind, unsigned flags);
+		static plan_type plan_r2r_2d(size_t n0, size_t n1, real_type* in, real_type* out,
+		                       r2r::kind kind0, r2r::kind kind1,
 		                       unsigned flags);
-		static plan_type plan_r2r_3d(int n0, int n1, int n2,
-		                       real_type* in, real_type* out, r2r_kind kind0,
-		                       r2r_kind kind1, r2r_kind kind2,
+		static plan_type plan_r2r_3d(size_t n0, size_t n1, size_t n2,
+		                       real_type* in, real_type* out, r2r::kind kind0,
+		                       r2r::kind kind1, r2r::kind kind2,
 		                       unsigned flags);
 
-		static plan_type plan_guru_r2r(int rank, const fftw_iodim* dims,
-		                         int howmany_rank,
+		static plan_type plan_guru_r2r(size_t rank, const fftw_iodim* dims,
+		                         size_t howmany_rank,
 		                         const fftw_iodim* howmany_dims,
 		                         real_type* in, real_type* out,
-		                         const r2r_kind* k, unsigned flags);
+		                         const r2r::kind* k, unsigned flags);
 
-		static plan_type plan_guru64_r2r(int rank, const fftw_iodim64* dims,
-		                         int howmany_rank,
+		static plan_type plan_guru64_r2r(size_t rank, const fftw_iodim64* dims,
+		                         size_t howmany_rank,
 		                         const fftw_iodim64* howmany_dims,
 		                         real_type* in, real_type* out,
-		                         const r2r_kind* k, unsigned flags);
+		                         const r2r::kind* k, unsigned flags);
 
 		static void execute_r2r(const plan_type p, real_type* in, real_type* out);
 
@@ -1164,7 +1150,7 @@ namespace dsp { namespace fftw {
 
 		static void set_timelimit(double t);
 
-		static void plan_with_nthreads(int nthreads);
+		static void plan_with_nthreads(unsigned nthreads);
 		static int init_threads(void);
 		static void cleanup_threads(void);
 
@@ -1194,7 +1180,7 @@ namespace dsp { namespace fftw {
 	};
 #endif // DSP_FFTW_HAVE_LONG_DOUBLE
 
-} }
+} } }
 
 #endif // !DSP_FFTW_DISABLED
 

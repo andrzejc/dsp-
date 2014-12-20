@@ -14,7 +14,7 @@
 #include <limits>
 #include <dsp++/export.h>
 
-namespace dsp { namespace fftw {
+namespace dsp { namespace dft { namespace fftw {
 
 /*!
  * @brief Thin wrapper around fftw memory allocation routines.
@@ -82,7 +82,7 @@ public :
 	inline bool operator!=(allocator const& a) { return !operator==(a); }
 };
 
-} }
+} } }
 
 #endif // !DSP_FFTW_DISABLED
 

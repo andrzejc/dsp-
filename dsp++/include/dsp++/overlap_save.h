@@ -29,7 +29,7 @@ namespace dsp {
  * @tparam DFT type of DFT algorithm implementation used for frequency-domain filtering.
  * @see http://en.wikipedia.org/wiki/Overlap%E2%80%93save_method
  */
-template<class Real, template<class, class> class DFT = dsp::fft>
+template<class Real, template<class, class> class DFT = dsp::dft::fft>
 class overlap_save: private noncopyable
 {
 public:

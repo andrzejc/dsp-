@@ -9,11 +9,16 @@
 
 #include <dsp++/export.h>
 #include <complex>
+#include <cstddef>
 
-namespace dsp {
+namespace dsp { 
+
+using std::complex;
+
+namespace dft {
 
 template<class Input, class Output> class fft;
-template<class Real> class fft<std::complex<Real>, std::complex<Real> >;
+template<class Real> class fft<complex<Real>, complex<Real> >;
 
 //! @internal Implementation details. Do not use.
 namespace detail {
@@ -25,8 +30,8 @@ public:
 	virtual ~fft_impl();
 
 private:
-	virtual void fft(std::complex<Real>* in_out, int sign) const = 0;
-	friend class dsp::fft<std::complex<Real>, std::complex<Real> >;
+	virtual void fft(complex<Real>* in_out, sign::spec sign) const = 0;
+	friend class dsp::dft::fft<complex<Real>, complex<Real> >;
 	static const fft_impl& get(size_t n);
 };
 
@@ -36,8 +41,8 @@ class DSPXX_API fft_impl<float> {
 public:
 	virtual ~fft_impl();
 private:
-	virtual void fft(std::complex<float>* in_out, int sign) const = 0;
-	friend class dsp::fft<std::complex<float>, std::complex<float> >;
+	virtual void fft(complex<float>* in_out, sign::spec sign) const = 0;
+	friend class dsp::dft::fft<complex<float>, complex<float> >;
 	static const fft_impl& get(size_t n);
 };
 
@@ -47,11 +52,11 @@ class DSPXX_API fft_impl<double> {
 public:
 	virtual ~fft_impl();
 private:
-	virtual void fft(std::complex<double>* in_out, int sign) const = 0;
-	friend class dsp::fft<std::complex<double>, std::complex<double> >;
+	virtual void fft(complex<double>* in_out, sign::spec sign) const = 0;
+	friend class dsp::dft::fft<complex<double>, complex<double> >;
 	static const fft_impl& get(size_t n);
 };
 
-}}
+}}}
 
 #endif /* DSP_FFT_DETAIL_H_INCLUDED */

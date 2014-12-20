@@ -28,7 +28,7 @@ namespace dsp {
  * @tparam DFT type of DFT algorithm implementation used for frequency-domain filtering.
  * @see http://en.wikipedia.org/wiki/Overlap-add_method
  */
-template<class Real, template<class, class> class DFT = dsp::fft>
+template<class Real, template<class, class> class DFT = dsp::dft::fft>
 class overlap_add: private noncopyable
 {
 public:
@@ -89,6 +89,7 @@ public:
 	iterator end() {return rbuf_ + L_;}
 	//! @return pointer (serving as an iterator) to the one-past-last sample of the input/output frame.
 	const_iterator end() const {return rbuf_ + L_;}
+
 	/*!
 	 * @brief Perform filtration of the current input frame, represented as samples in the range [begin(), end()),
 	 * and store the result in the same sequence.

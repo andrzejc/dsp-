@@ -24,7 +24,7 @@
 
 namespace dsp {
 
-template<class Sample, template<class, class> class DFT = dsp::fft>
+template<class Sample, template<class, class> class DFT = dsp::dft::fft>
 class fdaf_overlap_save: private noncopyable
 {
 public:

@@ -12,9 +12,6 @@
 #ifndef DSP_FFT_H_INCLUDED
 #define DSP_FFT_H_INCLUDED
 
-#include <cstddef>
-
-#include <dsp++/fft/detail.h>
 #include <dsp++/dft.h>
 
 #include <complex>
@@ -22,7 +19,13 @@
 #include <algorithm>
 #include <functional>
 
+#include <dsp++/fft/detail.h>
+
 namespace dsp {
+
+using std::complex;
+	
+namespace dft {
 
 template<class Input, class Output>
 class fft {
@@ -34,9 +37,9 @@ class fft {
 };
 
 template<class Real>
-class fft<Real, std::complex<Real> >;
+class fft<Real, complex<Real> >;
 template<class Real>
-class fft<std::complex<Real>, Real >;
+class fft<complex<Real>, Real >;
 
 
 /*!
@@ -65,11 +68,11 @@ class fft<std::complex<Real>, Real >;
  * @tparam Real floating-point type using during the calculations.
  */
 template<class Real>
-class fft<std::complex<Real>, std::complex<Real> > {
+class fft<complex<Real>, complex<Real> > {
 public:
 	typedef Real domain_type;
-	typedef std::complex<Real> input_type;
-	typedef std::complex<Real> output_type;
+	typedef complex<Real> input_type;
+	typedef complex<Real> output_type;
 	typedef std::allocator<input_type> input_allocator;
 	typedef std::allocator<output_type> output_allocator;
 
@@ -85,7 +88,7 @@ public:
 	 * @throw std::domain_error is thrown if N is not an integer power of 2.
 	 * @throw std::out_of_range is thrown if @f$N < 2@f$ or @f$N > 2^{28}@f$.
 	 */
-	fft(size_t N, input_type* input = NULL, output_type* output = NULL, int sign = dft_sign_forward)
+	fft(size_t N, input_type* input = NULL, output_type* output = NULL, sign::spec sign = sign::forward)
 	 :	size_(N), input_(input), output_(output), sign_(sign)
 	 ,	impl_(&detail::fft_impl<Real>::get(N))
 	{}
@@ -124,22 +127,22 @@ private:
 	size_t size_;
 	input_type* input_;
 	output_type* output_;
-	int sign_;
+	sign::spec sign_;
 	const detail::fft_impl<Real>* impl_;
-	friend class fft<Real, std::complex<Real> >;
-	friend class fft<std::complex<Real>, Real >;
+	friend class fft<Real, complex<Real> >;
+	friend class fft<complex<Real>, Real >;
 };
 
 /*!
  * @brief Forward FFT of real data. The resulting complex output sequence will have Hermitian symmetry.
  */
 template<class Real>
-class fft<Real, std::complex<Real> > {
-	typedef fft<std::complex<Real>, std::complex<Real> > fft_type;
+class fft<Real, complex<Real> > {
+	typedef fft<complex<Real>, complex<Real> > fft_type;
 public:
 	typedef Real domain_type;
 	typedef Real input_type;
-	typedef std::complex<Real> output_type;
+	typedef complex<Real> output_type;
 	typedef std::allocator<input_type> input_allocator;
 	typedef std::allocator<output_type> output_allocator;
 
@@ -154,8 +157,8 @@ public:
 	 * @throw std::domain_error is thrown if N is not an integer power of 2.
 	 * @throw std::out_of_range is thrown if @f$N < 2@f$ or @f$N > 2^{28}@f$.
 	 */
-	fft(size_t N, input_type* input = NULL, output_type* output = NULL, int = dft_sign_forward)
-	 :	fft_(N, reinterpret_cast<typename fft_type::input_type*>(input), output, dft_sign_forward)
+	fft(size_t N, input_type* input = NULL, output_type* output = NULL, sign::spec = sign::forward)
+	 :	fft_(N, reinterpret_cast<typename fft_type::input_type*>(input), output, sign::forward)
 	{}
 
 	/*!
@@ -191,11 +194,11 @@ private:
  * @brief Inverse FFT of complex, Hermitian symmetry data.
  */
 template<class Real>
-class fft<std::complex<Real>, Real> {
-	typedef fft<std::complex<Real>, std::complex<Real> > fft_type;
+class fft<complex<Real>, Real> {
+	typedef fft<complex<Real>, complex<Real> > fft_type;
 public:
 	typedef Real domain_type;
-	typedef std::complex<Real> input_type;
+	typedef complex<Real> input_type;
 	typedef Real output_type;
 	typedef std::allocator<input_type> input_allocator;
 	typedef std::allocator<output_type> output_allocator;
@@ -211,8 +214,8 @@ public:
 	 * @throw std::domain_error is thrown if N is not an integer power of 2.
 	 * @throw std::out_of_range is thrown if @f$N < 2@f$ or @f$N > 2^{28}@f$.
 	 */
-	fft(size_t N, input_type* input, output_type* output, int = dft_sign_backward)
-	 :	fft_(N, input, reinterpret_cast<std::complex<Real>*>(output), dft_sign_backward)
+	fft(size_t N, input_type* input, output_type* output, int = sign::backward)
+	 :	fft_(N, input, reinterpret_cast<complex<Real>*>(output), sign::backward)
 	{}
 
 	/*!
@@ -252,6 +255,6 @@ private:
 	fft_type fft_;
 };
 
-} // namespace dsp
+}} // namespace dsp::dft
 
 #endif // !DSP_FFT_H_INCLUDED

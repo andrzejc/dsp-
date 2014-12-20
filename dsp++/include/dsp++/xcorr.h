@@ -35,7 +35,7 @@ struct xcorr_base {
 	};
 };
 
-template<class Sample, template <class, class> class DFT = dsp::fft>
+template<class Sample, template <class, class> class DFT = dsp::dft::fft>
 class xcorr: public xcorr_base
 {
 	typedef typename dsp::remove_complex<Sample>::type real_t;
@@ -241,8 +241,8 @@ xcorr<Sample, DFT>::xcorr(size_t M, size_t L)
  ,	N_(dsp::nextpow2(std::max(M_, L_) * 2 - 1))
  ,	x_(L_ == 0 ? N_ + M_ - 1 : 2 * N_)
  ,	X_(L_ == 0 ? N_ : 2 * N_)
- ,	dft_(N_, x_.get(), X_.get(), dsp::dft_sign_forward)
- ,	idft_(N_, X_.get(), x_.get(), dsp::dft_sign_backward)
+ ,	dft_(N_, x_.get(), X_.get(), dsp::dft::sign::forward)
+ ,	idft_(N_, X_.get(), x_.get(), dsp::dft::sign::backward)
 {
 }
 

@@ -31,12 +31,12 @@ namespace dsp {
  * filter (predictor) coefficients. For this purpose autocorrelation sequence is calculated (in the
  * frequency domain, with the use of FFT) and Levinson-Durbin recursion is performed.
  * @tparam Sample type of signal samples this algorithm operates on.
- * @tparam DFT type of DFT/IDFT algorithm implementation, defaults to dsp::fft, but may be used with
- * dsp::fftw::dft as well.
+ * @tparam DFT type of DFT/IDFT algorithm implementation, defaults to dsp::dft::fft, but may be used with
+ * dsp::dft::fftw::dft as well.
  * @see http://en.wikipedia.org/wiki/Linear_predictive_coding
  * @see http://www.mathworks.com/help/toolbox/signal/ref/lpc.html
  */
-template<class Sample, template <class, class> class DFT = dsp::fft>
+template<class Sample, template <class, class> class DFT = dsp::dft::fft>
 class lpc
 {
 	typedef typename dsp::remove_complex<Sample>::type real_t;
@@ -178,8 +178,8 @@ lpc<Sample, DFT>::lpc(size_t L, size_t P)
  ,	P_(verify_order(P))
  ,	in_out_(N_)
  ,	interm_(N_)
- ,	dft_(N_, in_out_.get(), interm_.get(), dsp::dft_sign_forward)
- ,	idft_(N_, interm_.get(), in_out_.get(), dsp::dft_sign_backward)
+ ,	dft_(N_, in_out_.get(), interm_.get(), dsp::dft::sign::forward)
+ ,	idft_(N_, interm_.get(), in_out_.get(), dsp::dft::sign::backward)
  ,	lev_(N_, P_)
 {
 }

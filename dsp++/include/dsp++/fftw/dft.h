@@ -17,25 +17,25 @@
 #include <boost/shared_ptr.hpp>
 #include <dsp++/dft.h>
 
-namespace dsp { namespace fftw {
+namespace dsp { namespace dft { namespace fftw {
 
 	/*!
 	 * @brief Flags controlling FFTW3 planner behavior.
 	 * This is a direct mapping of libfftw3 @c FFTW_* flags with validation
 	 * performed through @c BOOST_STATIC_ASSERT() in traits.cpp.
 	 */
-	enum flags
+	namespace flag { enum spec
 	{
-		flag_measure = (0U),
-		flag_destroy_input = (1U << 0),
-		flag_unaligned = (1U << 1),
-		flag_conserve_memory = (1U << 2),
-		flag_exhaustive = (1U << 3), /* NO_EXHAUSTIVE is default */
-		flag_preserve_input = (1U << 4), /* cancels FFTW_DESTROY_INPUT */
-		flag_patient = (1U << 5), /* IMPATIENT is default */
-		flag_estimate = (1U << 6),
-		flag_wisdom_only = (1U << 21),
-	};
+		measure = (0U),
+		destroy_input = (1U << 0),
+		unaligned = (1U << 1),
+		conserve_memory = (1U << 2),
+		exhaustive = (1U << 3), /* NO_EXHAUSTIVE is default */
+		preserve_input = (1U << 4), /* cancels FFTW_DESTROY_INPUT */
+		patient = (1U << 5), /* IMPATIENT is default */
+		estimate = (1U << 6),
+		wisdom_only = (1U << 21),
+	};}
 
 	template<class Domain>
 	class plan {
@@ -93,7 +93,7 @@ namespace dsp { namespace fftw {
 		 */
 		explicit plan(typename traits_type::plan_type plan, size_t size1d = size_not_1d)
 		 : 	plan_(plan, &traits_type::destroy_plan), size_1d_(size1d)
-		{dsp::fftw::detail::verify_plan_available(get_pointer(plan_));}
+		{detail::verify_plan_available(get_pointer(plan_));}
 		//! Type of smart pointer used for copying the plan instance.
 		typedef boost::shared_ptr<typename traits_type::plan_value_type> ref_type;
 		//! Plan pointer (wrapped up in boost::shared_ptr to enable copying) for use by subclasses.
@@ -115,9 +115,9 @@ namespace dsp { namespace fftw {
 		 */
 		explicit plan(const ref_type& plan, size_t size1d = size_not_1d)
 		 : 	plan_(plan), size_1d_(size1d)
-		{dsp::fftw::detail::verify_plan_available(get_pointer(plan_));}
+		{detail::verify_plan_available(get_pointer(plan_));}
 
-		static size_t find_size_1d(int rank, const int* n) {if (1 == rank) return static_cast<size_t>(*n); else return size_not_1d;}
+		static size_t find_size_1d(size_t rank, const unsigned* n) {return ((1 == rank) ? *n: size_not_1d);}
 	private:
 		size_t size_1d_;
 	};
@@ -142,17 +142,17 @@ namespace dsp { namespace fftw {
 		//! FFTW traits type specialized for the domain type.
 		typedef traits<Input> traits_type;
 		//! Optimal allocator of input vector.
-		typedef dsp::fftw::allocator<input_type> input_allocator;
+		typedef dsp::dft::fftw::allocator<input_type> input_allocator;
 		//! Optimal allocator of output vector.
-		typedef dsp::fftw::allocator<output_type> output_allocator;
+		typedef dsp::dft::fftw::allocator<output_type> output_allocator;
 
 
-		dft(int rank, const int* n, input_type* in, output_type* out, unsigned flags = 0);
-		dft(size_t n, input_type* in, output_type* out, int, unsigned flags = 0); //!< For compatibility with dsp::fft
-		dft(int n, input_type* in, output_type* out, unsigned flags = 0);
-		dft(int n0, int n1, input_type* in, output_type* out, unsigned flags = 0);
-		dft(int n0, int n1, int n2, input_type* in, output_type* out, unsigned flags = 0);
-		dft(int rank, const int* n, int howmany, input_type* in, const int* inembed, int istride, int idist,
+		dft(size_t rank, const unsigned* n, input_type* in, output_type* out, unsigned flags = 0);
+		dft(size_t n, input_type* in, output_type* out, sign::spec, unsigned flags = 0); //!< For compatibility with dsp::dft::fft
+		dft(size_t n, input_type* in, output_type* out, unsigned flags = 0);
+		dft(size_t n0, size_t n1, input_type* in, output_type* out, unsigned flags = 0);
+		dft(size_t n0, size_t n1, size_t n2, input_type* in, output_type* out, unsigned flags = 0);
+		dft(size_t rank, const unsigned* n, size_t howmany, input_type* in, const int* inembed, int istride, int idist,
 				output_type* out, const int* onembed, int ostride, int odist, unsigned flags = 0);
 
 		using base_type::operator ();
@@ -178,26 +178,26 @@ namespace dsp { namespace fftw {
 		typedef Real input_type;
 		typedef Real output_type;
 		typedef traits<Real> traits_type;
-		typedef dsp::fftw::allocator<input_type> input_allocator;
-		typedef dsp::fftw::allocator<output_type> output_allocator;
+		typedef dsp::dft::fftw::allocator<input_type> input_allocator;
+		typedef dsp::dft::fftw::allocator<output_type> output_allocator;
 		typedef dft<input_type, output_type> this_type;
 
 		//!@see fftw_plan_r2r()
-		dft(int rank, const int* n, input_type* in, output_type* out, const r2r_kind* kind, unsigned flags = 0)
+		dft(size_t rank, const unsigned* n, input_type* in, output_type* out, const r2r::kind* kind, unsigned flags = 0)
 		 :	base_type(traits_type::plan_r2r(rank, n, in, out, kind, flags), base_type::find_size_1d(rank, n)) {}
 		//!@see fftw_plan_r2r_1d()
-		dft(size_t n, input_type* in, output_type* out, r2r_kind kind, unsigned flags = 0)
+		dft(size_t n, input_type* in, output_type* out, r2r::kind kind, unsigned flags = 0)
 		 :	base_type(traits_type::plan_r2r_1d(static_cast<int>(n), in, out, kind, flags), n) {}
 		//!@see fftw_plan_r2r_2d()
-		dft(int n0, int n1, input_type* in, output_type* out, r2r_kind kind0, r2r_kind kind1, unsigned flags = 0)
+		dft(size_t n0, size_t n1, input_type* in, output_type* out, r2r::kind kind0, r2r::kind kind1, unsigned flags = 0)
 		 :	base_type(traits_type::plan_r2r_2d(n0, n1, in, out, kind0, kind1, flags)) {}
 		//!@see fftw_plan_r2r_3d()
-		dft(int n0, int n1, int n2, input_type* in, output_type* out,
-				r2r_kind kind0, r2r_kind kind1, r2r_kind kind2, unsigned flags = 0)
+		dft(size_t n0, size_t n1, size_t n2, input_type* in, output_type* out,
+				r2r::kind kind0, r2r::kind kind1, r2r::kind kind2, unsigned flags = 0)
 		 :	base_type(traits_type::plan_r2r_3d(n0, n1, n2, in, out, kind0, kind1, kind2, flags)) {}
 		//!@see fftw_plan_many_r2r()
-		dft(int rank, const int* n, int howmany, input_type* in, const int* inembed, int istride, int idist,
-				output_type* out, const int* onembed, int ostride, int odist, const r2r_kind* kind, unsigned flags = 0)
+		dft(size_t rank, const unsigned* n, size_t howmany, input_type* in, const int* inembed, int istride, int idist,
+				output_type* out, const int* onembed, int ostride, int odist, const r2r::kind* kind, unsigned flags = 0)
 		 :	base_type(traits_type::plan_many_r2r(rank, n, howmany, in, inembed, istride, idist,
 				 out, onembed, ostride, odist, kind, flags), base_type::find_size_1d(rank, n)) {}
 
@@ -225,28 +225,28 @@ namespace dsp { namespace fftw {
 		typedef Real input_type;
 		typedef std::complex<Real> output_type;
 		typedef traits<Real> traits_type;
-		typedef dsp::fftw::allocator<input_type> input_allocator;
-		typedef dsp::fftw::allocator<output_type> output_allocator;
+		typedef dsp::dft::fftw::allocator<input_type> input_allocator;
+		typedef dsp::dft::fftw::allocator<output_type> output_allocator;
 		typedef dft<input_type, output_type> this_type;
 
 		//!@see fftw_plan_dft_r2c()
-		dft(int rank, const int* n, input_type* in, output_type* out, unsigned flags = 0)
+		dft(size_t rank, const unsigned* n, input_type* in, output_type* out, unsigned flags = 0)
 		 :	base_type(traits_type::plan_dft_r2c(rank, n, in, out, flags), base_type::find_size_1d(rank, n)) {}
 		//!@see fftw_plan_dft_r2c_1d()
-		dft(int n, input_type* in, output_type* out, unsigned flags = 0)
-		 :	base_type(traits_type::plan_dft_r2c_1d(n, in, out, flags), static_cast<size_t>(n)) {}
-		//!Compatibility constructor for use as an alternative to dsp::fft
+		dft(size_t n, input_type* in, output_type* out, unsigned flags = 0)
+		 :	base_type(traits_type::plan_dft_r2c_1d(n, in, out, flags), n) {}
+		//!Compatibility constructor for use as an alternative to dsp::dft::fft
 		//!@see fftw_plan_dft_r2c_1d()
-		dft(size_t n, input_type* in, output_type* out, int = dsp::dft_sign_forward, unsigned flags = 0)
-		 :	base_type(traits_type::plan_dft_r2c_1d(static_cast<int>(n), in, out, flags), n) {}
+		dft(size_t n, input_type* in, output_type* out, sign::spec, unsigned flags = 0)
+		 :	base_type(traits_type::plan_dft_r2c_1d(n, in, out, flags), n) {}
 		//!@see fftw_plan_dft_r2c_2d()
-		dft(int n0, int n1, input_type* in, output_type* out, unsigned flags = 0)
+		dft(size_t n0, size_t n1, input_type* in, output_type* out, unsigned flags = 0)
 		 :	base_type(traits_type::plan_dft_r2c_2d(n0, n1, in, out, flags)) {}
 		//!@see fftw_plan_dft_r2c_3d()
-		dft(int n0, int n1, int n2, input_type* in, output_type* out, unsigned flags = 0)
+		dft(size_t n0, size_t n1, size_t n2, input_type* in, output_type* out, unsigned flags = 0)
 		 :	base_type(traits_type::plan_dft_r2c_3d(n0, n1, n2, in, out, flags)) {}
 		//!@see fftw_plan_many_dft_r2c()
-		dft(int rank, const int* n, int howmany, input_type* in, const int* inembed, int istride, int idist,
+		dft(size_t rank, const unsigned* n, size_t howmany, input_type* in, const int* inembed, int istride, int idist,
                 output_type* out, const int* onembed, int ostride, int odist, unsigned flags = 0)
 		 :	base_type(traits_type::plan_many_dft_r2c(rank, n, howmany, in, inembed, istride, idist,
 				 out, onembed, ostride, odist, flags), base_type::find_size_1d(rank, n)) {}
@@ -275,28 +275,28 @@ namespace dsp { namespace fftw {
 		typedef std::complex<Real> input_type;
 		typedef Real output_type;
 		typedef traits<Real> traits_type;
-		typedef dsp::fftw::allocator<input_type> input_allocator;
-		typedef dsp::fftw::allocator<output_type> output_allocator;
+		typedef dsp::dft::fftw::allocator<input_type> input_allocator;
+		typedef dsp::dft::fftw::allocator<output_type> output_allocator;
 		typedef dft<input_type, output_type> this_type;
 
 		//!@see fftw_plan_dft_c2r()
-		dft(int rank, const int* n, input_type* in, output_type* out, unsigned flags = 0)
+		dft(size_t rank, const unsigned* n, input_type* in, output_type* out, unsigned flags = 0)
 		 :	base_type(traits_type::plan_dft_c2r(rank, n, in, out, flags), base_type::find_size_1d(rank, n)) {}
 		//!@see fftw_plan_dft_c2r_1d()
-		dft(int n, input_type* in, output_type* out, unsigned flags = 0)
-		 :	base_type(traits_type::plan_dft_c2r_1d(n, in, out, flags), static_cast<size_t>(n)) {}
-		//!Compatibility constructor for use as an alternative to dsp::fft
+		dft(size_t n, input_type* in, output_type* out, unsigned flags = 0)
+		 :	base_type(traits_type::plan_dft_c2r_1d(n, in, out, flags), n) {}
+		//!Compatibility constructor for use as an alternative to dsp::dft::fft
 		//!@see fftw_plan_dft_c2r_1d()
-		dft(size_t n, input_type* in, output_type* out, int = dsp::dft_sign_backward, unsigned flags = 0)
-		 :	base_type(traits_type::plan_dft_c2r_1d(static_cast<int>(n), in, out, flags), n) {}
+		dft(size_t n, input_type* in, output_type* out, sign::spec, unsigned flags = 0)
+		 :	base_type(traits_type::plan_dft_c2r_1d(n, in, out, flags), n) {}
 		//!@see fftw_plan_dft_c2r_2d()
-		dft(int n0, int n1, input_type* in, output_type* out, unsigned flags = 0)
+		dft(size_t n0, size_t n1, input_type* in, output_type* out, unsigned flags = 0)
 		 :	base_type(traits_type::plan_dft_c2r_2d(n0, n1, in, out, flags)) {}
 		//!@see fftw_plan_dft_c2r_3d()
-		dft(int n0, int n1, int n2, input_type* in, output_type* out, unsigned flags = 0)
+		dft(size_t n0, size_t n1, size_t n2, input_type* in, output_type* out, unsigned flags = 0)
 		 :	base_type(traits_type::plan_dft_c2r_3d(n0, n1, n2, in, out, flags)) {}
 		//!@see fftw_plan_many_dft_c2r()
-		dft(int rank, const int* n, int howmany, input_type* in, const int* inembed, int istride, int idist,
+		dft(size_t rank, const unsigned* n, size_t howmany, input_type* in, const int* inembed, int istride, int idist,
 				output_type* out, const int* onembed, int ostride, int odist, unsigned flags = 0)
 		 :	base_type(traits_type::plan_many_dft_c2r(rank, n, howmany, in, inembed, istride, idist,
 				 out, onembed, ostride, odist, flags), base_type::find_size_1d(rank, n)) {}
@@ -325,25 +325,25 @@ namespace dsp { namespace fftw {
 		typedef std::complex<Real> input_type;
 		typedef std::complex<Real> output_type;
 		typedef traits<Real> traits_type;
-		typedef dsp::fftw::allocator<input_type> input_allocator;
-		typedef dsp::fftw::allocator<output_type> output_allocator;
+		typedef dsp::dft::fftw::allocator<input_type> input_allocator;
+		typedef dsp::dft::fftw::allocator<output_type> output_allocator;
 		typedef dft<input_type, output_type> this_type;
 
 		//!@see fftw_plan_dft()
-		dft(int rank, const int* n, input_type* in, output_type* out, int sign, unsigned flags = 0)
+		dft(size_t rank, const unsigned* n, input_type* in, output_type* out, sign::spec sign, unsigned flags = 0)
 		 :	base_type(traits_type::plan_dft(rank, n, in, out, sign, flags), base_type::find_size_1d(rank, n)) {}
 		//!@see fftw_plan_dft_1d()
-		dft(size_t n, input_type* in, output_type* out, int sign = dsp::dft_sign_forward, unsigned flags = 0)
-		 :	base_type(traits_type::plan_dft_1d(static_cast<int>(n), in, out, sign, flags), n) {}
+		dft(size_t n, input_type* in, output_type* out, sign::spec sign = sign::forward, unsigned flags = 0)
+		 :	base_type(traits_type::plan_dft_1d(n, in, out, sign, flags), n) {}
 		//!@see fftw_plan_dft_2d()
-		dft(int n0, int n1, input_type* in, output_type* out, int sign, unsigned flags = 0)
+		dft(size_t n0, size_t n1, input_type* in, output_type* out, sign::spec sign, unsigned flags = 0)
 		 :	base_type(traits_type::plan_dft_2d(n0, n1, in, out, sign, flags)) {}
 		//!@see fftw_plan_dft_3d()
-		dft(int n0, int n1, int n2, input_type* in, output_type* out, int sign, unsigned flags = 0)
+		dft(size_t n0, size_t n1, size_t n2, input_type* in, output_type* out, sign::spec sign, unsigned flags = 0)
 		 :	base_type(traits_type::plan_dft_3d(n0, n1, n2, in, out, sign, flags)) {}
 		//!@see fftw_plan_many_dft()
-		dft(int rank, const int* n, int howmany, input_type* in, const int* inembed, int istride, int idist,
-				output_type* out, const int* onembed, int ostride, int odist, int sign, unsigned flags = 0)
+		dft(size_t rank, const unsigned* n, size_t howmany, input_type* in, const int* inembed, int istride, int idist,
+				output_type* out, const int* onembed, int ostride, int odist, sign::spec sign, unsigned flags = 0)
 		 :	base_type(traits_type::plan_many_dft(rank, n, howmany, in, inembed, istride, idist,
 				 out, onembed, ostride, odist, sign, flags), base_type::find_size_1d(rank, n)) {}
 
@@ -361,7 +361,7 @@ namespace dsp { namespace fftw {
 		 : 	base_type(static_cast<const base_type&>(other)) {}
 	};
 
-} }
+} } }
 
 #endif // !DSP_FFTW_DISABLED
 

@@ -10,13 +10,13 @@
 #include <stdexcept>
 #include <dsp++/export.h>
 
-namespace dsp { namespace fftw {
+namespace dsp { namespace dft { namespace fftw {
 
 	class DSPXX_API plan_unavailable: public std::runtime_error {
 	public:
-		plan_unavailable(): runtime_error("dsp::fftw::plan_unavailable") {}
+		plan_unavailable(): runtime_error("dsp::dft::fftw::plan_unavailable") {}
 		~plan_unavailable() throw();
 	};
-}}
+}}}
 
 #endif /* PLAN_UNAVAILABLE_H_ */

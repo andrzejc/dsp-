@@ -7,19 +7,25 @@
 #ifndef DSP_DFT_H_INCLUDED
 #define DSP_DFT_H_INCLUDED
 
-namespace dsp {
+namespace dsp { 
 
-/*!
- * @brief Sign of exponent for forward DFT transform (-1).
- * @see FFTW_FORWARD
- */
-const int dft_sign_forward = -1;
-/*!
- * @brief Sign of exponent for inverse DFT transform (1).
- * @see FFTW_BACKWARD
- */
-const int dft_sign_backward = 1;
+//! @brief Discrete Fourier Transform (DFT) tools
+namespace dft {
 
-}
+//! @brief Constants specifying DFT transform direction/exponent sign
+namespace sign {enum spec {
+	/*!
+	 * @brief Sign of exponent for forward DFT transform (-1).
+	 * @see FFTW_FORWARD
+	 */
+	forward = -1,
+	/*!
+	 * @brief Sign of exponent for inverse DFT transform (1).
+	 * @see FFTW_BACKWARD
+	 */
+	backward = 1
+};}
+
+}} // namespace dsp::dft
 
 #endif /* DSP_DFT_H_INCLUDED */

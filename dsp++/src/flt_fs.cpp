@@ -96,17 +96,17 @@ unsigned fir_fs_impl(
 		throw std::invalid_argument("dsp::fir::fs::design(): with fftw disabled only filters of power-of-2 length allowed");
 	dsp::trivial_array<std::complex<double>> H(order + 1);
 #else // !DSP_FFTW_DISABLED
-	dsp::trivial_array<std::complex<double>, dsp::fftw::allocator<std::complex<double> > > H(order + 1);
+	dsp::trivial_array<std::complex<double>, dsp::dft::fftw::allocator<std::complex<double> > > H(order + 1);
 #endif // !DSP_FFTW_DISABLED
 
 	unsigned n = dsp::fir::fs::design(order, point_count, freqs, amps, H.begin());
 	if (dsp::ispow2(n)) {
-		dsp::fft<std::complex<double>, double> fft(n, H.begin(), h);
+		dsp::dft::fft<std::complex<double>, double> fft(n, H.begin(), h);
 		fft();
 	}
 #if !DSP_FFTW_DISABLED
 	else {
-		dsp::fftw::dft<std::complex<double>, double> fft(static_cast<size_t>(n), H.begin(), h);
+		dsp::dft::fftw::dft<std::complex<double>, double> fft(n, H.begin(), h);
 		fft();
 	}
 #endif // !DSP_FFTW_DISABLED

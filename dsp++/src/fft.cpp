@@ -176,7 +176,7 @@ public:
 
 // generic fast Fourier transform main class
 template<unsigned P, typename T = double>
-class fft_impl: public dsp::detail::fft_impl<T>
+class fft_impl: public dsp::dft::detail::fft_impl<T>
 {
 	enum
 	{
@@ -206,18 +206,21 @@ class fft_impl: public dsp::detail::fft_impl<T>
 	void swap_real_imag(std::complex<T>* data) const
 	{
 		std::complex<T>* end = data + N;
-		for (; data != end; ++data)
-			*data = std::complex<T>(data->imag(), data->real());
+		for (; data != end; ++data) {
+			T r = real(*data);
+			data->real(imag(*data));
+			data->imag(r);
+		}
 	}
 
 public:
-	void fft(std::complex<T>* in_out, int sign) const
+	void fft(std::complex<T>* in_out, dsp::dft::sign::spec sign) const
 	{
-		if (dsp::dft_sign_backward == sign)
+		if (dsp::dft::sign::backward == sign)
 			swap_real_imag(in_out);
 		scramble(reinterpret_cast<T*>(in_out));
 		recursion_.apply(reinterpret_cast<T*>(in_out));
-		if (dsp::dft_sign_backward == sign)
+		if (dsp::dft::sign::backward == sign)
 			swap_real_imag(in_out);
 	}
 
@@ -251,7 +254,7 @@ public:
 #define FFT_ARRAY_NAME(type) fft_impl_ ## type
 
 #define FFT_IMPL_ARRAY(type) \
-	const dsp::detail::fft_impl<type>* FFT_ARRAY_NAME(type)[] = { FFT_IMPL_TYPE(type) }
+	const dsp::dft::detail::fft_impl<type>* FFT_ARRAY_NAME(type)[] = { FFT_IMPL_TYPE(type) }
 
 	FFT_IMPL_ARRAY(float);
 	FFT_IMPL_ARRAY(double);
@@ -259,9 +262,9 @@ public:
 static size_t fft_impl_index(size_t size)
 {
 	if (!dsp::ispow2(size))
-		throw std::domain_error("dsp::fft only allows transform size of integer powers of 2");
+		throw std::domain_error("dsp::dft::fft only allows transform size of integer powers of 2");
 	if (size < 2 || size > 67108864)
-		throw std::out_of_range("transform size outside [2^1, 2^26]");
+		throw std::out_of_range("dsp::dft::fft transform size outside [2^1, 2^26]");
 	for (size_t u = 2, i = 0; ; ++i, u<<=1)
 		if (u == size)
 			return i;
@@ -272,8 +275,8 @@ static size_t fft_impl_index(size_t size)
 }
 
 #define FFT_IMPL_DEFINE(type) \
-	dsp::detail::fft_impl<type>::~fft_impl() {} \
-	const dsp::detail::fft_impl<type>& dsp::detail::fft_impl<type>::get(size_t n) \
+	dsp::dft::detail::fft_impl<type>::~fft_impl() {} \
+	const dsp::dft::detail::fft_impl<type>& dsp::dft::detail::fft_impl<type>::get(size_t n) \
 	{return *FFT_ARRAY_NAME(type)[fft_impl_index(n)];}
 
 FFT_IMPL_DEFINE(float);

@@ -11,6 +11,8 @@
 
 namespace dsp {
 
+using std::complex;
+
 /*!
  * @brief Extended version of std::conj() which works also for non-complex types, useful for building generic
  * algorithms dealing with either complex or real numbers (for real number it's simply an identity transform).
