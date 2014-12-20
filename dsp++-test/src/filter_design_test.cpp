@@ -31,27 +31,27 @@ const double dw[] =	{1, 1};
 
 void filter_design_test::test_bp()
 {
-	const size_t N = 30;
+	const unsigned N = 30;
 	double h[N + 1];
-	bool res = dsp::firpm(N, h, 3, f, a, w);
+	bool res = dsp::fir::pm::design(N, 3, f, a, w, h);
 	CPPUNIT_ASSERT(std::equal(h, h + N + 1, b, dsp::within_range<double >(0.000001)));
 	CPPUNIT_ASSERT(res);
 }
 
 void filter_design_test::test_hilbert()
 {
-	const size_t N = 30;
+	const unsigned N = 30;
 	double h[N + 1];
-	bool res = dsp::firpm(N, h, 1, hf, ha, hw, dsp::filter_type_hilbert);
+	bool res = dsp::fir::pm::design(N, 1, hf, ha, hw, h, dsp::fir::pm::type::hilbert);
 	CPPUNIT_ASSERT(std::equal(h, h + N + 1, hb, dsp::within_range<double >(0.003)));
 	CPPUNIT_ASSERT(res);
 }
 
 void filter_design_test::test_differentiator()
 {
-	const size_t N = 60;
+	const unsigned N = 60;
 	double h[N + 1];
-	bool res = dsp::firpm(N, h, 2, df, da, dw, dsp::filter_type_differentiator);
+	bool res = dsp::fir::pm::design(N, 2, df, da, dw, h, dsp::fir::pm::type::differentiator);
 //	CPPUNIT_ASSERT(std::equal(h, h + N + 1, hb, dsp::within_range<double >(0.003)));
 	CPPUNIT_ASSERT(res);
 }
