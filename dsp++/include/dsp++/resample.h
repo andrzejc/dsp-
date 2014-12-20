@@ -8,6 +8,7 @@
 
 #include <dsp++/export.h>
 #include <dsp++/filter.h>
+#include <dsp++/stride_iterator.h>
 #include <vector>
 
 namespace dsp {
@@ -26,10 +27,6 @@ class interpolator_base {
 public:
 	typedef typename dsp::trivial_array<Sample>::const_iterator const_iterator;
 
-	//! @return starting iterator of the output (M-length) sequence
-	const_iterator begin() const {return buf_.begin();}
-	//! @return end iterator of the output (M-length) sequence
-	const_iterator end() const {return buf_.end();}
 	//! @return interpolation factor and the length of output sequence
 	size_t factor() const {return M_;}
 	//! @return interpolation (lowpass) filter order
@@ -40,13 +37,16 @@ protected:
 	 :	M_(M)
 	 ,	P_(P)
 	 ,	buf_(M_ * block_size)
+	 ,	output(buf_.begin(), buf_.end())
 	{
 	}
 
 	size_t const M_;			//!< interpolation factor and number of polyphase filters
 	size_t const P_;			//!< filter order
 	dsp::trivial_array<Sample> buf_;	//!< output buffer (M_ * block_size)
+public:
 
+	ioport_ro<const_iterator> output;
 };
 
 //! @brief Integer-factor interpolator using polyphase FIR structure, operating on a single input sample each pass.
@@ -128,6 +128,7 @@ public:
 	block_interpolator(size_t L, size_t M, size_t P, double transition_width = 0.2)
 	 :	base(M, P, L)
 	 ,	L_(L)
+	 ,	input(base::buf_.begin(), L_)
 	{
 		init_filters(transition_width);
 	}
@@ -142,30 +143,23 @@ public:
 	template<class Iterator>
 	void operator()(Iterator in) {
 		for (size_t i = 0; i < base::M_; ++i) {
-			dsp::copy_n(in, L_, flt_[i]->begin());
+			dsp::copy_n(in, L_, flt_[i]->input.begin());
 			(*flt_[i])();
 		}
 		size_t total = output_length();
-		for (size_t i = 0; i < base::M_; ++i) {
-			typename filter_type::const_iterator it = flt_[i]->begin();
-			for (size_t j = i; j < total; j += base::M_, ++it)
-				base::buf_[j] = *it;
-		}
+		for (size_t i = 0; i < base::M_; ++i)
+			std::copy(flt_[i]->output.begin(), flt_[i]->output.end(), dsp::make_stride(base::buf_.begin(), base::M_, i));
 	}
 
 	//! @brief Perform interpolation inplace using first L (input_length()) samples of [begin(), end()) sequence as an input.
 	void operator()() {
-		operator()(base::begin());
+		operator()(input.begin());
 	}
 
 	//! @return length of input sequence
 	size_t input_length() const {return L_;}
 	//! @return length of output sequence
 	size_t output_length() const {return L_ * base::M_;}
-
-	iterator begin() {return base::buf_.begin();}
-	iterator input_end() {return base::buf_.begin() + L_;}
-	const_iterator input_end() const {return base::buf_.begin() + L_;}
 
 private:
 	size_t const L_;
@@ -178,6 +172,10 @@ private:
 	}
 
 	void init_filters(double transition);
+
+public:
+
+	ioport_rw<const_iterator, iterator> input;
 };
 
 template<class Sample>

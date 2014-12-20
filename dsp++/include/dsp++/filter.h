@@ -12,6 +12,7 @@
 #include <dsp++/trivial_array.h>
 #include <dsp++/algorithm.h>
 #include <dsp++/simd.h>
+#include <dsp++/ioport.h>
 
 #include <algorithm>
 #include <functional>
@@ -735,7 +736,10 @@ public:
 	block_filter(size_t L, BIterator b_begin, BIterator b_end, AIterator a_begin, AIterator a_end)
 	 :	base(b_begin, b_end, a_begin, a_end, L * 2)
 	 ,	L_(L)
-	 ,	x_(base::w_ + base::P_ + L_ - 1) {}
+	 ,	x_(base::w_ + base::P_ + L_ - 1)
+	 ,	input(x_, L_) 
+	 ,	output(x_, L_) 
+	{}
 
 	/*!
 	 * @brief Construct all-zero filter given coefficients vector as iterator range [b_begin, b_end).
@@ -749,7 +753,10 @@ public:
 	block_filter(size_t L, BIterator b_begin, BIterator b_end)
 	 :	base(b_begin, b_end, L * 2)
 	 ,	L_(L)
-	 ,	x_(base::w_ + base::P_ + L_ - 1) {}
+	 ,	x_(base::w_ + base::P_ + L_ - 1)
+	 ,	input(x_, L_) 
+	 ,	output(x_, L_) 
+	{}
 
 	/*!
 	 * @brief Construct filter given coefficients vectors as C arrays.
@@ -763,7 +770,10 @@ public:
 	block_filter(size_t L, const BSample* b_vec, size_t b_len, const ASample* a_vec, size_t a_len)
 	 :	base(b_vec, b_len, a_vec, a_len, L * 2)
 	 ,	L_(L)
-	 ,	x_(base::w_ + base::P_ + L_ - 1) {}
+	 ,	x_(base::w_ + base::P_ + L_ - 1)
+	 ,	input(x_, L_) 
+	 ,	output(x_, L_) 
+	{}
 
 	/*!
 	 * @brief Construct all-zero filter given coefficients vector as C array.
@@ -775,7 +785,10 @@ public:
 	block_filter(size_t L, const BSample* b_vec, size_t b_len)
 	 :	base(b_vec, b_len, L * 2)
 	 ,	L_(L)
-	 ,	x_(base::w_ + base::P_ + L_ - 1) {}
+	 ,	x_(base::w_ + base::P_ + L_ - 1)
+	 ,	input(x_, L_) 
+	 ,	output(x_, L_) 
+	{}
 
 	/*!
 	 * @brief Prepare filter for operation with given number of coefficients without actually initializing them.
@@ -787,12 +800,10 @@ public:
 	block_filter(size_t L, size_t b_len, size_t a_len)
 	 :	base(a_len, b_len, std::max(b_len, a_len), L * 2)
 	 ,	L_(L)
-	 ,	x_(base::w_ + base::P_ + L_ - 1) {}
-
-	iterator begin() {return x_;}
-	iterator end() {return x_ + L_;}
-	const_iterator begin() const {return x_ ;}
-	const_iterator end() const {return x_ + L_;}
+	 ,	x_(base::w_ + base::P_ + L_ - 1)
+	 ,	input(x_, L_) 
+	 ,	output(x_, L_) 
+	{}
 
 	//! @brief Apply the filter to the sample sequence specified by [begin(), end()) range.
 	inline void operator()()
@@ -809,6 +820,11 @@ public:
 private:
 	const size_t L_;
 	Sample* const x_;
+
+public:
+
+	ioport_rw<const_iterator, iterator> input;
+	ioport_ro<const_iterator> output;
 };
 
 template<>
@@ -824,25 +840,37 @@ public:
 	block_filter(size_t L, BIterator b_begin, BIterator b_end, AIterator a_begin, AIterator a_end)
 	 :	base(b_begin, b_end, a_begin, a_end, L * 2)
 	 ,	L_(L)
-	 ,	x_(w_ + P_ + L_ - 1) {}
+	 ,	x_(w_ + P_ + L_ - 1)
+	 ,	input(x_, L_) 
+	 ,	output(x_, L_) 
+	{}
 
 	template<class BIterator>
 	block_filter(size_t L, BIterator b_begin, BIterator b_end)
 	 :	base(b_begin, b_end, L * 2)
 	 ,	L_(L)
-	 ,	x_(w_ + P_ + L_ - 1) {}
+	 ,	x_(w_ + P_ + L_ - 1)
+	 ,	input(x_, L_) 
+	 ,	output(x_, L_) 
+	{}
 
 	template<class BSample, class ASample>
 	block_filter(size_t L, const BSample* b_vec, size_t b_len, const ASample* a_vec, size_t a_len)
 	 :	base(b_vec, b_len, a_vec, a_len, L * 2)
 	 ,	L_(L)
-	 ,	x_(w_ + P_ + L_ - 1) {}
+	 ,	x_(w_ + P_ + L_ - 1) 
+	 ,	input(x_, L_) 
+	 ,	output(x_, L_) 
+	{}
 
 	template<class BSample>
 	block_filter(size_t L, const BSample* b_vec, size_t b_len)
 	 :	base(b_vec, b_len, L * 2)
 	 ,	L_(L)
-	 ,	x_(w_ + P_ + L_ - 1) {}
+	 ,	x_(w_ + P_ + L_ - 1) 
+	 ,	input(x_, L_) 
+	 ,	output(x_, L_) 
+	{}
 
 	/*!
 	 * @brief Prepare filter for operation with given number of coefficients without actually initializing them.
@@ -854,18 +882,20 @@ public:
 	block_filter(size_t L, size_t b_len, size_t a_len)
 	 :	base(a_len, b_len, std::max(b_len, a_len), L * 2)
 	 ,	L_(L)
-	 ,	x_(base::w_ + base::P_ + L_ - 1) {}
-
-	iterator begin() {return x_;}
-	iterator end() {return x_ + L_;}
-	const_iterator begin() const {return x_ ;}
-	const_iterator end() const {return x_ + L_;}
+	 ,	x_(base::w_ + base::P_ + L_ - 1)
+	 ,	input(x_, L_) 
+	 ,	output(x_, L_) 
+	{}
 
 	void operator()();
 
 private:
 	const size_t L_;
 	float* const x_;
+public:
+
+	ioport_rw<const_iterator, iterator> input;
+	ioport_ro<const_iterator> output;
 };
 
 }

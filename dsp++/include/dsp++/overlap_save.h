@@ -82,14 +82,6 @@ public:
 	//! @return transform size (N_)
 	size_t transform_size() const {return N_;}
 
-	//! @return pointer (serving as an iterator) to the first sample of the input/output frame.
-	iterator begin() {return x_;}
-	//! @return pointer (serving as an iterator) to the first sample of the input/output frame.
-	const_iterator begin() const {return x_;}
-	//! @return pointer (serving as an iterator) to the one-past-last sample of the input/output frame.
-	iterator end() {return z_;}
-	//! @return pointer (serving as an iterator) to the one-past-last sample of the input/output frame.
-	const_iterator end() const {return z_;}
 	/*!
 	 * @brief Perform filtration of the current input frame, represented as samples in the range [begin(), end()),
 	 * and store the result in the same sequence.
@@ -138,22 +130,6 @@ public:
 		std::fill_n(rbuf_ + ir_length, N_ - ir_length, value_type());
 		prepare_ir_dft(false);
 	}
-
-
-	//! @brief Read impulse response transform \f$H(z)\f$.
-	//! @return start of impulse response transform vector.
-	const_complex_iterator H_begin() const {return h_;}
-	//! @brief Read impulse response transform \f$H(z)\f$.
-	//! @return end of impulse response transform vector.
-	const_complex_iterator H_end() const {return h_ + N_;}
-
-	//! @brief Access/modify impulse response transform \f$H(z)\f$.
-	//! @return start of impulse response transform vector.
-	complex_iterator H_begin() {return h_;}
-	//! @brief Access/modify impulse response transform \f$H(z)\f$.
-	//! @return end of impulse response transform vector.
-	complex_iterator H_end() {return h_ + N_;}
-
 
 private:
 	void prepare_ir_dft(bool zero_tail);
@@ -214,6 +190,11 @@ private:
 	value_type* const z_;
 	complex_type* const h_;	//!< Impulse response transform vector.
 
+public:
+	ioport_rw<const_iterator, iterator> input;
+	ioport_ro<const_iterator> output;
+	//! @brief Access/modify impulse response transform \f$H(z)\f$.
+	ioport_rw<const_complex_iterator, complex_iterator> H;
 };
 
 template<class Real, template<class, class> class DFT> inline
@@ -246,6 +227,9 @@ overlap_save<Real, DFT>::overlap_save(size_t frame_length, Iterator ir_begin, It
  ,	x_(rbuf_ + N_ - L_)
  ,	z_(x_ + L_)
  ,	h_(cbuf_ + N_)
+ ,	input(x_, z_)
+ ,	output(x_, z_)
+ ,	H(h_, N_)
 {
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_ASSERT((boost::BidirectionalIterator<Iterator>));
@@ -268,6 +252,9 @@ overlap_save<Real, DFT>::overlap_save(size_t frame_length, const Sample* ir, siz
  ,	x_(rbuf_ + N_ - L_)
  ,	z_(x_ + L_)
  ,	h_(cbuf_ + N_)
+ ,	input(x_, z_)
+ ,	output(x_, z_)
+ ,	H(h_, N_)
 {
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_ASSERT((boost::Convertible<Sample, Real>));

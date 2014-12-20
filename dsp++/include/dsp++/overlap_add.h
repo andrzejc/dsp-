@@ -11,6 +11,7 @@
 #include <dsp++/pow2.h>
 #include <dsp++/algorithm.h>
 #include <dsp++/noncopyable.h>
+#include <dsp++/ioport.h>
 
 #include <algorithm>
 #include <functional>
@@ -81,15 +82,6 @@ public:
 	//! @return transform size (N_)
 	size_t transform_size() const {return N_;}
 
-	//! @return pointer (serving as an iterator) to the first sample of the input/output frame.
-	iterator begin() {return rbuf_;}
-	//! @return pointer (serving as an iterator) to the first sample of the input/output frame.
-	const_iterator begin() const {return rbuf_;}
-	//! @return pointer (serving as an iterator) to the one-past-last sample of the input/output frame.
-	iterator end() {return rbuf_ + L_;}
-	//! @return pointer (serving as an iterator) to the one-past-last sample of the input/output frame.
-	const_iterator end() const {return rbuf_ + L_;}
-
 	/*!
 	 * @brief Perform filtration of the current input frame, represented as samples in the range [begin(), end()),
 	 * and store the result in the same sequence.
@@ -138,22 +130,6 @@ public:
 		std::fill_n(rbuf_ + ir_length, N_ - ir_length, value_type());
 		prepare_ir_dft(false);
 	}
-
-	//! @brief Read impulse response transform \f$H(z)\f$.
-	//! @return start of impulse response transform vector.
-	const_complex_iterator H_begin() const {return cbuf_ + N_;}
-	//! @brief Read impulse response transform \f$H(z)\f$.
-	//! @return end of impulse response transform vector.
-	const_complex_iterator H_end() const {return cbuf_ + 2 * N_;}
-	std::pair<const_complex_iterator, const_complex_iterator> H() const {return std::make_pair(H_begin(), H_end());}
-
-	//! @brief Access/modify impulse response transform \f$H(z)\f$.
-	//! @return start of impulse response transform vector.
-	complex_iterator H_begin() {return cbuf_ + N_;}
-	//! @brief Access/modify impulse response transform \f$H(z)\f$.
-	//! @return end of impulse response transform vector.
-	complex_iterator H_end() {return cbuf_ + 2 * N_;}
-	std::pair<complex_iterator, complex_iterator> H() {return std::make_pair(H_begin(), H_end());}
 
 private:
 	void prepare_ir_dft(bool zero_tail);
@@ -209,6 +185,13 @@ private:
 							//!< are used for storing pre-computed transform of impulse response.
 	transform_type dft_;	//!< DFT functor
 	inverse_transform_type idft_; //!< IDFT functor
+
+public:
+	ioport_rw<const_iterator, iterator> input;
+	ioport_ro<const_iterator> output;
+
+	//! @brief Access/modify impulse response transform \f$H(z)\f$.
+	ioport_rw<const_complex_iterator, complex_iterator> H;
 };
 
 template<class Real, template<class, class> class DFT> inline
@@ -238,6 +221,9 @@ overlap_add<Real, DFT>::overlap_add(size_t frame_length, Iterator ir_begin, Iter
  , 	cbuf_(calloc_.allocate(2 * N_))
  ,	dft_(N_, rbuf_, cbuf_)
  , 	idft_(N_, cbuf_, rbuf_)
+ ,	input(rbuf_, L_)
+ ,	output(rbuf_, L_)
+ ,	H(cbuf_ + N_, cbuf_ + 2*N_)
 {
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_ASSERT((boost::BidirectionalIterator<Iterator>));
@@ -256,6 +242,9 @@ overlap_add<Real, DFT>::overlap_add(size_t frame_length, const Sample* ir, size_
  ,	cbuf_(calloc_.allocate(2 * N_))
  ,	dft_(N_, rbuf_, cbuf_)
  ,	idft_(N_, cbuf_, rbuf_)
+ ,	input(rbuf_, L_)
+ ,	output(rbuf_, L_)
+ ,	H(cbuf_ + N_, cbuf_ + 2*N_)
 {
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 	BOOST_CONCEPT_ASSERT((boost::Convertible<Sample, Real>));

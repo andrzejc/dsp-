@@ -395,6 +395,7 @@
     <ClInclude Include="include\dsp++\flt\fir_design.h" />
     <ClInclude Include="include\dsp++\flt\iir_design.h" />
     <ClInclude Include="include\dsp++\intmath.h" />
+    <ClInclude Include="include\dsp++\ioport.h" />
     <ClInclude Include="include\dsp++\lattice.h" />
     <ClInclude Include="include\dsp++\levinson.h" />
     <ClInclude Include="include\dsp++\lpc.h" />

@@ -13,6 +13,7 @@
 #include <dsp++/trivial_array.h>
 #include <dsp++/simd.h>
 #include <dsp++/complex.h>
+#include <dsp++/ioport.h>
 
 #include <algorithm>
 
@@ -95,10 +96,6 @@ public:
 
 	//! @return Order of the implemented LMS adaptive filter P.
 	size_t order() const {return P_;}		
-	//! @return Begin of the estimated filter response sequence \f$\hat{h}(n)\f$.
-	const_iterator response_begin() const {return h_;}
-	//! @return One-past-end of the estimated filter response sequence \f$\hat{h}(n)\f$.
-	const_iterator response_end() const {return h_ + P_;}
 	//! @return Step size \f$\mu\f$ of the LMS algorithm.
 	value_type step_size() const {return mu_;}
 	//! @brief Modify step size \f$\mu\f$ of the LMS algorithm. @param[in] mu new step size used during subsequent iterations.
@@ -120,6 +117,7 @@ protected:
 	 ,	h_(x_ + P_pad_)
 	 ,	mu_(mu)
 	 ,	lambda_(lambda)
+	 ,	h(h_, P_)
 	{
 		std::fill_n(x_, P_pad_, Sample());
 		if (NULL != initial_h)
@@ -136,6 +134,11 @@ protected:
 	Sample* const h_;		//!< estimated filter response vector \f$\hat{\mathbf{h}}(n)\f$ (P_)
 	Sample mu_;				//!< LMS algorithm step size \f$\mu\f$		
 	Sample lambda_;			//!< leakage facter (1 - no leakage)
+
+public:
+
+	//! @brief Access to the estimated filter response sequence \f$\hat{h}(n)\f$.
+	ioport_rw<const_iterator, iterator> h;
 };
 
 /*!

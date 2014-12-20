@@ -13,6 +13,7 @@
 #include <dsp++/pow2.h>
 #include <dsp++/algorithm.h>
 #include <dsp++/noncopyable.h>
+#include <dsp++/ioport.h>
 
 #include <algorithm>
 #include <functional>
@@ -64,6 +65,12 @@ public:
 	 ,	lambda_(leakage)
 	 ,	offset_(offset)
 	 ,	beta_(avg_fact)
+	 ,	x(x_ + N_, N_)
+	 ,	y(y_ + N_, N_)
+	 ,	e(e_, N_)
+	 ,	d(d_, N_)
+	 ,	W(W_, 2*N_)
+	 ,	power(norm_, 2*N_)
 	{
 		std::fill_n(rbuf_, 8*N_, value_type());
 		std::fill_n(cbuf_, 6*N_, complex_type());
@@ -72,47 +79,7 @@ public:
 
 	size_t transform_size() const {return 2*N_;}
 	size_t block_length() const {return N_;}
-
-	iterator x_begin() {return x_ + N_;}
-	const_iterator x_begin() const {return x_ + N_;}
-	iterator x_end() {return x_ + 2*N_;}
-	const_iterator x_end() const {return x_ + 2*N_;}
-	std::pair<iterator, iterator> x() {return std::make_pair(x_begin(), x_end());}
-	std::pair<const_iterator, const_iterator> x() const {return std::make_pair(x_begin(), x_end());}
-
-	const_iterator y_begin() const {return y_ + N_;}
-	const_iterator y_end() const {return y_ + 2*N_;}
-	std::pair<const_iterator, const_iterator> y() const {return std::make_pair(y_begin(), y_end());}
-
-	const_iterator e_begin() const {return e_;}
-	const_iterator e_end() const {return e_ + N_;}
-	std::pair<const_iterator, const_iterator> e() const {return std::make_pair(e_begin(), e_end());}
-
-	iterator d_begin() {return d_;}
-	const_iterator d_begin() const {return d_;}
-	iterator d_end() {return d_ + N_;}
-	const_iterator d_end() const {return d_ + N_;}
-	std::pair<iterator, iterator> d() {return std::make_pair(d_begin(), d_end());}
-	std::pair<const_iterator, const_iterator> d() const {return std::make_pair(d_begin(), d_end());}
-
-	complex_iterator W_begin() {return W_;}
-	const_complex_iterator W_begin() const {return W_;}
-	complex_iterator W_end() {return W_ + 2*N_;}
-	const_complex_iterator W_end() const {return W_+2*N_;}
-	complex_iterator W_half_end() {return W_ + N_ + 1;}
-	const_complex_iterator W_half_end() const {return W_ + N_ + 1;}
-	std::pair<iterator, iterator> W() {return std::make_pair(W_begin(), W_end());}
-	std::pair<const_iterator, const_iterator> W() const {return std::make_pair(W_begin(), W_end());}
-	std::pair<iterator, iterator> W_half() {return std::make_pair(W_begin(), W_half_end());}
-	std::pair<const_iterator, const_iterator> W_half() const {return std::make_pair(W_begin(), W_half_end());}
 	size_t transform_half_size() const {return N_ + 1;}
-
-	complex_iterator power_begin() {return norm_;}
-	const_complex_iterator power_begin() const {return norm_;}
-	complex_iterator power_end() {return norm_ + 2*N_;}
-	const_complex_iterator power_end() const {return norm_+2*N_;}
-	std::pair<iterator, iterator> power() {return std::make_pair(power_begin(), power_end());}
-	std::pair<const_iterator, const_iterator> power() const {return std::make_pair(power_begin(), power_end());}
 
 	//! @return Step size \f$\mu\f$ of the LMS algorithm.
 	value_type step_size() const {return mu_;}
@@ -141,7 +108,8 @@ public:
 	//! @brief Process single buffer of data through adaptive algoritm, taking [x_begin(), x_end()) as x input and [d_begin(), d_end()) as the expected filter output.
 	//! The results are stored in [y_begin(), y_end()) (filter output) and [e_begin(), e_end()) (output error w/ regard to d). 
 	//! The FFT of filter weights (coefficients) may be read from [W_begin(), W_end()).
-	void operator()() {
+	void operator()() 
+	{
 		dft_(x_, X_);															// X = FFT{x()}
 		std::transform(X_, X_ + 2*N_, W_, E_, std::multiplies<complex_type>());	// y() = IFFT{X * W}, using E_ as temporary variable
 		idft_(E_, y_);						
@@ -195,6 +163,12 @@ private:
 	value_type lambda_;			//!< leakage factor 
 	value_type offset_;			//!< normalization offset to avoid divide by zero
 	value_type beta_;			//!< averaging factor for exponential averaning of input power
+
+public:
+
+	ioport_rw<const_iterator, iterator> x, d;
+	ioport_ro<const_iterator> y, e;
+	ioport_rw<const_complex_iterator, complex_iterator> W, power;
 };
 
 }

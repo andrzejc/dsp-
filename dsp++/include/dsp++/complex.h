@@ -20,7 +20,7 @@ using std::complex;
  * @return the number
  */
 template<class Real>
-Real conj(Real real) {return real;}
+inline Real conj(Real real) {return real;}
 
 /*!
  * @brief Specialization of dsp::conj() for complex numbers which actually returns std::conj().
@@ -28,8 +28,19 @@ Real conj(Real real) {return real;}
  * @return conjugate of number.
  */
 template<class Real>
-std::complex<Real> conj(const std::complex<Real>& cplx) {return std::conj(cplx);}
+inline complex<Real> conj(const complex<Real>& cplx) {return std::conj(cplx);}
 
+template<class Real>
+inline Real real(Real real) {return real;}
+
+template<class Real>
+inline complex<Real> real(const complex<Real>& cplx) {return std::real(cplx);}
+
+template<class Real>
+inline Real imag(Real real) {return Real();}
+
+template<class Real>
+inline complex<Real> imag(const complex<Real>& cplx) {return std::imag(cplx);}
 
 /*!
  * @brief A type-traits approach to obtaining base (real) type of complex type, for constructing
@@ -37,13 +48,13 @@ std::complex<Real> conj(const std::complex<Real>& cplx) {return std::conj(cplx);
  */
 template<class Real> struct remove_complex {typedef Real type;};
 //! @copydoc remove_complex
-template<class Real> struct remove_complex<std::complex<Real> > {typedef Real type;};
+template<class Real> struct remove_complex<complex<Real> > {typedef Real type;};
 //! @copydoc remove_complex
-template<class Real> struct remove_complex<std::complex<Real> const> {typedef Real type;};
+template<class Real> struct remove_complex<complex<Real> const> {typedef Real type;};
 //! @copydoc remove_complex
-template<class Real> struct remove_complex<std::complex<Real> volatile> {typedef Real type;};
+template<class Real> struct remove_complex<complex<Real> volatile> {typedef Real type;};
 //! @copydoc remove_complex
-template<class Real> struct remove_complex<std::complex<Real> const volatile> {typedef Real type;};
+template<class Real> struct remove_complex<complex<Real> const volatile> {typedef Real type;};
 
 }
 

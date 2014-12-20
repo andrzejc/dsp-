@@ -317,6 +317,9 @@
     <ClInclude Include="include\dsp++\flt\fir_design.h">
       <Filter>include\dsp++\flt</Filter>
     </ClInclude>
+    <ClInclude Include="include\dsp++\ioport.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="doxyfile" />
