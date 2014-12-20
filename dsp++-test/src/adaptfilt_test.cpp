@@ -37,10 +37,10 @@ void dsp::test::adaptfilt_test::test_fdaf_overlap_save()
 	const unsigned step = 32;
 	dsp::fdaf_overlap_save<double> lms(step, 0.008);
 	for (size_t i = 0; i < 1024; i += step) {
-		std::copy_n(&in[i], step, lms.x_begin());
-		std::copy_n(&out[i], step, lms.d_begin());
+		std::copy_n(&in[i], step, lms.x.begin());
+		std::copy_n(&out[i], step, lms.d.begin());
 		lms();
-		std::copy_n(lms.e_begin(), step, &e[i]);
+		std::copy_n(lms.e.begin(), step, &e[i]);
 	}
 	CPPUNIT_ASSERT(std::equal(e, e + 1024, e_fdaf, dsp::within_range<double>(0.00001)));
 }

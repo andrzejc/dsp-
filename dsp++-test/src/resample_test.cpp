@@ -29,10 +29,10 @@ void dsp::test::resample_test::test_interpolator()
 	dsp::block_interpolator<float> interp(len, factor, 47, .2);
 
 	while (true) {
-		size_t read = r.read_frames(interp.begin(), len);
-		std::fill(interp.begin() + read, interp.input_end(), 0.f);
+		size_t read = r.read_frames(interp.input.begin(), len);
+		std::fill(interp.input.begin() + read, interp.input.end(), 0.f);
 		interp();
-		w.write_frames(interp.begin(), read * factor);
+		w.write_frames(interp.output.begin(), read * factor);
 		if (read != len)
 			break;
 	}
