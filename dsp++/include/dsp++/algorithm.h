@@ -93,6 +93,15 @@ struct sample_based_transform: public std::unary_function<Sample, Sample>
 	//!@brief Type of input/output sample.
 	typedef Sample sample_type;
 };
+    
+template<class To>
+struct static_caster
+{
+    template<class From>
+    To operator()(From val) {return static_cast<To>(val);}
+    
+    To operator()(To val) {return val;}
+};
 
 }
 

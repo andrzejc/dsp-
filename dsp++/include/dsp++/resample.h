@@ -37,7 +37,7 @@ protected:
 	 :	M_(M)
 	 ,	P_(P)
 	 ,	buf_(M_ * block_size)
-	 ,	output(buf_.begin(), buf_.end())
+	 ,	y(buf_.begin(), buf_.end())
 	{
 	}
 
@@ -46,7 +46,7 @@ protected:
 	dsp::trivial_array<Sample> buf_;	//!< output buffer (M_ * block_size)
 public:
 
-	ioport_ro<const_iterator> output;
+	ioport_ro<const_iterator> y;
 };
 
 //! @brief Integer-factor interpolator using polyphase FIR structure, operating on a single input sample each pass.
@@ -128,7 +128,7 @@ public:
 	block_interpolator(size_t L, size_t M, size_t P, double transition_width = 0.2)
 	 :	base(M, P, L)
 	 ,	L_(L)
-	 ,	input(base::buf_.begin(), L_)
+	 ,	x(base::buf_.begin(), L_)
 	{
 		init_filters(transition_width);
 	}
@@ -141,19 +141,19 @@ public:
 	//! @brief Perform interpolation using L (input_length()) samples of input sequence ([in, in + L)) as an input, placing output sequence in internal buffer [begin(), end()).
 	//! @param[in] in start of L-length input sequence (following iterator abstraction).
 	template<class Iterator>
-	void operator()(Iterator in) {
-		for (size_t i = 0; i < base::M_; ++i) {
-			dsp::copy_n(in, L_, flt_[i]->input.begin());
-			(*flt_[i])();
-		}
-		size_t total = output_length();
+	void operator()(Iterator in)
+    {
 		for (size_t i = 0; i < base::M_; ++i)
-			std::copy(flt_[i]->output.begin(), flt_[i]->output.end(), dsp::make_stride(base::buf_.begin(), base::M_, i));
+        {
+			dsp::copy_n(in, L_, flt_[i]->x.begin());
+			(*flt_[i])();
+            std::copy(flt_[i]->y.begin(), flt_[i]->y.end(), dsp::make_stride(base::buf_.begin(), base::M_, i));
+		}
 	}
 
 	//! @brief Perform interpolation inplace using first L (input_length()) samples of [begin(), end()) sequence as an input.
 	void operator()() {
-		operator()(input.begin());
+		operator()(x.begin());
 	}
 
 	//! @return length of input sequence
@@ -175,7 +175,7 @@ private:
 
 public:
 
-	ioport_rw<const_iterator, iterator> input;
+	ioport_rw<const_iterator, iterator> x;
 };
 
 template<class Sample>

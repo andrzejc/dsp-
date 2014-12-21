@@ -187,8 +187,8 @@ private:
 	inverse_transform_type idft_; //!< IDFT functor
 
 public:
-	ioport_rw<const_iterator, iterator> input;
-	ioport_ro<const_iterator> output;
+	ioport_rw<const_iterator, iterator> x;
+	ioport_ro<const_iterator> y;
 
 	//! @brief Access/modify impulse response transform \f$H(z)\f$.
 	ioport_rw<const_complex_iterator, complex_iterator> H;
@@ -221,8 +221,8 @@ overlap_add<Real, DFT>::overlap_add(size_t frame_length, Iterator ir_begin, Iter
  , 	cbuf_(calloc_.allocate(2 * N_))
  ,	dft_(N_, rbuf_, cbuf_)
  , 	idft_(N_, cbuf_, rbuf_)
- ,	input(rbuf_, L_)
- ,	output(rbuf_, L_)
+ ,	x(rbuf_, L_)
+ ,	y(rbuf_, L_)
  ,	H(cbuf_ + N_, cbuf_ + 2*N_)
 {
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
@@ -242,8 +242,8 @@ overlap_add<Real, DFT>::overlap_add(size_t frame_length, const Sample* ir, size_
  ,	cbuf_(calloc_.allocate(2 * N_))
  ,	dft_(N_, rbuf_, cbuf_)
  ,	idft_(N_, cbuf_, rbuf_)
- ,	input(rbuf_, L_)
- ,	output(rbuf_, L_)
+ ,	x(rbuf_, L_)
+ ,	y(rbuf_, L_)
  ,	H(cbuf_ + N_, cbuf_ + 2*N_)
 {
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED

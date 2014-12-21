@@ -191,8 +191,8 @@ private:
 	complex_type* const h_;	//!< Impulse response transform vector.
 
 public:
-	ioport_rw<const_iterator, iterator> input;
-	ioport_ro<const_iterator> output;
+	ioport_rw<const_iterator, iterator> x;
+	ioport_ro<const_iterator> y;
 	//! @brief Access/modify impulse response transform \f$H(z)\f$.
 	ioport_rw<const_complex_iterator, complex_iterator> H;
 };
@@ -227,8 +227,8 @@ overlap_save<Real, DFT>::overlap_save(size_t frame_length, Iterator ir_begin, It
  ,	x_(rbuf_ + N_ - L_)
  ,	z_(x_ + L_)
  ,	h_(cbuf_ + N_)
- ,	input(x_, z_)
- ,	output(x_, z_)
+ ,	x(x_, z_)
+ ,	y(x_, z_)
  ,	H(h_, N_)
 {
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
@@ -252,8 +252,8 @@ overlap_save<Real, DFT>::overlap_save(size_t frame_length, const Sample* ir, siz
  ,	x_(rbuf_ + N_ - L_)
  ,	z_(x_ + L_)
  ,	h_(cbuf_ + N_)
- ,	input(x_, z_)
- ,	output(x_, z_)
+ ,	x(x_, z_)
+ ,	y(x_, z_)
  ,	H(h_, N_)
 {
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED

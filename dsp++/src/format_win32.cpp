@@ -34,7 +34,7 @@ void format::render_waveformatex(void* wfx) const {
 	w->cbSize = 0;
 	return;
 noformat:
-	throw std::runtime_error("no direct WAVEFORMATEX::wFormtTag value for dsp::snd::format::sample_type()");
+	throw std::runtime_error("dsp::snd::format::render_waveformatex(): no direct WAVEFORMATEX::wFormtTag value for dsp::snd::format::sample_type()");
 }
 
 void format::render_waveformatextensible(void* wfx) const {

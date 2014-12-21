@@ -16,8 +16,6 @@
 		FE75BAD11A40BD9E0068A27C /* fft.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE75BA791A40BD9E0068A27C /* fft.cpp */; };
 		FE75BAD21A40BD9E0068A27C /* traits.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE75BA7B1A40BD9E0068A27C /* traits.cpp */; };
 		FE75BAD31A40BD9E0068A27C /* filter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE75BA7C1A40BD9E0068A27C /* filter.cpp */; };
-		FE75BAD41A40BD9E0068A27C /* filter_design.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE75BA7D1A40BD9E0068A27C /* filter_design.cpp */; };
-		FE75BAD51A40BD9E0068A27C /* fir_freq_samp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE75BA7E1A40BD9E0068A27C /* fir_freq_samp.cpp */; };
 		FE75BAD61A40BD9E0068A27C /* fixed.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE75BA7F1A40BD9E0068A27C /* fixed.cpp */; };
 		FE75BAD91A40BD9E0068A27C /* mkfilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE75BA831A40BD9E0068A27C /* mkfilter.cpp */; };
 		FE75BADC1A40BD9E0068A27C /* remez.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE75BA871A40BD9E0068A27C /* remez.cpp */; };
@@ -31,6 +29,10 @@
 		FE75BAE91A40BEF80068A27C /* sample.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE75BAE71A40BEF80068A27C /* sample.cpp */; };
 		FEF973371A43977D008B0B86 /* rpoly.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEF973351A43977D008B0B86 /* rpoly.cpp */; };
 		FEF973381A43977D008B0B86 /* zeropole.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEF973361A43977D008B0B86 /* zeropole.cpp */; };
+		FEF973A21A46393B008B0B86 /* flt_biquad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEF9739E1A46393B008B0B86 /* flt_biquad.cpp */; };
+		FEF973A31A46393B008B0B86 /* flt_fs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEF9739F1A46393B008B0B86 /* flt_fs.cpp */; };
+		FEF973A41A46393B008B0B86 /* flt_iir.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEF973A01A46393B008B0B86 /* flt_iir.cpp */; };
+		FEF973A51A46393B008B0B86 /* flt_pm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEF973A11A46393B008B0B86 /* flt_pm.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -98,8 +100,6 @@
 		FE75BA791A40BD9E0068A27C /* fft.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fft.cpp; sourceTree = "<group>"; };
 		FE75BA7B1A40BD9E0068A27C /* traits.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = traits.cpp; sourceTree = "<group>"; };
 		FE75BA7C1A40BD9E0068A27C /* filter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = filter.cpp; sourceTree = "<group>"; };
-		FE75BA7D1A40BD9E0068A27C /* filter_design.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = filter_design.cpp; sourceTree = "<group>"; };
-		FE75BA7E1A40BD9E0068A27C /* fir_freq_samp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fir_freq_samp.cpp; sourceTree = "<group>"; };
 		FE75BA7F1A40BD9E0068A27C /* fixed.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fixed.cpp; sourceTree = "<group>"; };
 		FE75BA831A40BD9E0068A27C /* mkfilter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mkfilter.cpp; sourceTree = "<group>"; };
 		FE75BA841A40BD9E0068A27C /* mkfilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mkfilter.h; sourceTree = "<group>"; };
@@ -118,6 +118,10 @@
 		FEF973351A43977D008B0B86 /* rpoly.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rpoly.cpp; sourceTree = "<group>"; };
 		FEF973361A43977D008B0B86 /* zeropole.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = zeropole.cpp; sourceTree = "<group>"; };
 		FEF973401A44ECC0008B0B86 /* prefix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = prefix.h; sourceTree = "<group>"; };
+		FEF9739E1A46393B008B0B86 /* flt_biquad.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = flt_biquad.cpp; sourceTree = "<group>"; };
+		FEF9739F1A46393B008B0B86 /* flt_fs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = flt_fs.cpp; sourceTree = "<group>"; };
+		FEF973A01A46393B008B0B86 /* flt_iir.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = flt_iir.cpp; sourceTree = "<group>"; };
+		FEF973A11A46393B008B0B86 /* flt_pm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = flt_pm.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -242,6 +246,10 @@
 		FE75BA6A1A40BD9E0068A27C /* src */ = {
 			isa = PBXGroup;
 			children = (
+				FEF9739E1A46393B008B0B86 /* flt_biquad.cpp */,
+				FEF9739F1A46393B008B0B86 /* flt_fs.cpp */,
+				FEF973A01A46393B008B0B86 /* flt_iir.cpp */,
+				FEF973A11A46393B008B0B86 /* flt_pm.cpp */,
 				FEF973341A43977D008B0B86 /* rpoly */,
 				FEF973361A43977D008B0B86 /* zeropole.cpp */,
 				FE75BAE61A40BEF80068A27C /* format_win32.cpp */,
@@ -251,8 +259,6 @@
 				FE75BA791A40BD9E0068A27C /* fft.cpp */,
 				FE75BA7A1A40BD9E0068A27C /* fftw */,
 				FE75BA7C1A40BD9E0068A27C /* filter.cpp */,
-				FE75BA7D1A40BD9E0068A27C /* filter_design.cpp */,
-				FE75BA7E1A40BD9E0068A27C /* fir_freq_samp.cpp */,
 				FE75BA7F1A40BD9E0068A27C /* fixed.cpp */,
 				FE75BA801A40BD9E0068A27C /* mkfilter */,
 				FE75BA861A40BD9E0068A27C /* remez */,
@@ -419,16 +425,18 @@
 				FE75BACC1A40BD9E0068A27C /* sse3.cpp in Sources */,
 				FE75BAE51A40BD9E0068A27C /* vectmath.cpp in Sources */,
 				FE75BADE1A40BD9E0068A27C /* resample.cpp in Sources */,
-				FE75BAD51A40BD9E0068A27C /* fir_freq_samp.cpp in Sources */,
 				FE75BADC1A40BD9E0068A27C /* remez.cpp in Sources */,
+				FEF973A21A46393B008B0B86 /* flt_biquad.cpp in Sources */,
 				FEF973381A43977D008B0B86 /* zeropole.cpp in Sources */,
 				FE75BADF1A40BD9E0068A27C /* simd.cpp in Sources */,
 				FE75BAD91A40BD9E0068A27C /* mkfilter.cpp in Sources */,
+				FEF973A31A46393B008B0B86 /* flt_fs.cpp in Sources */,
 				FEF973371A43977D008B0B86 /* rpoly.cpp in Sources */,
 				FE75BAE31A40BD9E0068A27C /* loudness.cpp in Sources */,
 				FE75BACD1A40BD9E0068A27C /* sse41.cpp in Sources */,
-				FE75BAD41A40BD9E0068A27C /* filter_design.cpp in Sources */,
+				FEF973A41A46393B008B0B86 /* flt_iir.cpp in Sources */,
 				FE75BAE81A40BEF80068A27C /* format_win32.cpp in Sources */,
+				FEF973A51A46393B008B0B86 /* flt_pm.cpp in Sources */,
 				FE75BAE21A40BD9E0068A27C /* io.cpp in Sources */,
 				FE75BACA1A40BD9E0068A27C /* sse.cpp in Sources */,
 			);

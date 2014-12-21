@@ -64,6 +64,7 @@ Sample filter_sample_adapt_lms(const Sample d, const Sample* x, Sample* h, const
  * @param[in] mu convergence step size  \f$\mu\f$.
  * @param[in] gamma denominator offset \f$\gamma\f$ safeguarding agains divide-by-zero in case of 0 signal.
  * @param[in] lambda leakage factor (1 - no leakage).
+ * @tparam Sample real or complex type of processed values
  * @return estimation error \f$e(n) = d(n) - \hat{y}(n) = d(n) - \hat{\mathbf{h}}^H(n) \cdot \mathbf{x}(n)\f$.
  */
 template<class Sample>
@@ -85,7 +86,7 @@ Sample filter_sample_adapt_nlms(const Sample d, const Sample* x, Sample* h, cons
 
 /*!
  * @brief Common base class for implementing a family of LMS adaptive filter functors.
- * @tparam Sample type of the processed signal samples.
+ * @tparam Sample real or comples type of the processed signal samples.
  */
 template<class Sample, class BufferTraits = dsp::buffer_traits<Sample> >
 class lms_filter_base {
@@ -158,7 +159,8 @@ public:
 	 * @param[in] initial_h override initial filter response estimate with specified vector of length P.
 	 */
 	filter_adapt_lms(const size_t P, const Sample mu, const Sample lambda = Sample(1), const Sample* initial_h = NULL)
-	 :	base(P, mu, lambda, initial_h) {}
+	 :	base(P, mu, lambda, initial_h)
+    {}
 
 	/*!
 	 * @brief Perform single step of LMS algorithm, storing estimated system response in internal vector [response_begin(), response_end()).

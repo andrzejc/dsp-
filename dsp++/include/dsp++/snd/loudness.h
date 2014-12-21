@@ -356,7 +356,7 @@ public:
 
 	bool operator()(Sample x) {
 		using std::abs; using std::log10;
-		*(interp_.input.begin() + index_) = x;
+		*(interp_.x.begin() + index_) = x;
 		++index_;
 		if (index_ != interp_.input_length())
 			return false;
@@ -364,8 +364,8 @@ public:
 		index_ = 0;
 		interp_();
 		Sample p = peak_;
-		const Sample* end = interp_.output.end();
-		for (const Sample* it = interp_.output.begin(); it != end; ++it)
+		const Sample* end = interp_.y.end();
+		for (const Sample* it = interp_.y.begin(); it != end; ++it)
 			peak_ = std::max(peak_, abs(*it));
 		if (peak_ != p)
 			peak_db_ = 20 * log10(peak_);

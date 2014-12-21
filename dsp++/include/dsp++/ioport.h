@@ -49,6 +49,7 @@ template<class ConstIter, class Iter>
 class ioport_rw: public ioport_ro<ConstIter> {
 	typedef ioport_ro<ConstIter> base;
 public:
+    typedef ConstIter const_iterator;
 	typedef Iter iterator;
 	typedef typename std::iterator_traits<iterator>::value_type value_type;
 	typedef std::pair<iterator, iterator> range_type;
