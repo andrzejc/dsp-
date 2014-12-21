@@ -23,9 +23,9 @@ void dsp::test::overlap_add_test::test_ola()
 	dsp::overlap_add<float, dsp::dft::fft> ola(L, b, L/2);
 	for (size_t i = 0; i < 1024; i += L)
 	{
-		std::copy(in + i, in + i + L, ola.input.begin());
+		std::copy(in + i, in + i + L, ola.x.begin());
 		ola();
-		std::copy(ola.output.begin(), ola.output.end(), out);
+		std::copy(ola.y.begin(), ola.y.end(), out);
 		std::copy(ref + i, ref + i + 256, test);
 		CPPUNIT_ASSERT(std::equal(out, out + L, test, dsp::within_range<float>(0.00001f)));
 	}
@@ -38,9 +38,9 @@ void dsp::test::overlap_add_test::test_ols()
 	dsp::overlap_save<float, dsp::dft::fft> ols(L, b, 128);
 	for (size_t i = 0; i + L <= 1024; i += L)
 	{
-		std::copy(in + i, in + i + L, ols.input.begin());
+		std::copy(in + i, in + i + L, ols.x.begin());
 		ols();
-		std::copy(ols.output.begin(), ols.output.end(), out);
+		std::copy(ols.y.begin(), ols.y.end(), out);
 		std::copy(ref + i, ref + i + L, test);
 		CPPUNIT_ASSERT(std::equal(out, out + L, test, dsp::within_range<float>(0.00001f)));
 	}
@@ -82,9 +82,9 @@ void dsp::test::overlap_add_test::test_ola_long_csv()
 
 	for (size_t i = 0; i < count; ++i)
 	{
-		std::copy(&x[i * L], &x[(i + 1) * L], ola.input.begin());
+		std::copy(&x[i * L], &x[(i + 1) * L], ola.x.begin());
 		ola();
-		std::copy(ola.output.begin(), ola.output.end(), &res[i * L]);
+		std::copy(ola.y.begin(), ola.y.end(), &res[i * L]);
 		CPPUNIT_ASSERT(std::equal(&res[i * L], &res[(i + 1) * L], &y[i * L], dsp::within_range<double>(0.00001)));
 	}
 }

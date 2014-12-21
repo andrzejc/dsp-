@@ -34,9 +34,9 @@ void dsp::test::filter_test::test_fir_block()
 	float out[128];
 	dsp::block_filter<float> fir(128, b, 128);
 	for (size_t i = 0; i < 1024; i += 128, inn += 128, reff += 128) {
-		std::copy(inn, inn + 128, fir.input.begin());
+		std::copy(inn, inn + 128, fir.x.begin());
 		fir();
-		std::copy(fir.output.begin(), fir.output.end(), out);
+		std::copy(fir.y.begin(), fir.y.end(), out);
 		CPPUNIT_ASSERT(std::equal(out, out + 128, reff, dsp::within_range<float>(0.00001f)));
 	}
 }
@@ -57,9 +57,9 @@ void dsp::test::filter_test::test_iir_block()
 	float out[64];
 	dsp::block_filter<double> iir(64, iir_b, 32, iir_a, 32);
 	for (size_t i = 0; i < 1024; i += 64, inn += 64, reff += 64) {
-		std::copy(inn, inn + 64, iir.input.begin());
+		std::copy(inn, inn + 64, iir.x.begin());
 		iir();
-		std::copy(iir.output.begin(), iir.output.end(), out);
+		std::copy(iir.y.begin(), iir.y.end(), out);
 		CPPUNIT_ASSERT(std::equal(out, out + 64, reff, dsp::within_range<float>(0.00001f)));
 	}
 }
