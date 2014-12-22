@@ -170,6 +170,57 @@ private:
 	storage_type buf_;
 };
 
+///*!
+// * @brief Perform crossmixing of two sample ranges from the one starting at @p from to the one starting at @p to placing the result into @p out.
+// * @param [in] from input iterator to the range of at least @p N samples the crossmixing transitions from.
+// * @param [in] to input iterator to the range of at least @p N samples the crossmixing transitions to.
+// * @param [in] N number of samples in the overalapping region between @p from &amp; @p to, the transition region length.
+// * @param [out] out output iterator to the range the result of crossmixing is written into, with the space for at least (@p N) samples.
+// * @tparam Scaler (defaults to double) the type used to perform the weighting/scaling maths.
+// */
+//template<class InputIteratorFrom, class InputIteratorTo, class OutputIterator, class Scaler = double>
+//OutputIterator crossmix_n(InputIteratorFrom from, InputIteratorTo to, size_t N, OutputIterator out)
+//{
+//	typedef typename std::iterator_traits<OutputIterator>::value_type res;
+//	for (size_t i = 0; i < N; ++i, ++from, ++to, ++out) 
+//	{
+//		Scaler mix = static_cast<Scaler>(i + 1) / (N + 1);
+//		*out = static_cast<res>((static_cast<Scaler>(1) - mix) * (*from) + mix * (*to));
+//	}
+//	return out;
+//}
+//
+//template<class InputIteratorFrom, class InputIteratorTo, class OutputIterator, class Scaler = double>
+//OutputIterator crossmix(InputIteratorFrom from, InputIteratorFrom from_end, InputIteratorTo to, size_t N, OutputIterator out)
+//{
+//	const size_t N = std::distance(from, from_end);
+//	typedef typename std::iterator_traits<OutputIterator>::value_type res;
+//	for (size_t i = 0; from != from_end; ++i, ++from, ++to, ++out) 
+//	{
+//		Scaler mix = static_cast<Scaler>(i + 1) / (N + 1);
+//		*out = static_cast<res>((static_cast<Scaler>(1) - mix) * (*from) + mix * (*to));
+//	}
+//}
+
+template<class Result, class Scaler = double>
+struct crossmix
+{
+	const Scaler delta;
+	Scaler mix;
+	explicit crossmix(size_t overlap): delta(static_cast<Scaler>(1)/(overlap + 1)), mix(delta) {}
+
+	template<class InFrom, class InTo>
+	Result operator()(InFrom from, InTo to)
+	{
+		if (mix >= static_cast<Scaler>(1))
+			return static_cast<Result>(to);
+		Result res = static_cast<Result>((static_cast<Scaler>(1) - mix) * from + mix * to);
+		mix += delta;
+		return res;
+	}
+
+};
+
 // TODO this is work in progress and needs to be reworked (as well as dsp::buffer which must not use boost::circular_buffer)
 template<class Elem, class Storage = std::vector<Elem> > 
 class overlap {
@@ -213,7 +264,8 @@ public:
 	iterator frame_end(size_t n = 0) {return buf_.begin() + (n + 1) * frame_;}
 	const_iterator frame_end(size_t n = 0) const {return buf_.begin() + (n + 1) * frame_;}
 
-	void pop_frames(size_t count) {
+	void pop_frames(size_t count) 
+	{
 		size_t num = count * frame_;
 		assert(num <= size());
 		buf_.erase(buf_.begin(), buf_.begin() + num);
@@ -222,7 +274,8 @@ public:
 	void pop_frame() {pop_frames(1);}
 
 	template<class InputIterator>
-	void push_frame(InputIterator it) {
+	void push_frame(InputIterator it) 
+	{
 		if (buf_.empty()) {
 			buf_.resize(frame_);
 			std::copy_n(it, frame_, buf_.begin());
@@ -230,12 +283,11 @@ public:
 		else {
 			assert(buf_.size() >= overlap_);
 			buf_.resize(buf_.size() + (frame_ - overlap_));
-			iterator dest = buf_.end() - frame_;
-			for (unsigned i = 0; i < overlap_; ++i, ++dest, ++it) {
-				double mix = double(i + 1) / (overlap_ + 1);
-				*dest = static_cast<Elem>((1. - mix) * (*dest) + mix * (*it));
-			}
-			std::copy_n(it, (frame_ - overlap_), dest);
+			std::transform(buf_.end() - frame_, buf_.end(), it, buf_.end() - frame_, crossmix<Elem>(overlap_));
+
+			//crossmix_n(buf_.end() - frame_, it, overlap_, buf_.end() - frame_);
+			//std::advance(it, overlap_);
+			//std::copy_n(it, (frame_ - overlap_), buf_.end() - frame_ + overlap_);
 		}
 	}
 
