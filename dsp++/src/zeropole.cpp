@@ -31,7 +31,7 @@ namespace {
 
 static const double EPS = 1e-15;
 
-inline bool is_complex(const std::complex<double>& c) {return fabs(imag(c)) >= std::numeric_limits<double>::epsilon();}
+inline bool is_complex(const std::complex<double>& c) {return fabs(imag(c)) > EPS;}
 
 inline bool is_conj_pair(const std::complex<double>& c1, const std::complex<double>& c2)
 {

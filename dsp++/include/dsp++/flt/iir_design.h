@@ -72,6 +72,19 @@ DSPXX_API double design(
 	unsigned pole_mask = 0		//!< [in] Use only specified poles
 );
 
+//! @return number of second-order-sections written, or going to be written to @p num, @p den (ceil(order / 2)); needs to be multiplied by @p sos_length to get @p num/@p den length
+DSPXX_API unsigned sos_design(
+	unsigned order,				//!< [in] filter order
+	unsigned type,				//!< [in] filter type, characteristic and flags (combination of reasonable {@link iir::type}, {@link iir::resp} &amp; {@link iir::flag} values)
+	const double* fc,			//!< [in] normalized corner frequency/ies (0, 0.5) range
+	double num[],					//!< [out] 
+	double den[],					//!< [out] 
+	const double* cheb_rip = NULL,	//!< [in] Chebyshev ripple in dB, defaults to 3dB if not set
+	const double* zero_freq = NULL,	//!< [in] put additional zero at specified normalized frequency
+	unsigned pole_mask = 0		//!< [in] Use only specified poles
+);
+
+
 }} // namespace dsp::iir
 
 #endif // DSP_FLT_IIR_DESIGN_H_INCLUDED

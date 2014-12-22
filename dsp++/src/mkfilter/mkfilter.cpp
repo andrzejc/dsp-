@@ -533,8 +533,11 @@ double mkfilter::gain(const context& ctx)
 	return g;
 }
 
-void mkfilter::design(context& ctx)
+void mkfilter::design(context& ctx, size_t maxpz)
 {
+	ctx.splane.init(maxpz);
+	ctx.zplane.init(maxpz);
+
 	do_design(ctx);
 
 	double g = gain(ctx);

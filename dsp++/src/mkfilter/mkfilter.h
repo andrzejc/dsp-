@@ -70,7 +70,7 @@ struct context
 };
 
 
-void design(context& params);
+void design(context& params, size_t maxpz);
 
 double gain(const context& params);
 
