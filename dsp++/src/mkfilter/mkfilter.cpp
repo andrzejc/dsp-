@@ -279,6 +279,7 @@ static void normalize(context& ctx)		/* called for trad, not for -Re or -Pi */
 
 	case opt_bp: { 
 		double w0 = sqrt(w1*w2), bw = w2-w1; int i;
+		assert(ctx.splane.numpoles * 2 <= static_cast<int>(ctx.maxpz));
 		for (i=0; i < ctx.splane.numpoles; i++) { 
 			complex hba = 0.5 * (ctx.splane.poles[i] * bw);
 			complex temp = sqrt(1.0 - sqr(w0 / hba));
@@ -294,6 +295,7 @@ static void normalize(context& ctx)		/* called for trad, not for -Re or -Pi */
 
 	case opt_bs: { 
 		double w0 = sqrt(w1*w2), bw = w2-w1; int i;
+		assert(ctx.splane.numpoles * 2 <= static_cast<int>(ctx.maxpz));
 		for (i=0; i < ctx.splane.numpoles; i++)	{ 
 			complex hba = 0.5 * (bw / ctx.splane.poles[i]);
 			complex temp = sqrt(1.0 - sqr(w0 / hba));
@@ -361,6 +363,7 @@ static void compute_apres(context& ctx)
 
 static void compute_bpres(context& ctx)
 { /* compute Z-plane pole & zero positions for bandpass resonator */
+	assert(ctx.maxpz >= 2);
 	ctx.zplane.numpoles = ctx.zplane.numzeros = 2;
 	ctx.zplane.zeros[0] = 1.0; ctx.zplane.zeros[1] = -1.0;
 	double theta = TWOPI * ctx.raw_alpha1; /* where we want the peak to be */
@@ -404,11 +407,11 @@ static void compute_bpres(context& ctx)
 
 static void add_extra_zero(context& ctx)
 { 
-	//if (ctx.zplane.numzeros+2 > mkfilter::max_pz)
-	//{ 
-	//	throw std::runtime_error("too many zeros");
-	//	//  fprintf(stderr, "mkfilter: too many zeros; can't do -Z\n");
-	//}
+	if (ctx.zplane.numzeros+2 > static_cast<int>(ctx.maxpz)) 
+	{ 
+		throw std::runtime_error("too many zeros");
+		//  fprintf(stderr, "mkfilter: too many zeros; can't do -Z\n");
+	}
 
 	double theta = TWOPI * ctx.raw_alphaz;
 	complex zz = expj(theta);
@@ -440,13 +443,14 @@ static void expandpoly(context& ctx) /* given Z-plane poles & zeros, compute top
 
 	find_gains(ctx);
 
+	double a0 = real(botcoeffs[ctx.zplane.numpoles]);
 	if (NULL != ctx.xcoeffs) {
 		for (i = 0; i <= ctx.zplane.numzeros; i++) 
-			ctx.xcoeffs[i] = (real(topcoeffs[i]) / real(botcoeffs[ctx.zplane.numpoles]));
+			ctx.xcoeffs[ctx.zplane.numzeros - i] = (real(topcoeffs[i]) / a0);
 	}
 	if (NULL != ctx.ycoeffs) {
 		for (i = 0; i <= ctx.zplane.numpoles; i++) 
-			ctx.ycoeffs[i] = (real(botcoeffs[i]) / real(botcoeffs[ctx.zplane.numpoles]));
+			ctx.ycoeffs[ctx.zplane.numpoles - i] = (real(botcoeffs[i]) / a0);
 	}
 }
 
@@ -484,6 +488,8 @@ static void do_design(context& ctx)
 	setdefaults(ctx);
 	if (ctx.options & opt_re) 
 	{ 
+		// it seems all these options for opt_re use max 2 pole/zeros (second order)
+
 		if (ctx.options & opt_bp) 
 			compute_bpres(ctx);	   /* bandpass resonator	 */
 		if (ctx.options & opt_bs) 
@@ -495,7 +501,9 @@ static void do_design(context& ctx)
 	{ 
 		if (ctx.options & opt_pi) 
 		{ 
+			// opt_pi seems to be limited to 1st order?
 			prewarp(ctx);
+			assert(ctx.maxpz >= 1);
 			ctx.splane.poles[0] = 0.0;
 			ctx.splane.zeros[0] = -TWOPI * ctx.warped_alpha1;
 			ctx.splane.numpoles = ctx.splane.numzeros = 1;
@@ -537,6 +545,7 @@ void mkfilter::design(context& ctx, size_t maxpz)
 {
 	ctx.splane.init(maxpz);
 	ctx.zplane.init(maxpz);
+	ctx.maxpz = maxpz;
 
 	do_design(ctx);
 

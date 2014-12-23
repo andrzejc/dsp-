@@ -110,12 +110,12 @@ unsigned dsp::iir::design(unsigned order, unsigned type, const double* fc,
 	assert(ctx.splane.numpoles <= (int)sz);
 	assert(ctx.zplane.numzeros == sz);
 	assert(ctx.zplane.numpoles == sz);
-	// inverse coeffs order - mkfilter produces vectors in the format for its own internal filter implementation which uses inversed vectors
-	for (size_t i = 0; i < (sz + 1) / 2; ++i) 
-	{
-		std::swap(b[i], b[sz - i]);
-		std::swap(a[i], a[sz - i]);
-	}
+	//// inverse coeffs order - mkfilter produces vectors in the format for its own internal filter implementation which uses inversed vectors
+	//for (size_t i = 0; i < (sz + 1) / 2; ++i) 
+	//{
+	//	std::swap(b[i], b[sz - i]);
+	//	std::swap(a[i], a[sz - i]);
+	//}
 	return sz + 1;
 }
 

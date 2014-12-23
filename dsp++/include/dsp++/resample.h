@@ -128,7 +128,7 @@ public:
 	block_interpolator(size_t L, size_t M, size_t P, double transition_width = 0.2)
 	 :	base(M, P, L)
 	 ,	L_(L)
-	 ,	x(base::buf_.begin(), L_)
+	 ,	x(base::buf_.begin(), L_ * base::M_)
 	{
 		init_filters(transition_width);
 	}

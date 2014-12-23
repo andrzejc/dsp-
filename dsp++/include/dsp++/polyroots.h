@@ -17,7 +17,12 @@ namespace dsp {
 DSPXX_API unsigned roots(
 	unsigned degree,				//!< [in] polynomial degree (highest exponent of the variable).
 	const double poly[],			//!< [in] polynomial coefficients (degree + 1)
-	std::complex<double> roots[]	//!< [out] roots of the polynomial (degree)
+	std::complex<double> roots[]	//!< [out] roots of the polynomial, with space for at least (degree) elements
+);
+
+DSPXX_API double polyeval(
+	unsigned degree,
+	const double poly[]
 );
 
 }

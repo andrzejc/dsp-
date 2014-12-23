@@ -67,6 +67,7 @@ struct context
 
 	double* xcoeffs;
 	double* ycoeffs;
+	size_t maxpz;
 };
 
 
