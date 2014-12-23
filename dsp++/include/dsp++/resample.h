@@ -128,7 +128,7 @@ public:
 	block_interpolator(size_t L, size_t M, size_t P, double transition_width = 0.2)
 	 :	base(M, P, L)
 	 ,	L_(L)
-	 ,	x(base::buf_.begin(), L_ * base::M_)
+	 ,	x(base::buf_.begin(), L_)
 	{
 		init_filters(transition_width);
 	}
@@ -147,8 +147,10 @@ public:
         {
 			dsp::copy_n(in, L_, flt_[i]->x.begin());
 			(*flt_[i])();
-            std::copy(flt_[i]->y.begin(), flt_[i]->y.end(), dsp::make_stride(base::buf_.begin(), base::M_, i));
 		}
+
+		for (size_t i = 0; i < base::M_; ++i)
+            std::copy(flt_[i]->y.begin(), flt_[i]->y.end(), dsp::make_stride(base::buf_.begin(), base::M_, i));
 	}
 
 	//! @brief Perform interpolation inplace using first L (input_length()) samples of [begin(), end()) sequence as an input.
