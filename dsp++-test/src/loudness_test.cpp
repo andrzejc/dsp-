@@ -50,7 +50,6 @@ static void test_loudness_file(const char* path, float exp_level, float peak)
 	vp = metp.value_db();
 	CPPUNIT_ASSERT(dsp::within_range<float>(.1f)(vi,exp_level));
 	CPPUNIT_ASSERT(dsp::within_range<float>(.1f)(vp,peak));
-
 }
 
 void dsp::test::loudness_test::test_ebu1()
