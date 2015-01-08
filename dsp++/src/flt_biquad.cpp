@@ -1,6 +1,7 @@
 #include <dsp++/flt/biquad_design.h>
 #include <dsp++/const.h>
 #include <stdexcept>
+#include <cmath>
 
 void dsp::biquad::design(double b[], double a[], biquad::type::spec type, double norm_freq, const double* gain_db, const double* q, const double* bw, const double* s)
 {

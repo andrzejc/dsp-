@@ -32,6 +32,7 @@
 #include <cstdlib>
 #include <cfloat>
 #include <algorithm>
+#include <stdexcept>
 
 #include <boost/scoped_array.hpp>
 
