@@ -29,14 +29,14 @@ double dsp::tf2zp(unsigned bn, const double b[], unsigned an, const double a[], 
 
 namespace {
 
-static const double EPS = 1e-15;
+static const double zp_EPS = 1e-15;
 
-inline bool is_complex(const std::complex<double>& c) {return fabs(imag(c)) > EPS;}
+inline bool is_complex(const std::complex<double>& c) {return fabs(imag(c)) > zp_EPS;}
 
 inline bool is_conj_pair(const std::complex<double>& c1, const std::complex<double>& c2)
 {
-	bool res = (fabs(real(c1) - real(c2)) <= EPS) &&
-		(fabs(imag(c1) + imag(c2)) <= EPS);
+	bool res = (fabs(real(c1) - real(c2)) <= zp_EPS) &&
+		(fabs(imag(c1) + imag(c2)) <= zp_EPS);
 //	double rd = fabs(real(c1) - real(c2));
 //	double id = fabs(imag(c1) + imag(c2));
 	return res;
