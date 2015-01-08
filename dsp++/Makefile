@@ -12,7 +12,7 @@ SRC=src/debug.cpp src/fft.cpp src/filter.cpp src/fixed.cpp src/flt_biquad.cpp \
 OBJ = $(patsubst %.cpp,%.o, $(SRC))
 
 LIBS = -lfftw3 -lfftw3_threads -lfftw3f -lfftw3f_threads -lfftw3l -lfftw3l_threads \
-	-lportaudio -lsndfile
+	-lsndfile
 
 all: libdsp++.so
 
