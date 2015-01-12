@@ -47,6 +47,8 @@ DSPXX_API void resonator_design(
 );
 
 //! @brief Design IIR Butterworth, Bessel or Chebyshev filter in the z-plane according to specification.
+//! @throw std::domain_error if frequency in @p fc or @p zero_freq falls outside [0, 0.5]
+//! @throw std::logic_error if @p type flags are incomplete or freqs in @p fc are non-increasing with bandpass/bandstop filters
 //! @return required length of @p b and @p a vectors.
 DSPXX_API unsigned design(
 	unsigned order,				//!< [in] filter order
@@ -60,6 +62,8 @@ DSPXX_API unsigned design(
 );
 
 //! @brief Design IIR Butterworth, Bessel or Chebyshev filter in the z-plane according to specification.
+//! @throw std::domain_error if frequency in @p fc or @p zero_freq falls outside [0, 0.5]
+//! @throw std::logic_error if @p type flags are incomplete or freqs in @p fc are non-increasing with bandpass/bandstop filters
 //! @return gain
 DSPXX_API double design(
 	unsigned order,				//!< [in] filter order
@@ -73,6 +77,9 @@ DSPXX_API double design(
 );
 
 //! @return number of second-order-sections written, or going to be written to @p num, @p den (ceil(order / 2)); needs to be multiplied by @p sos_length to get @p num/@p den length
+//! @throw std::domain_error if frequency in @p fc or @p zero_freq falls outside [0, 0.5]
+//! @throw std::logic_error if @p type flags are incomplete or freqs in @p fc are non-increasing with bandpass/bandstop filters
+//! @see dsp::zp2sos()
 DSPXX_API unsigned sos_design(
 	unsigned order,				//!< [in] filter order
 	unsigned type,				//!< [in] filter type, characteristic and flags (combination of reasonable {@link iir::type}, {@link iir::resp} &amp; {@link iir::flag} values)
