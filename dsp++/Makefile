@@ -2,6 +2,24 @@ CXX=g++
 CFLAGS=-DDSPXX_EXPORTS -DNDEBUG -fvisibility=hidden -I./include -fPIC -std=gnu++11 -O2
 CXXFLAGS=$(CFLAGS)
 
+LIBS = -lfftw3 -lfftw3_threads -lfftw3f -lfftw3f_threads -lfftw3l -lfftw3l_threads \
+	-lsndfile
+
+ifeq ($(OS),Windows_NT)
+EXT := .dll
+else
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+EXT := .dylib
+CFLAGS += -I/opt/local/include
+LIBS += -L/opt/local/lib 
+else
+EXT := .so
+endif
+endif
+
+PRODUCT = libdsp++$(EXT)
+
 SRC=src/debug.cpp src/fft.cpp src/filter.cpp src/fixed.cpp src/flt_biquad.cpp \
 	src/flt_fs.cpp src/flt_iir.cpp src/flt_pm.cpp src/resample.cpp src/sample.cpp \
 	src/simd.cpp src/vectmath.cpp src/zeropole.cpp src/arch/x86/cpu_x86.cpp \
@@ -11,10 +29,7 @@ SRC=src/debug.cpp src/fft.cpp src/filter.cpp src/fixed.cpp src/flt_biquad.cpp \
 
 OBJ = $(patsubst %.cpp,%.o, $(SRC))
 
-LIBS = -lfftw3 -lfftw3_threads -lfftw3f -lfftw3f_threads -lfftw3l -lfftw3l_threads \
-	-lsndfile
-
-all: libdsp++.so
+all: $(PRODUCT)
 
 %.o: %.cpp
 	$(CXX) -c -o $@ $< $(CXXFLAGS)
@@ -28,7 +43,7 @@ src/arch/x86/sse3.o: src/arch/x86/sse3.cpp
 src/arch/x86/sse41.o: src/arch/x86/sse41.cpp
 	$(CXX) -c -o $@ $< $(CXXFLAGS) -msse4.1
 
-libdsp++.so: $(OBJ)
+$(PRODUCT): $(OBJ)
 	$(CXX) -shared -o $@ $^ $(CXXFLAGS) $(LIBS)
 
 .PHONY: clean
