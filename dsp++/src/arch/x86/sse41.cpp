@@ -2,6 +2,7 @@
 
 #ifdef DSP_ARCH_FAMILY_X86
 
+#include <algorithm>
 #include <dsp++/simd.h>
 #include "sse.h"
 #include "sse_utils.h"
