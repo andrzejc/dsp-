@@ -52,19 +52,18 @@ class fft<complex<Real>, Real >;
  * X_k = \sum_{n=0}^{N-1} x_n \cdot e^{-i2\pi\frac{k}{N}n}
  * @f]
  * so the sign of the exponent is -1, which is reflected in the value of
- * @link dft_sign_forward @endlink constant (for forward DFT). The equation
+ * @link dft::sign::forward @endlink constant (for forward DFT). The equation
  * for inverse DFT is:
  * @f[
  * x_n = \frac{1}{N}\sum_{k=0}^{N-1} X_k \cdot e^{i2\pi\frac{k}{N}n}
  * @f]
  * where the sign of exponent is 1 (and consequently the value of constant
- * @link dft_sign_backward @endlink). This class implements both forward and inverse-DFT
+ * @link dft::sign::backward @endlink). This class implements both forward and inverse-DFT
  * through the sign parameter of the constructor, however it doesn't perform
  * the normalization of IDFT results (the @f$\frac{1}{N}@f$ factor in the formula).
  * To obtain correctly normalized values, the output sequence should be
  * divided by N.
- * @see W.H. Press, S.A. Teukolsky, W.T. Vetterling, B.P.Flannery. <em>Numerical
- * Recipes in C++</em>. Cambridge university press, 2002.
+ * @see W.H. Press, S.A. Teukolsky, W.T. Vetterling, B.P.Flannery. <em>Numerical Recipes in C++</em>. Cambridge university press, 2002.
  * @tparam Real floating-point type using during the calculations.
  */
 template<class Real>

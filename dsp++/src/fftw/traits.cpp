@@ -12,7 +12,7 @@ dsp::dft::fftw::plan_unavailable::~plan_unavailable() throw() {}
 
 #if !DSP_FFTW3_DISABLED
 
-#include <dsp++/fft.h> // for dft_sign_forward/dft_sign_backward
+#include <dsp++/fft.h> // for dft::sign::forward/dft::sign::backward
 #include <dsp++/fftw/allocator.h>
 #include <dsp++/fftw/dft.h>
 #include <boost/static_assert.hpp>
