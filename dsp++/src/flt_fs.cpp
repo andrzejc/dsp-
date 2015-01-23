@@ -3,6 +3,7 @@
 #include <complex>
 #include <stdexcept>
 
+#include <dsp++/config.h>
 #include <dsp++/const.h>
 #include <dsp++/pow2.h>
 #include <dsp++/fft.h>
@@ -91,8 +92,8 @@ unsigned fir_fs_impl(
 )
 {
 #if DSP_FFTW_DISABLED
-	fir_freq_samp_check_preconditions(point_count, freqs);
-	if (!ispow2(fir_freq_samp_length(order, amps)))
+	fir_fs_check_preconditions(point_count, freqs);
+	if (!dsp::ispow2(fir_fs_length(order, amps)))
 		throw std::invalid_argument("dsp::fir::fs::design(): with fftw disabled only filters of power-of-2 length allowed");
 	dsp::trivial_array<std::complex<double>> H(order + 1);
 #else // !DSP_FFTW_DISABLED

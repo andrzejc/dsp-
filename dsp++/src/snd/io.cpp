@@ -36,6 +36,11 @@ typedef const wchar_t* LPCWSTR;
 
 #include "../utility.h"
 
+#if defined(_MSC_VER) && !defined(DSPXX_STATIC)
+#pragma comment(lib, "libsndfile-1.lib")
+#endif // _MSC_VER && !DSPXX_STATIC
+
+
 using namespace dsp::snd;
 
 typedef iobase::size_type sz_t;

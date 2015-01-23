@@ -10,13 +10,30 @@
 // emit vtable and type_info for the exception in this translation unit
 dsp::dft::fftw::plan_unavailable::~plan_unavailable() throw() {}
 
-#if !DSP_FFTW3_DISABLED
+#if !DSP_FFTW_DISABLED
 
+#include <dsp++/export.h>
 #include <dsp++/fft.h> // for dft::sign::forward/dft::sign::backward
 #include <dsp++/fftw/allocator.h>
 #include <dsp++/fftw/dft.h>
 #include <boost/static_assert.hpp>
-#include <fftw3.h>
+
+#include <fftw3.h> // Visual Studio build: place fftw3 distribution in directory pointed by %FFTW3_ROOT% environment variable and x64 version of thereof in %FFTW3_ROOT%\x64
+
+#if defined(_MSC_VER) && !defined(DSPXX_STATIC)
+#if DSP_FFTW_HAVE_FLOAT
+#pragma comment(lib, "libfftw3f-3.lib")
+#endif // DSP_FFTW_HAVE_FLOAT
+#if DSP_FFTW_HAVE_DOUBLE
+#pragma comment(lib, "libfftw3-3.lib")
+#endif // DSP_FFTW_HAVE_DOUBLE
+#if DSP_FFTW_HAVE_LONG_DOUBLE
+#pragma comment(lib, "libfftw3l-3.lib")
+#endif // DSP_FFTW_HAVE_LONG_DOUBLE
+#if DSP_FFTW_HAVE_QUAD
+#pragma comment(lib, "libfftw3q-3.lib")
+#endif // DSP_FFTW_HAVE_QUAD
+#endif // _MSC_VER && !DSPXX_STATIC
 
 using namespace dsp::dft::fftw;
 
