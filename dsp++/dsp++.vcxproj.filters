@@ -320,9 +320,13 @@
     <ClInclude Include="include\dsp++\ioport.h">
       <Filter>include\dsp++</Filter>
     </ClInclude>
+    <ClInclude Include="include\dsp++\version.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="doxyfile" />
+    <None Include="CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
     <MASM Include="src\arch\x86\xxgetbv.asm">

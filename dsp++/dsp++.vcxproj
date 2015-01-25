@@ -424,6 +424,7 @@
     <ClInclude Include="include\dsp++\trivial_array.h" />
     <ClInclude Include="include\dsp++\utility.h" />
     <ClInclude Include="include\dsp++\vectmath.h" />
+    <ClInclude Include="include\dsp++\version.h" />
     <ClInclude Include="include\dsp++\window.h" />
     <ClInclude Include="include\dsp++\xcorr.h" />
     <ClInclude Include="include\dsp++\zeropole.h" />
@@ -435,6 +436,7 @@
     <ClInclude Include="src\utility.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="CMakeLists.txt" />
     <None Include="doxyfile" />
   </ItemGroup>
   <ItemGroup>
