@@ -6,6 +6,11 @@ CXXFLAGS=$(CFLAGS)
 LIBS = -lfftw3 -lfftw3_threads -lfftw3f -lfftw3f_threads -lfftw3l -lfftw3l_threads \
 	-lsndfile
 
+LIBDIR.x86_64 = lib64
+LIBDIR.i386 = lib
+MACHINE := $(shell uname -m)
+LIBDIR = $(LIBDIR.$(MACHINE))
+
 ifeq ($(OS),Windows_NT)
 EXT := .dll
 else
@@ -53,24 +58,26 @@ docs: doxyfile
 	doxygen doxyfile
 
 uninstall:
-	rm -f $(PREFIX)/lib/$(PRODUCT)
-	rm -rf $(PREFIX)/include/dsp++
-	rm -rf $(PREFIX)/share/doc/dsp++/html
+	-rm $(PREFIX)/$(LIBDIR)/$(PRODUCT)
+	-rm -r $(PREFIX)/include/dsp++
+	-rm -r $(PREFIX)/share/doc/dsp++/html
 
 install: all docs
-	cp $(PRODUCT) $(PREFIX)/lib/$(PRODUCT)
+	mkdir -p $(PREFIX)/$(LIBDIR)
+	cp $(PRODUCT) $(PREFIX)/$(LIBDIR)/$(PRODUCT)
+	mkdir -p $(PREFIX)/include
 	cp -r include/dsp++ $(PREFIX)/include/dsp++
 	mkdir -p $(PREFIX)/share/doc/dsp++
 	cp -r doc/html $(PREFIX)/share/doc/dsp++/html
 
 clean:
-	rm -f $(OBJ)
+	-rm $(OBJ)
 
 clean-docs:
-	rm -rf doc
+	-rm -r doc
 
 clean-all: clean clean-docs
-	rm -f $(PRODUCT)
+	-rm $(PRODUCT)
 
 	
 

@@ -133,9 +133,9 @@ private:
 		const Sample zero = Sample();
 		Sample* xx = x_begin();
 		Sample* yy = y_begin();
-		if (NULL != x && static_cast<const void*>(&(**x)) != xx) std::copy_n(*x, M_, xx);
+		if (NULL != x && static_cast<const void*>(&(**x)) != xx) dsp::copy_n(*x, M_, xx);
 		std::fill_n(xx + M_, N_ - M_, zero);
-		if (NULL != y && static_cast<const void*>(&(**y)) != yy) std::copy_n(*y, L_, yy);
+		if (NULL != y && static_cast<const void*>(&(**y)) != yy) dsp::copy_n(*y, L_, yy);
 
 		real_t sumx = real_t(), sumy = real_t();
 		dft_(xx, X_.get());
