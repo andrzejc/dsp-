@@ -1,3 +1,4 @@
+PREFIX=/usr/local
 CXX=g++
 CFLAGS=-DDSPXX_EXPORTS -DNDEBUG -fvisibility=hidden -I./include -fPIC -std=gnu++11 -O2
 CXXFLAGS=$(CFLAGS)
@@ -46,9 +47,30 @@ src/arch/x86/sse41.o: src/arch/x86/sse41.cpp
 $(PRODUCT): $(OBJ)
 	$(CXX) -shared -o $@ $^ $(CXXFLAGS) $(LIBS)
 
-.PHONY: clean
+.PHONY: clean docs install uninstall clean-docs clean-all all
+
+docs: doxyfile
+	doxygen doxyfile
+
+uninstall:
+	rm -f $(PREFIX)/lib/$(PRODUCT)
+	rm -rf $(PREFIX)/include/dsp++
+	rm -rf $(PREFIX)/share/doc/dsp++/html
+
+install: all docs
+	cp $(PRODUCT) $(PREFIX)/lib/$(PRODUCT)
+	cp -r include/dsp++ $(PREFIX)/include/dsp++
+	mkdir -p $(PREFIX)/share/doc/dsp++
+	cp -r doc/html $(PREFIX)/share/doc/dsp++/html
 
 clean:
 	rm -f $(OBJ)
 
+clean-docs:
+	rm -rf doc
+
+clean-all: clean clean-docs
+	rm -f $(PRODUCT)
+
+	
 
