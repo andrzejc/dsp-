@@ -391,7 +391,7 @@ window<Result>* create_hann(size_t length, window_type type = symmetric)
 template<class Result>
 struct blackman: public window_function<Result>
 {
-#if DSP_CONFORM_CPP0X
+#if DSP_CXX_CONFORM_CXX11
 	//! Default value of alpha parameter.
 	static constexpr  Result alpha_default = DSP_WND_BLACKMAN_ALPHA_DEFAULT;
 #endif // DSP_CONFORM_CPP0X
@@ -571,7 +571,7 @@ window<Result>* create_triang(size_t length, window_type type = symmetric)
 template<class Result>
 struct gausswin: public window_function<Result>
 {
-#if DSP_CONFORM_CPP0X
+#if DSP_CXX_CONFORM_CXX11
 	//! @brief Default value of @f$\sigma@f$ parameter.
 	static constexpr Result sigma_default = DSP_WND_GAUSSWIN_SIGMA_DEFAULT;
 #endif 
@@ -627,7 +627,7 @@ window<Result>* create_gausswin(size_t length, window_type type = symmetric,
 template<class Result>
 struct kaiser: public window_function<Result>
 {
-#if DSP_CONFORM_CPP0X
+#if DSP_CXX_CONFORM_CXX11
 	//! Default value of @f$\alpha@f$ parameter.
 	static constexpr Result alpha_default = DSP_WND_KAISER_ALPHA_DEFAULT;
 #endif

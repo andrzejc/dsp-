@@ -11,12 +11,20 @@
 #include <iterator>
 #include <cassert>
 
+#ifndef DSP_BOOST_CONCEPT_CHECKS_DISABLED
+#include <boost/concept_check.hpp>
+#endif // DSP_BOOST_CONCEPT_CHECKS_DISABLED
+
 namespace dsp {
 
 template<class Iter>
 class stride_iterator
 {
+#ifndef DSP_BOOST_CONCEPT_CHECKS_DISABLED
+	BOOST_CONCEPT_ASSERT((boost::InputIterator<Iter>));
+#endif // DSP_BOOST_CONCEPT_CHECKS_DISABLED
 public:
+
 	typedef typename std::iterator_traits<Iter>::value_type value_type;
 	typedef typename std::iterator_traits<Iter>::reference reference;
 	typedef typename std::iterator_traits<Iter>::pointer pointer;
@@ -97,7 +105,7 @@ inline stride_iterator<Iter> make_stride(Iter it, typename stride_iterator<Iter>
 template<typename Iter>
 inline stride_iterator<Iter> make_stride(Iter it, typename stride_iterator<Iter>::difference_type stride, typename stride_iterator<Iter>::difference_type offset)
 {
-	using std::advance;
+	using namespace std;
 	advance(it, offset);
 	return stride_iterator<Iter>(it, stride);
 }
@@ -105,7 +113,7 @@ inline stride_iterator<Iter> make_stride(Iter it, typename stride_iterator<Iter>
 template<typename Iter>
 inline stride_iterator<Iter> make_stride(Iter it, typename stride_iterator<Iter>::difference_type stride, typename stride_iterator<Iter>::difference_type offset, typename stride_iterator<Iter>::difference_type index)
 {
-	using std::advance;
+	using namespace std;
 	advance(it, offset + index * stride);
 	return stride_iterator<Iter>(it, stride);
 }

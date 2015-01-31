@@ -7,13 +7,15 @@
 #ifndef DSP_DFT_H_INCLUDED
 #define DSP_DFT_H_INCLUDED
 
+#include <dsp++/compat/enum_class.h>
+
 namespace dsp { 
 
 //! @brief Discrete Fourier Transform (DFT) tools
 namespace dft {
 
 //! @brief Constants specifying DFT transform direction/exponent sign
-namespace sign {enum spec {
+enum_class(sign) {
 	/*!
 	 * @brief Sign of exponent for forward DFT transform (-1).
 	 * @see FFTW_FORWARD
@@ -24,7 +26,7 @@ namespace sign {enum spec {
 	 * @see FFTW_BACKWARD
 	 */
 	backward = 1
-};}
+}; enum_class_end
 
 }} // namespace dsp::dft
 

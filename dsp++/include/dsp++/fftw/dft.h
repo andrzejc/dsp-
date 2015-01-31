@@ -8,6 +8,7 @@
 #define DSP_FFTW_DFT_H_INCLUDED
 
 #include <dsp++/config.h>
+#include <dsp++/compat.h>
 
 #if !DSP_FFTW_DISABLED
 
@@ -24,8 +25,7 @@ namespace dsp { namespace dft { namespace fftw {
 	 * This is a direct mapping of libfftw3 @c FFTW_* flags with validation
 	 * performed through @c BOOST_STATIC_ASSERT() in traits.cpp.
 	 */
-	namespace flag { enum spec
-	{
+	namespace flag { enum spec {
 		measure = (0U),
 		destroy_input = (1U << 0),
 		unaligned = (1U << 1),
@@ -148,7 +148,7 @@ namespace dsp { namespace dft { namespace fftw {
 
 
 		dft(size_t rank, const unsigned* n, input_type* in, output_type* out, unsigned flags = 0);
-		dft(size_t n, input_type* in, output_type* out, sign::spec, unsigned flags = 0); //!< For compatibility with dsp::dft::fft
+		dft(size_t n, input_type* in, output_type* out, enum_class_ref(sign), unsigned flags = 0); //!< For compatibility with dsp::dft::fft
 		dft(size_t n, input_type* in, output_type* out, unsigned flags = 0);
 		dft(size_t n0, size_t n1, input_type* in, output_type* out, unsigned flags = 0);
 		dft(size_t n0, size_t n1, size_t n2, input_type* in, output_type* out, unsigned flags = 0);
@@ -237,7 +237,7 @@ namespace dsp { namespace dft { namespace fftw {
 		 :	base_type(traits_type::plan_dft_r2c_1d(n, in, out, flags), n) {}
 		//!Compatibility constructor for use as an alternative to dsp::dft::fft
 		//!@see fftw_plan_dft_r2c_1d()
-		dft(size_t n, input_type* in, output_type* out, sign::spec, unsigned flags = 0)
+		dft(size_t n, input_type* in, output_type* out, enum_class_ref(sign), unsigned flags = 0)
 		 :	base_type(traits_type::plan_dft_r2c_1d(n, in, out, flags), n) {}
 		//!@see fftw_plan_dft_r2c_2d()
 		dft(size_t n0, size_t n1, input_type* in, output_type* out, unsigned flags = 0)
@@ -287,7 +287,7 @@ namespace dsp { namespace dft { namespace fftw {
 		 :	base_type(traits_type::plan_dft_c2r_1d(n, in, out, flags), n) {}
 		//!Compatibility constructor for use as an alternative to dsp::dft::fft
 		//!@see fftw_plan_dft_c2r_1d()
-		dft(size_t n, input_type* in, output_type* out, sign::spec, unsigned flags = 0)
+		dft(size_t n, input_type* in, output_type* out, enum_class_ref(sign), unsigned flags = 0)
 		 :	base_type(traits_type::plan_dft_c2r_1d(n, in, out, flags), n) {}
 		//!@see fftw_plan_dft_c2r_2d()
 		dft(size_t n0, size_t n1, input_type* in, output_type* out, unsigned flags = 0)
@@ -330,20 +330,20 @@ namespace dsp { namespace dft { namespace fftw {
 		typedef dft<input_type, output_type> this_type;
 
 		//!@see fftw_plan_dft()
-		dft(size_t rank, const unsigned* n, input_type* in, output_type* out, sign::spec sign, unsigned flags = 0)
+		dft(size_t rank, const unsigned* n, input_type* in, output_type* out, enum_class_ref(sign) sign, unsigned flags = 0)
 		 :	base_type(traits_type::plan_dft(rank, n, in, out, sign, flags), base_type::find_size_1d(rank, n)) {}
 		//!@see fftw_plan_dft_1d()
-		dft(size_t n, input_type* in, output_type* out, sign::spec sign = sign::forward, unsigned flags = 0)
+		dft(size_t n, input_type* in, output_type* out, enum_class_ref(sign) sign = sign::forward, unsigned flags = 0)
 		 :	base_type(traits_type::plan_dft_1d(n, in, out, sign, flags), n) {}
 		//!@see fftw_plan_dft_2d()
-		dft(size_t n0, size_t n1, input_type* in, output_type* out, sign::spec sign, unsigned flags = 0)
+		dft(size_t n0, size_t n1, input_type* in, output_type* out, enum_class_ref(sign) sign, unsigned flags = 0)
 		 :	base_type(traits_type::plan_dft_2d(n0, n1, in, out, sign, flags)) {}
 		//!@see fftw_plan_dft_3d()
-		dft(size_t n0, size_t n1, size_t n2, input_type* in, output_type* out, sign::spec sign, unsigned flags = 0)
+		dft(size_t n0, size_t n1, size_t n2, input_type* in, output_type* out, enum_class_ref(sign) sign, unsigned flags = 0)
 		 :	base_type(traits_type::plan_dft_3d(n0, n1, n2, in, out, sign, flags)) {}
 		//!@see fftw_plan_many_dft()
 		dft(size_t rank, const unsigned* n, size_t howmany, input_type* in, const int* inembed, int istride, int idist,
-				output_type* out, const int* onembed, int ostride, int odist, sign::spec sign, unsigned flags = 0)
+				output_type* out, const int* onembed, int ostride, int odist, enum_class_ref(sign) sign, unsigned flags = 0)
 		 :	base_type(traits_type::plan_many_dft(rank, n, howmany, in, inembed, istride, idist,
 				 out, onembed, ostride, odist, sign, flags), base_type::find_size_1d(rank, n)) {}
 

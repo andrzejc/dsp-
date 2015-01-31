@@ -8,11 +8,18 @@
 #define DSP_SND_BUFFER_H_INCLUDED
 
 #include <dsp++/export.h>
+#include <dsp++/config.h>
+#include <dsp++/stride_iterator.h>
+
+#ifndef DSP_BOOST_CONCEPT_CHECKS_DISABLED
+#include <boost/concept_check.hpp>
+#endif // DSP_BOOST_CONCEPT_CHECKS_DISABLED
 
 namespace dsp { namespace snd {
 
 //! @brief Describes layout of samples/channels in a memory buffer.
-struct buffer_layout {
+struct buffer_layout 
+{
 	buffer_layout(unsigned ss, unsigned cs): sample_stride(ss), channel_stride(cs) {}
 
 	unsigned sample_stride;			//!< Byte offset between first bytes of consecutive samples belonging to single channel.
@@ -41,7 +48,8 @@ namespace simple_buffer_layout { enum selector {
 	interleaved
 }; } // namespace simple_buffer_layout
 
-struct buffer_info: public buffer_layout {
+struct buffer_info: public buffer_layout 
+{
 	unsigned channel_count;		//!< Number of channels stored in buffer
 	unsigned length;			//!< Buffer length in frames (number of samples in each channel)
 	
@@ -78,13 +86,19 @@ struct buffer_info: public buffer_layout {
 
 // TODO rewrite functions below using stride_iterator for consistency
 
-template<class Sample>
-void buffer_deinterleave(const Sample* input, Sample* output, const unsigned channel_count, const unsigned frame_count) {
-	for (unsigned c = 0; c < channel_count; ++c) {
-		const Sample* in = input + c;
-		for (unsigned i = 0; i < frame_count; ++i, in += channel_count, ++output) 
-			*output = *in;
-	}
+template<class InputIterator, class OutputIterator>
+#ifndef DSP_BOOST_CONCEPT_CHECKS_DISABLED
+	BOOST_CONCEPT_REQUIRES(
+		((boost::InputIterator<InputIterator>))
+		((boost::OutputIterator<OutputIterator>)),
+		(void))
+#else // DSP_BOOST_CONCEPT_CHECKS_DISABLED
+	void
+#endif // DSP_BOOST_CONCEPT_CHECKS_DISABLED
+buffer_deinterleave(InputIterator input, OutputIterator output, const unsigned channel_count, const unsigned frame_count) 
+{
+	for (unsigned c = 0; c < channel_count; ++c)
+		output = std::copy(dsp::make_stride(input, channel_count, c), dsp::make_stride(input, channel_count, c, frame_count), output);
 }
 
 template<class Sample>
@@ -108,7 +122,15 @@ void mixdown_interleaved(const Sample* input, Sample* output, const unsigned cha
 }
 
 template<class InputIterator, class OutputIterator> 
-void mixdown_interleaved(InputIterator begin, InputIterator end, OutputIterator dest, const unsigned channel_count) 
+#ifndef DSP_BOOST_CONCEPT_CHECKS_DISABLED
+BOOST_CONCEPT_REQUIRES(
+	((boost::InputIterator<InputIterator>))
+	((boost::OutputIterator<OutputIterator>)),
+	(void))
+#else // DSP_BOOST_CONCEPT_CHECKS_DISABLED
+void
+#endif // DSP_BOOST_CONCEPT_CHECKS_DISABLED
+mixdown_interleaved(InputIterator begin, InputIterator end, OutputIterator dest, const unsigned channel_count)
 {
 	if (1 == channel_count) 
 		std::copy(begin, end, dest);

@@ -372,6 +372,8 @@
     <ClInclude Include="include\dsp++\adaptfilt.h" />
     <ClInclude Include="include\dsp++\algorithm.h" />
     <ClInclude Include="include\dsp++\buffer.h" />
+    <ClInclude Include="include\dsp++\compat.h" />
+    <ClInclude Include="include\dsp++\compat\enum_class.h" />
     <ClInclude Include="include\dsp++\complex.h" />
     <ClInclude Include="include\dsp++\config.h" />
     <ClInclude Include="include\dsp++\const.h" />

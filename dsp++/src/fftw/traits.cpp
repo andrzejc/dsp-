@@ -56,18 +56,18 @@ namespace {
 	BOOST_STATIC_ASSERT(static_cast<int>(r2r::RODFT10) == FFTW_RODFT10);
 	BOOST_STATIC_ASSERT(static_cast<int>(r2r::RODFT11) == FFTW_RODFT11);
 
-	BOOST_STATIC_ASSERT(flag::measure == FFTW_MEASURE);
-	BOOST_STATIC_ASSERT(flag::destroy_input == FFTW_DESTROY_INPUT);
-	BOOST_STATIC_ASSERT(flag::unaligned == FFTW_UNALIGNED);
-	BOOST_STATIC_ASSERT(flag::conserve_memory == FFTW_CONSERVE_MEMORY);
-	BOOST_STATIC_ASSERT(flag::exhaustive == FFTW_EXHAUSTIVE);
-	BOOST_STATIC_ASSERT(flag::preserve_input == FFTW_PRESERVE_INPUT);
-	BOOST_STATIC_ASSERT(flag::patient == FFTW_PATIENT);
-	BOOST_STATIC_ASSERT(flag::estimate == FFTW_ESTIMATE);
-	BOOST_STATIC_ASSERT(flag::wisdom_only == FFTW_WISDOM_ONLY);
+	BOOST_STATIC_ASSERT(static_cast<int>(flag::measure) == FFTW_MEASURE);
+	BOOST_STATIC_ASSERT(static_cast<int>(flag::destroy_input) == FFTW_DESTROY_INPUT);
+	BOOST_STATIC_ASSERT(static_cast<int>(flag::unaligned) == FFTW_UNALIGNED);
+	BOOST_STATIC_ASSERT(static_cast<int>(flag::conserve_memory) == FFTW_CONSERVE_MEMORY);
+	BOOST_STATIC_ASSERT(static_cast<int>(flag::exhaustive) == FFTW_EXHAUSTIVE);
+	BOOST_STATIC_ASSERT(static_cast<int>(flag::preserve_input) == FFTW_PRESERVE_INPUT);
+	BOOST_STATIC_ASSERT(static_cast<int>(flag::patient) == FFTW_PATIENT);
+	BOOST_STATIC_ASSERT(static_cast<int>(flag::estimate) == FFTW_ESTIMATE);
+	BOOST_STATIC_ASSERT(static_cast<int>(flag::wisdom_only) == FFTW_WISDOM_ONLY);
 
-	BOOST_STATIC_ASSERT(dsp::dft::sign::forward == FFTW_FORWARD);
-	BOOST_STATIC_ASSERT(dsp::dft::sign::backward == FFTW_BACKWARD);
+	BOOST_STATIC_ASSERT(static_cast<int>(dsp::dft::sign::forward) == FFTW_FORWARD);
+	BOOST_STATIC_ASSERT(static_cast<int>(dsp::dft::sign::backward) == FFTW_BACKWARD);
 	BOOST_STATIC_ASSERT(sizeof(int) == sizeof(unsigned));	// unsigned is (unsigned int), so it must be the same size and it should be fine to cast unsigned/signed pointers too
 }
 
@@ -84,19 +84,19 @@ BOOST_STATIC_ASSERT(sizeof(dsp::dft::fftw::r2r::kind) == sizeof(MANGLE(prefix, r
 void traits<type>::execute(const plan_type p) {MANGLE(prefix, execute)(p);}\
 \
 traits<type>::plan_type traits<type>::plan_dft(size_t rank, const unsigned* n,\
-		    complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags)\
+		    complex_type* in, complex_type* out, dsp::dft::enum_class_ref(sign) sign, unsigned flags)\
 {return MANGLE(prefix, plan_dft)(INT(rank), CPINT(n), COMPLEX_CAST(prefix, in), COMPLEX_CAST(prefix, out), sign, flags);}\
 \
-traits<type>::plan_type traits<type>::plan_dft_1d(size_t n, complex_type* in, complex_type* out, dsp::dft::sign::spec sign,\
+traits<type>::plan_type traits<type>::plan_dft_1d(size_t n, complex_type* in, complex_type* out, dsp::dft::enum_class_ref(sign) sign,\
 		       unsigned flags)\
 {return MANGLE(prefix, plan_dft_1d)(INT(n), COMPLEX_CAST(prefix, in), COMPLEX_CAST(prefix, out), sign, flags);}\
 \
 traits<type>::plan_type traits<type>::plan_dft_2d(size_t n0, size_t n1,\
-		       complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags)\
+		       complex_type* in, complex_type* out, dsp::dft::enum_class_ref(sign) sign, unsigned flags)\
 {return MANGLE(prefix, plan_dft_2d)(INT(n0), INT(n1), COMPLEX_CAST(prefix, in), COMPLEX_CAST(prefix, out), sign, flags);}\
 \
 traits<type>::plan_type traits<type>::plan_dft_3d(size_t n0, size_t n1, size_t n2,\
-		       complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags)\
+		       complex_type* in, complex_type* out, dsp::dft::enum_class_ref(sign) sign, unsigned flags)\
 {return MANGLE(prefix, plan_dft_3d)(INT(n0), INT(n1), INT(n2), COMPLEX_CAST(prefix, in), COMPLEX_CAST(prefix, out), sign, flags);}\
 \
 traits<type>::plan_type traits<type>::plan_many_dft(size_t rank, const unsigned* n,\
@@ -105,14 +105,14 @@ traits<type>::plan_type traits<type>::plan_many_dft(size_t rank, const unsigned*
                          int istride, int idist,\
                          complex_type* out, const int* onembed,\
                          int ostride, int odist,\
-                         dsp::dft::sign::spec sign, unsigned flags)\
+                         dsp::dft::enum_class_ref(sign) sign, unsigned flags)\
 {return MANGLE(prefix, plan_many_dft)(INT(rank), CPINT(n), INT(howmany), COMPLEX_CAST(prefix, in), inembed, istride, idist, COMPLEX_CAST(prefix, out), onembed, ostride, odist, sign, flags);}\
 \
 traits<type>::plan_type traits<type>::plan_guru_dft(size_t rank, const fftw_iodim* dims,\
 			 size_t howmany_rank,\
 			 const fftw_iodim* howmany_dims,\
 			 complex_type* in, complex_type* out,\
-			 dsp::dft::sign::spec sign, unsigned flags)\
+			 dsp::dft::enum_class_ref(sign) sign, unsigned flags)\
 {return MANGLE(prefix, plan_guru_dft)(INT(rank), dims, INT(howmany_rank), howmany_dims, COMPLEX_CAST(prefix, in), COMPLEX_CAST(prefix, out), sign, flags);}\
 \
 traits<type>::plan_type traits<type>::plan_guru_split_dft(size_t rank, const fftw_iodim* dims,\
@@ -127,7 +127,7 @@ traits<type>::plan_type traits<type>::plan_guru64_dft(size_t rank,\
 			 size_t howmany_rank,\
 			 const fftw_iodim64* howmany_dims,\
 			 complex_type* in, complex_type* out,\
-			 dsp::dft::sign::spec sign, unsigned flags)\
+			 dsp::dft::enum_class_ref(sign) sign, unsigned flags)\
 {return MANGLE(prefix, plan_guru64_dft)(INT(rank), dims, INT(howmany_rank), howmany_dims, COMPLEX_CAST(prefix, in), COMPLEX_CAST(prefix, out), sign, flags);}\
 \
 traits<type>::plan_type traits<type>::plan_guru64_split_dft(size_t rank,\

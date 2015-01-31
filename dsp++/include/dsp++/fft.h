@@ -87,7 +87,7 @@ public:
 	 * @throw std::domain_error is thrown if N is not an integer power of 2.
 	 * @throw std::out_of_range is thrown if @f$N < 2@f$ or @f$N > 2^{28}@f$.
 	 */
-	fft(size_t N, input_type* input = NULL, output_type* output = NULL, sign::spec sign = sign::forward)
+	fft(size_t N, input_type* input = NULL, output_type* output = NULL, enum_class_ref(sign) sign = sign::forward)
 	 :	size_(N), input_(input), output_(output), sign_(sign)
 	 ,	impl_(&detail::fft_impl<Real>::get(N))
 	{}
@@ -126,7 +126,7 @@ private:
 	size_t size_;
 	input_type* input_;
 	output_type* output_;
-	sign::spec sign_;
+	enum_class_ref(sign) sign_;
 	const detail::fft_impl<Real>* impl_;
 	friend class fft<Real, complex<Real> >;
 	friend class fft<complex<Real>, Real >;
@@ -156,7 +156,7 @@ public:
 	 * @throw std::domain_error is thrown if N is not an integer power of 2.
 	 * @throw std::out_of_range is thrown if @f$N < 2@f$ or @f$N > 2^{28}@f$.
 	 */
-	fft(size_t N, input_type* input = NULL, output_type* output = NULL, sign::spec = sign::forward)
+	fft(size_t N, input_type* input = NULL, output_type* output = NULL, enum_class_ref(sign) = sign::forward)
 	 :	fft_(N, reinterpret_cast<typename fft_type::input_type*>(input), output, sign::forward)
 	{}
 
@@ -186,7 +186,7 @@ public:
 	//! @return the transform size (N in the equation above).
 	size_t size() const {return fft_.size();}
 private:
-	  fft_type fft_;
+	fft_type fft_;
 };
 
 /*!

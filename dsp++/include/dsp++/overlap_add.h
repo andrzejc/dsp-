@@ -104,7 +104,7 @@ public:
 #endif
 	set_impulse_response(Iterator begin, Iterator end)
 	{
-		size_t n = dsp::copy_at_most_n(begin, end, rbuf_, M_);
+		size_t n = dsp::copy_at_most_n(begin, end, M_, rbuf_);
 		std::fill_n(rbuf_ + n, N_ - n, value_type());
 		prepare_ir_dft(false);
 	}

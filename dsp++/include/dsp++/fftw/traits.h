@@ -85,14 +85,14 @@ namespace dft { namespace fftw {
 		static void execute(const plan_type p);
 
 		static plan_type plan_dft(size_t rank, const unsigned* n,
-				    complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags);
+				    complex_type* in, complex_type* out, dsp::dft::enum_class_ref(sign) sign, unsigned flags);
 
-		static plan_type plan_dft_1d(size_t n, complex_type* in, complex_type* out, dsp::dft::sign::spec sign,
+		static plan_type plan_dft_1d(size_t n, complex_type* in, complex_type* out, dsp::dft::enum_class_ref(sign) sign,
 				       unsigned flags);
 		static plan_type plan_dft_2d(size_t n0, size_t n1,
-				       complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags);
+				       complex_type* in, complex_type* out, dsp::dft::enum_class_ref(sign) sign, unsigned flags);
 		static plan_type plan_dft_3d(size_t n0, size_t n1, size_t n2,
-				       complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags);
+				       complex_type* in, complex_type* out, dsp::dft::enum_class_ref(sign) sign, unsigned flags);
 
 		static plan_type plan_many_dft(size_t rank, const unsigned* n,
 		                         size_t howmany,
@@ -100,13 +100,13 @@ namespace dft { namespace fftw {
 		                         int istride, int idist,
 		                         complex_type* out, const int* onembed,
 		                         int ostride, int odist,
-		                         dsp::dft::sign::spec sign, unsigned flags);
+		                         dsp::dft::enum_class_ref(sign) sign, unsigned flags);
 
 		static plan_type plan_guru_dft(size_t rank, const fftw_iodim* dims,
 					 size_t howmany_rank,
 					 const fftw_iodim* howmany_dims,
 					 complex_type* in, complex_type* out,
-					 dsp::dft::sign::spec sign, unsigned flags);
+					 dsp::dft::enum_class_ref(sign) sign, unsigned flags);
 		static plan_type plan_guru_split_dft(size_t rank, const fftw_iodim* dims,
 					 size_t howmany_rank,
 					 const fftw_iodim* howmany_dims,
@@ -118,7 +118,7 @@ namespace dft { namespace fftw {
 					 size_t howmany_rank,
 					 const fftw_iodim64* howmany_dims,
 					 complex_type* in, complex_type* out,
-					 dsp::dft::sign::spec sign, unsigned flags);
+					 dsp::dft::enum_class_ref(sign) sign, unsigned flags);
 		static plan_type plan_guru64_split_dft(size_t rank,
 		                         const fftw_iodim64* dims,
 					 size_t howmany_rank,
@@ -308,26 +308,26 @@ namespace dft { namespace fftw {
 
 		static void execute(const plan_type p);
 
-		static plan_type plan_dft(size_t rank, const unsigned* n, complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags);
-		static plan_type plan_dft_1d(size_t n, complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags);
-		static plan_type plan_dft_2d(size_t n0, size_t n1, complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags);
-		static plan_type plan_dft_3d(size_t n0, size_t n1, size_t n2, complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags);
+		static plan_type plan_dft(size_t rank, const unsigned* n, complex_type* in, complex_type* out, dsp::dft::enum_class_ref(sign) sign, unsigned flags);
+		static plan_type plan_dft_1d(size_t n, complex_type* in, complex_type* out, dsp::dft::enum_class_ref(sign) sign, unsigned flags);
+		static plan_type plan_dft_2d(size_t n0, size_t n1, complex_type* in, complex_type* out, dsp::dft::enum_class_ref(sign) sign, unsigned flags);
+		static plan_type plan_dft_3d(size_t n0, size_t n1, size_t n2, complex_type* in, complex_type* out, dsp::dft::enum_class_ref(sign) sign, unsigned flags);
 
 		static plan_type plan_many_dft(size_t rank, const unsigned* n, size_t howmany,
 		                         complex_type* in, const int* inembed, int istride, int idist,
 		                         complex_type* out, const int* onembed, int ostride, int odist,
-		                         dsp::dft::sign::spec sign, unsigned flags);
+		                         dsp::dft::enum_class_ref(sign) sign, unsigned flags);
 
 		static plan_type plan_guru_dft(size_t rank, const fftw_iodim* dims, size_t howmany_rank, const fftw_iodim* howmany_dims,
 					 complex_type* in, complex_type* out,
-					 dsp::dft::sign::spec sign, unsigned flags);
+					 dsp::dft::enum_class_ref(sign) sign, unsigned flags);
 		static plan_type plan_guru_split_dft(size_t rank, const fftw_iodim* dims, size_t howmany_rank, const fftw_iodim* howmany_dims,
 					 real_type* ri, real_type* ii, real_type* ro, real_type* io,
 					 unsigned flags);
 
 		static plan_type plan_guru64_dft(size_t rank, const fftw_iodim64* dims, size_t howmany_rank, const fftw_iodim64* howmany_dims,
 					 complex_type* in, complex_type* out,
-					 dsp::dft::sign::spec sign, unsigned flags);
+					 dsp::dft::enum_class_ref(sign) sign, unsigned flags);
 		static plan_type plan_guru64_split_dft(size_t rank, const fftw_iodim64* dims, size_t howmany_rank, const fftw_iodim64* howmany_dims,
 					 real_type* ri, real_type* ii, real_type* ro, real_type* io,
 					 unsigned flags);
@@ -516,14 +516,14 @@ namespace dft { namespace fftw {
 		static void execute(const plan_type p);
 
 		static plan_type plan_dft(size_t rank, const unsigned* n,
-				    complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags);
+				    complex_type* in, complex_type* out, dsp::dft::enum_class_ref(sign) sign, unsigned flags);
 
-		static plan_type plan_dft_1d(size_t n, complex_type* in, complex_type* out, dsp::dft::sign::spec sign,
+		static plan_type plan_dft_1d(size_t n, complex_type* in, complex_type* out, dsp::dft::enum_class_ref(sign) sign,
 				       unsigned flags);
 		static plan_type plan_dft_2d(size_t n0, size_t n1,
-				       complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags);
+				       complex_type* in, complex_type* out, dsp::dft::enum_class_ref(sign) sign, unsigned flags);
 		static plan_type plan_dft_3d(size_t n0, size_t n1, size_t n2,
-				       complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags);
+				       complex_type* in, complex_type* out, dsp::dft::enum_class_ref(sign) sign, unsigned flags);
 
 		static plan_type plan_many_dft(size_t rank, const unsigned* n,
 		                         size_t howmany,
@@ -531,13 +531,13 @@ namespace dft { namespace fftw {
 		                         int istride, int idist,
 		                         complex_type* out, const int* onembed,
 		                         int ostride, int odist,
-		                         dsp::dft::sign::spec sign, unsigned flags);
+		                         dsp::dft::enum_class_ref(sign) sign, unsigned flags);
 
 		static plan_type plan_guru_dft(size_t rank, const fftw_iodim* dims,
 					 size_t howmany_rank,
 					 const fftw_iodim* howmany_dims,
 					 complex_type* in, complex_type* out,
-					 dsp::dft::sign::spec sign, unsigned flags);
+					 dsp::dft::enum_class_ref(sign) sign, unsigned flags);
 		static plan_type plan_guru_split_dft(size_t rank, const fftw_iodim* dims,
 					 size_t howmany_rank,
 					 const fftw_iodim* howmany_dims,
@@ -549,7 +549,7 @@ namespace dft { namespace fftw {
 					 size_t howmany_rank,
 					 const fftw_iodim64* howmany_dims,
 					 complex_type* in, complex_type* out,
-					 dsp::dft::sign::spec sign, unsigned flags);
+					 dsp::dft::enum_class_ref(sign) sign, unsigned flags);
 		static plan_type plan_guru64_split_dft(size_t rank,
 		                         const fftw_iodim64* dims,
 					 size_t howmany_rank,
@@ -742,14 +742,14 @@ namespace dft { namespace fftw {
 		static void execute(const plan_type p);
 
 		static plan_type plan_dft(size_t rank, const unsigned* n,
-				    complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags);
+				    complex_type* in, complex_type* out, dsp::dft::enum_class_ref(sign) sign, unsigned flags);
 
-		static plan_type plan_dft_1d(size_t n, complex_type* in, complex_type* out, dsp::dft::sign::spec sign,
+		static plan_type plan_dft_1d(size_t n, complex_type* in, complex_type* out, dsp::dft::enum_class_ref(sign) sign,
 				       unsigned flags);
 		static plan_type plan_dft_2d(size_t n0, size_t n1,
-				       complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags);
+				       complex_type* in, complex_type* out, dsp::dft::enum_class_ref(sign) sign, unsigned flags);
 		static plan_type plan_dft_3d(size_t n0, size_t n1, size_t n2,
-				       complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags);
+				       complex_type* in, complex_type* out, dsp::dft::enum_class_ref(sign) sign, unsigned flags);
 
 		static plan_type plan_many_dft(size_t rank, const unsigned* n,
 		                         size_t howmany,
@@ -757,13 +757,13 @@ namespace dft { namespace fftw {
 		                         int istride, int idist,
 		                         complex_type* out, const int* onembed,
 		                         int ostride, int odist,
-		                         dsp::dft::sign::spec sign, unsigned flags);
+		                         dsp::dft::enum_class_ref(sign) sign, unsigned flags);
 
 		static plan_type plan_guru_dft(size_t rank, const fftw_iodim* dims,
 					 size_t howmany_rank,
 					 const fftw_iodim* howmany_dims,
 					 complex_type* in, complex_type* out,
-					 dsp::dft::sign::spec sign, unsigned flags);
+					 dsp::dft::enum_class_ref(sign) sign, unsigned flags);
 		static plan_type plan_guru_split_dft(size_t rank, const fftw_iodim* dims,
 					 size_t howmany_rank,
 					 const fftw_iodim* howmany_dims,
@@ -775,7 +775,7 @@ namespace dft { namespace fftw {
 					 size_t howmany_rank,
 					 const fftw_iodim64* howmany_dims,
 					 complex_type* in, complex_type* out,
-					 dsp::dft::sign::spec sign, unsigned flags);
+					 dsp::dft::enum_class_ref(sign) sign, unsigned flags);
 		static plan_type plan_guru64_split_dft(size_t rank,
 		                         const fftw_iodim64* dims,
 					 size_t howmany_rank,
@@ -969,14 +969,14 @@ namespace dft { namespace fftw {
 		static void execute(const plan_type p);
 
 		static plan_type plan_dft(size_t rank, const unsigned* n,
-				    complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags);
+				    complex_type* in, complex_type* out, dsp::dft::enum_class_ref(sign) sign, unsigned flags);
 
-		static plan_type plan_dft_1d(size_t n, complex_type* in, complex_type* out, dsp::dft::sign::spec sign,
+		static plan_type plan_dft_1d(size_t n, complex_type* in, complex_type* out, dsp::dft::enum_class_ref(sign) sign,
 				       unsigned flags);
 		static plan_type plan_dft_2d(size_t n0, size_t n1,
-				       complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags);
+				       complex_type* in, complex_type* out, dsp::dft::enum_class_ref(sign) sign, unsigned flags);
 		static plan_type plan_dft_3d(size_t n0, size_t n1, size_t n2,
-				       complex_type* in, complex_type* out, dsp::dft::sign::spec sign, unsigned flags);
+				       complex_type* in, complex_type* out, dsp::dft::enum_class_ref(sign) sign, unsigned flags);
 
 		static plan_type plan_many_dft(size_t rank, const unsigned* n,
 		                         size_t howmany,
@@ -984,13 +984,13 @@ namespace dft { namespace fftw {
 		                         int istride, int idist,
 		                         complex_type* out, const int* onembed,
 		                         int ostride, int odist,
-		                         dsp::dft::sign::spec sign, unsigned flags);
+		                         dsp::dft::enum_class_ref(sign) sign, unsigned flags);
 
 		static plan_type plan_guru_dft(size_t rank, const fftw_iodim* dims,
 					 size_t howmany_rank,
 					 const fftw_iodim* howmany_dims,
 					 complex_type* in, complex_type* out,
-					 dsp::dft::sign::spec sign, unsigned flags);
+					 dsp::dft::enum_class_ref(sign) sign, unsigned flags);
 		static plan_type plan_guru_split_dft(size_t rank, const fftw_iodim* dims,
 					 size_t howmany_rank,
 					 const fftw_iodim* howmany_dims,
@@ -1002,7 +1002,7 @@ namespace dft { namespace fftw {
 					 size_t howmany_rank,
 					 const fftw_iodim64* howmany_dims,
 					 complex_type* in, complex_type* out,
-					 dsp::dft::sign::spec sign, unsigned flags);
+					 dsp::dft::enum_class_ref(sign) sign, unsigned flags);
 		static plan_type plan_guru64_split_dft(size_t rank,
 		                         const fftw_iodim64* dims,
 					 size_t howmany_rank,

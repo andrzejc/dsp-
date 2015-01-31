@@ -104,7 +104,7 @@ public:
 		//    Change dynamic calculation to the static one
 		//      wtemp = sin(M_PI/N);
 		wtemp = -sin < N, 1, T > ::value();
-		wpr = static_cast<T>(-2.0) * wtemp * wtemp;
+		wpr = static_cast<T>(-2) * wtemp * wtemp;
 		//      wpi = -sin(2*M_PI/N);
 		wpi = -sin < N, 2, T > ::value();
 		wr = 1.0;
@@ -214,7 +214,7 @@ class fft_impl: public dsp::dft::detail::fft_impl<T>
 	}
 
 public:
-	void fft(std::complex<T>* in_out, dsp::dft::sign::spec sign) const
+	void fft(std::complex<T>* in_out, dsp::dft::enum_class_ref(sign) sign) const
 	{
 		if (dsp::dft::sign::backward == sign)
 			swap_real_imag(in_out);

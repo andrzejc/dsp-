@@ -31,17 +31,18 @@ namespace dsp {
  * @tparam OutputIterator type of the dest iterator, which must conform to output iterator concept
  * and its value type must be convertible to the value type of InputIterator.
  */
-template<class InputIterator, class OutputIterator> inline
+template<class InputIterator, class Size, class OutputIterator> inline
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 BOOST_CONCEPT_REQUIRES(((boost::InputIterator<InputIterator>))
-		((boost::OutputIterator<OutputIterator, typename std::iterator_traits<InputIterator>::value_type>)),
-		(size_t))
+		((boost::OutputIterator<OutputIterator, typename std::iterator_traits<InputIterator>::value_type>))
+		((boost::Integer<Size>)),
+		(Size))
 #else
-	size_t
+	Size
 #endif
-copy_at_most_n(InputIterator src_begin, InputIterator src_end, OutputIterator dest, size_t n)
+	copy_at_most_n(InputIterator src_begin, InputIterator src_end, Size n, OutputIterator dest)
 {
-	size_t i;
+	Size i;
 	for (i = 0; (i < n) && (src_begin != src_end); ++i, ++dest, ++src_begin)
 		*dest = *src_begin;
 	return i;
@@ -59,26 +60,21 @@ copy_at_most_n(InputIterator src_begin, InputIterator src_end, OutputIterator de
  * @tparam OutputIterator type of the dest iterator, which must conform to output iterator concept
  * and its value type must be convertible to the value type of InputIterator.
  */
-template<class InputIterator, class OutputIterator> inline
+template<class InputIterator, class Size, class OutputIterator> inline
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 BOOST_CONCEPT_REQUIRES(((boost::InputIterator<InputIterator>))
-		((boost::OutputIterator<OutputIterator, typename std::iterator_traits<InputIterator>::value_type>)),
+		((boost::OutputIterator<OutputIterator, typename std::iterator_traits<InputIterator>::value_type>))
+		((boost::Integer<Size>)),
 		(OutputIterator))
 #else
 	OutputIterator
 #endif
-copy_n(InputIterator src, size_t n, OutputIterator dest)
+copy_n(InputIterator src, Size n, OutputIterator dest)
 {
-	for (size_t i = 0; i < n; ++i, ++dest, ++src)
+	for (Size i = 0; i < n; ++i, ++dest, ++src)
 		*dest = *src;
 	return dest;
 }
-
-//template<class Sample> inline
-//void unwrap_transform(Sample* vec, size_t length)
-//{
-//	Sample*
-//}
 
 /*!
  * @brief Base class for simple, sample-based algorithms which work by transforming input samples into

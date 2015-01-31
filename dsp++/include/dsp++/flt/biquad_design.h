@@ -2,6 +2,7 @@
 #define DSP_FLT_BIQUAD_DESIGN_H_INCLUDED
 #pragma once
 #include <dsp++/export.h>
+#include <dsp++/compat/enum_class.h>
 #include <cstddef>
 
 namespace dsp {
@@ -11,7 +12,7 @@ namespace biquad {
 
 
 //! @brief Specifies type of biquad section to design with biquad_design().
-namespace type { enum spec
+enum_class(type) 
 {
 	lowpass,      //!< Lowpass biquad filter.
 	highpass,     //!< Highpass biquad filter.
@@ -21,7 +22,7 @@ namespace type { enum spec
 	peaking_eq,   //!< Peaking equalizer.
 	low_shelf_eq, //!< Low shelf equalizer.
 	high_shelf_eq,//!< High shelf equalizer.
-};}
+}; enum_class_end
 
 /*!
  * @brief Biquad section design.
@@ -35,7 +36,7 @@ namespace type { enum spec
 DSPXX_API void design(
 		double b[],				//!< [out] difference equation numerator (FIR) polynomial coefficients [3].
 		double a[], 			//!< [out] difference equation denominator (IIR) polynomial coefficients [3].
-		type::spec type, 		//!< [in] type of biquad section to design.
+		enum_class_ref(type) type,	//!< [in] type of biquad section to design.
 		double norm_freq,		//!< [in] normalized characteristic frequency of designed filter (@f$f_0/F_s@f$; center frequency, corner frequency, shelf midpoint frequency).
 		const double* gain_db, 	//!< [in] gain in dB, used only for peaking and shelving eq filters.
 		const double* q,		//!< [in] filter quality.

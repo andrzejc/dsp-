@@ -323,6 +323,12 @@
     <ClInclude Include="include\dsp++\version.h">
       <Filter>include\dsp++</Filter>
     </ClInclude>
+    <ClInclude Include="include\dsp++\compat.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\compat\enum_class.h">
+      <Filter>include\dsp++</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="doxyfile" />
