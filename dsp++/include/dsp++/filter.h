@@ -920,6 +920,22 @@ public:
 	ioport_ro<const_iterator> y;
 };
 
+template<class InputIterator, class OutputIterator, class BlockAlgorithm> inline 
+#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
+BOOST_CONCEPT_REQUIRES(
+	((boost::InputIterator<InputIterator>))
+	((boost::OutputIterator<OutputIterator, typename std::iterator_traits<typename BlockAlgorithm::const_iterator>::value_type>)), 
+	(void))
+#else
+void
+#endif
+process_block(InputIterator begin, InputIterator end, OutputIterator dest, BlockAlgorithm& algo)
+{
+	std::copy(begin, end, algo.x.begin());
+	algo();
+	std::copy(algo.y.begin(), algo.y.end(), dest);
+}
+
 }
 
 #endif /* DSP_FILTER_H_INCLUDED */
