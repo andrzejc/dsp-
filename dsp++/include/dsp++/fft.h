@@ -213,7 +213,7 @@ public:
 	 * @throw std::domain_error is thrown if N is not an integer power of 2.
 	 * @throw std::out_of_range is thrown if @f$N < 2@f$ or @f$N > 2^{28}@f$.
 	 */
-	fft(size_t N, input_type* input = NULL, output_type* output = NULL, int = sign::backward)
+	fft(size_t N, input_type* input = NULL, output_type* output = NULL, enum_class_ref(sign) = sign::backward)
 	 :	fft_(N, input, reinterpret_cast<complex<Real>*>(output), sign::backward)
 	{}
 
