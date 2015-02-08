@@ -85,19 +85,19 @@ void traits<type>::execute(const plan_type p) {MANGLE(prefix, execute)(p);}\
 \
 traits<type>::plan_type traits<type>::plan_dft(size_t rank, const unsigned* n,\
 		    complex_type* in, complex_type* out, dsp::dft::enum_class_ref(sign) sign, unsigned flags)\
-{return MANGLE(prefix, plan_dft)(INT(rank), CPINT(n), COMPLEX_CAST(prefix, in), COMPLEX_CAST(prefix, out), sign, flags);}\
+{return MANGLE(prefix, plan_dft)(INT(rank), CPINT(n), COMPLEX_CAST(prefix, in), COMPLEX_CAST(prefix, out), static_cast<int>(sign), flags);}\
 \
 traits<type>::plan_type traits<type>::plan_dft_1d(size_t n, complex_type* in, complex_type* out, dsp::dft::enum_class_ref(sign) sign,\
 		       unsigned flags)\
-{return MANGLE(prefix, plan_dft_1d)(INT(n), COMPLEX_CAST(prefix, in), COMPLEX_CAST(prefix, out), sign, flags);}\
+{return MANGLE(prefix, plan_dft_1d)(INT(n), COMPLEX_CAST(prefix, in), COMPLEX_CAST(prefix, out), static_cast<int>(sign), flags);}\
 \
 traits<type>::plan_type traits<type>::plan_dft_2d(size_t n0, size_t n1,\
 		       complex_type* in, complex_type* out, dsp::dft::enum_class_ref(sign) sign, unsigned flags)\
-{return MANGLE(prefix, plan_dft_2d)(INT(n0), INT(n1), COMPLEX_CAST(prefix, in), COMPLEX_CAST(prefix, out), sign, flags);}\
+{return MANGLE(prefix, plan_dft_2d)(INT(n0), INT(n1), COMPLEX_CAST(prefix, in), COMPLEX_CAST(prefix, out), static_cast<int>(sign), flags);}\
 \
 traits<type>::plan_type traits<type>::plan_dft_3d(size_t n0, size_t n1, size_t n2,\
 		       complex_type* in, complex_type* out, dsp::dft::enum_class_ref(sign) sign, unsigned flags)\
-{return MANGLE(prefix, plan_dft_3d)(INT(n0), INT(n1), INT(n2), COMPLEX_CAST(prefix, in), COMPLEX_CAST(prefix, out), sign, flags);}\
+{return MANGLE(prefix, plan_dft_3d)(INT(n0), INT(n1), INT(n2), COMPLEX_CAST(prefix, in), COMPLEX_CAST(prefix, out), static_cast<int>(sign), flags);}\
 \
 traits<type>::plan_type traits<type>::plan_many_dft(size_t rank, const unsigned* n,\
                          size_t howmany,\
@@ -106,14 +106,14 @@ traits<type>::plan_type traits<type>::plan_many_dft(size_t rank, const unsigned*
                          complex_type* out, const int* onembed,\
                          int ostride, int odist,\
                          dsp::dft::enum_class_ref(sign) sign, unsigned flags)\
-{return MANGLE(prefix, plan_many_dft)(INT(rank), CPINT(n), INT(howmany), COMPLEX_CAST(prefix, in), inembed, istride, idist, COMPLEX_CAST(prefix, out), onembed, ostride, odist, sign, flags);}\
+{return MANGLE(prefix, plan_many_dft)(INT(rank), CPINT(n), INT(howmany), COMPLEX_CAST(prefix, in), inembed, istride, idist, COMPLEX_CAST(prefix, out), onembed, ostride, odist, static_cast<int>(sign), flags);}\
 \
 traits<type>::plan_type traits<type>::plan_guru_dft(size_t rank, const fftw_iodim* dims,\
 			 size_t howmany_rank,\
 			 const fftw_iodim* howmany_dims,\
 			 complex_type* in, complex_type* out,\
 			 dsp::dft::enum_class_ref(sign) sign, unsigned flags)\
-{return MANGLE(prefix, plan_guru_dft)(INT(rank), dims, INT(howmany_rank), howmany_dims, COMPLEX_CAST(prefix, in), COMPLEX_CAST(prefix, out), sign, flags);}\
+{return MANGLE(prefix, plan_guru_dft)(INT(rank), dims, INT(howmany_rank), howmany_dims, COMPLEX_CAST(prefix, in), COMPLEX_CAST(prefix, out), static_cast<int>(sign), flags);}\
 \
 traits<type>::plan_type traits<type>::plan_guru_split_dft(size_t rank, const fftw_iodim* dims,\
 			 size_t howmany_rank,\
@@ -128,7 +128,7 @@ traits<type>::plan_type traits<type>::plan_guru64_dft(size_t rank,\
 			 const fftw_iodim64* howmany_dims,\
 			 complex_type* in, complex_type* out,\
 			 dsp::dft::enum_class_ref(sign) sign, unsigned flags)\
-{return MANGLE(prefix, plan_guru64_dft)(INT(rank), dims, INT(howmany_rank), howmany_dims, COMPLEX_CAST(prefix, in), COMPLEX_CAST(prefix, out), sign, flags);}\
+{return MANGLE(prefix, plan_guru64_dft)(INT(rank), dims, INT(howmany_rank), howmany_dims, COMPLEX_CAST(prefix, in), COMPLEX_CAST(prefix, out), static_cast<int>(sign), flags);}\
 \
 traits<type>::plan_type traits<type>::plan_guru64_split_dft(size_t rank,\
                          const fftw_iodim64* dims,\
