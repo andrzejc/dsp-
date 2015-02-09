@@ -46,6 +46,9 @@
     <Filter Include="include\dsp++\flt">
       <UniqueIdentifier>{24dfdb1c-da38-48ea-8559-9a3e1812b8e1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\dsp++\compat">
+      <UniqueIdentifier>{a2ca5107-b764-4ff2-8c93-27119646d61e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\fft.cpp">
@@ -327,7 +330,7 @@
       <Filter>include\dsp++</Filter>
     </ClInclude>
     <ClInclude Include="include\dsp++\compat\enum_class.h">
-      <Filter>include\dsp++</Filter>
+      <Filter>include\dsp++\compat</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

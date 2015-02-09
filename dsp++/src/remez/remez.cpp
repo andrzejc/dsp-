@@ -55,7 +55,7 @@ typedef enum remez_symmetry_e {
  * double W[]        - Weight function on the dense grid [gridsize]
  *******************/
 
-void CreateDenseGrid(int r, int numtaps, int numband, double bands[],
+void CreateDenseGrid(int r, const int numtaps, const int numband, double bands[],
 		const double des[], const double weight[], int *gridsize, double Grid[], double D[],
 		double W[], remez_symmetry symmetry, int grid_density) {
 	int i, j, k, band;
@@ -394,7 +394,7 @@ void Search(int r, int Ext[], int gridsize, double E[], int* foundExt) {
  * -------
  * double h[] - Impulse Response of final filter [N]
  *********************/
-void FreqSample(int N, double A[], double h[], remez_symmetry symm) {
+void FreqSample(const int N, double A[], double h[], remez_symmetry symm) {
 	int n, k;
 	double x, val, M;
 
@@ -495,9 +495,9 @@ short isDone(int r, int Ext[], double E[]) {
  * double h[]      - Impulse response of final filter [numtaps]
  ********************/
 
-int remez(double h[], int numtaps, int numband, double bands[], const double des[],
-		const double weight[], remez_filter_type type, int grid_density,
-		int max_iterations)
+int remez(double h[], const int numtaps, const int numband, double bands[], const double des[],
+	const double weight[], const remez_filter_type type, const int grid_density,
+	const int max_iterations)
 {
 	double *Grid, *W, *D, *E, *mem;
 	int i, iter, gridsize, r, *Ext, *imem, *foundExt;

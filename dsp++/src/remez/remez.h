@@ -63,9 +63,9 @@ typedef enum remez_filter_type_e remez_filter_type;
  * @retval REMEZ_WARNMAXITER if maximum iteration count was reached.
  * @retval REMEZ_ERRNOMEM if unable to allocate memory for internal arrays.
  */
-int remez(double h[], int numtaps,
-           int numband, double bands[], const double des[], const double weight[],
-           remez_filter_type type, int grid_density, int max_iterations);
+int remez(double h[], const int numtaps,
+           const int numband, double bands[], const double des[], const double weight[],
+           const remez_filter_type type, const int grid_density, const int max_iterations);
 
 #ifdef __cplusplus
 }

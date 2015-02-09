@@ -17,9 +17,13 @@ namespace pm {
 //! @brief Specifies type of the filter to design.
 enum_class(type)
 {
-	type_I_II,      //!< Ordinary (Type I or II) band-pass filter.
-	hilbert,		//!< Hilbert transformer (Type III).
-	differentiator	//!< Differentiator (Type IV).
+	symmetrical,    //!< Ordinary symmetrical (Type I or II) filter.
+	anti_symmetrical_odd,
+	type_III = anti_symmetrical_odd,
+	hilbert = anti_symmetrical_odd,	//!< Hilbert transformer (Type III).
+	anti_symmetrical_even,
+	type_IV = anti_symmetrical_even,
+	differentiator = anti_symmetrical_even	//!< Differentiator (Type IV).
 }; enum_class_end
 
 static const unsigned grid_density_default = 16;
@@ -40,7 +44,7 @@ DSPXX_API bool design(
 		const double amps[], 			//!< [in] amplitude characteristic at each band edge [band_count * 2].
 		const double weights[], 		//!< [in] error weights for each band [band_count].
 		double h[], 					//!< [out] designed filter impulse response [order + 1].
-		enum_class_ref(type) type = type::type_I_II, 	//!< [in] type of filter to design.
+		enum_class_ref(type) type = type::symmetrical, 	//!< [in] type of filter to design.
 		unsigned grid_density = grid_density_default, 		//!< [in] initial grid density.
 		unsigned max_iterations = max_iterations_default 	//!< [in] max iteration count.
 		);
