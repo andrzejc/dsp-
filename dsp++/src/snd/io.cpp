@@ -133,30 +133,30 @@ const file_type_entry file_types[] =
 };
 
 struct channel_map_entry {
-	channel::type::label our;
+	channel::location::label our;
 	int their;
 };
 
 const channel_map_entry channel_map[] =
 {
-	{channel::type::front_left, SF_CHANNEL_MAP_LEFT},
-	{channel::type::front_right, SF_CHANNEL_MAP_RIGHT},
-	{channel::type::front_center, SF_CHANNEL_MAP_CENTER},
-	{channel::type::lfe, SF_CHANNEL_MAP_LFE},
-	{channel::type::back_left, SF_CHANNEL_MAP_REAR_LEFT},
-	{channel::type::back_right, SF_CHANNEL_MAP_REAR_RIGHT},
-	{channel::type::front_left_center, SF_CHANNEL_MAP_FRONT_LEFT_OF_CENTER},
-	{channel::type::front_right_center, SF_CHANNEL_MAP_FRONT_RIGHT_OF_CENTER},
-	{channel::type::back_center, SF_CHANNEL_MAP_REAR_CENTER},
-	{channel::type::side_left, SF_CHANNEL_MAP_SIDE_LEFT},
-	{channel::type::side_right, SF_CHANNEL_MAP_SIDE_RIGHT},
-	{channel::type::top_center, SF_CHANNEL_MAP_TOP_CENTER},
-	{channel::type::top_front_left, SF_CHANNEL_MAP_TOP_FRONT_LEFT},
-	{channel::type::top_front_center, SF_CHANNEL_MAP_TOP_FRONT_CENTER},
-	{channel::type::top_front_right, SF_CHANNEL_MAP_TOP_FRONT_RIGHT},
-	{channel::type::top_back_left, SF_CHANNEL_MAP_TOP_REAR_LEFT},
-	{channel::type::top_back_center, SF_CHANNEL_MAP_TOP_REAR_CENTER},
-	{channel::type::top_back_right, SF_CHANNEL_MAP_TOP_REAR_RIGHT},
+	{channel::location::front_left, SF_CHANNEL_MAP_LEFT},
+	{channel::location::front_right, SF_CHANNEL_MAP_RIGHT},
+	{channel::location::front_center, SF_CHANNEL_MAP_CENTER},
+	{channel::location::lfe, SF_CHANNEL_MAP_LFE},
+	{channel::location::back_left, SF_CHANNEL_MAP_REAR_LEFT},
+	{channel::location::back_right, SF_CHANNEL_MAP_REAR_RIGHT},
+	{channel::location::front_left_center, SF_CHANNEL_MAP_FRONT_LEFT_OF_CENTER},
+	{channel::location::front_right_center, SF_CHANNEL_MAP_FRONT_RIGHT_OF_CENTER},
+	{channel::location::back_center, SF_CHANNEL_MAP_REAR_CENTER},
+	{channel::location::side_left, SF_CHANNEL_MAP_SIDE_LEFT},
+	{channel::location::side_right, SF_CHANNEL_MAP_SIDE_RIGHT},
+	{channel::location::top_center, SF_CHANNEL_MAP_TOP_CENTER},
+	{channel::location::top_front_left, SF_CHANNEL_MAP_TOP_FRONT_LEFT},
+	{channel::location::top_front_center, SF_CHANNEL_MAP_TOP_FRONT_CENTER},
+	{channel::location::top_front_right, SF_CHANNEL_MAP_TOP_FRONT_RIGHT},
+	{channel::location::top_back_left, SF_CHANNEL_MAP_TOP_REAR_LEFT},
+	{channel::location::top_back_center, SF_CHANNEL_MAP_TOP_REAR_CENTER},
+	{channel::location::top_back_right, SF_CHANNEL_MAP_TOP_REAR_RIGHT},
 };
 
 static int map_format(const file_format& f)
@@ -302,7 +302,7 @@ struct dsp::snd::base_impl
 	{
 		boost::scoped_array<int> arr(new int[f.channel_count()]);
 		unsigned cc = 0;
-		for (int i = 0; i < channel::type::count_; ++i)
+		for (int i = 0; i < channel::location::count_; ++i)
 		{
 			if (!f.channel_layout().test(i))
 				continue;

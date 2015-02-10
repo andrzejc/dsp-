@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cerrno>
+#include <cctype>
 #include <algorithm>
 
 #include "../utility.h"
@@ -29,16 +30,32 @@ struct file_format_entry
 };
 
 const file_format_entry file_formats[] = {
-	{file_type::label::wav, "wav"},
-	{file_type::label::aiff, "aiff"},
-	{file_type::label::au, "au"},
-	{file_type::label::raw, "raw"},
-	{file_type::label::wav64, "w64"},
-	{file_type::label::matlab4, "mat"},
-	{file_type::label::matlab5, "mat"},
-	{file_type::label::flac, "flac"},
-	{file_type::label::core_audio, "caf"},
-	{file_type::label::ogg, "ogg"},
+	{ file_type::label::wav, "wav" },
+	{ file_type::label::aiff, "aiff" },
+	{ file_type::label::aiff, "aif" },
+	{ file_type::label::au, "au" },
+	{ file_type::label::au, "snd" },
+	{ file_type::label::raw, "raw" },
+	{ file_type::label::wav64, "w64" },
+	{ file_type::label::matlab5, "mat" },
+	{ file_type::label::matlab4, "mat" },
+	{ file_type::label::flac, "flac" },
+	{ file_type::label::core_audio, "caf" },
+	{ file_type::label::ogg, "oga" },
+	{ file_type::label::ogg, "ogg" },
+};
+
+const file_format_entry file_mime_types[] = {
+	{ file_type::label::wav, "vnd.wave" },
+	{ file_type::label::wav, "wav" },
+	{ file_type::label::wav, "wave" },
+	{ file_type::label::wav, "x-wav" },
+	{ file_type::label::aiff, "x-aiff" },
+	{ file_type::label::aiff, "aiff" },
+	{ file_type::label::au, "basic" },
+	{ file_type::label::flac, "x-flac" },
+	{ file_type::label::core_audio, "x-caf" },
+	{ file_type::label::ogg, "ogg" },
 };
 
 }
@@ -51,6 +68,8 @@ unsigned channel::config::default_for(unsigned cc) {
 	case 4: return s4_0_quadro;
 	case 5:	return s5_0;
 	case 6: return s5_1;
+	case 7:	return s7_0;
+	case 8: return s7_1;
 	default:
 		return mask::unknown;
 	}
@@ -68,12 +87,24 @@ const char* const file_type::for_extension(const char* ext)
 	return (NULL == e ? NULL : e->label);
 }
 
+const char* const file_type::mime_subtype_for(const char* label)
+{
+	const file_format_entry* const e = dsp::detail::match_element(file_mime_types, &file_format_entry::label, label);
+	return (NULL == e ? NULL : e->extension);
+}
+
+const char* const file_type::for_mime_subtype(const char* ext)
+{
+	const file_format_entry* const e = dsp::detail::match_element(file_mime_types, &file_format_entry::extension, ext);
+	return (NULL == e ? NULL : e->label);
+}
+
 sample::type::label sample::type_of(const char* sf)
 {
 	size_t len;
-	if (NULL == sf || 0 == (len = strlen(sf)))
+	if (NULL == sf || 0 == (len = std::strlen(sf)))
 		return type::unknown;
-	switch (tolower(*sf)) {
+	switch (std::tolower(*sf)) {
 	case 's':
 		return type::pcm_signed;
 	case 'u':
@@ -88,16 +119,16 @@ sample::type::label sample::type_of(const char* sf)
 unsigned sample::bit_size_of(const char* sf)
 {
 	size_t len;
-	if (NULL == sf || 0 == (len = strlen(sf)))
+	if (NULL == sf || 0 == (len = std::strlen(sf)))
 		return sample::size_unknown;
-	char type = tolower(*sf++);
+	int type = std::tolower(*sf++);
 	--len;
 	if ('s' != type && 'u' != type && 'f' != type)
 		return sample::size_unknown;
 	char* end;
 	int err = 0;
 	std::swap(err, errno);
-	unsigned long sz = strtoul(sf, &end, 10);
+	unsigned long sz = std::strtoul(sf, &end, 10);
 	std::swap(err, errno);
 	if (0 != err)
 		return sample::size_unknown;
@@ -145,7 +176,7 @@ format::format()
 
 const format format::format_audio_cd(sampling_rate_audio_cd, channel::config::stereo, dsp::snd::format_channel_mask, sample::label::s16);
 
-unsigned format::channel_index(channel::type::label ch) const
+unsigned format::channel_index(channel::location::label ch) const
 {
 	if (!is_channel_present(ch))
 		return channel::not_present;
