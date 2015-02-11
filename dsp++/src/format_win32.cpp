@@ -1,9 +1,10 @@
+#ifdef _WIN32
+
 #include <dsp++/snd/format.h>
 #include <stdexcept>
 
 using namespace dsp::snd;
 
-#ifdef _WIN32
 #include <windows.h>
 #include <mmreg.h>
 
