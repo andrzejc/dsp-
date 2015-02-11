@@ -182,27 +182,33 @@ enum format_tag_ {
 class DSPXX_API format
 {
 public:
-	/// @return Sample format as used by I/O functions or hardware interface.
-	const std::string& sample_format() const {return sample_format_;}
-
 	/// @return Channel layout in the form of bitset with specific @p channel::location flags set.
 	const channel::layout& channel_layout() const {return channel_layout_;}
 
 	/// @brief Set channel layout (overwrites channel count, which is inferred from the layout).
 	/// @param [in] cl bitset with appropriate @p channel::location flags set.
 	void set_channel_layout(const channel::layout& cl)
-	{channel_layout_ = cl; channel_count_ = static_cast<unsigned>(channel_layout_.count());}
+	{
+		channel_layout_ = cl; 
+		channel_count_ = static_cast<unsigned>(channel_layout_.count());
+	}
 
 	/// @brief Set channel layout based on channel masks (a combination of @p channel::mask flags); overwrites overwrites channel count, which is inferred from the layout.
 	/// @param [in] channel_mask channel layout mask.
 	void set_channel_config(unsigned channel_mask)
-	{channel_layout_ = channel::layout(static_cast<int>(channel_mask)); channel_count_ = static_cast<unsigned>(channel_layout_.count());}
+	{
+		channel_layout_ = channel::layout(channel_mask); 
+		channel_count_ = static_cast<unsigned>(channel_layout_.count());
+	}
 
 	/// @return @p true if specified @p channel::location identifier is present in this format's channel layout.
 	bool is_channel_present(channel::location::label ch) const {return channel_layout_.test(ch);}
 
 	void set_channel_present(channel::location::label ch, bool present = true)
-	{channel_layout_.set(ch, present); channel_count_ = static_cast<unsigned>(channel_layout_.count());}
+	{
+		channel_layout_.set(ch, present); 
+		channel_count_ = static_cast<unsigned>(channel_layout_.count());
+	}
 
 	/// @return Current channel layout mask as a combination of @p channel::mask flags.
 	unsigned channel_config() const {return static_cast<unsigned>(channel_layout_.to_ulong());}
@@ -213,21 +219,32 @@ public:
 	/// @return Number of channels defined by this format's layout.
 	unsigned channel_count() const {return channel_count_;}
 
+	/// @brief Set channel count; if channel count is changed, 
+	/// channel layout is reset to unknown (no channel location is set).
+	/// @param [in] cc number of channels to set.
+	void set_channel_count(unsigned cc) 
+	{
+		if (channel_count_ == cc) 
+			return;
+		channel_count_ = cc; 
+		channel_layout_.reset();
+	}
 
-	void set_channel_count(unsigned cc) {channel_count_ = cc;}
-
+	/// @return @p true it this format has valid (non-zero) number of channels set.
 	bool is_channel_count_set() const {return 0 != channel_count_;}
 
+	/// @return location of the channel at specified index.
 	channel::location::label channel_at(unsigned index) const;
 
 	unsigned sample_rate() const {return sample_rate_;}
+	void set_sample_rate(unsigned sr) { sample_rate_ = sr; }
+	bool is_sample_rate_set() const { return 0 != sample_rate_; }
 
-	unsigned sample_bits() const {return sample::bit_size_of(sample_format_.c_str());}
+	/// @return Sample format as used by I/O functions or hardware interface.
+	const std::string& sample_format() const { return sample_format_; }
+	void set_sample_format(const char* sf) { sample_format_ = sf; }
+	unsigned sample_bits() const { return sample::bit_size_of(sample_format_.c_str()); }
 	sample::type::label sample_type() const {return sample::type_of(sample_format_.c_str());}
-
-	void set_sample_format(const char* sf) {sample_format_ = sf;}
-	void set_sample_rate(unsigned sr) {sample_rate_ = sr;}
-	bool is_sample_rate_set() const {return 0 != sample_rate_;}
 
 	static const format format_audio_cd;
 
