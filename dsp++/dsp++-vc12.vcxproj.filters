@@ -49,6 +49,9 @@
     <Filter Include="include\dsp++\compat">
       <UniqueIdentifier>{a2ca5107-b764-4ff2-8c93-27119646d61e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\arch\arm">
+      <UniqueIdentifier>{a090aef1-f386-44c4-920f-bc08eee7e6ac}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\fft.cpp">
@@ -128,6 +131,9 @@
     </ClCompile>
     <ClCompile Include="src\flt_fs.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\arch\arm\cpu_arm.cpp">
+      <Filter>src\arch\arm</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

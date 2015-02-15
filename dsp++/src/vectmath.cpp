@@ -22,11 +22,11 @@ float dsp::simd::dot(const float* v0, const float* v1, size_t len)
 	if (false) noop();
 #ifdef DSP_ARCH_FAMILY_X86
 	// TODO uncomment SSE4.1 block in dsp::simd::dot() when x86_sse41_dotf() is optimized 
-	//else if (DSP_SIMD_FEATURES & dsp::simd::feat_x86_sse41)
+	//else if (DSP_SIMD_FEATURES & dsp::simd::feat::x86_sse41)
 	//	return x86_sse41_dotf(v0, v1, len);
-	else if (DSP_SIMD_FEATURES & dsp::simd::feat_x86_sse3)
+	else if (DSP_SIMD_FEATURES & dsp::simd::feat::x86_sse3)
 		return x86_sse3_dotf(v0, v1, len);
-	else if (DSP_SIMD_FEATURES & dsp::simd::feat_x86_sse)
+	else if (DSP_SIMD_FEATURES & dsp::simd::feat::x86_sse)
 		return x86_sse_dotf(v0, v1, len);
 #endif // DSP_ARCH_FAMILY_X86
 
@@ -37,7 +37,7 @@ std::complex<float> dsp::simd::dot(const std::complex<float>* a, const std::comp
 {
 	if (false) noop();
 #ifdef DSP_ARCH_FAMILY_X86
-	else if (DSP_SIMD_FEATURES & dsp::simd::feat_x86_sse)
+	else if (DSP_SIMD_FEATURES & dsp::simd::feat::x86_sse)
 		return x86_sse_dotcf(a, b, len);
 #endif // DSP_ARCH_FAMILY_X86
 
@@ -49,7 +49,7 @@ void dsp::simd::mul(float* res, const float* a, const float* b, size_t len)
 {
 	if (false) noop();
 #ifdef DSP_ARCH_FAMILY_X86
-	else if (DSP_SIMD_FEATURES & dsp::simd::feat_x86_sse)
+	else if (DSP_SIMD_FEATURES & dsp::simd::feat::x86_sse)
 		x86_sse_mulf(res, a, b, len);
 #endif // DSP_ARCH_FAMILY_X86
 
@@ -60,7 +60,7 @@ void dsp::simd::mul(float* res, const float* a, float s, size_t len)
 {
 	if (false) noop();
 #ifdef DSP_ARCH_FAMILY_X86
-	else if (DSP_SIMD_FEATURES & dsp::simd::feat_x86_sse)
+	else if (DSP_SIMD_FEATURES & dsp::simd::feat::x86_sse)
 		x86_sse_mulf(res, a, s, len);
 #endif // DSP_ARCH_FAMILY_X86
 
@@ -71,7 +71,7 @@ void dsp::simd::div(float* res, const float* a, const float* b, size_t len)
 {
 	if (false) noop();
 #ifdef DSP_ARCH_FAMILY_X86
-	else if (DSP_SIMD_FEATURES & dsp::simd::feat_x86_sse)
+	else if (DSP_SIMD_FEATURES & dsp::simd::feat::x86_sse)
 		x86_sse_divf(res, a, b, len);
 #endif // DSP_ARCH_FAMILY_X86
 
@@ -82,7 +82,7 @@ void dsp::simd::div(float* res, const float* a, float s, size_t len)
 {
 	if (false) noop();
 #ifdef DSP_ARCH_FAMILY_X86
-	else if (DSP_SIMD_FEATURES & dsp::simd::feat_x86_sse)
+	else if (DSP_SIMD_FEATURES & dsp::simd::feat::x86_sse)
 		x86_sse_divf(res, a, s, len);
 #endif // DSP_ARCH_FAMILY_X86
 
@@ -93,7 +93,7 @@ void dsp::simd::add(float* res, const float* a, const float* b, size_t len)
 {
 	if (false) noop();
 #ifdef DSP_ARCH_FAMILY_X86
-	else if (DSP_SIMD_FEATURES & dsp::simd::feat_x86_sse)
+	else if (DSP_SIMD_FEATURES & dsp::simd::feat::x86_sse)
 		x86_sse_addf(res, a, b, len);
 #endif // DSP_ARCH_FAMILY_X86
 
@@ -104,7 +104,7 @@ void dsp::simd::add(float* res, const float* a, float s, size_t len)
 {
 	if (false) noop();
 #ifdef DSP_ARCH_FAMILY_X86
-	else if (DSP_SIMD_FEATURES & dsp::simd::feat_x86_sse)
+	else if (DSP_SIMD_FEATURES & dsp::simd::feat::x86_sse)
 		x86_sse_addf(res, a, s, len);
 #endif // DSP_ARCH_FAMILY_X86
 
@@ -115,7 +115,7 @@ void dsp::simd::sub(float* res, const float* a, const float* b, size_t len)
 {
 	if (false) noop();
 #ifdef DSP_ARCH_FAMILY_X86
-	else if (DSP_SIMD_FEATURES & dsp::simd::feat_x86_sse)
+	else if (DSP_SIMD_FEATURES & dsp::simd::feat::x86_sse)
 		x86_sse_subf(res, a, b, len);
 #endif // DSP_ARCH_FAMILY_X86
 
@@ -126,7 +126,7 @@ void dsp::simd::sub(float* res, const float* a, float s, size_t len)
 {
 	if (false) noop();
 #ifdef DSP_ARCH_FAMILY_X86
-	else if (DSP_SIMD_FEATURES & dsp::simd::feat_x86_sse)
+	else if (DSP_SIMD_FEATURES & dsp::simd::feat::x86_sse)
 		x86_sse_subf(res, a, s, len);
 #endif // DSP_ARCH_FAMILY_X86
 
@@ -137,7 +137,7 @@ void dsp::simd::mul(std::complex<float>* res, const std::complex<float>* a, cons
 {
 	if (false) noop();
 #ifdef DSP_ARCH_FAMILY_X86
-	else if (DSP_SIMD_FEATURES & dsp::simd::feat_x86_sse)
+	else if (DSP_SIMD_FEATURES & dsp::simd::feat::x86_sse)
 		x86_sse_mulcf(res, a, b, len);
 #endif // DSP_ARCH_FAMILY_X86
 
@@ -148,7 +148,7 @@ void dsp::simd::sqrt(float* res, const float* a, size_t len)
 {
 	if (false) noop();
 #ifdef DSP_ARCH_FAMILY_X86
-	else if (DSP_SIMD_FEATURES & dsp::simd::feat_x86_sse)
+	else if (DSP_SIMD_FEATURES & dsp::simd::feat::x86_sse)
 		x86_sse_sqrtf(res, a, len);
 #endif // DSP_ARCH_FAMILY_X86
 
@@ -159,7 +159,7 @@ void dsp::simd::recip(float* res, const float* a, size_t len)
 {
 	if (false) noop();
 #ifdef DSP_ARCH_FAMILY_X86
-	else if (DSP_SIMD_FEATURES & dsp::simd::feat_x86_sse)
+	else if (DSP_SIMD_FEATURES & dsp::simd::feat::x86_sse)
 		x86_sse_rcpf(res, a, len);
 #endif // DSP_ARCH_FAMILY_X86
 
@@ -170,7 +170,7 @@ void dsp::simd::rsqrt(float* res, const float* a, size_t len)
 {
 	if (false) noop();
 #ifdef DSP_ARCH_FAMILY_X86
-	else if (DSP_SIMD_FEATURES & dsp::simd::feat_x86_sse)
+	else if (DSP_SIMD_FEATURES & dsp::simd::feat::x86_sse)
 		x86_sse_rsqrtf(res, a, len);
 #endif // DSP_ARCH_FAMILY_X86
 

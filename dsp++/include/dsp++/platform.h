@@ -31,6 +31,12 @@
 # define DSP_ARCH_X86_64
 # define DSP_ARCH_FAMILY_X86
 # define DSP_ENDIAN_LITTLE
+#elif defined(__arm__) || defined(_M_ARM)
+#define DSP_ARCH_ARM
+#define DSP_ARCH_FAMILY_ARM
+#elif defined(__thumb__) || defined(_M_ARMT)
+#define DSP_ARCH_THUMB
+#define DSP_ARCH_FAMILY_ARM
 #else
 # error "Unsupported processor architecture, tweak dsp++/platform.h to detect it."
 #endif

@@ -16,46 +16,55 @@
 namespace dsp { namespace simd {
 
 	//! @brief Processor architecture flags, not really useful in runtime - use DSP_ARCH_XXX macros in {@link dsp++/platform.h} instead.
-	enum arch {
-		arch_unknown = 			0x0000,		//!<
-		arch_x86 = 				0x0001,   	//!< 32-bit x86 (IA32)
-		arch_x86_64 = 			0x0002, 	//!< 64-bit x86 (x86-64 aka AMD64)
-		arch_ppc =				0x0004,		//!< PowerPC
-		arch_ppc64 = 			0x0008,
+	namespace arch { enum spec {
+		unknown = 			0x0000,		//!<
+		x86 = 				0x0001,   	//!< 32-bit x86 (IA32)
+		x86_64 = 			0x0002, 	//!< 64-bit x86 (x86-64 aka AMD64)
+		ppc =				0x0004,		//!< PowerPC
+		ppc64 = 			0x0008,
 		// TODO add flags for other architectures, esp. ARM
-	};
+
+		arm =				0x0010,		//!< 32-bit ARM @todo Consider adding ARM64 and thumb
+		arm64 =				0x0020,		//!< 64-bit ARM lika ARMv8-A and later
+	}; }
 
 	//! @brief Query the architecture of the runtime environment (for which the code was compiled, not the actual processor).
-	//! @note If the code is compiled for x86 (32 bit executable) and is running on x86-64 processor, this will return {@link arch_x86}.
+	//! @note If the code is compiled for x86 (32 bit executable) and is running on x86-64 processor, this will return {@link arch::x86}.
 	//! This is intentional, as you can't use 64-bit instructions in 32-bit executable anyway.
 	//! @return Combination of {@link arch} flags describing processor architecture.
-	DSPXX_API int architecture();
+	DSPXX_API unsigned architecture();
 
 	//! @brief SIMD feature flags.
 	//! @note For various architectures the same bits may have different meaning. It's by design, as code sections for different architectures
 	//! normally will have to be\#ifdef'ed (you'll get compile time errors otherwise).
 	//! @todo Add flags for other architectures when needed.
-	enum feat {
-		feat_x86_mmx = 			0x00000001,	//!< MMX instruction set @see http://en.wikipedia.org/wiki/MMX_(instruction_set)
-		feat_x86_sse = 			0x00000002,	//!< SSE instruction set (Katmai new instructions) @see http://en.wikipedia.org/wiki/Streaming_SIMD_Extensions
-		feat_x86_sse2 =			0x00000004, //!< SSE2 instruction set @see http://en.wikipedia.org/wiki/SSE2
-		feat_x86_sse3 = 		0x00000008, //!< SSE3 instruction set (Prescott new instructions) @see http://en.wikipedia.org/wiki/Prescott_New_Instructions
-		feat_x86_ssse3 = 		0x00000010, //!< Supplemental SSE3 instructions @see http://en.wikipedia.org/wiki/SSSE3
-		feat_x86_fma3 = 		0x00000020, //!< FMA3 instruction set @see http://en.wikipedia.org/wiki/FMA_instruction_set
-		feat_x86_sse41 =		0x00000040, //!< Penryn SSE 4.1 @see http://en.wikipedia.org/wiki/SSE4.1#SSE4.1
-		feat_x86_sse42 =		0x00000080, //!< Nehalem SSE 4.2 @see http://en.wikipedia.org/wiki/SSE4.2#SSE4.2
-		feat_x86_avx = 			0x00000100, //!< Advanced Vector Extensions @see http://en.wikipedia.org/wiki/Advanced_Vector_Extensions
+	namespace feat {enum spec {
+		x86_mmx = 			0x00000001,	//!< MMX instruction set @see http://en.wikipedia.org/wiki/MMX_(instruction_set)
+		x86_sse = 			0x00000002,	//!< SSE instruction set (Katmai new instructions) @see http://en.wikipedia.org/wiki/Streaming_SIMD_Extensions
+		x86_sse2 =			0x00000004, //!< SSE2 instruction set @see http://en.wikipedia.org/wiki/SSE2
+		x86_sse3 = 			0x00000008, //!< SSE3 instruction set (Prescott new instructions) @see http://en.wikipedia.org/wiki/Prescott_New_Instructions
+		x86_ssse3 = 		0x00000010, //!< Supplemental SSE3 instructions @see http://en.wikipedia.org/wiki/SSSE3
+		x86_fma3 = 			0x00000020, //!< FMA3 instruction set @see http://en.wikipedia.org/wiki/FMA_instruction_set
+		x86_sse41 =			0x00000040, //!< Penryn SSE 4.1 @see http://en.wikipedia.org/wiki/SSE4.1#SSE4.1
+		x86_sse42 =			0x00000080, //!< Nehalem SSE 4.2 @see http://en.wikipedia.org/wiki/SSE4.2#SSE4.2
+		x86_avx = 			0x00000100, //!< Advanced Vector Extensions @see http://en.wikipedia.org/wiki/Advanced_Vector_Extensions
 
-		feat_x86_xop = 			0x00000200,	//!< AMD XOP @see http://en.wikipedia.org/wiki/XOP_instruction_set
-		feat_x86_fma4 =			0x00000400,	//!< AMD FMA4 @see http://en.wikipedia.org/wiki/FMA4_instruction_set
+		x86_xop = 			0x00000200,	//!< AMD XOP @see http://en.wikipedia.org/wiki/XOP_instruction_set
+		x86_fma4 =			0x00000400,	//!< AMD FMA4 @see http://en.wikipedia.org/wiki/FMA4_instruction_set
+
 		// leaving 5 bits reserved for other x86 features
-		feat_ppc_altivec =		0x00010000,	//!< PowerPC AltiVec instructions @see http://en.wikipedia.org/wiki/AltiVec @note Not detected yet!
+		ppc_altivec =		0x00010000,	//!< PowerPC AltiVec instructions @see http://en.wikipedia.org/wiki/AltiVec @note Not detected yet!
+
 		// and now ARM features...
-	};
+		arm_neon =			0x00100000,	
+		arm_vfp2 =			0x00200000,
+		arm_vfp3 =			0x00400000,
+		arm_vfp4 =			0x00800000,
+	}; }
 
 	//! @brief Allows testing SIMD support of the processor in the runtime, so that alternative execution paths may be used depending on available features.
 	//! @return Combination of {@link feat} flags describing available SIMD features.
-	DSPXX_API int features();
+	DSPXX_API unsigned features();
 
 	//! @brief Allows checking in runtime what should be memory alignment of data passed to SIMD functions.
 	DSPXX_API size_t alignment();

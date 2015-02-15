@@ -17,9 +17,9 @@ float dsp::simd::filter_sample_df2(float* w, const float* b, const size_t M, con
 {
 	if (false) noop();
 #ifdef DSP_ARCH_FAMILY_X86
-	else if (DSP_SIMD_FEATURES & dsp::simd::feat_x86_sse41)
+	else if (DSP_SIMD_FEATURES & dsp::simd::feat::x86_sse41)
 		return dsp::simd::detail::x86_sse41_filter_df2(w, b, M, a, N);
-	else if (DSP_SIMD_FEATURES & dsp::simd::feat_x86_sse)
+	else if (DSP_SIMD_FEATURES & dsp::simd::feat::x86_sse)
 		return dsp::simd::detail::x86_sse_filter_df2(w, b, M, a, N);
 #endif // DSP_ARCH_FAMILY_X86
 
@@ -30,9 +30,9 @@ float dsp::simd::filter_sample_df2(float* w, const float* b, const size_t M, con
 {
 	if (false) noop();
 #ifdef DSP_ARCH_FAMILY_X86
-	else if (feat_flags & dsp::simd::feat_x86_sse41)
+	else if (feat_flags & dsp::simd::feat::x86_sse41)
 		return dsp::simd::detail::x86_sse41_filter_df2(w, b, M, a, N);
-	else if (feat_flags & dsp::simd::feat_x86_sse)
+	else if (feat_flags & dsp::simd::feat::x86_sse)
 		return dsp::simd::detail::x86_sse_filter_df2(w, b, M, a, N);
 #endif // DSP_ARCH_FAMILY_X86
 
@@ -48,7 +48,7 @@ float dsp::simd::filter_sample_sos_df2(float x, size_t N, const bool* scale_only
 {
 	if (false) noop();
 #ifdef DSP_ARCH_FAMILY_X86
-	else if (DSP_SIMD_FEATURES & dsp::simd::feat_x86_sse)
+	else if (DSP_SIMD_FEATURES & dsp::simd::feat::x86_sse)
 		return dsp::simd::detail::x86_sse_filter_sos_df2(x, N, scale_only, w, b, a, step);
 #endif // DSP_ARCH_FAMILY_X86
 
@@ -59,7 +59,7 @@ float dsp::simd::filter_sample_sos_df2(float x, size_t N, const bool* scale_only
 {
 	if (false) noop();
 #ifdef DSP_ARCH_FAMILY_X86
-	else if (feat_flags & dsp::simd::feat_x86_sse)
+	else if (feat_flags & dsp::simd::feat::x86_sse)
 		return dsp::simd::detail::x86_sse_filter_sos_df2(x, N, scale_only, w, b, a, step);
 #endif // DSP_ARCH_FAMILY_X86
 

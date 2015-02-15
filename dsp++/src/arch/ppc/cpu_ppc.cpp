@@ -13,8 +13,8 @@
 
 static const size_t alignment_ = 16;
 
-int dsp::simd::features() {
-
+unsigned dsp::simd::features() 
+{
 #if defined(DSP_OS_FAMILY_BSD)
     int sels[2] = {CTL_MACHDEP, CPU_ALTIVEC};
 #elif defined(DSP_OS_MACOSX)
@@ -24,16 +24,16 @@ int dsp::simd::features() {
     size_t len = sizeof(altivec);
     int err = sysctl(sels, 2, &altivec, &len, NULL, 0);
     if (0 == err)
-        return (0 != altivec ? dsp::simd::feat_ppc_altivec : 0);
+        return (0 != altivec ? dsp::simd::feat::ppc_altivec : 0);
     return 0;
 }
 
-DSPXX_API int dsp::simd::architecture()
+DSPXX_API unsigned dsp::simd::architecture()
 {
 #ifdef DSP_ARCH_PPC64
-	return arch_ppc64;
+	return arch::ppc64;
 #else
-	return arch_ppc;
+	return arch::ppc;
 #endif
 }
 
