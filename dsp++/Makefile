@@ -31,7 +31,8 @@ SRC=src/debug.cpp src/fft.cpp src/filter.cpp src/fixed.cpp src/flt_biquad.cpp \
 	src/simd.cpp src/vectmath.cpp src/zeropole.cpp src/arch/x86/cpu_x86.cpp \
 	src/arch/x86/sse.cpp src/arch/x86/sse3.cpp src/arch/x86/sse41.cpp \
 	src/fftw/traits.cpp src/mkfilter/mkfilter.cpp src/remez/remez.cpp \
-	src/rpoly/rpoly.cpp src/snd/format.cpp src/snd/io.cpp src/snd/loudness.cpp
+	src/rpoly/rpoly.cpp src/snd/format.cpp src/snd/io.cpp src/snd/loudness.cpp \
+	src/arch/arm/cpu_arm.cpp
 
 OBJ = $(patsubst %.cpp,%.o, $(SRC))
 

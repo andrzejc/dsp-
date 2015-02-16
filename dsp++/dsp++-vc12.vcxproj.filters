@@ -342,6 +342,7 @@
   <ItemGroup>
     <None Include="doxyfile" />
     <None Include="CMakeLists.txt" />
+    <None Include="Makefile" />
   </ItemGroup>
   <ItemGroup>
     <MASM Include="src\arch\x86\xxgetbv.asm">

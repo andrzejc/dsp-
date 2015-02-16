@@ -126,10 +126,9 @@ unsigned sample::bit_size_of(const char* sf)
 	if ('s' != type && 'u' != type && 'f' != type)
 		return sample::size_unknown;
 	char* end;
-	int err = 0;
-	std::swap(err, errno);
+	int rerr = errno;
 	unsigned long sz = std::strtoul(sf, &end, 10);
-	std::swap(err, errno);
+	int err = errno; errno = rerr;
 	if (0 != err)
 		return sample::size_unknown;
 	return static_cast<unsigned>(sz);
