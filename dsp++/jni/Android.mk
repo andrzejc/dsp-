@@ -24,8 +24,10 @@ LOCAL_SRC_FILES := $(SRC)/arch/arm/cpu_arm.cpp \
 	$(SRC)/flt_fs.cpp $(SRC)/flt_iir.cpp $(SRC)/flt_pm.cpp $(SRC)/resample.cpp $(SRC)/sample.cpp \
 	$(SRC)/simd.cpp $(SRC)/vectmath.cpp $(SRC)/zeropole.cpp $(SRC)/arch/x86/cpu_x86.cpp \
 	$(SRC)/arch/x86/sse.cpp $(SRC)/arch/x86/sse3.cpp $(SRC)/arch/x86/sse41.cpp \
-	$(SRC)/fftw/traits.cpp $(SRC)/mkfilter/mkfilter.cpp $(SRC)/remez/remez.cpp \
+	$(SRC)/mkfilter/mkfilter.cpp $(SRC)/remez/remez.cpp \
 	$(SRC)/rpoly/rpoly.cpp $(SRC)/snd/format.cpp $(SRC)/snd/io.cpp $(SRC)/snd/loudness.cpp \
+
+# $(SRC)/fftw/traits.cpp 
 
 # include $(BUILD_STATIC_LIBRARY)
 
