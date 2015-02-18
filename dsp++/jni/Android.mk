@@ -1,5 +1,6 @@
 TARGET_ARCH_ABI := armeabi-v7a
 LOCAL_PATH := $(call my-dir)
+NDK_PROJECT_PATH := $(LOCAL_PATH)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := sndfile
@@ -13,9 +14,8 @@ LOCAL_CFLAGS := -DDSP_FFTW_DISABLED=1 -DDSPXX_EXPORTS -DNDEBUG -fPIC -fvisibilit
 LOCAL_CPPFLAGS := -std=gnu++11 
 LOCAL_CPP_FEATURES := rtti exceptions
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../include 
-LOCAL_STATIC_LIBRARIES := sndfile
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include
-LOCAL_SHARED_LIBRARIES := pthread boost_atomic_shared
+LOCAL_SHARED_LIBRARIES := pthread boost_atomic_shared sndfile
 
 SRC := $(LOCAL_PATH)/../src
 
