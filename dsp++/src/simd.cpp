@@ -4,6 +4,10 @@
 #include <cstdlib> // for posix_memalign()/aligned_alloc()/malloc()/free()
 #include <cassert>
 
+#if defined(DSP_OS_ANDROID)
+#include <malloc.h>
+#endif // DSP_OS_ANDROID
+
 #include "simd.h"
 
 using namespace dsp::simd;
@@ -12,27 +16,34 @@ void* dsp::simd::detail::generic_aligned_alloc(size_t size)
 {
 	static const size_t alignment_ = dsp::simd::alignment();
 	void* ptr;
-#if (_POSIX_C_SOURCE >= 200112L) || (_XOPEN_SOURCE >= 600)
-	if (0 != ::posix_memalign(&ptr, size, alignment_))
-		ptr = NULL;
+	while (true)
+	{
+#if defined(DSP_OS_ANDROID)
+		ptr = ::memalign(alignment_, size);
+#elif (_POSIX_C_SOURCE >= 200112L) || (_XOPEN_SOURCE >= 600)
+		if (0 != ::posix_memalign(&ptr, size, alignment_))
+			ptr = NULL;
 #elif (_ISOC11_SOURCE)
-	ptr = ::aligned_alloc(alignment_, size);
+		ptr = ::aligned_alloc(alignment_, size);
 #else
-    ptr = std::malloc(size + alignment_);
-    if (NULL == ptr)
-        return NULL;
-    long diff 			= ((~(long)ptr)&(alignment_ - 1)) + 1;
-    ptr               	= (char *)ptr + diff;
-    ((char *)ptr)[-1] = (char)diff;
+		ptr = std::malloc(size + alignment_);
+		if (NULL == ptr)
+			return NULL;
+		long diff = ((~(long) ptr) & (alignment_ - 1)) + 1;
+		ptr = (char *) ptr + diff;
+		((char *) ptr)[-1] = (char) diff;
 #endif
-    if (NULL == ptr && 0 == size)
-    	ptr = dsp::simd::aligned_alloc(1);
+		if (NULL == ptr && 0 == size)
+			size = 1;
+		else
+			break;
+	}
     return ptr;
 }
 
 void dsp::simd::detail::generic_aligned_free(void* ptr)
 {
-#if (_POSIX_C_SOURCE >= 200112L) || (_XOPEN_SOURCE >= 600) || (_ISOC11_SOURCE)
+#if (_POSIX_C_SOURCE >= 200112L) || (_XOPEN_SOURCE >= 600) || (_ISOC11_SOURCE) || defined(DSP_OS_ANDROID)
 	std::free(ptr);
 #else
     if (NULL == ptr)
