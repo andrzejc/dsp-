@@ -14,7 +14,7 @@ LOCAL_CFLAGS := -DDSP_FFTW_DISABLED=1 -DDSPXX_EXPORTS -DNDEBUG -fPIC -fvisibilit
 LOCAL_CPPFLAGS := -std=gnu++11 
 LOCAL_CPP_FEATURES := rtti exceptions
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../include 
-LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include
+LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/../include
 LOCAL_SHARED_LIBRARIES := pthread boost_atomic_shared sndfile
 
 SRC := $(LOCAL_PATH)/../src
