@@ -1,4 +1,4 @@
-TARGET_ARCH_ABI := armeabi-v7a
+TARGET_ARCH_ABI := armeabi-v7a-hard
 LOCAL_PATH := $(call my-dir)
 NDK_PROJECT_PATH := $(LOCAL_PATH)
 
@@ -9,13 +9,27 @@ LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/deps/libsndfile-android/jni
 include $(PREBUILT_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
+LOCAL_MODULE := fftw3f
+LOCAL_SRC_FILES := $(LOCAL_PATH)/deps/fftw3-android/lib/libfftw3f.a
+LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/deps/fftw3-android/include
+include $(PREBUILT_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := fftw3
+LOCAL_SRC_FILES := $(LOCAL_PATH)/deps/fftw3-android/lib/libfftw3.a
+LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/deps/fftw3-android/include
+include $(PREBUILT_STATIC_LIBRARY)
+
+
+include $(CLEAR_VARS)
 LOCAL_ARM_MODE := arm
-LOCAL_CFLAGS := -DDSP_FFTW_DISABLED=1 -DDSPXX_EXPORTS -DNDEBUG -fPIC -fvisibility=hidden 
+LOCAL_CFLAGS := -DDSPXX_EXPORTS -DNDEBUG -fPIC -fvisibility=hidden -DDSP_FFTW_HAVE_LONG_DOUBLE=0 -DDSP_FFTW_HAVE_QUAD=0
 LOCAL_CPPFLAGS := -std=gnu++11 
 LOCAL_CPP_FEATURES := rtti exceptions
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../include 
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/../include
 LOCAL_SHARED_LIBRARIES := pthread boost_atomic_shared sndfile
+LOCAL_STATIC_LIBRARIES := fftw3 fftw3f
 
 SRC := $(LOCAL_PATH)/../src
 
@@ -26,8 +40,7 @@ LOCAL_SRC_FILES := $(SRC)/arch/arm/cpu_arm.cpp \
 	$(SRC)/arch/x86/sse.cpp $(SRC)/arch/x86/sse3.cpp $(SRC)/arch/x86/sse41.cpp \
 	$(SRC)/mkfilter/mkfilter.cpp $(SRC)/remez/remez.cpp \
 	$(SRC)/rpoly/rpoly.cpp $(SRC)/snd/format.cpp $(SRC)/snd/io.cpp $(SRC)/snd/loudness.cpp \
-
-# $(SRC)/fftw/traits.cpp 
+	$(SRC)/fftw/traits.cpp 
 
 # include $(BUILD_STATIC_LIBRARY)
 
