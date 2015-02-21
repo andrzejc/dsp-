@@ -1,23 +1,23 @@
 TARGET_ARCH_ABI := armeabi-v7a-hard
 LOCAL_PATH := $(call my-dir)
-NDK_PROJECT_PATH := $(LOCAL_PATH)
+DEPS := $(LOCAL_PATH)/../deps
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := sndfile
-LOCAL_SRC_FILES := $(LOCAL_PATH)/deps/libsndfile-android/obj/local/$(TARGET_ARCH_ABI)/libsndfile.so
-LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/deps/libsndfile-android/jni
+LOCAL_SRC_FILES := $(DEPS)/libsndfile-android/obj/local/$(TARGET_ARCH_ABI)/libsndfile.so
+LOCAL_EXPORT_C_INCLUDES := $(DEPS)/libsndfile-android/jni
 include $(PREBUILT_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := fftw3f
-LOCAL_SRC_FILES := $(LOCAL_PATH)/deps/fftw3-android/lib/libfftw3f.a
-LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/deps/fftw3-android/include
+LOCAL_SRC_FILES := $(DEPS)/fftw3-android/$(TARGET_ARCH_ABI)/lib/libfftw3f.a
+LOCAL_EXPORT_C_INCLUDES := $(DEPS)/fftw3-android/include
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := fftw3
-LOCAL_SRC_FILES := $(LOCAL_PATH)/deps/fftw3-android/lib/libfftw3.a
-LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/deps/fftw3-android/include
+LOCAL_SRC_FILES := $(DEPS)/fftw3-android/$(TARGET_ARCH_ABI)/lib/libfftw3.a
+LOCAL_EXPORT_C_INCLUDES := $(DEPS)/fftw3-android/include
 include $(PREBUILT_STATIC_LIBRARY)
 
 
