@@ -197,7 +197,12 @@ public:
 	/// @param [in] channel_mask channel layout mask.
 	void set_channel_config(unsigned channel_mask)
 	{
+#if defined(_MSC_VER) && (_MSC_VER <= 1600)
+		// MS Visual C++ has nonstandard-compliant bitset constructor with int param instead of long long, cast is needed
+		channel_layout_ = channel::layout(static_cast<int>(channel_mask)); 
+#else
 		channel_layout_ = channel::layout(channel_mask); 
+#endif 
 		channel_count_ = static_cast<unsigned>(channel_layout_.count());
 	}
 
