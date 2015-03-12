@@ -1,22 +1,13 @@
 TARGET_ARCH_ABI := armeabi-v7a-hard
 LOCAL_PATH := $(call my-dir)
-STORE_LOCAL_PATH := $(LOCAL_PATH)
+DSPXX_LOCAL_PATH := $(LOCAL_PATH)
 DEPS := $(LOCAL_PATH)/../deps
+FFTW3_DIR := $(DEPS)/fftw3-android
+LIBSNDFILE_DIR := $(DEPS)/libsndfile-android
 
-include $(CLEAR_VARS)
-LOCAL_MODULE := fftw3f
-LOCAL_SRC_FILES := $(DEPS)/fftw3-android/$(TARGET_ARCH_ABI)/lib/libfftw3f.a
-LOCAL_EXPORT_C_INCLUDES := $(DEPS)/fftw3-android/include
-include $(PREBUILT_STATIC_LIBRARY)
-
-include $(CLEAR_VARS)
-LOCAL_MODULE := fftw3
-LOCAL_SRC_FILES := $(DEPS)/fftw3-android/$(TARGET_ARCH_ABI)/lib/libfftw3.a
-LOCAL_EXPORT_C_INCLUDES := $(DEPS)/fftw3-android/include
-include $(PREBUILT_STATIC_LIBRARY)
-
-include $(DEPS)/libsndfile-android/jni/Android.mk
-LOCAL_PATH := $(STORE_LOCAL_PATH)
+include $(FFTW3_DIR)/jni/Android.mk
+include $(LIBSNDFILE_DIR)/jni/Android.mk
+LOCAL_PATH := $(DSPXX_LOCAL_PATH)
 
 include $(CLEAR_VARS)
 LOCAL_ARM_MODE := arm
@@ -28,7 +19,7 @@ LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/../../include
 LOCAL_SHARED_LIBRARIES := pthread boost_atomic_shared sndfile
 LOCAL_STATIC_LIBRARIES := fftw3 fftw3f
 
-SRC := $(LOCAL_PATH)/../../src
+SRC := ../../src
 
 LOCAL_SRC_FILES := $(SRC)/arch/arm/cpu_arm.cpp \
   $(SRC)/debug.cpp $(SRC)/fft.cpp $(SRC)/filter.cpp $(SRC)/fixed.cpp $(SRC)/flt_biquad.cpp \
