@@ -1,5 +1,5 @@
 /// @file dsp++/norm.h
-/// @brief Algorithms for computing some norms.
+/// @brief Algorithms for computing vector norms.
 /// @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
 #ifndef DSP_NORM_H_INCLUDED
 #define DSP_NORM_H_INCLUDED
@@ -61,9 +61,10 @@ inline typename dsp::remove_complex<typename std::iterator_traits<InputIterator>
 {
 	typedef typename std::iterator_traits<InputIterator>::value_type T;
 	typedef typename dsp::remove_complex<typename std::iterator_traits<InputIterator>::value_type>::type R;
+	using namespace std;
 	R res = R();
 	while (begin != end)
-		res += error<norm::abs>(*begin++, T());
+		res += abs(*begin++); // this could be: error<norm::abs>(*begin++, T()) but let's not get paranoid
 	return res;
 }
 
