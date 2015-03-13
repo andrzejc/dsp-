@@ -1,30 +1,44 @@
-PREFIX=/usr/local
-CXX=g++
-CFLAGS=-DDSPXX_EXPORTS -DNDEBUG -fvisibility=hidden -I./include -fPIC -std=gnu++11 -O2
-CXXFLAGS=$(CFLAGS)
+PREFIX ?= /usr/local
+DEBUG ?= 0
+STATIC ?= 0
+CFLAGS += -I./include -std=gnu++11
+LIBS += -lfftw3 -lfftw3_threads -lfftw3f -lfftw3f_threads -lfftw3l -lfftw3l_threads -lsndfile
 
-LIBS = -lfftw3 -lfftw3_threads -lfftw3f -lfftw3f_threads -lfftw3l -lfftw3l_threads \
-	-lsndfile
-
-LIBDIR.x86_64 = lib64
-LIBDIR.i386 = lib
-MACHINE := $(shell uname -m)
-LIBDIR = $(LIBDIR.$(MACHINE))
+ifeq ($(DEBUG),0)
+CFLAGS += -O2 -DNDEBUG
+else
+CFLAGS += -O0 -g
+endif
 
 ifeq ($(OS),Windows_NT)
-EXT := .dll
+SO := dll
+MACHINE := $(if $(find AMD64,$(PROCESSOR_ARCHITECTURE)),x86_64,i386)
 else
-UNAME_S := $(shell uname -s)
-ifeq ($(UNAME_S),Darwin)
-EXT := .dylib
+SYSTEM := $(shell uname -s)
+MACHINE := $(shell uname -m)
+ifeq ($(SYSTEM),Darwin)
+SO := dylib
 CFLAGS += -I/opt/local/include
 LIBS += -L/opt/local/lib 
 else
-EXT := .so
+SO := so
 endif
 endif
 
-PRODUCT = libdsp++$(EXT)
+LIBDIR.x86_64 := lib64
+LIBDIR.i386 := lib
+LIBDIR := $(LIBDIR.$(MACHINE))
+
+ifeq ($(STATIC),0)
+CFLAGS += -fPIC -DDSPXX_EXPORTS -fvisibility=hidden 
+LINKFLAG := -shared
+EXT := $(SO)
+else
+EXT := a
+endif
+
+PRODUCT := libdsp++.$(EXT)
+CXXFLAGS := $(CFLAGS)
 
 SRC=src/debug.cpp src/fft.cpp src/filter.cpp src/fixed.cpp src/flt_biquad.cpp \
 	src/flt_fs.cpp src/flt_iir.cpp src/flt_pm.cpp src/resample.cpp src/sample.cpp \
@@ -34,7 +48,7 @@ SRC=src/debug.cpp src/fft.cpp src/filter.cpp src/fixed.cpp src/flt_biquad.cpp \
 	src/rpoly/rpoly.cpp src/snd/format.cpp src/snd/io.cpp src/snd/loudness.cpp \
 	src/arch/arm/cpu_arm.cpp
 
-OBJ = $(patsubst %.cpp,%.o, $(SRC))
+OBJ := $(patsubst %.cpp,%.o, $(SRC))
 
 all: $(PRODUCT)
 
@@ -50,10 +64,13 @@ src/arch/x86/sse3.o: src/arch/x86/sse3.cpp
 src/arch/x86/sse41.o: src/arch/x86/sse41.cpp
 	$(CXX) -c -o $@ $< $(CXXFLAGS) -msse4.1
 
-$(PRODUCT): $(OBJ)
-	$(CXX) -shared -o $@ $^ $(CXXFLAGS) $(LIBS)
+libdsp++.a: $(OBJ)
+	ar cr $@ $?
 
-.PHONY: clean docs install uninstall clean-docs clean-all all
+libdsp++.$(SO): $(OBJ)
+	$(CXX) -shared -Wl,-soname,$@ -o $@ $^ $(CXXFLAGS) $(LIBS)
+
+.PHONY: clean docs install uninstall clean-docs distclean all
 
 docs: doxyfile
 	doxygen doxyfile
@@ -72,13 +89,11 @@ install: all docs
 	cp -r doc/html $(PREFIX)/share/doc/dsp++/html
 
 clean:
-	-rm $(OBJ)
+	-rm $(OBJ) $(PRODUCT)
 
 clean-docs:
 	-rm -r doc
 
-clean-all: clean clean-docs
-	-rm $(PRODUCT)
-
+distclean: clean clean-docs
 	
 
