@@ -1,10 +1,6 @@
-/*
- * norm.h
- *
- *  Created on: 31-05-2013
- *      Author: Andrzej
- */
-
+/// @file dsp++/norm.h
+/// @brief Algorithms for computing some norms.
+/// @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
 #ifndef DSP_NORM_H_INCLUDED
 #define DSP_NORM_H_INCLUDED
 #pragma once
@@ -16,122 +12,150 @@
 
 namespace dsp {
 
-enum norm_tag {
-	norm_abs,
-	norm_rel
-};
+/// @brief Specify norm kind - absolute or relative.
+namespace norm { enum type {
+	abs,	///< Absolute 
+	rel
+}; }
 
 namespace detail {
-	template<norm_tag t, class T>
-	struct norm_error_helper;
+	template<norm::type t, class T>
+	struct error_impl;
 
 	template<class T>
-	struct norm_error_helper<norm_abs, T> {
-		typename dsp::remove_complex<T>::type operator()(const T& a, const T& b) {
-			using std::abs;
+	struct error_impl<norm::abs, T> 
+	{
+		typename dsp::remove_complex<T>::type operator()(const T& a, const T& b) 
+		{
+			using namespace std;
 			return abs(a - b);
 		}
 	};
 
 	template<class T>
-	struct norm_error_helper<norm_rel, T> {
-		typename dsp::remove_complex<T>::type operator()(const T& a, const T& b) {
-			using std::abs;
+	struct error_impl<norm::rel, T> 
+	{
+		typename dsp::remove_complex<T>::type operator()(const T& a, const T& b) 
+		{
+			using namespace std;
 			return abs(a - b) / abs(b);
 		}
 	};
 }
 
+/// @brief Calculate error (absolute difference) between two values, either absolute or relative.
+/// Absolute error is calculated as: \f$\varepsilon_{abs} = \left|a - b\right|\f$; relative error is: 
+/// \f$\varepsilon_{rel} = {{\left|a - b\right|}\over{\left|b\right|}}\f$.
+/// @tparam t Type of error - either absolute or relative.
+/// @tparam T Type of values being compared.
+/// @param a value to compare.
+/// @param b value to compare.
+/// @return either absolute or relative error between the two values @p a and @p b.
+template<norm::type t, class T>
+inline typename dsp::remove_complex<T>::type error(const T& a, const T& b) 
+{ return detail::error_impl<t, T>()(a, b); }
 
-template<class T>
-inline typename dsp::remove_complex<T>::type norm_1(const T* a, size_t len) {
-	typedef typename dsp::remove_complex<T>::type R;
-	using std::abs;
+
+template<class InputIterator>
+inline typename dsp::remove_complex<typename std::iterator_traits<InputIterator>::value_type>::type norm_1(InputIterator begin, InputIterator end)
+{
+	typedef typename std::iterator_traits<InputIterator>::value_type T;
+	typedef typename dsp::remove_complex<typename std::iterator_traits<InputIterator>::value_type>::type R;
 	R res = R();
-	for (size_t i = 0; i < len; ++i, ++a)
-		res += abs(*a);
+	while (begin != end)
+		res += error<norm::abs>(*begin++, T());
 	return res;
 }
 
-template<norm_tag t, class T>
-typename dsp::remove_complex<T>::type norm_1(const T* a, const T* b, size_t len) {
+template<class T>
+inline typename dsp::remove_complex<T>::type norm_1(const T* a, size_t len)
+{
+	return norm_1(a, a + len);
+}
+
+
+template<norm::type t, class T>
+typename dsp::remove_complex<T>::type norm_1(const T* a, const T* b, size_t len) 
+{
 	typedef typename dsp::remove_complex<T>::type R;
 	R res = R();
-	dsp::detail::norm_error_helper<t, T> f;
 	for (size_t i = 0; i < len; ++i, ++a, ++b)
-		res += f(*a,*b);
+		res += error<t>(*a,*b);
 	return res;
 }
 
 template<class T>
-inline typename dsp::remove_complex<T>::type norm_2(const T* a, size_t len) {
+inline typename dsp::remove_complex<T>::type norm_2(const T* a, size_t len) 
+{
 	typedef typename dsp::remove_complex<T>::type R;
-	using std::abs; using std::sqrt;
+	using namespace std;
 	R res = R();
 	for (size_t i = 0; i < len; ++i, ++a) {
-		R m = abs(*a);
+		R m = error<norm::abs>(*a, T());
 		res += m * m;
 	}
 	return sqrt(res);
 }
 
-template<norm_tag t, class T>
-typename dsp::remove_complex<T>::type norm_2(const T* a, const T* b, size_t len) {
+template<norm::type t, class T>
+typename dsp::remove_complex<T>::type norm_2(const T* a, const T* b, size_t len) 
+{
 	typedef typename dsp::remove_complex<T>::type R;
-	using std::sqrt;
+	using namespace std;
 	R res = R();
-	dsp::detail::norm_error_helper<t, T> f;
 	for (size_t i = 0; i < len; ++i, ++a, ++b) {
-		R m = f(*a, *b);
+		R m = error<t>(*a, *b);
 		res += m * m;
 	}
 	return sqrt(res);
 }
 
 template<class T>
-inline typename dsp::remove_complex<T>::type norm_inf(const T* a, size_t len) {
+inline typename dsp::remove_complex<T>::type norm_inf(const T* a, size_t len) 
+{
 	typedef typename dsp::remove_complex<T>::type R;
-	using std::max; using std::abs;
+	using namespace std;
 	R res = R();
 	for (size_t i = 0; i < len; ++i, ++a)
-		res = max(res, abs(*a));
+		res = max(res, error<norm::abs>(*a, T()));
 	return res;
 }
 
-template<norm_tag t, class T>
-inline typename dsp::remove_complex<T>::type norm_inf(const T* a, const T* b, size_t len) {
+template<norm::type t, class T>
+inline typename dsp::remove_complex<T>::type norm_inf(const T* a, const T* b, size_t len) 
+{
 	typedef typename dsp::remove_complex<T>::type R;
-	using std::max;
+	using namespace std;
 	R res = R();
-	dsp::detail::norm_error_helper<t, T> f;
 	for (size_t i = 0; i < len; ++i, ++a, ++b)
-		res = max(res, f(*a, *b));
+		res = max(res, error<t>(*a, *b));
 	return res;
 }
 
 template<class T>
-inline typename dsp::remove_complex<T>::type norm_rms(const T* a, size_t len) {
+inline typename dsp::remove_complex<T>::type norm_rms(const T* a, size_t len) 
+{
 	typedef typename dsp::remove_complex<T>::type R;
-	using std::abs; using std::sqrt;
+	using namespace std;
 	R res = R();
 	for (size_t i = 0; i < len; ++i, ++a) {
-		R m = abs(*a);
-		res += m * m / len;
+		R m = error<norm::abs>(*a, T());
+		res += m * m;
 	}
-	return sqrt(res);
+	return sqrt(res / len);
 }
 
-template<norm_tag t, class T>
-typename dsp::remove_complex<T>::type norm_rms(const T* a, const T* b, size_t len) {
+template<norm::type t, class T>
+typename dsp::remove_complex<T>::type norm_rms(const T* a, const T* b, size_t len) 
+{
 	typedef typename dsp::remove_complex<T>::type R;
-	using std::sqrt;
+	using namespace std;
 	R res = R();
-	dsp::detail::norm_error_helper<t, T> f;
 	for (size_t i = 0; i < len; ++i, ++a, ++b) {
-		R m = f(*a, *b);
-		res += m * m / len;
+		R m = error<t>(*a, *b);
+		res += m * m;
 	}
-	return sqrt(res);
+	return sqrt(res / len);
 }
 
 }
