@@ -1,6 +1,7 @@
 /*!
  * @file dsp++/filter_design.h
  * @brief Filter design algorithms.
+ * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
  */
 #ifndef DSP_FILTER_DESIGN_H_INCLUDED
 #define DSP_FILTER_DESIGN_H_INCLUDED

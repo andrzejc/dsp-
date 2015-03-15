@@ -1,6 +1,7 @@
 /*!
  * @file dsp++/fixed.h
  * @brief Fixed-point number template and associated stuff.
+ * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
  */
 #ifndef DSP_FIXED_H_INCLUDED
 #define DSP_FIXED_H_INCLUDED

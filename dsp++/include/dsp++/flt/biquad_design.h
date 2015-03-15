@@ -1,17 +1,19 @@
+/// @file dsp++/flt/biquad_design.h
+/// Tools for designing simple 2nd order IIR filters (biquadratic sections).
+/// @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
 #ifndef DSP_FLT_BIQUAD_DESIGN_H_INCLUDED
 #define DSP_FLT_BIQUAD_DESIGN_H_INCLUDED
 #pragma once
 #include <dsp++/export.h>
 #include <dsp++/compat/enum_class.h>
-#include <cstddef>
 
 namespace dsp {
 
-//! @brief Tools for designing biquad (second-order) filters
+/// @brief Tools for designing biquad (second-order) filters
 namespace biquad {
 
 
-//! @brief Specifies type of biquad section to design with biquad_design().
+/// @brief Specifies type of biquad section to design with biquad_design().
 enum_class(type) 
 {
 	lowpass,      //!< Lowpass biquad filter.
@@ -26,7 +28,8 @@ enum_class(type)
 
 /*!
  * @brief Biquad section design.
- * This code is based on "Cookbook formulae for audio EQ biquad filter coefficients" by Robert Bristow-Johnson.
+ * This code is based on "Cookbook formulae for audio EQ biquad filter coefficients" by Robert Bristow-Johnson, which was placed into public domain.
+ * The bugs present in the original Matlab code were corrected.
  * @see http://www.musicdsp.org/files/Audio-EQ-Cookbook.txt
  * @note The params q, bw and s are interchangable (s may be used for eq filters only, though). Nevertheless one of
  * them must be set. The param gain_db is used only for eq filters too, it its required then.

@@ -1,9 +1,6 @@
-/*!
- * @file detail.h
- * @brief Implementation details of class fft
- * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
- */
-
+/// @file detail.h
+/// @brief Implementation details of class fft
+/// @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
 #ifndef DSP_FFT_DETAIL_H_INCLUDED
 #define DSP_FFT_DETAIL_H_INCLUDED
 
@@ -20,10 +17,10 @@ namespace dft {
 template<class Input, class Output> class fft;
 template<class Real> class fft<complex<Real>, complex<Real> >;
 
-//! @internal Implementation details. Do not use.
+/// @internal Implementation details. Do not use.
 namespace detail {
 
-//! @internal
+/// @internal
 template<class Real>
 class fft_impl {
 public:
@@ -35,7 +32,7 @@ private:
 	static const fft_impl& get(size_t n);
 };
 
-//! @internal
+/// @internal
 template<>
 class DSPXX_API fft_impl<float> {
 public:
@@ -46,7 +43,7 @@ private:
 	static const fft_impl& get(size_t n);
 };
 
-//! @internal
+/// @internal
 template<>
 class DSPXX_API fft_impl<double> {
 public:

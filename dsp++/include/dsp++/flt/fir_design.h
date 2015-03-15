@@ -1,3 +1,6 @@
+/// @file dsp++/flt/fir_design.h
+/// Tools for designing FIR filters with various algorithms.
+/// @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
 #ifndef DSP_FLT_FIR_DESIGN_H_INCLUDED
 #define DSP_FLT_FIR_DESIGN_H_INCLUDED
 #pragma once
@@ -8,16 +11,16 @@
 
 namespace dsp {
 
-//! @brief FIR filter design utilities
+/// @brief FIR filter design utilities
 namespace fir {
 
-//! @brief Parks-McClellan filter design algorithm
+/// @brief Parks-McClellan filter design algorithm
 namespace pm {
 
-//! @brief Specifies type of the filter to design.
+/// @brief Specifies type of the filter to design.
 enum_class(type)
 {
-	symmetrical,    //!< Ordinary symmetrical (Type I or II) filter.
+	symmetrical,						//!< Ordinary symmetrical (Type I or II) filter.
 	anti_symmetrical_odd,
 	type_III = anti_symmetrical_odd,
 	hilbert = anti_symmetrical_odd,	//!< Hilbert transformer (Type III).
@@ -26,8 +29,8 @@ enum_class(type)
 	differentiator = anti_symmetrical_even	//!< Differentiator (Type IV).
 }; enum_class_end
 
-static const unsigned grid_density_default = 16;
-static const unsigned max_iterations_default = 32;
+const unsigned grid_density_default = 16;
+const unsigned max_iterations_default = 32;
 
 /*!
  * @brief FIR filter design with Parks-McClellan algorithm.
@@ -51,7 +54,7 @@ DSPXX_API bool design(
 
 } // namespace pm
 
-//! @brief FIR design using frequency sampling method
+/// @brief FIR design using frequency sampling method
 namespace fs {
 
 /*!
@@ -90,7 +93,7 @@ DSPXX_API unsigned design(
 		const double freqs[], 		//!< [in] frequency points in [0, 0.5] range
 		const double amps[],		//!< [in] amplitude characteristic at each frequency point
 		const double wnd[],			//!< [in] window function to apply to the impulse response, needs to be of appropriate length. If explicitly set to NULL, no windowing will be used.
-		double h[] 				//!< [out] designed filter impulse response [order + 1].
+		double h[] 					//!< [out] designed filter impulse response [order + 1].
 		);
 
 /*!

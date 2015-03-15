@@ -1,9 +1,8 @@
 /*!
  * @file dsp++/fftw/dft.h
- * 
+ * Interface to FFTW3 library designed to be compatible with internal dsp::dft::fft implementation.
  * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
  */
-
 #ifndef DSP_FFTW_DFT_H_INCLUDED
 #define DSP_FFTW_DFT_H_INCLUDED
 
@@ -23,7 +22,7 @@ namespace dsp { namespace dft { namespace fftw {
 	/*!
 	 * @brief Flags controlling FFTW3 planner behavior.
 	 * This is a direct mapping of libfftw3 @c FFTW_* flags with validation
-	 * performed through @c BOOST_STATIC_ASSERT() in traits.cpp.
+	 * performed through static asserts in traits.cpp, to ensure that things won't break silently.
 	 */
 	namespace flag { enum spec {
 		measure = (0U),

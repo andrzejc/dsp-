@@ -1,8 +1,6 @@
-/*!
-* @file dsp++/compat/enum_class.h
-* @brief Compiler support for enum class/strongly typed enums
-* @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
-*/
+/// @file dsp++/compat/enum_class.h
+/// @brief Compiler support for enum class/strongly typed enums & workarounds for old compilers.
+/// @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
 
 #ifndef DSP_COMPAT_ENUM_CLASS_H_INCLUDED
 #define DSP_COMPAT_ENUM_CLASS_H_INCLUDED
