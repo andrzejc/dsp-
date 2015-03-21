@@ -1,4 +1,3 @@
-TARGET_ARCH_ABI := armeabi-v7a-hard
 LOCAL_PATH := $(call my-dir)
 DSPXX_LOCAL_PATH := $(LOCAL_PATH)
 DEPS := $(LOCAL_PATH)/../deps
