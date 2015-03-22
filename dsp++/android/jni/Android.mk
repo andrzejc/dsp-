@@ -1,22 +1,19 @@
 LOCAL_PATH := $(call my-dir)
 DSPXX_LOCAL_PATH := $(LOCAL_PATH)
 DEPS := $(LOCAL_PATH)/../deps
-FFTW3_DIR := $(DEPS)/fftw3-android
 LIBSNDFILE_DIR := $(DEPS)/libsndfile-android
 
-include $(FFTW3_DIR)/jni/Android.mk
 include $(LIBSNDFILE_DIR)/jni/Android.mk
 LOCAL_PATH := $(DSPXX_LOCAL_PATH)
 
 include $(CLEAR_VARS)
 LOCAL_ARM_MODE := arm
-LOCAL_CFLAGS := -DDSPXX_EXPORTS -DNDEBUG -fPIC -fvisibility=hidden -DDSP_FFTW_HAVE_LONG_DOUBLE=0 -DDSP_FFTW_HAVE_QUAD=0
+LOCAL_CFLAGS := -DDSPXX_EXPORTS -DNDEBUG -fPIC -fvisibility=hidden -DDSP_FFTW_DISABLED
 LOCAL_CPPFLAGS := -std=gnu++11 
 LOCAL_CPP_FEATURES := rtti exceptions
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../include 
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/../../include
 LOCAL_SHARED_LIBRARIES := pthread boost_atomic_shared sndfile
-LOCAL_STATIC_LIBRARIES := fftw3 fftw3f
 
 SRC := ../../src
 
