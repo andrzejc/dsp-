@@ -8,6 +8,7 @@ This is README file for dsp++ repository, whose master copy is located at https:
 ## Repo contents
 
 The repository hosts several "projects", with dsp++ library being the main one and the others are used for testing some of the library features. The contents of the directories is as follows:
+
 * compressor_demo - a sample project demonstrating how to create very simple compressor using dsp++
 * dsp++ - the library project, probably the reason why you cloned this repo
 * dsp++-test - library unit testing project using CppUnit, being updated when time allows
@@ -15,9 +16,10 @@ The repository hosts several "projects", with dsp++ library being the main one a
 * multiband_compressor - a more complex sample demonstrating how to create multiband compressor algorihtm with dsp++
 * scratchbook - utility project for testing code snippets
 
-# # Building
+## Building
 
 The main development platform is Windows/Visual Studio 2013. You'll find VS2013 solution file which includes the above-mentioned projects (dsp++-vc12.sln). There's also dsp++.sln for vc10 which is updated ocassionally and outdated most of the time. The dsp++ library is being ocassionally tested & updated to build on:
+
 * Windows/Visual Studio 2013 (main)
 * Ubuntu (using hand-crafted Makefiles)
 * Scientific Linux 7 (Makefiles)
@@ -33,6 +35,7 @@ There's also possibility to build dsp++ for Android, using CrystaX NDK. See dsp+
 ## Prerequisites
 
 The dsp++ library has the following dependencies:
+
 * Boost library - currently it's impossible to build nor use dsp++ without Boost. On Windows you'll probably use binary distribution, in that case add BOOST_ROOT environment variable pointing at the Boost installation dir.
 * libsndfile - (LIBSNDFILE_ROOT env var)
 * fftw - (FFTW_ROOT env var)
