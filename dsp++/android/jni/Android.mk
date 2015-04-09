@@ -9,6 +9,11 @@ LOCAL_PATH := $(DSPXX_LOCAL_PATH)
 include $(CLEAR_VARS)
 LOCAL_ARM_MODE := arm
 LOCAL_CFLAGS := -DDSPXX_EXPORTS -DNDEBUG -fPIC -fvisibility=hidden -DDSP_FFTW_DISABLED
+
+ifeq ($(TARGET_ARCH_ABI),x86)
+  LOCAL_CFLAGS += -msse4.1
+endif
+
 LOCAL_CPPFLAGS := -std=gnu++11 
 LOCAL_CPP_FEATURES := rtti exceptions
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../include 
