@@ -354,6 +354,7 @@
     </ClCompile>
     <ClCompile Include="src\arch\x86\sse3.cpp" />
     <ClCompile Include="src\arch\x86\sse41.cpp" />
+    <ClCompile Include="src\csvread.cpp" />
     <ClCompile Include="src\debug.cpp" />
     <ClCompile Include="src\fft.cpp" />
     <ClCompile Include="src\fftw\traits.cpp" />
@@ -385,6 +386,7 @@
     <ClInclude Include="include\dsp++\complex.h" />
     <ClInclude Include="include\dsp++\config.h" />
     <ClInclude Include="include\dsp++\const.h" />
+    <ClInclude Include="include\dsp++\csvread.h" />
     <ClInclude Include="include\dsp++\debug.h" />
     <ClInclude Include="include\dsp++\dft.h" />
     <ClInclude Include="include\dsp++\doc.h" />

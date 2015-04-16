@@ -129,6 +129,9 @@
     <ClCompile Include="src\flt_fs.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\csvread.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\utility.h">
@@ -331,6 +334,9 @@
     </ClInclude>
     <ClInclude Include="include\dsp++\compat\enum_class.h">
       <Filter>include\dsp++\compat</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dsp++\csvread.h">
+      <Filter>include\dsp++</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
