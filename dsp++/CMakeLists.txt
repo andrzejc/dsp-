@@ -64,9 +64,10 @@ if (TARGET_PLATFORM_PPC)
 endif()
 #
 
-# configure_file(include/dsp++/version.h.in include/dsp++/version.h)
+configure_file(include/dsp++/version.h.in include/dsp++/version.h)
 
 set(HEADER_FILES
+	include/dsp++/version.h
 	include/dsp++/config.h
 	include/dsp++/export.h
 	include/dsp++/debug.h
