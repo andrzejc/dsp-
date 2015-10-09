@@ -66,11 +66,17 @@ endif()
 
 configure_file(include/dsp++/version.h.in include/dsp++/version.h)
 
-set(HEADER_FILES
-	include/dsp++/version.h
+set(PUBLIC_HEADERS
+	${PROJECT_BINARY_DIR}/include/dsp++/version.h
 	include/dsp++/config.h
 	include/dsp++/export.h
 	include/dsp++/debug.h
+	# TODO complete the list of public headers
+)
+
+set(HEADER_FILES
+	${PUBLIC_HEADERS}
+	# TODO add headers from src/ tree
 )
 
 #
@@ -100,7 +106,7 @@ set(SOURCES
 )
 
 add_library(dsp++ SHARED ${SOURCES})
-include_directories(src include)
+include_directories(src include ${PROJECT_BINARY_DIR}/include)
 target_compile_definitions(dsp++ PRIVATE DSPXX_EXPORTS)
 target_include_directories(dsp++ INTERFACE include)
 target_include_directories(dsp++ PRIVATE src)
@@ -108,3 +114,5 @@ target_link_libraries(dsp++ ${LIBS})
 set_property(TARGET dsp++ PROPERTY CXX_STANDARD 11)
 
 install(TARGETS dsp++ DESTINATION lib)
+install(FILES ${PUBLIC_HEADERS} DESTINATION include/dsp++)
+
