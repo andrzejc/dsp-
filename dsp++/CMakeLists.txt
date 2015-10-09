@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(dsp++)
+project(libdsp++)
 set(DSPXX_VERSION_MAJOR 0)
 set(DSPXX_VERSION_MINOR 1)
 set(CMAKE_BUILD_TYPE Release)
@@ -45,6 +45,10 @@ if (TARGET_PLATFORM_X86)
 	set_source_files_properties(src/arch/x86/sse3.cpp PROPERTIES COMPILE_FLAGS ${CXX_COMPILER_SSE3_FLAG})
 	set_source_files_properties(src/arch/x86/sse41.cpp PROPERTIES COMPILE_FLAGS ${CXX_COMPILER_SSE41_FLAG})
 	set(SOURCES_ARCH ${SOURCES_X86})
+	set(HEADERS_ARCH
+		src/arch/x86/sse_utils.h
+		src/arch/x86/sse.h
+	)
 endif()
 # ARM - specific
 if (TARGET_PLATFORM_ARM)
@@ -68,20 +72,84 @@ configure_file(src/version.h.in include/dsp++/version.h)
 
 set(PUBLIC_HEADERS
 	${PROJECT_BINARY_DIR}/include/dsp++/version.h
+	include/dsp++/adaptfilt.h
+	include/dsp++/algorithm.h
+	include/dsp++/buffer_traits.h
+	include/dsp++/buffer.h
+	include/dsp++/compat.h
+	include/dsp++/complex.h
 	include/dsp++/config.h
-	include/dsp++/export.h
+	include/dsp++/const.h
+	include/dsp++/csvread.h
 	include/dsp++/debug.h
-	# TODO complete the list of public headers
+	include/dsp++/dft.h
+	include/dsp++/doc.h
+	include/dsp++/dynamics.h
+	include/dsp++/export.h
+	include/dsp++/fdaf.h
+	include/dsp++/fft.h
+	include/dsp++/filter_design.h
+	include/dsp++/filter.h
+	include/dsp++/fixed.h
+	include/dsp++/float.h
+	include/dsp++/intmath.h
+	include/dsp++/ioport.h
+	include/dsp++/lattice.h
+	include/dsp++/levinson.h
+	include/dsp++/lpc.h
+	include/dsp++/mean.h
+	include/dsp++/noncopyable.h
+	include/dsp++/norm.h
+	include/dsp++/overlap_add.h
+	include/dsp++/overlap_save.h
+	include/dsp++/platform.h
+	include/dsp++/polyroots.h
+	include/dsp++/pow2.h
+	include/dsp++/resample.h
+	include/dsp++/simd.h
+	include/dsp++/stdint.h
+	include/dsp++/stride_iterator.h
+	include/dsp++/trivial_array.h
+	include/dsp++/utility.h
+	include/dsp++/vectmath.h
+	include/dsp++/window.h
+	include/dsp++/xcorr.h
+	include/dsp++/zeropole.h
+	include/dsp++/compat/enum_class.h
+	include/dsp++/fft/detail.h
+	include/dsp++/fftw/allocator.h
+	include/dsp++/fftw/dft.h
+	include/dsp++/fftw/plan_unavailable.h
+	include/dsp++/fftw/traits.h
+	include/dsp++/flt/biquad_design.h
+	include/dsp++/flt/fir_design.h
+	include/dsp++/flt/iir_design.h
+	include/dsp++/snd/buffer.h
+	include/dsp++/snd/convert.h
+	include/dsp++/snd/format.h
+	include/dsp++/snd/io_error.h
+	include/dsp++/snd/iobase.h
+	include/dsp++/snd/loudness.h
+	include/dsp++/snd/reader.h
+	include/dsp++/snd/sample.h
+	include/dsp++/snd/sndfile_error.h
+	include/dsp++/snd/writer.h
 )
 
-set(HEADER_FILES
+set(HEADERS
 	${PUBLIC_HEADERS}
-	# TODO add headers from src/ tree
+	src/polyroots.h
+	src/prefix.h
+	src/simd.h
+	src/utility.h
+	src/mkfilter/mkfilter.h
+	src/remez/remez.h
+	${HEADERS_ARCH}
 )
 
-#
 set(SOURCES
-	${HEADER_FILES}
+	${HEADERS}
+	src/csvread.cpp
 	src/debug.cpp
 	src/fft.cpp
 	src/filter.cpp
@@ -90,6 +158,7 @@ set(SOURCES
 	src/flt_fs.cpp
 	src/flt_iir.cpp
 	src/flt_pm.cpp
+	src/format_win32.cpp
 	src/resample.cpp
 	src/sample.cpp
 	src/simd.cpp
