@@ -181,6 +181,7 @@ target_include_directories(dsp++ INTERFACE include)
 target_include_directories(dsp++ PRIVATE src)
 target_link_libraries(dsp++ ${LIBS})
 set_property(TARGET dsp++ PROPERTY CXX_STANDARD 11)
+set_target_properties(dsp++ PROPERTIES VERSION "${DSPXX_VERSION_MAJOR}.${DSPXX_VERSION_MINOR}")
 
 install(TARGETS dsp++ DESTINATION lib)
 install(DIRECTORY include/dsp++/ DESTINATION include/dsp++)
