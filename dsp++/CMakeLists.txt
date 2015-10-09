@@ -174,8 +174,12 @@ set(SOURCES
 	${SOURCES_ARCH}
 )
 
+if ("${CMAKE_GENERATOR}" STREQUAL "Xcode")
+	set(HEADERS_EXTRA /usr/local/include)
+endif()
+
 add_library(dsp++ SHARED ${SOURCES})
-include_directories(src include ${PROJECT_BINARY_DIR}/include)
+include_directories(src include ${PROJECT_BINARY_DIR}/include ${HEADERS_EXTRA})
 target_compile_definitions(dsp++ PRIVATE DSPXX_EXPORTS)
 target_include_directories(dsp++ INTERFACE include)
 target_include_directories(dsp++ PRIVATE src)
