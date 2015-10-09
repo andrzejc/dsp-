@@ -68,7 +68,7 @@ libdsp++.a: $(OBJ)
 	ar cr $@ $?
 
 libdsp++.$(SO): $(OBJ)
-	$(CXX) -shared -Wl,-soname,$@ -o $@ $^ $(CXXFLAGS) $(LIBS)
+	$(CXX) -shared -o $@ $^ $(CXXFLAGS) $(LIBS)
 
 .PHONY: clean docs install uninstall clean-docs distclean all
 
