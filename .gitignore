@@ -5,3 +5,5 @@
 /*.suo
 /*.user
 /dsp++/*.user
+/build
+**/.DS_Store
