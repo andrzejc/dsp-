@@ -1,6 +1,6 @@
 #include <dsp++/config.h>
 #include <dsp++/csvread.h>
-
+// TODO: create exception classes based on std:ios:fail for i/o operation failures
 #include <iostream>
 #include <fstream>
 #include <cstdio>
@@ -11,16 +11,16 @@ namespace {
 template<class T>
 const char* sscanf_spec();
 
-template<> inline 
+template<> inline
 const char* sscanf_spec<float>() {return "%g";}
 
 template<> inline
 const char* sscanf_spec<double>() {return "%lg";}
 
-template<class T> 
+template<class T>
 void csvread_impl(std::istream& f, std::vector<std::vector<T>>& vec)
 {
-	while (f) 
+	while (f)
 	{
 		std::string line;
         std::getline(f, line);
@@ -33,7 +33,7 @@ void csvread_impl(std::istream& f, std::vector<std::vector<T>>& vec)
         std::stringstream  ss(line);
         std::string cell;
 
-        while (std::getline(ss, cell, ',')) 
+        while (std::getline(ss, cell, ','))
 		{
 #ifndef DSP_BOOST_DISABLED
 			boost::algorithm::trim(cell);
@@ -79,14 +79,18 @@ void dsp::csvread(const char* path, std::vector<std::vector<double>>& vec)
 
 void dsp::csvread(const wchar_t* path, std::vector<std::vector<float>>& vec)
 {
+#ifdef _MSC_VER
 	std::ifstream f(path);
 	csvread_impl(f, vec);
+#endif
 }
 
 void dsp::csvread(const wchar_t* path, std::vector<std::vector<double>>& vec)
 {
+#ifdef _MSC_VER
 	std::ifstream f(path);
 	csvread_impl(f, vec);
+#endif
 }
 
 void dsp::csvread(const std::string& path, std::vector<std::vector<float>>& vec)
@@ -103,12 +107,20 @@ void dsp::csvread(const std::string& path, std::vector<std::vector<double>>& vec
 
 void dsp::csvread(const std::wstring& path, std::vector<std::vector<float>>& vec)
 {
+#ifdef _MSC_VER
 	std::ifstream f(path);
 	csvread_impl(f, vec);
+#else
+	csvread(path.c_str(), vec);
+#endif
 }
 
 void dsp::csvread(const std::wstring& path, std::vector<std::vector<double>>& vec)
 {
+#ifdef _MSC_VER
 	std::ifstream f(path);
 	csvread_impl(f, vec);
+#else
+	csvread(path.c_str(), vec);
+#endif
 }
