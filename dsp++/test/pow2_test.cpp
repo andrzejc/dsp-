@@ -3,14 +3,15 @@
  * 
  * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
  */
-#include "pow2_test.h"
+#include <boost/test/auto_unit_test.hpp>
+#include <boost/test/floating_point_comparison.hpp> 
 
 #include <dsp++/pow2.h>
 #include <stdexcept>
 
-using namespace dsp::test;
+BOOST_AUTO_TEST_SUITE(pow2)
 
-void pow2_test::test_ispow2()
+BOOST_AUTO_TEST_CASE(ispow2)
 {
 	BOOST_CHECK(!dsp::ispow2(0));
 	BOOST_CHECK(dsp::ispow2(1U));
@@ -22,7 +23,7 @@ void pow2_test::test_ispow2()
 	BOOST_CHECK(dsp::ispow2(8589934592ULL));
 }
 
-void pow2_test::test_nextpow2()
+BOOST_AUTO_TEST_CASE(nextpow2)
 {
 	BOOST_CHECK(dsp::nextpow2(0) == 1);
 	BOOST_CHECK(dsp::nextpow2(-1) == 1);
@@ -33,3 +34,4 @@ void pow2_test::test_nextpow2()
 	BOOST_CHECK(dsp::nextpow2(4294967297) == 8589934592);
 }
 
+BOOST_AUTO_TEST_SUITE_END()

@@ -40,10 +40,10 @@ BOOST_AUTO_TEST_CASE(test_fdaf_overlap_save)
 	const unsigned step = 32;
 	dsp::fdaf_overlap_save<double> lms(step, 0.008);
 	for (size_t i = 0; i < 1024; i += step) {
-		std::copy_n(&in[i], step, lms.x.begin());
-		std::copy_n(&out[i], step, lms.d.begin());
+		dsp::copy_n(&in[i], step, lms.x.begin());
+		dsp::copy_n(&out[i], step, lms.d.begin());
 		lms();
-		std::copy_n(lms.e.begin(), step, &e[i]);
+		dsp::copy_n(lms.e.begin(), step, &e[i]);
 	}
 	BOOST_CHECK(std::equal(e, e + 1024, e_fdaf, dsp::within_range<double>(0.00001)));
 }

@@ -4,7 +4,9 @@
  * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
  */
 
-#include "lpc_test.h"
+#include <boost/test/auto_unit_test.hpp>
+#include <boost/test/floating_point_comparison.hpp> 
+
 #include <dsp++/lpc.h>
 #include <dsp++/float.h>
 
@@ -26,8 +28,9 @@ const std::complex<double> ca[] = {C(1.00000000000000, 0.00000000000000),	C(-0.1
 
 const std::complex<double> ce = 4.00753693110963;
 
+BOOST_AUTO_TEST_SUITE(lpc)
 
-void dsp::test::lpc_test::test_lpc_real()
+BOOST_AUTO_TEST_CASE(lpc_real)
 {
 	const size_t L = 7;
 	dsp::lpc<double> lpc(L);
@@ -37,7 +40,7 @@ void dsp::test::lpc_test::test_lpc_real()
 	BOOST_CHECK(dsp::within_range<float>(0.00001f)(e, ::e));
 }
 
-void dsp::test::lpc_test::test_lpc_complex()
+BOOST_AUTO_TEST_CASE(lpc_complex)
 {
 	const size_t L = 7;
 	dsp::lpc<std::complex<double> > lpc(L);
@@ -47,3 +50,4 @@ void dsp::test::lpc_test::test_lpc_complex()
 	BOOST_CHECK(dsp::within_range<std::complex<double> >(0.00001)(e, ::ce));
 }
 
+BOOST_AUTO_TEST_SUITE_END()

@@ -4,7 +4,9 @@
  * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
  */
 
-#include "levinson_test.h"
+#include <boost/test/auto_unit_test.hpp>
+#include <boost/test/floating_point_comparison.hpp> 
+
 #include <dsp++/levinson.h>
 #include <dsp++/float.h>
 
@@ -22,8 +24,9 @@ const double A_short[] = {1,	-13.4326009406974,	-2.68057030622505,	12.6509686330
 const double K_short[] = {2.49508045327004, -1.05160634982999, 	12.6509686330086};
 const double E_short = 50.8401698403905;
 
+BOOST_AUTO_TEST_SUITE(levinson)
 
-void dsp::test::levinson_test::test_levinson()
+BOOST_AUTO_TEST_CASE(levinson)
 {
 	{
 		const size_t L = 7;
@@ -47,7 +50,7 @@ void dsp::test::levinson_test::test_levinson()
 	}
 }
 
-void dsp::test::levinson_test::test_levinson_complex()
+BOOST_AUTO_TEST_CASE(levinson_complex)
 {
 	const size_t L = 7;
 	dsp::levinson<std::complex<double> > ld(L);
@@ -59,7 +62,7 @@ void dsp::test::levinson_test::test_levinson_complex()
 	BOOST_CHECK(std::equal(K, K + L - 1, kk, dsp::within_range<std::complex<double> >(0.00001)));
 }
 
-void dsp::test::levinson_test::test_levinson_short()
+BOOST_AUTO_TEST_CASE(levinson_short)
 {
 	const size_t L = 7;
 	const size_t N = 3;
@@ -73,7 +76,7 @@ void dsp::test::levinson_test::test_levinson_short()
 }
 
 
-void dsp::test::levinson_test::test_levdown()
+BOOST_AUTO_TEST_CASE(levdown)
 {
 	const size_t P = 3;
 	const double anxt[] = {1, 0.5, 1./3, 0.25, 0.2};
@@ -88,7 +91,7 @@ void dsp::test::levinson_test::test_levdown()
 	BOOST_CHECK(dsp::within_range<double>(0.00001)(k, ref_k));
 }
 
-void dsp::test::levinson_test::test_levup()
+BOOST_AUTO_TEST_CASE(levup)
 {
 	const size_t P = 4;
 	const double acur[] = {1, 0.5, 1./3, 0.25, 0.2};
@@ -103,3 +106,5 @@ void dsp::test::levinson_test::test_levup()
  	BOOST_CHECK(std::equal(ref, ref + P + 2, anxt, dsp::within_range<double>(0.00001)));
  	BOOST_CHECK(dsp::within_range<double>(0.00001)(e_ref, enxt));
 }
+
+BOOST_AUTO_TEST_SUITE_END()

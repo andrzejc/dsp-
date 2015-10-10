@@ -1,6 +1,3 @@
-cmake_minimum_required(VERSION 3.1)
-# TODO 3.1 is very fresh version and probably won't be available on most platforms, need to find workaround for setting C++ conformance level to 11
-
 project(libdsp++)
 set(DSPXX_VERSION_MAJOR 0)
 set(DSPXX_VERSION_MINOR 1)

@@ -4,7 +4,9 @@
  * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
  */
 
-#include "loudness_test.h"
+#include <boost/test/auto_unit_test.hpp>
+#include <boost/test/floating_point_comparison.hpp> 
+
 #include <dsp++/snd/loudness.h>
 #include <dsp++/snd/reader.h>
 #include <dsp++/float.h>
@@ -52,7 +54,9 @@ static void test_loudness_file(const char* path, float exp_level, float peak)
 	BOOST_CHECK(dsp::within_range<float>(.1f)(vp,peak));
 }
 
-void dsp::test::loudness_test::test_ebu1()
+BOOST_AUTO_TEST_SUITE(loudness)
+
+BOOST_AUTO_TEST_CASE(ebu1)
 {
 	test_loudness_file("data/coil.wav", -11.6f, -.3f);
 	test_loudness_file("data/ebu_testcase1_-23dBFS.wav", -23.f, -22.8f);
@@ -60,6 +64,8 @@ void dsp::test::loudness_test::test_ebu1()
 	test_loudness_file("data/ebu_testcase5_-23dBFS.wav", -23.f, -19.8f);
 }
 
-void dsp::test::loudness_test::test_peak()
+BOOST_AUTO_TEST_CASE(peak)
 {
 }
+
+BOOST_AUTO_TEST_SUITE_END()

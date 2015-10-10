@@ -3,14 +3,17 @@
  *
  * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
  */
-#include "intmath_test.h"
-#include <climits>
+#include <boost/test/auto_unit_test.hpp>
+#include <boost/test/floating_point_comparison.hpp> 
 
+#include <climits>
 #include <dsp++/intmath.h>
 
-using namespace dsp::test;
+using namespace dsp;
 
-void intmath_test::test_signum()
+BOOST_AUTO_TEST_SUITE(intmath)
+
+BOOST_AUTO_TEST_CASE(test_signum)
 {
 	BOOST_CHECK(dsp::signum(-10) == -1);
 	BOOST_CHECK(dsp::signum(INT_MIN) == -1);
@@ -21,7 +24,7 @@ void intmath_test::test_signum()
 	BOOST_CHECK(dsp::signum(123u) == 1u);
 }
 
-void intmath_test::test_add()
+BOOST_AUTO_TEST_CASE(test_add)
 {
 	BOOST_CHECK(dsp::add<dsp::overflow::fastest>(1, 1) == 2);
 	BOOST_CHECK(dsp::add<dsp::overflow::fastest>(10, -10) == 0);
@@ -46,7 +49,7 @@ void intmath_test::test_add()
 	BOOST_CHECK_THROW(dsp::add<dsp::overflow::exception>(INT_MIN + 11, -15), std::overflow_error);
 }
 
-void intmath_test::test_sub()
+BOOST_AUTO_TEST_CASE(test_sub)
 {
 	BOOST_CHECK(dsp::sub<dsp::overflow::fastest>(1, 1) == 0);
 	BOOST_CHECK(dsp::sub<dsp::overflow::fastest>(10, -10) == 20);
@@ -70,7 +73,7 @@ void intmath_test::test_sub()
 	BOOST_CHECK_THROW(dsp::sub<dsp::overflow::exception>(INT_MIN + 11, 15), std::overflow_error);
 }
 
-void intmath_test::test_mul()
+BOOST_AUTO_TEST_CASE(test_mul)
 {
 	BOOST_CHECK(dsp::mul<dsp::overflow::fastest>(1, 1) == 1);
 	BOOST_CHECK(dsp::mul<dsp::overflow::fastest>(10, -10) == -100);
@@ -96,7 +99,7 @@ void intmath_test::test_mul()
 	BOOST_CHECK_THROW(dsp::mul<dsp::overflow::exception>(INT_MAX, 2), std::overflow_error);
 }
 
-void intmath_test::test_div()
+BOOST_AUTO_TEST_CASE(test_div)
 {
 	BOOST_CHECK(dsp::div<dsp::overflow::fastest>(1, 1) == 1);
 	BOOST_CHECK(dsp::div<dsp::overflow::fastest>(10, -10) == -1);
@@ -113,7 +116,7 @@ void intmath_test::test_div()
 	BOOST_CHECK_THROW(dsp::div<dsp::overflow::exception>(INT_MIN, -1), std::overflow_error);
 }
 
-void intmath_test::test_mod()
+BOOST_AUTO_TEST_CASE(test_mod)
 {
 	BOOST_CHECK(dsp::mod<dsp::overflow::fastest>(1, 1) == 0);
 	BOOST_CHECK(dsp::mod<dsp::overflow::fastest>(10, -10) == 0);
@@ -132,7 +135,7 @@ void intmath_test::test_mod()
 	BOOST_CHECK(dsp::mod<dsp::overflow::fastest>(0u, 100u) == 0u);
 }
 
-void intmath_test::test_neg()
+BOOST_AUTO_TEST_CASE(test_neg)
 {
 	BOOST_CHECK(dsp::neg<dsp::overflow::fastest>(1) == -1);
 	BOOST_CHECK(dsp::neg<dsp::overflow::fastest>(10) == -10);
@@ -146,7 +149,7 @@ void intmath_test::test_neg()
 	BOOST_CHECK_THROW(dsp::neg<dsp::overflow::exception>(INT_MIN), std::overflow_error);
 }
 
-void intmath_test::test_round()
+BOOST_AUTO_TEST_CASE(test_round)
 {
 	BOOST_CHECK((dsp::round<rounding::truncated>(19234, 0) == 19234));
 	BOOST_CHECK((dsp::round<rounding::nearest>(19234, 0) == 19234));
@@ -173,21 +176,21 @@ void intmath_test::test_round()
 	BOOST_CHECK((dsp::round<rounding::negative>(-12, 3) == -16));
 	BOOST_CHECK((dsp::round<rounding::positive>(-12, 3) == -8));
 
-	BOOST_CHECK((dsp::round<rounding::truncated>(short(32767), 15) == 0));
-	BOOST_CHECK((dsp::round<rounding::nearest>(short(32767), 15) == 0));
-	BOOST_CHECK((dsp::round<rounding::truncated>(short(-32768), 15) == 0));
-	BOOST_CHECK((dsp::round<rounding::nearest>(short(-32768), 15) == 0));
+	BOOST_CHECK((dsp::round<rounding::truncated>(std::int16_t(32767), 15) == 0));
+	BOOST_CHECK((dsp::round<rounding::nearest>(std::int16_t(32767), 15) == 0));
+	BOOST_CHECK((dsp::round<rounding::truncated>(std::int16_t(-32768), 15) == 0));
+	BOOST_CHECK((dsp::round<rounding::nearest>(std::int16_t(-32768), 15) == 0));
 
-	BOOST_CHECK_NO_THROW((dsp::round<rounding::truncated, overflow::exception>(short(32767), 14)));
-	BOOST_CHECK((dsp::round<rounding::truncated, overflow::exception>(short(32767), 14) == 16384));
-	BOOST_CHECK_THROW((dsp::round<rounding::nearest, overflow::exception>(short(32767), 14)), std::overflow_error);
-	BOOST_CHECK_NO_THROW((dsp::round<rounding::nearest, overflow::exception>(short(-32767), 14)));
-	BOOST_CHECK((dsp::round<rounding::nearest, overflow::exception>(short(-32767), 14) == short(-32768)));
+	BOOST_CHECK_NO_THROW((dsp::round<rounding::truncated, overflow::exception>(std::int16_t(32767), 14)));
+	BOOST_CHECK((dsp::round<rounding::truncated, overflow::exception>(std::int16_t(32767), 14) == 16384));
+	BOOST_CHECK_THROW((dsp::round<rounding::nearest, overflow::exception>(std::int16_t(32767), 14)), std::overflow_error);
+	BOOST_CHECK_NO_THROW((dsp::round<rounding::nearest, overflow::exception>(std::int16_t(-32767), 14)));
+	BOOST_CHECK((dsp::round<rounding::nearest, overflow::exception>(std::int16_t(-32767), 14) == std::int16_t(-32768)));
 }
 
-void intmath_test::test_check_overflow()
+BOOST_AUTO_TEST_CASE(test_check_overflow)
 {
-	short val = 16383;
+	std::int16_t val = 16383;
 	BOOST_CHECK_NO_THROW(dsp::overflow_check_handle<overflow::exception>(val, 14));
 	++val;
 	BOOST_CHECK_THROW(dsp::overflow_check_handle<overflow::exception>(val, 14), std::overflow_error);
@@ -206,7 +209,7 @@ void intmath_test::test_check_overflow()
 	++val;
 	BOOST_CHECK_THROW(dsp::overflow_check_handle<overflow::exception>(val, 0), std::overflow_error);
 
-	unsigned short uval = 16383;
+	std::uint16_t uval = 16383;
 	BOOST_CHECK_NO_THROW(dsp::overflow_check_handle<overflow::exception>(uval, 14));
 	++uval;
 	BOOST_CHECK_THROW(dsp::overflow_check_handle<overflow::exception>(uval, 14), std::overflow_error);
@@ -223,33 +226,33 @@ void intmath_test::test_check_overflow()
 	BOOST_CHECK_THROW(dsp::overflow_check_handle<overflow::exception>(uval, 0), std::overflow_error);
 }
 
-void intmath_test::test_rint()
+BOOST_AUTO_TEST_CASE(test_rint)
 {
-	BOOST_CHECK((dsp::rint<short>(0.5f, rounding::truncated, overflow::fastest) == 0));
-	BOOST_CHECK((dsp::rint<short>(0.9f, rounding::truncated, overflow::fastest) == 0));
-	BOOST_CHECK((dsp::rint<short>(-0.9f, rounding::truncated, overflow::fastest) == 0));
-	BOOST_CHECK((dsp::rint<short>(-11.f, rounding::truncated, overflow::fastest) == -11));
-	BOOST_CHECK((dsp::rint<short>(100.f, rounding::truncated, overflow::fastest) == 100));
+	BOOST_CHECK((dsp::rint<std::int16_t>(0.5f, rounding::truncated, overflow::fastest) == 0));
+	BOOST_CHECK((dsp::rint<std::int16_t>(0.9f, rounding::truncated, overflow::fastest) == 0));
+	BOOST_CHECK((dsp::rint<std::int16_t>(-0.9f, rounding::truncated, overflow::fastest) == 0));
+	BOOST_CHECK((dsp::rint<std::int16_t>(-11.f, rounding::truncated, overflow::fastest) == -11));
+	BOOST_CHECK((dsp::rint<std::int16_t>(100.f, rounding::truncated, overflow::fastest) == 100));
 
-	BOOST_CHECK((dsp::rint<short>(0.1, rounding::nearest, overflow::fastest) == 0));
-	BOOST_CHECK((dsp::rint<short>(-0.1, rounding::nearest, overflow::fastest) == 0));
-	BOOST_CHECK((dsp::rint<int>(100.7, rounding::nearest, overflow::fastest) == 101));
-	BOOST_CHECK((dsp::rint<int>(-100.7, rounding::nearest, overflow::fastest) == -101));
-	BOOST_CHECK((dsp::rint<short>(32767.6, rounding::positive, overflow::saturate) == 32767));
-	BOOST_CHECK((dsp::rint<short>(-32769.6, rounding::positive, overflow::saturate) == -32768));
-	BOOST_CHECK((dsp::rint<short>(-32767.6, rounding::negative, overflow::saturate) == -32768));
-	BOOST_CHECK((dsp::rint<short>(-32767.6, rounding::positive, overflow::saturate) == -32767));
+	BOOST_CHECK((dsp::rint<std::int16_t>(0.1, rounding::nearest, overflow::fastest) == 0));
+	BOOST_CHECK((dsp::rint<std::int16_t>(-0.1, rounding::nearest, overflow::fastest) == 0));
+	BOOST_CHECK((dsp::rint<std::int32_t>(100.7, rounding::nearest, overflow::fastest) == 101));
+	BOOST_CHECK((dsp::rint<std::int32_t>(-100.7, rounding::nearest, overflow::fastest) == -101));
+	BOOST_CHECK((dsp::rint<std::int16_t>(32767.6, rounding::positive, overflow::saturate) == 32767));
+	BOOST_CHECK((dsp::rint<std::int16_t>(-32769.6, rounding::positive, overflow::saturate) == -32768));
+	BOOST_CHECK((dsp::rint<std::int16_t>(-32767.6, rounding::negative, overflow::saturate) == -32768));
+	BOOST_CHECK((dsp::rint<std::int16_t>(-32767.6, rounding::positive, overflow::saturate) == -32767));
 
-	BOOST_CHECK_THROW((dsp::rint<short>(-32768.6, rounding::nearest, overflow::exception)), std::overflow_error);
-	BOOST_CHECK_THROW((dsp::rint<short>(32767.6, rounding::nearest, overflow::exception)), std::overflow_error);
-	BOOST_CHECK_THROW((dsp::rint<unsigned short>(-1., rounding::nearest, overflow::exception)), std::overflow_error);
-	BOOST_CHECK_THROW((dsp::rint<unsigned short>(-1., rounding::nearest, overflow::exception)), std::overflow_error);
+	BOOST_CHECK_THROW((dsp::rint<std::int16_t>(-32768.6, rounding::nearest, overflow::exception)), std::overflow_error);
+	BOOST_CHECK_THROW((dsp::rint<std::int16_t>(32767.6, rounding::nearest, overflow::exception)), std::overflow_error);
+	BOOST_CHECK_THROW((dsp::rint<std::uint16_t>(-1., rounding::nearest, overflow::exception)), std::overflow_error);
+	BOOST_CHECK_THROW((dsp::rint<std::uint16_t>(-1., rounding::nearest, overflow::exception)), std::overflow_error);
 
 	BOOST_CHECK_THROW((dsp::rint<int>(-2147483648.5, rounding::nearest, overflow::exception)), std::overflow_error);
 	BOOST_CHECK_THROW((dsp::rint<int>(2147483647.5, rounding::nearest, overflow::exception)), std::overflow_error);
 }
 
-void intmath_test::test_gcd()
+BOOST_AUTO_TEST_CASE(test_gcd)
 {
 	BOOST_CHECK(dsp::gcd(1, 1) == 1);
 	BOOST_CHECK(dsp::gcd(5, 3) == 1);
@@ -258,4 +261,6 @@ void intmath_test::test_gcd()
 	BOOST_CHECK(dsp::gcd(8, 4) == 4);
 	BOOST_CHECK(dsp::gcd(44100, 48000) == 300);
 }
+
+BOOST_AUTO_TEST_SUITE_END()
 
