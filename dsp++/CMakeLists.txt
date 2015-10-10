@@ -191,3 +191,4 @@ install(TARGETS dsp++ DESTINATION lib)
 install(DIRECTORY include/dsp++/ DESTINATION include/dsp++)
 install(FILES ${PROJECT_BINARY_DIR}/include/dsp++/version.h DESTINATION include/dsp++)
 
+add_subdirectory(test)
