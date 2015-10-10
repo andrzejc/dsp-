@@ -3,3 +3,6 @@ project(dsp++)
 cmake_policy(SET CMP0042 NEW)
 
 add_subdirectory(dsp++)
+add_subdirectory(compressor_demo)
+add_subdirectory(filter_demo)
+
