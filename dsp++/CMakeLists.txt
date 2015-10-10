@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.1)
+# TODO 3.1 is very fresh version and probably won't be available on most platforms, need to find workaround for setting C++ conformance level to 11
+
 project(libdsp++)
 set(DSPXX_VERSION_MAJOR 0)
 set(DSPXX_VERSION_MINOR 1)
-set(CMAKE_BUILD_TYPE Release)
-cmake_policy(SET CMP0042 NEW)
 
 # options
 option(DSPXX_FFTW_DISABLED "Disable the use and support for FFTW3 library" OFF)

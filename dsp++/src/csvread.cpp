@@ -5,6 +5,7 @@
 #include <fstream>
 #include <cstdio>
 #include <sstream>
+#include <stdexcept>
 
 namespace {
 
@@ -18,7 +19,7 @@ template<> inline
 const char* sscanf_spec<double>() {return "%lg";}
 
 template<class T>
-void csvread_impl(std::istream& f, std::vector<std::vector<T>>& vec)
+void csvread_impl(std::istream& f, std::vector<std::vector<T> >& vec)
 {
 	while (f)
 	{
@@ -55,29 +56,29 @@ void csvread_impl(std::istream& f, std::vector<std::vector<T>>& vec)
 
 }
 
-void dsp::csvread(std::istream& is, std::vector<std::vector<float>>& vec)
+void dsp::csvread(std::istream& is, std::vector<std::vector<float> >& vec)
 {
 	csvread_impl(is, vec);
 }
 
-void dsp::csvread(std::istream& is, std::vector<std::vector<double>>& vec)
+void dsp::csvread(std::istream& is, std::vector<std::vector<double> >& vec)
 {
 	csvread_impl(is, vec);
 }
 
-void dsp::csvread(const char* path, std::vector<std::vector<float>>& vec)
+void dsp::csvread(const char* path, std::vector<std::vector<float> >& vec)
 {
 	std::ifstream f(path);
 	csvread_impl(f, vec);
 }
 
-void dsp::csvread(const char* path, std::vector<std::vector<double>>& vec)
+void dsp::csvread(const char* path, std::vector<std::vector<double> >& vec)
 {
 	std::ifstream f(path);
 	csvread_impl(f, vec);
 }
 
-void dsp::csvread(const wchar_t* path, std::vector<std::vector<float>>& vec)
+void dsp::csvread(const wchar_t* path, std::vector<std::vector<float> >& vec)
 {
 #ifdef _MSC_VER
 	std::ifstream f(path);
@@ -85,7 +86,7 @@ void dsp::csvread(const wchar_t* path, std::vector<std::vector<float>>& vec)
 #endif
 }
 
-void dsp::csvread(const wchar_t* path, std::vector<std::vector<double>>& vec)
+void dsp::csvread(const wchar_t* path, std::vector<std::vector<double> >& vec)
 {
 #ifdef _MSC_VER
 	std::ifstream f(path);
@@ -93,19 +94,19 @@ void dsp::csvread(const wchar_t* path, std::vector<std::vector<double>>& vec)
 #endif
 }
 
-void dsp::csvread(const std::string& path, std::vector<std::vector<float>>& vec)
+void dsp::csvread(const std::string& path, std::vector<std::vector<float> >& vec)
 {
-	std::ifstream f(path);
+	std::ifstream f(path.c_str());
 	csvread_impl(f, vec);
 }
 
-void dsp::csvread(const std::string& path, std::vector<std::vector<double>>& vec)
+void dsp::csvread(const std::string& path, std::vector<std::vector<double> >& vec)
 {
-	std::ifstream f(path);
+	std::ifstream f(path.c_str());
 	csvread_impl(f, vec);
 }
 
-void dsp::csvread(const std::wstring& path, std::vector<std::vector<float>>& vec)
+void dsp::csvread(const std::wstring& path, std::vector<std::vector<float> >& vec)
 {
 #ifdef _MSC_VER
 	std::ifstream f(path);
@@ -115,7 +116,7 @@ void dsp::csvread(const std::wstring& path, std::vector<std::vector<float>>& vec
 #endif
 }
 
-void dsp::csvread(const std::wstring& path, std::vector<std::vector<double>>& vec)
+void dsp::csvread(const std::wstring& path, std::vector<std::vector<double> >& vec)
 {
 #ifdef _MSC_VER
 	std::ifstream f(path);

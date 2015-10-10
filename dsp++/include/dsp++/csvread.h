@@ -18,35 +18,35 @@ namespace dsp {
 /// @param [in] is input stream
 /// @param [out] vec vector of vectors representing rows of data
 /// @throw std::exception if file has malformed data
-DSPXX_API void csvread(std::istream& is, std::vector<std::vector<float>>& vec);
-/// @overload csvread(std::istream&, std::vector<std::vector<float>>&)
-DSPXX_API void csvread(std::istream& is, std::vector<std::vector<double>>& vec);
+DSPXX_API void csvread(std::istream& is, std::vector<std::vector<float> >& vec);
+/// @overload csvread(std::istream&, std::vector<std::vector<float> >&)
+DSPXX_API void csvread(std::istream& is, std::vector<std::vector<double> >& vec);
 
-/// @overload csvread(std::istream&, std::vector<std::vector<float>>&)
+/// @overload csvread(std::istream&, std::vector<std::vector<float> >&)
 /// @param [in] path CSV file path
-DSPXX_API void csvread(const std::wstring& path, std::vector<std::vector<float>>& vec);
-/// @overload csvread(std::istream&, std::vector<std::vector<float>>&)
+DSPXX_API void csvread(const std::wstring& path, std::vector<std::vector<float> >& vec);
+/// @overload csvread(std::istream&, std::vector<std::vector<float> >&)
 /// @param [in] path CSV file path
-DSPXX_API void csvread(const std::wstring& path, std::vector<std::vector<double>>& vec);
-/// @overload csvread(std::istream&, std::vector<std::vector<float>>&)
+DSPXX_API void csvread(const std::wstring& path, std::vector<std::vector<double> >& vec);
+/// @overload csvread(std::istream&, std::vector<std::vector<float> >&)
 /// @param [in] path CSV file path
-DSPXX_API void csvread(const std::string& path, std::vector<std::vector<float>>& vec);
-/// @overload csvread(std::istream&, std::vector<std::vector<float>>&)
+DSPXX_API void csvread(const std::string& path, std::vector<std::vector<float> >& vec);
+/// @overload csvread(std::istream&, std::vector<std::vector<float> >&)
 /// @param [in] path CSV file path
-DSPXX_API void csvread(const std::string& path, std::vector<std::vector<double>>& vec);
+DSPXX_API void csvread(const std::string& path, std::vector<std::vector<double> >& vec);
 
-/// @overload csvread(std::istream&, std::vector<std::vector<float>>&)
+/// @overload csvread(std::istream&, std::vector<std::vector<float> >&)
 /// @param [in] path CSV file path
-DSPXX_API void csvread(const wchar_t* path, std::vector<std::vector<float>>& vec);
-/// @overload csvread(std::istream&, std::vector<std::vector<float>>&)
+DSPXX_API void csvread(const wchar_t* path, std::vector<std::vector<float> >& vec);
+/// @overload csvread(std::istream&, std::vector<std::vector<float> >&)
 /// @param [in] path CSV file path
-DSPXX_API void csvread(const wchar_t* path, std::vector<std::vector<double>>& vec);
-/// @overload csvread(std::istream&, std::vector<std::vector<float>>&)
+DSPXX_API void csvread(const wchar_t* path, std::vector<std::vector<double> >& vec);
+/// @overload csvread(std::istream&, std::vector<std::vector<float> >&)
 /// @param [in] path CSV file path
-DSPXX_API void csvread(const char* path, std::vector<std::vector<float>>& vec);
-/// @overload csvread(std::istream&, std::vector<std::vector<float>>&)
+DSPXX_API void csvread(const char* path, std::vector<std::vector<float> >& vec);
+/// @overload csvread(std::istream&, std::vector<std::vector<float> >&)
 /// @param [in] path CSV file path
-DSPXX_API void csvread(const char* path, std::vector<std::vector<double>>& vec);
+DSPXX_API void csvread(const char* path, std::vector<std::vector<double> >& vec);
 
 }
 
