@@ -1,13 +1,16 @@
 project(libdsp++)
 set(DSPXX_VERSION_MAJOR 0)
 set(DSPXX_VERSION_MINOR 1)
+set(DSPXX_VERSION "${DSPXX_VERSION_MAJOR}.${DSPXX_VERSION_MINOR}")
 
+find_package(Doxygen)
 # options
-option(DSPXX_FFTW_DISABLED "Disable the use and support for FFTW3 library" OFF)
-option(DSPXX_LIBSNDFILE_DISABLED "Disable the use and support for libsndfile library" OFF)
+option(FFTW_DISABLED "Disable the use and support for FFTW3 library" OFF)
+option(LIBSNDFILE_DISABLED "Disable the use and support for libsndfile library" OFF)
+option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
 
-# consider detecting fftw and setting DSPXX_FFTW_DISABLED automatically
-if (NOT DSPXX_FFTW_DISABLED)
+# consider detecting fftw and setting FFTW_DISABLED automatically
+if (NOT FFTW_DISABLED)
 	find_library(FFTW3F_LIB fftw3f)
 	find_library(FFTW3F_THREADS_LIB fftw3f_threads)
 	find_library(FFTW3_LIB fftw3)
@@ -19,8 +22,8 @@ else ()
 	add_definitions(-DDSP_FFTW_DISABLED=1)
 endif ()
 
-# consider detecting libsndfile and setting DSPXX_LIBSNDFILE_DISABLED automatically
-if (NOT DSPXX_LIBSNDFILE_DISABLED)
+# consider detecting libsndfile and setting LIBSNDFILE_DISABLED automatically
+if (NOT LIBSNDFILE_DISABLED)
 	find_library(LIBSNDFILE_LIB sndfile)
 	set(LIBS ${LIBS} ${LIBSNDFILE_LIB})
 else ()
@@ -182,10 +185,26 @@ target_include_directories(dsp++ INTERFACE include)
 target_include_directories(dsp++ PRIVATE src)
 target_link_libraries(dsp++ ${LIBS})
 set_property(TARGET dsp++ PROPERTY CXX_STANDARD 11)
-set_target_properties(dsp++ PROPERTIES VERSION "${DSPXX_VERSION_MAJOR}.${DSPXX_VERSION_MINOR}")
+set_target_properties(dsp++ PROPERTIES VERSION ${DSPXX_VERSION})
 
 install(TARGETS dsp++ DESTINATION lib)
 install(DIRECTORY include/dsp++/ DESTINATION include/dsp++)
 install(FILES ${PROJECT_BINARY_DIR}/include/dsp++/version.h DESTINATION include/dsp++)
+
+if (BUILD_DOCUMENTATION)
+	if(NOT DOXYGEN_FOUND)
+		message(FATAL_ERROR "Doxygen is needed to build the documentation.")
+	endif()
+
+	configure_file(doxyfile.in doxyfile @ONLY)
+
+	add_custom_target(doc
+	COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile}
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+	COMMENT "Generating API documentation with Doxygen"
+	VERBATIM)
+
+	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc/ DESTINATION share/doc/${CMAKE_PROJECT_NAME}-${DSPXX_VERSION})
+endif()
 
 add_subdirectory(test)
