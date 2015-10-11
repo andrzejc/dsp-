@@ -3,7 +3,7 @@
 #include "remez/remez.h"
 
 bool dsp::fir::pm::design(unsigned order, unsigned band_count, double freqs[], const double amps[],
-	const double weights[], double h[], enum_class_ref(type) type, unsigned grid_density, unsigned max_iterations)
+    const double weights[], double h[], type::spec type, unsigned grid_density, unsigned max_iterations)
 {
 	remez_filter_type ft;
 	switch (type) {

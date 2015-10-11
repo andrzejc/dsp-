@@ -76,7 +76,6 @@ set(PUBLIC_HEADERS
 	include/dsp++/window.h
 	include/dsp++/xcorr.h
 	include/dsp++/zeropole.h
-	include/dsp++/compat/enum_class.h
 	include/dsp++/fft/detail.h
 	include/dsp++/fftw/allocator.h
 	include/dsp++/fftw/dft.h

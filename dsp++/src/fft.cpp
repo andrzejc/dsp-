@@ -214,7 +214,7 @@ class fft_impl: public dsp::dft::detail::fft_impl<T>
 	}
 
 public:
-	void fft(std::complex<T>* in_out, dsp::dft::enum_class_ref(sign) sign) const
+    void fft(std::complex<T>* in_out, dsp::dft::sign::spec sign) const
 	{
 		if (dsp::dft::sign::backward == sign)
 			swap_real_imag(in_out);

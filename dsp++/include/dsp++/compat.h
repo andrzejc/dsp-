@@ -4,6 +4,4 @@
 #ifndef DSP_COMPAT_H_INCLUDED
 #define DSP_COMPAT_H_INCLUDED
 
-#include <dsp++/compat/enum_class.h>
-
 #endif // DSP_COMPAT_H_INCLUDED

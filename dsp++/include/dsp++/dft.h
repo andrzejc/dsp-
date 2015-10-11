@@ -12,14 +12,14 @@ namespace dsp {
 namespace dft {
 
 /// @brief Constants specifying DFT transform direction/exponent sign
-enum_class(sign) {
+namespace sign { enum spec {
 	/// @brief Sign of exponent for forward DFT transform (-1).
 	/// @see FFTW_FORWARD
 	forward = -1,
 	/// @brief Sign of exponent for inverse DFT transform (1).
 	/// @see FFTW_BACKWARD
 	backward = 1
-}; enum_class_end
+}; }
 
 }} // namespace dsp::dft
 

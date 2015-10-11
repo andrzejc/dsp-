@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <cmath>
 
-void dsp::biquad::design(double b[], double a[], biquad::enum_class_ref(type) type, double norm_freq, const double* gain_db, const double* q, const double* bw, const double* s)
+void dsp::biquad::design(double b[], double a[], biquad::type::spec type, double norm_freq, const double* gain_db, const double* q, const double* bw, const double* s)
 {
 	if (norm_freq < 0. || norm_freq > 0.5)
 		throw std::domain_error("dsp::biquad::design(): norm_freq outside [0, 0.5]");

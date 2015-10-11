@@ -27,7 +27,7 @@ public:
 	virtual ~fft_impl();
 
 private:
-	virtual void fft(complex<Real>* in_out, enum_class_ref(sign) sign) const = 0;
+	virtual void fft(complex<Real>* in_out, sign::spec sign) const = 0;
 	friend class dsp::dft::fft<complex<Real>, complex<Real> >;
 	static const fft_impl& get(size_t n);
 };
@@ -38,7 +38,7 @@ class DSPXX_API fft_impl<float> {
 public:
 	virtual ~fft_impl();
 private:
-	virtual void fft(complex<float>* in_out, enum_class_ref(sign) sign) const = 0;
+	virtual void fft(complex<float>* in_out, sign::spec sign) const = 0;
 	friend class dsp::dft::fft<complex<float>, complex<float> >;
 	static const fft_impl& get(size_t n);
 };
@@ -49,7 +49,7 @@ class DSPXX_API fft_impl<double> {
 public:
 	virtual ~fft_impl();
 private:
-	virtual void fft(complex<double>* in_out, enum_class_ref(sign) sign) const = 0;
+	virtual void fft(complex<double>* in_out, sign::spec sign) const = 0;
 	friend class dsp::dft::fft<complex<double>, complex<double> >;
 	static const fft_impl& get(size_t n);
 };
