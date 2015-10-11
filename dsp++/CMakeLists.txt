@@ -13,57 +13,21 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 # consider detecting fftw and setting FFTW_DISABLED automatically
 if (NOT FFTW3_DISABLED)
-	find_package(FFTW3)
-	list(APPEND LIBS ${FFTW3_LIBRARY})
+	find_package(FFTW3 REQUIRED)
+	list(APPEND INCLUDE_DIRS ${FFTW3_INCLUDE_DIRS})
+	list(APPEND LIBS ${FFTW3_LIBRARIES})
 else ()
 	add_definitions(-DDSP_FFTW_DISABLED=1)
 endif ()
 
 # consider detecting libsndfile and setting LIBSNDFILE_DISABLED automatically
 if (NOT LIBSNDFILE_DISABLED)
-	find_package(LibSndfile)
-	list(APPEND LIBS ${LIBSNDFILE_LIBRARY})
+	find_package(LibSndfile REQUIRED)
+	list(APPEND INCLUDE_DIRS ${LIBSNDFILE_INCLUDE_DIRS})
+	list(APPEND LIBS ${LIBSNDFILE_LIBRARIES})
 else ()
 	add_definitions(-DDSP_SNDFILE_DISABLED=1)
 endif ()
-
-# platform-specific stuff
-include(TargetPlatform)
-# x86 - specific sources & configuration
-if (TARGET_PLATFORM_X86)
-	set(SOURCES_X86
-		src/arch/x86/cpu_x86.cpp
-		src/arch/x86/sse.cpp
-		src/arch/x86/sse3.cpp
-		src/arch/x86/sse41.cpp
-	)
-
-	set_source_files_properties(src/arch/x86/sse.cpp PROPERTIES COMPILE_FLAGS "${CXX_COMPILER_SSE_FLAG}")
-	set_source_files_properties(src/arch/x86/sse3.cpp PROPERTIES COMPILE_FLAGS "${CXX_COMPILER_SSE3_FLAG}")
-	set_source_files_properties(src/arch/x86/sse41.cpp PROPERTIES COMPILE_FLAGS "${CXX_COMPILER_SSE41_FLAG}")
-	set(SOURCES_ARCH ${SOURCES_X86})
-	set(HEADERS_ARCH
-		src/arch/x86/sse_utils.h
-		src/arch/x86/sse.h
-	)
-endif()
-# ARM - specific
-if (TARGET_PLATFORM_ARM)
-	set(SOURCES_ARM
-		src/arch/arm/cpu_arm.cpp
-	)
-
-	set(SOURCES_ARCH ${SOURCES_ARM})
-endif()
-# PowerPC - specific
-if (TARGET_PLATFORM_PPC)
-	set(SOURCES_PPC
-		src/arch/ppc/cpu_ppc.cpp
-	)
-
-	set(SOURCES_ARCH ${SOURCES_PPC})
-endif()
-#
 
 configure_file(src/version.h.in include/dsp++/version.h)
 
@@ -141,7 +105,6 @@ set(HEADERS
 	src/utility.h
 	src/mkfilter/mkfilter.h
 	src/remez/remez.h
-	${HEADERS_ARCH}
 )
 
 set(SOURCES
@@ -168,15 +131,50 @@ set(SOURCES
 	src/snd/format.cpp
 	src/snd/io.cpp
 	src/snd/loudness.cpp
-	${SOURCES_ARCH}
 )
 
-if ("${CMAKE_GENERATOR}" STREQUAL "Xcode")
-	set(HEADERS_EXTRA /usr/local/include)
+# platform-specific stuff
+include(TargetPlatform)
+# x86 - specific sources & configuration
+if (TARGET_PLATFORM_X86)
+	list(APPEND SOURCES
+		src/arch/x86/cpu_x86.cpp
+		src/arch/x86/sse.cpp
+		src/arch/x86/sse3.cpp
+		src/arch/x86/sse41.cpp
+	)
+
+	set_source_files_properties(src/arch/x86/sse.cpp PROPERTIES COMPILE_FLAGS "${CXX_COMPILER_SSE_FLAG}")
+	set_source_files_properties(src/arch/x86/sse3.cpp PROPERTIES COMPILE_FLAGS "${CXX_COMPILER_SSE3_FLAG}")
+	set_source_files_properties(src/arch/x86/sse41.cpp PROPERTIES COMPILE_FLAGS "${CXX_COMPILER_SSE41_FLAG}")
+	list(APPEND HEADERS
+		src/arch/x86/sse_utils.h
+		src/arch/x86/sse.h
+	)
+endif()
+# ARM - specific
+if (TARGET_PLATFORM_ARM)
+	list(APPEND SOURCES
+		src/arch/arm/cpu_arm.cpp
+	)
+endif()
+# PowerPC - specific
+if (TARGET_PLATFORM_PPC)
+	list(APPEND SOURCES
+		src/arch/ppc/cpu_ppc.cpp
+	)
+endif()
+#
+
+if (MSVC)
+  add_definitions("-D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS /wd4251 /wd4275")
 endif()
 
+find_package(Boost REQUIRED)
+list(APPEND INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
+
 add_library(dsp++ SHARED ${SOURCES})
-include_directories(src include ${PROJECT_BINARY_DIR}/include ${HEADERS_EXTRA})
+include_directories(src include ${PROJECT_BINARY_DIR}/include ${INCLUDE_DIRS})
 target_compile_definitions(dsp++ PRIVATE DSPXX_EXPORTS)
 target_include_directories(dsp++ INTERFACE include)
 target_include_directories(dsp++ PRIVATE src)

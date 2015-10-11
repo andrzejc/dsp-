@@ -6,11 +6,14 @@ set(SOURCES
 	fdacoefs.h
 )
 
-if ("${CMAKE_GENERATOR}" STREQUAL "Xcode")
-	set(HEADERS_EXTRA /usr/local/include)
+if (MSVC)
+  add_definitions("-D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS /wd4251 /wd4275")
 endif()
 
+find_package(Boost REQUIRED)
+
 add_executable(filter_demo ${SOURCES})
+include_directories(${Boost_INCLUDE_DIRS})
 add_dependencies(filter_demo dsp++)
 target_link_libraries(filter_demo dsp++)
 set_property(TARGET filter_demo PROPERTY CXX_STANDARD 11)

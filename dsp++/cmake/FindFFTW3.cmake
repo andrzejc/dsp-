@@ -7,32 +7,34 @@
 
 if (MSVC)
 	set(FFTW3_ROOT $ENV{FFTW3_ROOT} CACHE PATH "Installation folder of FFTW3" )
+	set(FFTW3_VERSION_MINOR "3" CACHE STRING "Minor version number of FFTW3 libraries" )
+	
 	if (CMAKE_CL_64)
 		set(FFTW3_DIR ${FFTW3_ROOT}/x64)
 	else ()
 		set(FFTW3_DIR ${FFTW3_ROOT}/x86)
 	endif()
 
-	message("FFTW3_DIR: ${FFTW3_DIR}")
+#	message("FFTW3_DIR: ${FFTW3_DIR}")
 
-	find_library(FFTW3D_LIBRARY NAMES libfftw3-*
+	find_library(FFTW3D_LIBRARY NAMES "libfftw3-${FFTW3_VERSION_MINOR}"
 		HINTS ${FFTW3_DIR} )
 
-	find_library(FFTW3F_LIBRARY NAMES libfftw3f-*
+	find_library(FFTW3F_LIBRARY NAMES "libfftw3f-${FFTW3_VERSION_MINOR}"
 		HINTS ${FFTW3_DIR} )
 
-	find_library(FFTW3L_LIBRARY NAMES libfftw3l-*
+	find_library(FFTW3L_LIBRARY NAMES "libfftw3l-${FFTW3_VERSION_MINOR}"
 		HINTS ${FFTW3_DIR} )
 
 	list(APPEND FFTW3_LIBRARY ${FFTW3F_LIBRARY} ${FFTW3D_LIBRARY} ${FFTW3L_LIBRARY})
 
-	message("FFTW3_LIBRARY: ${FFTW3_LIBRARY}")
+#	message("FFTW3_LIBRARY: ${FFTW3_LIBRARY}")
 
 	find_path(FFTW3_INCLUDE_DIR fftw3.h
 		HINTS ${FFTW3_DIR}
 		PATH_SUFFIXES fftw3 )
 
-	message("FFTW3_INCLUDE_DIR: ${FFTW3_LIBRARY}")
+#	message("FFTW3_INCLUDE_DIR: ${FFTW3_LIBRARY}")
 
 else ()
 	find_package(PkgConfig)
@@ -63,15 +65,15 @@ else ()
 	find_path(FFTW3_INCLUDE_DIR fftw3.h
           HINTS ${PC_FFTW3F_INCLUDEDIR} ${PC_FFTW3F_INCLUDE_DIRS} ${PC_FFTW3D_INCLUDEDIR} ${PC_FFTW3D_INCLUDE_DIRS} ${PC_FFTW3L_INCLUDEDIR} ${PC_FFTW3L_INCLUDE_DIRS}
           PATH_SUFFIXES fftw3 )
-
-	set(FFTW3_LIBRARIES ${FFTW3_LIBRARY} )
-	set(FFTW3_INCLUDE_DIRS ${FFTW3_INCLUDE_DIR} )
 endif()
+
+set(FFTW3_LIBRARIES ${FFTW3_LIBRARY} )
+set(FFTW3_INCLUDE_DIRS ${FFTW3_INCLUDE_DIR} )
 
 include(FindPackageHandleStandardArgs)
 # handle the QUIETLY and REQUIRED arguments and set FFTW3_FOUND to TRUE
 # if all listed variables are TRUE
 find_package_handle_standard_args(FFTW3  DEFAULT_MSG
-                                  FFTW3_LIBRARY FFTW3_INCLUDE_DIR)
+                                  FFTW3_LIBRARIES FFTW3_INCLUDE_DIRS)
 
-mark_as_advanced(FFTW3_INCLUDE_DIR FFTW3_LIBRARY )
+mark_as_advanced(FFTW3_INCLUDE_DIRS FFTW3_LIBRARIES )

@@ -25,13 +25,13 @@ set(SOURCES
 	main.cpp
 )
 
-if ("${CMAKE_GENERATOR}" STREQUAL "Xcode")
-	set(HEADERS_EXTRA /usr/local/include)
+if (MSVC)
+  add_definitions("-D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS /wd4251 /wd4275")
 endif()
 
 find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 add_definitions(-DBOOST_TEST_DYN_LINK) 
-include_directories(${Boost_INCLUDE_DIRS} ${HEADERS_EXTRA})
+include_directories(${Boost_INCLUDE_DIRS})
 add_executable(dsp++-test ${SOURCES})
 target_link_libraries(dsp++-test dsp++ ${Boost_LIBRARIES})
 set_property(TARGET dsp++-test PROPERTY CXX_STANDARD 11)

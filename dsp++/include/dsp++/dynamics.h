@@ -12,6 +12,7 @@
 #include <dsp++/complex.h>
 
 #include <limits>
+#include <algorithm>
 
 namespace dsp {
 

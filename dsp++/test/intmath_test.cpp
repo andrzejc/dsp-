@@ -7,6 +7,7 @@
 #include <boost/test/floating_point_comparison.hpp> 
 
 #include <climits>
+#include <cstdint>
 #include <dsp++/intmath.h>
 
 using namespace dsp;

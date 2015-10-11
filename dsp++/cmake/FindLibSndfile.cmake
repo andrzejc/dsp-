@@ -38,14 +38,15 @@ else ()
 	find_library(LIBSNDFILE_LIBRARY NAMES libsndfile sndfile
              HINTS ${PC_LIBSNDFILE_LIBDIR} ${PC_LIBSNDFILE_LIBRARY_DIRS} )
 
-	set(LIBSNDFILE_LIBRARIES ${LIBSNDFILE_LIBRARY} )
-	set(LIBSNDFILE_INCLUDE_DIRS ${LIBSNDFILE_INCLUDE_DIR} )
 endif()
+
+set(LIBSNDFILE_LIBRARIES ${LIBSNDFILE_LIBRARY} )
+set(LIBSNDFILE_INCLUDE_DIRS ${LIBSNDFILE_INCLUDE_DIR} )
 
 include(FindPackageHandleStandardArgs)
 # handle the QUIETLY and REQUIRED arguments and set LIBSNDFILE_FOUND to TRUE
 # if all listed variables are TRUE
 find_package_handle_standard_args(LibSndfile  DEFAULT_MSG
-                                  LIBSNDFILE_LIBRARY LIBSNDFILE_INCLUDE_DIR)
+                                  LIBSNDFILE_LIBRARIES LIBSNDFILE_INCLUDE_DIRS)
 
-mark_as_advanced(LIBSNDFILE_INCLUDE_DIR LIBSNDFILE_LIBRARY )
+mark_as_advanced(LIBSNDFILE_INCLUDE_DIRS LIBSNDFILE_LIBRARIES )
