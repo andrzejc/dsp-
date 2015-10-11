@@ -9,6 +9,8 @@ option(FFTW_DISABLED "Disable the use and support for FFTW3 library" OFF)
 option(LIBSNDFILE_DISABLED "Disable the use and support for libsndfile library" OFF)
 option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+
 # consider detecting fftw and setting FFTW_DISABLED automatically
 if (NOT FFTW_DISABLED)
 	find_library(FFTW3F_LIB fftw3f)
@@ -24,8 +26,8 @@ endif ()
 
 # consider detecting libsndfile and setting LIBSNDFILE_DISABLED automatically
 if (NOT LIBSNDFILE_DISABLED)
-	find_library(LIBSNDFILE_LIB sndfile)
-	set(LIBS ${LIBS} ${LIBSNDFILE_LIB})
+	find_package(LibSndfile)
+	set(LIBS ${LIBS} ${LIBSNDFILE_LIBRARY})
 else ()
 	add_definitions(-DDSP_SNDFILE_DISABLED=1)
 endif ()
