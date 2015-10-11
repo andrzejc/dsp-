@@ -62,7 +62,7 @@ struct within_range: public std::binary_function<Real, Real, bool>
 
 	static bool value(Real lhs, Real rhs, Real epsilon)
 	{
-		return !std::isnan(lhs) && !std::isnan(rhs) &&
+		return !isnan(lhs) && !isnan(rhs) &&
 				(rhs >= (lhs - epsilon)) &&
 				(rhs <= (lhs + epsilon));
 	}
@@ -92,7 +92,7 @@ struct differs_by: public std::binary_function<Real, Real, bool>
 
 	static bool value(Real lhs, Real rhs, Real factor)
 	{
-		return !std::isnan(lhs) && !std::isnan(rhs) &&
+		return !isnan(lhs) && !isnan(rhs) &&
 				(rhs >= (lhs * (Real(1) - factor))) &&
 				(rhs <= (lhs * (Real(1) + factor)));
 	}
