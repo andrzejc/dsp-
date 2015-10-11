@@ -4,6 +4,10 @@ cmake_minimum_required(VERSION 3.1)
 project(dsp++)
 cmake_policy(SET CMP0042 NEW)
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY
+    ${PROJECT_BINARY_DIR}/bin CACHE
+    PATH "Directory where .exe and .dll files are dumped." FORCE)
+    
 enable_testing()
 
 add_subdirectory(dsp++)
