@@ -6,20 +6,25 @@
 #  LIBSNDFILE_DEFINITIONS - Compiler switches required for using libsndfile
 
 if (MSVC)
-	option(LIBSNDFILE_ROOT "Installation folder of libsndfile" $ENV{LIBSNDFILE_ROOT})
-
+	set(LIBSNDFILE_ROOT $ENV{LIBSNDFILE_ROOT} CACHE PATH "Installation folder of libsndfile" )
 	if (CMAKE_CL_64)
-		set(LIBSNDFILE_HINTS ${LIBSNDFILE_ROOT}/x64)
+		set(LIBSNDFILE_DIR ${LIBSNDFILE_ROOT}/x64)
 	else ()
 		set(LIBSNDFILE_DIR ${LIBSNDFILE_ROOT}/x86)
 	endif()
 
+#	message("LIBSNDFILE_DIR: ${LIBSNDFILE_DIR}")
+
 	find_library(LIBSNDFILE_LIBRARY NAMES libsndfile libsndfile-1 libsndfile1 sndfile sndfile-1 sndfile1
 		HINTS ${LIBSNDFILE_DIR}/lib )
+		
+#	message("LIBSNDFILE_LIBRARY: ${LIBSNDFILE_LIBRARY}")
 
 	find_path(LIBSNDFILE_INCLUDE_DIR sndfile.h
 		HINTS ${LIBSNDFILE_DIR}/include
 		PATH_SUFFIXES sndfile )
+
+#	message("LIBSNDFILE_INCLUDE_DIR: ${LIBSNDFILE_LIBRARY}")
 
 else ()
 	find_package(PkgConfig)

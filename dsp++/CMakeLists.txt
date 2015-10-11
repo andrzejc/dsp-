@@ -33,7 +33,7 @@ else ()
 endif ()
 
 # platform-specific stuff
-include(TargetPlatform.cmake)
+include(TargetPlatform)
 # x86 - specific sources & configuration
 if (TARGET_PLATFORM_X86)
 	set(SOURCES_X86
@@ -43,9 +43,9 @@ if (TARGET_PLATFORM_X86)
 		src/arch/x86/sse41.cpp
 	)
 
-	set_source_files_properties(src/arch/x86/sse.cpp PROPERTIES COMPILE_FLAGS ${CXX_COMPILER_SSE_FLAG})
-	set_source_files_properties(src/arch/x86/sse3.cpp PROPERTIES COMPILE_FLAGS ${CXX_COMPILER_SSE3_FLAG})
-	set_source_files_properties(src/arch/x86/sse41.cpp PROPERTIES COMPILE_FLAGS ${CXX_COMPILER_SSE41_FLAG})
+	set_source_files_properties(src/arch/x86/sse.cpp PROPERTIES COMPILE_FLAGS "${CXX_COMPILER_SSE_FLAG}")
+	set_source_files_properties(src/arch/x86/sse3.cpp PROPERTIES COMPILE_FLAGS "${CXX_COMPILER_SSE3_FLAG}")
+	set_source_files_properties(src/arch/x86/sse41.cpp PROPERTIES COMPILE_FLAGS "${CXX_COMPILER_SSE41_FLAG}")
 	set(SOURCES_ARCH ${SOURCES_X86})
 	set(HEADERS_ARCH
 		src/arch/x86/sse_utils.h
