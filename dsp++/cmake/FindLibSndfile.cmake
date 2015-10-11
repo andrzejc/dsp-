@@ -17,7 +17,7 @@ if (MSVC)
 
 	find_library(LIBSNDFILE_LIBRARY NAMES libsndfile libsndfile-1 libsndfile1 sndfile sndfile-1 sndfile1
 		HINTS ${LIBSNDFILE_DIR}/lib )
-		
+
 #	message("LIBSNDFILE_LIBRARY: ${LIBSNDFILE_LIBRARY}")
 
 	find_path(LIBSNDFILE_INCLUDE_DIR sndfile.h
@@ -28,7 +28,7 @@ if (MSVC)
 
 else ()
 	find_package(PkgConfig)
-	pkg_check_modules(PC_LIBSNDFILE QUIET libsndfile)
+	pkg_check_modules(PC_LIBSNDFILE QUIET sndfile)
 	set(LIBSNDFILE_DEFINITIONS ${PC_LIBSNDFILE_CFLAGS_OTHER})
 
 	find_path(LIBSNDFILE_INCLUDE_DIR sndfile.h
