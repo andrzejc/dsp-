@@ -66,17 +66,17 @@ public:
 	 ,	buf_(capacity)
 	{
 		if (frame_size > capacity)
-			throw std::invalid_argument("frame_length must not be greater than buffer capacity");
+			throw std::invalid_argument("dsp::buffer: frame_length must not be greater than buffer capacity");
 		if (overlap > 0)
 		{
 			if (size_type(overlap) >= frame_size)
-				throw std::invalid_argument("overlap must be less than frame_length");
+				throw std::invalid_argument("dsp::buffer: overlap must be less than frame_length");
 			buf_.insert(buf_.begin(), overlap, initial_value);
 		}
 		else if (overlap < 0)
 		{
 			if (size_type(difference_type(frame_size) - overlap) > capacity)
-				throw std::invalid_argument("frame_length with underlap exceeds capacity");
+				throw std::invalid_argument("dsp::buffer: frame_length with underlap exceeds capacity");
 		}
 	}
 
@@ -94,9 +94,9 @@ public:
 	 ,	buf_(capacity)
 	{
 		if (frame_size > capacity)
-			throw std::invalid_argument("dsp::buffer frame_length must not be greater than buffer capacity");
+			throw std::invalid_argument("dsp::buffer: frame_length must not be greater than buffer capacity");
 		if (overlap >= frame_size)
-			throw std::invalid_argument("dsp::buffer overlap must be less than frame_length");
+			throw std::invalid_argument("dsp::buffer: overlap must be less than frame_length");
 		buf_.insert(buf_.begin(), initial_values, initial_values + overlap);
 	}
 
@@ -106,9 +106,9 @@ public:
 	 ,	buf_(capacity)
 	{
 		if (frame_size > capacity)
-			throw std::invalid_argument("dsp::buffer frame_length must not be greater than buffer capacity");
+			throw std::invalid_argument("dsp::buffer: frame_length must not be greater than buffer capacity");
 		if (overlap >= frame_size)
-			throw std::invalid_argument("dsp::buffer overlap must be less than frame_length");
+			throw std::invalid_argument("dsp::buffer: overlap must be less than frame_length");
 	}
 
 	size_type size() const {return buf_.size();}
@@ -239,7 +239,7 @@ public:
 	 ,	overlap_(overlap) 
 	{
 		if (overlap >= frame_length)
-			throw std::invalid_argument("frame_length must be greater than overlap");
+			throw std::invalid_argument("dsp::overlap: frame_length must be greater than overlap");
 	}
 
 	size_t size() const {return buf_.size();}

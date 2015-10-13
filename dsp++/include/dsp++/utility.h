@@ -22,7 +22,7 @@ namespace dsp {
 template<class Elem>
 typename boost::enable_if<boost::has_trivial_assign<Elem>, void>::type inline
 delay(Elem* vec, size_t N)
-{memmove(vec + 1, vec, (N - 1) * sizeof(Elem));}
+{std::memmove(vec + 1, vec, (N - 1) * sizeof(Elem));}
 
 template<class Elem>
 typename boost::disable_if<boost::has_trivial_assign<Elem>, void>::type inline
