@@ -5,7 +5,6 @@
 #define DSP_FLT_FIR_DESIGN_H_INCLUDED
 #pragma once
 #include <dsp++/export.h>
-#include <dsp++/compat/enum_class.h>
 #include <complex>
 #include <cstddef>
 
@@ -18,7 +17,8 @@ namespace fir {
 namespace pm {
 
 /// @brief Specifies type of the filter to design.
-namespace type { enum spec {
+namespace type { enum spec 
+{
 	symmetrical,						//!< Ordinary symmetrical (Type I or II) filter.
 	anti_symmetrical_odd,
 	type_III = anti_symmetrical_odd,

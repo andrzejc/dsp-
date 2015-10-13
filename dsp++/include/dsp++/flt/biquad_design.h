@@ -5,7 +5,6 @@
 #define DSP_FLT_BIQUAD_DESIGN_H_INCLUDED
 #pragma once
 #include <dsp++/export.h>
-#include <dsp++/compat/enum_class.h>
 
 namespace dsp {
 
