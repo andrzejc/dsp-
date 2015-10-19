@@ -23,7 +23,7 @@ namespace byte_order { enum label {
 	little_endian,
 	big_endian,
 };
-
+    
 #if defined(DSP_ENDIAN_LITTLE)
 const label platform = little_endian;
 #elif defined(DSP_ENDIAN_BIG)
@@ -32,6 +32,25 @@ const label platform = big_endian;
 DSPXX_API extern const label platform;
 #endif
 } // namespace byte_order
+    
+namespace detail {
+
+template<class UInt>
+struct shift_right8_impl {
+    UInt shift(UInt in)
+    {
+        return in >> 8;
+    }
+};
+    
+template<>
+struct shift_right8_impl<uint8_t> {
+    uint8_t shift(uint8_t /* in */)
+    {
+        return 0;
+    }
+};
+}
 
 
 //! @brief Describes memory organization of a single sample.
@@ -160,19 +179,20 @@ private:
 	template<class UInt>
 	void write_bits(UInt bits, void* data) const {
 		uint8_t* b;
+        detail::shift_right8_impl<UInt> shr8;
 		bits >>= 8 * (sizeof(UInt) - container_bytes);
 		if (byte_order::little_endian == endianness) {
 			b = static_cast<uint8_t*>(data);
 			for (unsigned i = 0; i < container_bytes; ++i, ++b) {
 				*b = static_cast<uint8_t>(bits);
-				bits >>= 8;
+                bits = shr8.shift(bits);
 			}
 		}
 		else {
 			b = static_cast<uint8_t*>(data) + container_bytes - 1;
 			for (unsigned i = 0; i < container_bytes; ++i, --b) {
 				*b = static_cast<uint8_t>(bits);
-				bits >>= 8;
+                bits = shr8.shift(bits);
 			}
 		}
 	}

@@ -165,8 +165,16 @@ if (TARGET_PLATFORM_PPC)
 endif()
 #
 
-if (MSVC)
-  add_definitions("-D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS /wd4251 /wd4275")
+if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC" OR CMAKE_CXX_COMPILER_ID MATCHES "Intel")
+  	add_definitions("-D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS /wd4251 /wd4275")
+endif()
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+	# Disable some warnings for Clang, for some things that are too awkward
+	# to change just for the sake of having no warnings.
+	add_definitions ("-Wno-unused-local-typedefs")
+#	# Don't warn if we ask it not to warn about warnings it doesn't know
+#	add_definitions ("-Wunknown-warning-option")
 endif()
 
 find_package(Boost REQUIRED)

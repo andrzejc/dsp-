@@ -66,9 +66,9 @@ public:
 	 ,	offset_(offset)
 	 ,	beta_(avg_fact)
 	 ,	x(x_ + N_, N_)
-	 ,	y(y_ + N_, N_)
-	 ,	e(e_, N_)
 	 ,	d(d_, N_)
+     ,	y(y_ + N_, N_)
+     ,	e(e_, N_)
 	 ,	W(W_, 2*N_)
 	 ,	power(norm_, 2*N_)
 	{
