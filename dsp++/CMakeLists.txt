@@ -177,7 +177,6 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU"
 #	add_definitions ("-Wunknown-warning-option")
 endif()
 
-find_package(Boost REQUIRED)
 list(APPEND INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
 
 add_library(dsp++ SHARED ${SOURCES})
