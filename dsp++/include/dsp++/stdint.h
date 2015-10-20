@@ -1,6 +1,7 @@
 /*!
  * @file dsp++/stdint.h
  * @brief Wrapper/reimplementation of part of C++ cstdint or C99 stdint.h headers (fixed-size typedefs).
+ * Includes int-type utils like @{link select_in<size, sign>}, @{link signed_of<type>} & @{link unsigned_of<type>}.
  */
 #ifndef DSP_DSPINT_H_INCLUDED
 #define DSP_DSPINT_H_INCLUDED
@@ -34,6 +35,7 @@ namespace detail {
 
 } // namespace detail
 
+/// @brief Compile-time bit-sized int-type detection: @code{.cpp} typename select_int<size, signed>::type @endcode.
 template<int size,  bool sign> struct select_int;
 template<int size> struct select_int<size, true> {typedef typename detail::select_sized_int<size, char>::type type;};
 template<int size> struct select_int<size, false> {typedef typename detail::select_sized_int<size, unsigned char>::type type;};
@@ -62,6 +64,7 @@ typedef select_int<64, false>::type uint64_t;
 
 #endif
 
+/// @brief Declare unsigned int type counterpart: @code{.cpp} typename unsigned_of<int>::type @endcode.
 template<class T> struct unsigned_of;
 template<> struct unsigned_of<signed char> {typedef unsigned char type;};
 template<> struct unsigned_of<unsigned char> {typedef unsigned char type;};
@@ -74,6 +77,7 @@ template<> struct unsigned_of<unsigned long> {typedef unsigned long type;};
 template<> struct unsigned_of<signed long long> {typedef unsigned long long type;};
 template<> struct unsigned_of<unsigned long long> {typedef unsigned long long type;};
 
+/// @brief Declare signed int type counterpart: @code{.cpp} typename signed_of<unsigned>::type @endcode.
 template<class T> struct signed_of;
 template<> struct signed_of<signed char> {typedef signed char type;};
 template<> struct signed_of<unsigned char> {typedef signed char type;};

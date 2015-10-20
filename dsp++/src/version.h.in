@@ -6,17 +6,29 @@
 #ifndef DSP_VERSION_H_INCLUDED
 #define DSP_VERSION_H_INCLUDED
 
+#include <dsp++/export.h>
+
 #ifndef DSPXX_VERSION_MAJOR
-#define DSPXX_VERSION_MAJOR ${DSPXX_VERSION_MAJOR}
+#define DSPXX_VERSION_MAJOR @DSPXX_VERSION_MAJOR@
 #endif
 
 #ifndef DSPXX_VERSION_MINOR
-#define DSPXX_VERSION_MINOR ${DSPXX_VERSION_MINOR}
+#define DSPXX_VERSION_MINOR @DSPXX_VERSION_MINOR@
 #endif
 
-#define DSPXX_VERSION (DSPXX_VERSION_MAJOR * 100 + DSPXX_VERSION_MINOR)
+#ifndef DSPXX_VERSION_PATCH
+#define DSPXX_VERSION_PATCH @DSPXX_VERSION_PATCH@
+#endif
 
-namespace dsp {
-}
+#define DSPXX_VERSION (DSPXX_VERSION_MAJOR * 10000 + DSPXX_VERSION_MINOR * 100 + DSPXX_VERSION_PATCH)
+
+namespace dsp { namespace ver {
+/// @return Version triplet formatted with dots as C-string.
+DSPXX_API const char* cstr();
+DSPXX_API unsigned major();
+DSPXX_API unsigned minor();
+DSPXX_API unsigned patch();
+
+}}
 
 #endif /* DSP_VERSION_H_INCLUDED */

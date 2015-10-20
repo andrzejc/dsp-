@@ -1,7 +1,8 @@
 project(libdsp++)
 set(DSPXX_VERSION_MAJOR 0)
 set(DSPXX_VERSION_MINOR 1)
-set(DSPXX_VERSION "${DSPXX_VERSION_MAJOR}.${DSPXX_VERSION_MINOR}")
+set(DSPXX_VERSION_PATCH 0)
+set(DSPXX_VERSION ${DSPXX_VERSION_MAJOR}.${DSPXX_VERSION_MINOR}.${DSPXX_VERSION_PATCH})
 
 find_package(Doxygen)
 # options
@@ -9,7 +10,7 @@ option(FFTW3_DISABLED "Disable the use and support for FFTW3 library" OFF)
 option(LIBSNDFILE_DISABLED "Disable the use and support for libsndfile library" OFF)
 option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
 # consider detecting fftw and setting FFTW_DISABLED automatically
 if (NOT FFTW3_DISABLED)
@@ -29,7 +30,7 @@ else ()
 	add_definitions(-DDSP_SNDFILE_DISABLED=1)
 endif ()
 
-configure_file(src/version.h.in include/dsp++/version.h)
+configure_file(src/version.h.in include/dsp++/version.h @ONLY)
 
 set(PUBLIC_HEADERS
 	${PROJECT_BINARY_DIR}/include/dsp++/version.h
@@ -123,6 +124,7 @@ set(SOURCES
 	src/simd.cpp
 	src/vectmath.cpp
 	src/zeropole.cpp
+	src/version.cpp
 	src/fftw/traits.cpp
 	src/mkfilter/mkfilter.cpp
 	src/remez/remez.cpp
@@ -165,19 +167,6 @@ if (TARGET_PLATFORM_PPC)
 endif()
 #
 
-if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC" OR CMAKE_CXX_COMPILER_ID MATCHES "Intel")
-  	add_definitions("-D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS /wd4251 /wd4275")
-endif()
-
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-	# Disable some warnings for Clang, for some things that are too awkward
-	# to change just for the sake of having no warnings.
-	add_definitions ("-Wno-unused-local-typedefs")
-#	# Don't warn if we ask it not to warn about warnings it doesn't know
-#	add_definitions ("-Wunknown-warning-option")
-endif()
-
-find_package(Boost REQUIRED)
 list(APPEND INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
 
 add_library(dsp++ SHARED ${SOURCES})
@@ -186,12 +175,12 @@ target_compile_definitions(dsp++ PRIVATE DSPXX_EXPORTS)
 target_include_directories(dsp++ INTERFACE include)
 target_include_directories(dsp++ PRIVATE src)
 target_link_libraries(dsp++ ${LIBS})
-set_property(TARGET dsp++ PROPERTY CXX_STANDARD 11)
 set_target_properties(dsp++ PROPERTIES VERSION ${DSPXX_VERSION})
 
 install(TARGETS dsp++ DESTINATION lib)
 install(DIRECTORY include/dsp++/ DESTINATION include/dsp++)
 install(FILES ${PROJECT_BINARY_DIR}/include/dsp++/version.h DESTINATION include/dsp++)
+export(TARGETS dsp++ FILE ${PROJECT_BINARY_DIR}/dsp++-targets.cmake)
 
 if (BUILD_DOCUMENTATION)
 	if(NOT DOXYGEN_FOUND)
@@ -201,10 +190,10 @@ if (BUILD_DOCUMENTATION)
 	configure_file(doxyfile.in doxyfile @ONLY)
 
 	add_custom_target(doc
-	COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile}
-	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-	COMMENT "Generating API documentation with Doxygen"
-	VERBATIM)
+		COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile}
+		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+		COMMENT "Generating API documentation with Doxygen"
+		VERBATIM)
 
 	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc/ DESTINATION share/doc/${CMAKE_PROJECT_NAME}-${DSPXX_VERSION})
 endif()
