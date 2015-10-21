@@ -70,9 +70,9 @@ int main(int argc, const char* argv[]) {
 		for (size_t i = 0; i < read; ++i) 
 			buffer[i] = lim(flt(buffer[i]));
 #elif FILTER_FREQ_DOMAIN
-		std::copy_n(buffer, frame_len, flt.begin());
+		std::copy_n(buffer, frame_len, flt.x.begin());
 		flt();
-		std::transform(flt.begin(), flt.end(), buffer, lim);
+		std::transform(flt.y.begin(), flt.y.end(), buffer, lim);
 #endif
 
 		w.write_samples(buffer, read);
