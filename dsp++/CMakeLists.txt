@@ -134,6 +134,16 @@ set(SOURCES
 	src/snd/loudness.cpp
 )
 
+set(ALL_FILES ${SOURCES})
+string(REPLACE ";" "\n" CSCOPE_FILES "${ALL_FILES}")
+file(WRITE
+  ${CMAKE_BINARY_DIR}/cscope.files.in
+    "${CSCOPE_FILES}")
+configure_file(
+  ${CMAKE_BINARY_DIR}/cscope.files.in
+    ${CMAKE_CURRENT_LIST_DIR}/cscope.files
+	  COPYONLY)
+
 # platform-specific stuff
 include(TargetPlatform)
 # x86 - specific sources & configuration
