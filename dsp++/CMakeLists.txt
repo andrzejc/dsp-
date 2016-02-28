@@ -187,6 +187,16 @@ target_include_directories(dsp++ PRIVATE src)
 target_link_libraries(dsp++ ${LIBS})
 set_target_properties(dsp++ PROPERTIES VERSION ${DSPXX_VERSION})
 
+if (MSVC) 
+# TODO copy .dlls based on given set of .libs
+#    add_custom_command(
+#        TARGET dsp++
+#        POST_BUILD 
+#        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${FFTW3_LIBRARIES} ${LIBSNDFILE_LIBRARIES} ${Boost_LIBRARIES}"
+#        "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)"
+#    )
+endif()
+
 install(TARGETS dsp++ DESTINATION lib)
 install(DIRECTORY include/dsp++/ DESTINATION include/dsp++)
 install(FILES ${PROJECT_BINARY_DIR}/include/dsp++/version.h DESTINATION include/dsp++)

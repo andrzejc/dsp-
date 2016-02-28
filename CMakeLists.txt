@@ -2,7 +2,10 @@ cmake_minimum_required(VERSION 2.8)
 
 project(dsp++)
 cmake_policy(SET CMP0042 NEW)
+cmake_policy(SET CMP0054 OLD)
 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
+include(BoostOnMSVC)    
 find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY
