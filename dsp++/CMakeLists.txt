@@ -200,7 +200,8 @@ endif()
 install(TARGETS dsp++ DESTINATION lib)
 install(DIRECTORY include/dsp++/ DESTINATION include/dsp++)
 install(FILES ${PROJECT_BINARY_DIR}/include/dsp++/version.h DESTINATION include/dsp++)
-export(TARGETS dsp++ FILE ${PROJECT_BINARY_DIR}/dsp++-targets.cmake)
+
+export(TARGETS dsp++ FILE dsp++-exports.cmake)
 
 if (BUILD_DOCUMENTATION)
 	if(NOT DOXYGEN_FOUND)
