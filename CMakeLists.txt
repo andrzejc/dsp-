@@ -32,6 +32,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU"
 	add_definitions(-std=gnu++11)
 endif()
 
+include(CopyDll)
 
 add_subdirectory(dsp++)
 add_subdirectory(compressor_demo)
