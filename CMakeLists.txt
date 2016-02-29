@@ -18,7 +18,7 @@ if (POLICY CMP0042)
 	cmake_policy(SET CMP0042 NEW)
 endif()
 if (POLICY CMP0054)
-    cmake_policy(SET CMP0054 OLD)
+	cmake_policy(SET CMP0054 OLD)
 endif()
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
