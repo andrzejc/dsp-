@@ -11,12 +11,13 @@ The repository hosts several "projects", with dsp++ library being the main one a
 
 * compressor_demo - a sample project demonstrating how to create very simple compressor using dsp++
 * dsp++ - the library project, probably the reason why you cloned this repo
-* dsp++-test - library unit testing project using CppUnit, being updated when time allows
+* dsp++-test - library unit testing project using Boost.Test, being updated when time allows
 * filter_demo - a sample project demonstrating use of Matlab-designed filters with dsp++ filtering classes
 * multiband_compressor - a more complex sample demonstrating how to create multiband compressor algorihtm with dsp++
-* scratchbook - utility project for testing code snippets
 
 ## Building
+
+The build system is being changed to CMake. #TODO update the docs.
 
 The main development platform is Windows/Visual Studio 2013. You'll find VS2013 solution file which includes the above-mentioned projects (dsp++-vc12.sln). There's also dsp++.sln for vc10 which is updated ocassionally and outdated most of the time. The dsp++ library is being ocassionally tested & updated to build on:
 
@@ -39,4 +40,3 @@ The dsp++ library has the following dependencies:
 * Boost library - currently it's impossible to build nor use dsp++ without Boost. On Windows you'll probably use binary distribution, in that case add BOOST_ROOT environment variable pointing at the Boost installation dir.
 * libsndfile - (LIBSNDFILE_ROOT env var)
 * fftw - (FFTW_ROOT env var)
-* cppunit - only for dsp++-test project
