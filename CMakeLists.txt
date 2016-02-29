@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
 project(dsp++)
-<<<<<<< HEAD
 
 set(DSPXX_VERSION_MAJOR 0)
 set(DSPXX_VERSION_MINOR 1)
@@ -13,18 +12,6 @@ set(DSPXX_SLOGAN "Digital Signal Processing library written in modern C++")
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 include(CMakeCompatibility NO_POLICY_SCOPE)
-=======
-if (POLICY CMP0042)
-	cmake_policy(SET CMP0042 NEW)
-endif()
-if (POLICY CMP0054)
-	cmake_policy(SET CMP0054 OLD)
-endif()
-
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
-include(BoostOnMSVC)
-find_package(Boost REQUIRED COMPONENTS unit_test_framework)
->>>>>>> c81218d... CMakeLists: shut up CMake 2.8 warnings
 
 include(BoostOnMSVC)
 find_package(Boost REQUIRED COMPONENTS unit_test_framework)
