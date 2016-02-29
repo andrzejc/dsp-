@@ -1,8 +1,6 @@
-# dsp++ library
+# dsp++ library [![Build Status](https://drone.io/bitbucket.org/andrzejc/dsp/status.png)](https://drone.io/bitbucket.org/andrzejc/dsp/latest)
 
 This is README file for dsp++ repository, whose master copy is located at https://bitbucket.org/andrzejc/dsp.git.
-
-[![Build Status](https://drone.io/bitbucket.org/andrzejc/dsp/status.png)](https://drone.io/bitbucket.org/andrzejc/dsp/latest)
 
 ## Introduction
 **dsp++ library** aims at delivering reusable digital signal processing algorithms to C++ projects. The library is written in modern C++ with extensive use of templates and STL constructs.
