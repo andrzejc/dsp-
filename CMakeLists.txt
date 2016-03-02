@@ -20,7 +20,7 @@ enable_testing()
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC" OR CMAKE_CXX_COMPILER_ID MATCHES "Intel")
 	# Disable a bunch of stupid warnings from MS SCL/CRT
-	add_definitions(/D_CRT_SECURE_NO_WARNINGS /D_SCL_SECURE_NO_WARNINGS /wd4251 /wd4275)
+	add_definitions(/D_CRT_SECURE_NO_WARNINGS /D_SCL_SECURE_NO_WARNINGS /wd4251 /wd4275 /MP)
 endif()
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
@@ -50,4 +50,5 @@ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "dsp++ is a ${DSPXX_SLOGAN}")
 set(CPACK_PACKAGE_VENDOR "Andrzej Ciarkowski")
 set(CPACK_PACKAGE_CONTACT "andrzej.ciarkowski@gmail.com")
+
 include(CPack)
