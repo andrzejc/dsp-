@@ -1,0 +1,19 @@
+andrzejc/dsp:
+    PreInstall:
+      - echo "Begin PreInstall"
+      - echo "End PreInstall"
+    PostInstall:
+      - echo "Begin PostInstall"
+      - echo "End PostInstall"
+    Build:
+      - echo "Prepare build directory"
+      - mkdir build
+      - cd build
+      - echo "Configure & generate CMake build"
+      - cmake ..
+      - echo "Build project"
+      - cmake --build .
+      - echo "Run tests"
+      - ctest
+      - echo "Done"
+

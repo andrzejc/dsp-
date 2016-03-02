@@ -1,20 +1,17 @@
 project(libdsp++)
-set(DSPXX_VERSION_MAJOR 0)
-set(DSPXX_VERSION_MINOR 1)
-set(DSPXX_VERSION_PATCH 0)
-set(DSPXX_VERSION ${DSPXX_VERSION_MAJOR}.${DSPXX_VERSION_MINOR}.${DSPXX_VERSION_PATCH})
-
-find_package(Doxygen)
-# options
-option(FFTW3_DISABLED "Disable the use and support for FFTW3 library" OFF)
-option(LIBSNDFILE_DISABLED "Disable the use and support for libsndfile library" OFF)
-option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
+find_package(Doxygen)
+find_package(FFTW3)
+find_package(LIBSNDFILE)
+
+# options
+option(FFTW3_ENABLED "Enable the use and support for FFTW3 library" ${FFTW3_FOUND} )
+option(LIBSNDFILE_ENABLED "Enable the use and support for libsndfile library" ${LIBSNDFILE_FOUND} )
+option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
 
 # consider detecting fftw and setting FFTW_DISABLED automatically
-if (NOT FFTW3_DISABLED)
-	find_package(FFTW3 REQUIRED)
+if (FFTW3_ENABLED)
 	list(APPEND INCLUDE_DIRS ${FFTW3_INCLUDE_DIRS})
 	list(APPEND LIBS ${FFTW3_LIBRARIES})
 else ()
@@ -22,8 +19,7 @@ else ()
 endif ()
 
 # consider detecting libsndfile and setting LIBSNDFILE_DISABLED automatically
-if (NOT LIBSNDFILE_DISABLED)
-	find_package(LibSndfile REQUIRED)
+if (LIBSNDFILE_ENABLED)
 	list(APPEND INCLUDE_DIRS ${LIBSNDFILE_INCLUDE_DIRS})
 	list(APPEND LIBS ${LIBSNDFILE_LIBRARIES})
 else ()
@@ -136,13 +132,11 @@ set(SOURCES
 
 set(ALL_FILES ${SOURCES})
 string(REPLACE ";" "\n" CSCOPE_FILES "${ALL_FILES}")
-file(WRITE
-  ${CMAKE_BINARY_DIR}/cscope.files.in
-    "${CSCOPE_FILES}")
+file(WRITE ${CMAKE_BINARY_DIR}/cscope.files.in "${CSCOPE_FILES}")
 configure_file(
-  ${CMAKE_BINARY_DIR}/cscope.files.in
-    ${CMAKE_CURRENT_LIST_DIR}/cscope.files
-	  COPYONLY)
+	${CMAKE_BINARY_DIR}/cscope.files.in
+	${CMAKE_CURRENT_LIST_DIR}/cscope.files
+	COPYONLY)
 
 # platform-specific stuff
 include(TargetPlatform)
@@ -187,11 +181,11 @@ target_include_directories(dsp++ PRIVATE src)
 target_link_libraries(dsp++ ${LIBS})
 set_target_properties(dsp++ PROPERTIES VERSION ${DSPXX_VERSION})
 
-if (MSVC) 
+if (MSVC)
 # TODO copy .dlls based on given set of .libs
 #    add_custom_command(
 #        TARGET dsp++
-#        POST_BUILD 
+#        POST_BUILD
 #        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${FFTW3_LIBRARIES} ${LIBSNDFILE_LIBRARIES} ${Boost_LIBRARIES}"
 #        "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)"
 #    )
@@ -211,12 +205,14 @@ if (BUILD_DOCUMENTATION)
 	configure_file(doxyfile.in doxyfile @ONLY)
 
 	add_custom_target(doc
-		COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile}
+		COMMAND ${DOXYGEN_EXECUTABLE} doxyfile
 		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 		COMMENT "Generating API documentation with Doxygen"
 		VERBATIM)
 
-	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc/ DESTINATION share/doc/${CMAKE_PROJECT_NAME}-${DSPXX_VERSION})
+	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc/
+		DESTINATION ${DSPXX_DOC_PREFIX}
+		OPTIONAL)
 endif()
 
 add_subdirectory(test)

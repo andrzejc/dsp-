@@ -29,9 +29,9 @@ void* dsp::simd::detail::generic_aligned_alloc(size_t size)
 		ptr = std::malloc(size + alignment_);
 		if (NULL == ptr)
 			return NULL;
-		long diff = ((~(long) ptr) & (alignment_ - 1)) + 1;
-		ptr = (char *) ptr + diff;
-		((char *) ptr)[-1] = (char) diff;
+		intptr_t diff = ((~reinterpret_cast<intptr_t>(ptr)) & (static_cast<intptr_t>(alignment_) - 1)) + 1;
+		ptr = static_cast<char*>(ptr) + diff;
+		static_cast<char*>(ptr)[-1] = static_cast<char>(diff);
 #endif
 		if (NULL == ptr && 0 == size)
 			size = 1;
@@ -50,12 +50,11 @@ void dsp::simd::detail::generic_aligned_free(void* ptr)
     	return;
 
 #ifndef NDEBUG
-	static const size_t alignment_ = dsp::simd::alignment();
+	static const int alignment_ = static_cast<int>(dsp::simd::alignment());
 #endif
-
-	int v = ((char *)ptr)[-1];
-	assert(v > 0 && v <= (int)alignment_);
-	std::free((char *)ptr - v);
+	int v = static_cast<char*>(ptr)[-1];
+	assert(v > 0 && v <= alignment_);
+	std::free(static_cast<char*>(ptr) - v);
 #endif
 }
 
@@ -70,7 +69,7 @@ size_t dsp::simd::aligned_count(size_t count, size_t element_size)
 	size_t sz = count * element_size;
 	if (sz <= alignment_)
 		return alignment_ / element_size;
-	
+
 	if (0 == (sz % alignment_))
 		return count;
 
