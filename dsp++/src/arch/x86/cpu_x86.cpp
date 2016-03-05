@@ -47,7 +47,7 @@ static unsigned xgetbv(unsigned xcr) {
   return static_cast<unsigned>(_xgetbv(xcr));
 }
 # elif defined(_M_IX86)
-__declspec(naked) __declspec(align(16))
+__declspec(naked)
 static unsigned xgetbv(unsigned int xcr) {
   __asm {
     mov        ecx, [esp + 4]    // xcr
