@@ -10,6 +10,7 @@
 #include <dsp++/window.h>
 #include <dsp++/trivial_array.h>
 #include <dsp++/debug.h>
+#include <dsp++/compat.h>
 
 #if !DSP_FFTW_DISABLED
 #include <dsp++/fftw/dft.h>
@@ -18,7 +19,7 @@
 namespace {
 
 static inline unsigned fir_fs_length(unsigned order, const double amps[]) {
-	unsigned N = order + 1; 
+	unsigned N = order + 1;
 	if (0. == amps[0] && (0 == (N % 2)))
 		--N;
 	return N;
@@ -32,7 +33,7 @@ static inline void fir_fs_check_preconditions(size_t point_count, const double f
 		msg = "freqs[0] != 0.";
 	else if (freqs[point_count - 1] != .5)
 		msg = "freqs[point_count - 1] != .5";
-	else if (!std::is_sorted(freqs, freqs + point_count))
+	else if (!dsp::is_sorted(freqs, freqs + point_count))
 		msg = "freqs not monotonically increasing";
 	if (NULL != msg)
 		throw std::invalid_argument(msg);
@@ -42,10 +43,10 @@ static inline void fir_fs_check_preconditions(size_t point_count, const double f
 
 unsigned dsp::fir::fs::design(
 		unsigned order,				//!< [in] filter order, number of coefficients will be order + 1.
-		unsigned point_count, 		//!< [in] number of points in the filter specification
-		const double freqs[], 		//!< [in] frequency points in [0, 0.5] range
-		const double amps[],			//!< [in] amplitude characteristic at each frequency point
-		std::complex<double> H[] 	//!< [out] filter response designed in the spectrum domain [order + 1].
+		unsigned point_count,		//!< [in] number of points in the filter specification
+		const double freqs[],		//!< [in] frequency points in [0, 0.5] range
+		const double amps[],		//!< [in] amplitude characteristic at each frequency point
+		std::complex<double> H[]	//!< [out] filter response designed in the spectrum domain [order + 1].
 )
 {
 	fir_fs_check_preconditions(point_count, freqs);
@@ -53,7 +54,7 @@ unsigned dsp::fir::fs::design(
 	if (N == order)
 		H[N] = 0.;
 
-	unsigned Nfft = N / 2 + 1; 
+	unsigned Nfft = N / 2 + 1;
 	H[0] = amps[0];
 
 	unsigned seg = 0;
@@ -75,7 +76,7 @@ unsigned dsp::fir::fs::design(
 		H[i] = std::polar(a, -ph);
 	}
 	H[Nfft] = std::polar(amps[point_count - 1], -.5 * dt);
-	for (unsigned i = Nfft + 1; i < N; ++i) 
+	for (unsigned i = Nfft + 1; i < N; ++i)
 		H[i] = conj(H[N - i]);
 	return N;
 }
@@ -84,11 +85,11 @@ namespace {
 
 unsigned fir_fs_impl(
 		unsigned order,				//!< [in] filter order, number of coefficients will be order + 1.
-		unsigned point_count, 		//!< [in] number of points in the filter specification
-		const double freqs[], 		//!< [in] frequency points in [0, 0.5] range
+		unsigned point_count,		//!< [in] number of points in the filter specification
+		const double freqs[],		//!< [in] frequency points in [0, 0.5] range
 		const double amps[],		//!< [in] amplitude characteristic at each frequency point
-		const double win[],			//!< [in] 
-		double h[] 					//!< [out] designed filter impulse response [order + 1].
+		const double win[],			//!< [in]
+		double h[]					//!< [out] designed filter impulse response [order + 1].
 )
 {
 #if DSP_FFTW_DISABLED
@@ -114,7 +115,7 @@ unsigned fir_fs_impl(
 
 	std::transform(h, h + n, h, std::bind2nd(std::multiplies<double>(), 1./n));
 	std::fill(h + n, h + order + 1, 0.);
-	if (NULL != win) 
+	if (NULL != win)
 		std::transform(h, h + n, win, h, std::multiplies<double>());
 	return n;
 }
@@ -123,10 +124,10 @@ unsigned fir_fs_impl(
 
 unsigned dsp::fir::fs::design(
 		unsigned order,				//!< [in] filter order, number of coefficients will be order + 1.
-		unsigned point_count, 		//!< [in] number of points in the filter specification
-		const double freqs[], 		//!< [in] frequency points in [0, 0.5] range
+		unsigned point_count,		//!< [in] number of points in the filter specification
+		const double freqs[],		//!< [in] frequency points in [0, 0.5] range
 		const double amps[],		//!< [in] amplitude characteristic at each frequency point
-		const double win[],			//!< [in] 
+		const double win[],			//!< [in]
 		double h[]					//!< [out] designed filter impulse response [order + 1].
 )
 {
@@ -135,10 +136,10 @@ unsigned dsp::fir::fs::design(
 
 unsigned dsp::fir::fs::design(
 		unsigned order,				//!< [in] filter order, number of coefficients will be order + 1.
-		unsigned point_count, 		//!< [in] number of points in the filter specification
-		const double freqs[], 		//!< [in] frequency points in [0, 0.5] range
+		unsigned point_count,		//!< [in] number of points in the filter specification
+		const double freqs[],		//!< [in] frequency points in [0, 0.5] range
 		const double amps[],		//!< [in] amplitude characteristic at each frequency point
-		double h[] 					//!< [out] designed filter impulse response [order + 1].
+		double h[]					//!< [out] designed filter impulse response [order + 1].
 )
 {
 	unsigned n = fir_fs_impl(order, point_count, freqs, amps, NULL, h);

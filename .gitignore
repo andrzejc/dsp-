@@ -12,3 +12,5 @@
 **/.project
 **/.cproject
 **/.settings
+/dsp++/android/libs
+/dsp++/android/obj

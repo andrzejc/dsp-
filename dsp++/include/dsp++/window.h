@@ -314,7 +314,7 @@ struct hamming: public window_function<Result>
 	Result operator()(size_t n) const
 	{
 		using std::cos;
-		return 0.54 - 0.46 * cos(Result(2 * DSP_M_PI) * n / (window_function<Result>::l_ - 1));
+		return Result(0.54) - Result(0.46) * cos(2 * Result(DSP_M_PI) * n / (window_function<Result>::l_ - 1));
 	}
 
 	/*! @typedef const_iterator
@@ -352,7 +352,7 @@ struct hann: public window_function<Result>
 	Result operator()(size_t n) const
 	{
 		using std::cos;
-		return 0.5 * (1 - cos(Result(2 * DSP_M_PI) * n / (window_function<Result>::l_ - 1)));
+		return (1 - cos(2 * Result(DSP_M_PI) * n / (window_function<Result>::l_ - 1))) / 2;
 	}
 
 	/*! @typedef const_iterator
@@ -399,19 +399,19 @@ struct blackman: public window_function<Result>
 	 * @copydoc window_function::window_function()
 	 * @param alpha \f$\alpha\f$ parameter in the equation above.
 	 */
-	blackman(size_t length, window_type type = symmetric, Result alpha = DSP_WND_BLACKMAN_ALPHA_DEFAULT)
+	blackman(size_t length, window_type type = symmetric, Result alpha = Result(DSP_WND_BLACKMAN_ALPHA_DEFAULT))
 	 : 	window_function<Result>(length, type)
 	 ,	alpha_(alpha)
-	 ,	a0_((1 - alpha) / 2)
-	 ,	a1_(0.5)
-	 ,	a2_(alpha / 2)
+	 ,	a0_((1 - alpha_) / 2)
+	 ,	a1_(Result(0.5))
+	 ,	a2_(alpha_ / 2)
 	{}
 	//! @copydoc unspecified::operator()(size_t) const
 	Result operator()(size_t n) const
 	{
 		using std::cos;
-		return a0_ - a1_ * cos(Result(2 * DSP_M_PI) * n / (window_function<Result>::l_ - 1)) +
-				a2_ * cos(Result(4 * DSP_M_PI) * n / (window_function<Result>::l_ - 1));
+		return a0_ - a1_ * cos(2 * Result(DSP_M_PI) * n / (window_function<Result>::l_ - 1)) +
+				a2_ * cos(4 * Result(DSP_M_PI) * n / (window_function<Result>::l_ - 1));
 	}
 	//! @return value of \f$\alpha\f$ parameter.
 	Result alpha() const {return alpha_;}
@@ -573,11 +573,11 @@ struct gausswin: public window_function<Result>
 {
 #if DSP_CXX_CONFORM_CXX11
 	//! @brief Default value of @f$\sigma@f$ parameter.
-	static constexpr Result sigma_default = DSP_WND_GAUSSWIN_SIGMA_DEFAULT;
+	static constexpr Result sigma_default = Result(DSP_WND_GAUSSWIN_SIGMA_DEFAULT);
 #endif 
 	//! @copydoc window_function::window_function()
 	//! @param sigma \f$\sigma\f$ parameter in the equation above.
-	gausswin(size_t length, window_type type = symmetric, Result sigma = DSP_WND_GAUSSWIN_SIGMA_DEFAULT)
+	gausswin(size_t length, window_type type = symmetric, Result sigma = Result(DSP_WND_GAUSSWIN_SIGMA_DEFAULT))
 	 : 	window_function<Result>(length, type)
 	 ,	sigma_(sigma){}
 	//! @copydoc unspecified::operator()(size_t) const
@@ -629,7 +629,7 @@ struct kaiser: public window_function<Result>
 {
 #if DSP_CXX_CONFORM_CXX11
 	//! Default value of @f$\alpha@f$ parameter.
-	static constexpr Result alpha_default = DSP_WND_KAISER_ALPHA_DEFAULT;
+	static constexpr Result alpha_default = Result(DSP_WND_KAISER_ALPHA_DEFAULT);
 #endif
 	//! @copydoc window_function::window_function()
 	//! @param alpha @f$\alpha@f$ parameter in the equation above.

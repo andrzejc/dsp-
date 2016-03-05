@@ -18,18 +18,25 @@ find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 
 enable_testing()
 
-if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC" OR CMAKE_CXX_COMPILER_ID MATCHES "Intel")
+if(MSVC OR CMAKE_CXX_COMPILER_ID MATCHES "Intel")
 	# Disable a bunch of stupid warnings from MS SCL/CRT
+	# Enable parallel build too
 	add_definitions(/D_CRT_SECURE_NO_WARNINGS /D_SCL_SECURE_NO_WARNINGS /wd4251 /wd4275 /MP)
 endif()
 
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+include(CheckCXXCompilerFlag)
+check_cxx_compiler_flag("-std=c++11" COMPILER_SUPPORTS_CXX11)
+check_cxx_compiler_flag("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
+if(COMPILER_SUPPORTS_CXX11)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+elseif(COMPILER_SUPPORTS_CXX0X)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+endif()
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_COMPILER_IS_GNUCXX)
 	# Disable some warnings for Clang, for some things that are too awkward
 	# to change just for the sake of having no warnings.
 	add_definitions (-Wno-unused-local-typedefs)
-#	# Don't warn if we ask it not to warn about warnings it doesn't know
-	#	add_definitions (-Wunknown-warning-option)
-	add_definitions(-std=gnu++11)
 endif()
 
 include(CopyDll)
