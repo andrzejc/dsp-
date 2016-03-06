@@ -124,7 +124,7 @@ set_target_properties(dsp++ PROPERTIES VERSION ${DSPXX_VERSION})
 export(TARGETS dsp++ FILE dsp++-exports.cmake)
 
 if (MSVC)
-	install(FILES $<TARGET_PDB_FILE:dsp++> DESTINATION $<TARGET_FILE_DIR:dsp++> OPTIONAL)
+	install(FILES $<TARGET_PDB_FILE:dsp++> DESTINATION lib OPTIONAL)
 	include(CopyDll)
 		copy_dlls(dsp++ ${LIBS})
 endif()
