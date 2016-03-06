@@ -11,29 +11,27 @@ namespace dsp {
 #if DSP_CXX_CONFORM_CXX11
 	using std::is_sorted;
 	using std::is_sorted_until;
-	using std::is_integral;
-	using std::is_floating_point;
 #else // !DSP_CXX_CONFORM_CXX11
 
-	template<class ForwardIt>
-	ForwardIt is_sorted_until(ForwardIt first, ForwardIt last)
-	{
-		if (first != last) {
-			ForwardIt next = first;
-			while (++next != last) {
-				if (*next < *first)
-					return next;
-				first = next;
-			}
+template<class ForwardIt>
+ForwardIt is_sorted_until(ForwardIt first, ForwardIt last)
+{
+	if (first != last) {
+		ForwardIt next = first;
+		while (++next != last) {
+			if (*next < *first)
+				return next;
+			first = next;
 		}
-		return last;
 	}
+	return last;
+}
 
-	template<class ForwardIt>
-	bool is_sorted(ForwardIt first, ForwardIt last)
-	{
-		    return dsp::is_sorted_until(first, last) == last;
-	}
+template<class ForwardIt>
+bool is_sorted(ForwardIt first, ForwardIt last)
+{
+	return dsp::is_sorted_until(first, last) == last;
+}
 
 #endif // !DSP_CXX_CONFORM_CXX11
 

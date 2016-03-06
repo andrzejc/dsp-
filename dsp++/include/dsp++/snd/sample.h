@@ -17,6 +17,7 @@
 
 #include <limits>
 #include <stdexcept>
+#include <type_traits>
 
 namespace dsp { namespace snd {
 
@@ -87,7 +88,7 @@ struct sample_layout {
 	//! @param[out] variable which will receive read sample, full range of integer type will be used (sample will be normalized).
 	template<class Int>
 	void read_pcm(const void* data, Int& out) const {
-		static_assert(dsp::is_integral<Int>::value, "Int must ba an integeral type");
+		static_assert(std::is_integral<Int>::value, "Int must ba an integeral type");
 		if (!((sample::type::pcm_signed == type && std::numeric_limits<Int>::is_signed) ||
 			(sample::type::pcm_unsigned == type && !std::numeric_limits<Int>::is_signed)))
 			throw std::invalid_argument("dsp::snd::sample_layout::read_pcm() requires compatible sample::type::pcm_(un)signed");
@@ -107,7 +108,7 @@ struct sample_layout {
 	//! @param[in] data pointer to byte buffer described by this sample_layout.
 	template<class Float>
 	void read_ieee_float(const void* data, Float& out) const {
-		static_assert(dsp::is_floating_point<Float>::value, "Float must ba a floating-point type");
+		static_assert(std::is_floating_point<Float>::value, "Float must ba a floating-point type");
 		if (sample::type::ieee_float != type)
 			throw std::invalid_argument("dsp::snd::sample_layout::read_ieee_float() requires sample::type::ieee_float");
 		typedef typename select_int<sizeof(Float) * 8, false>::type uint;
@@ -121,7 +122,7 @@ struct sample_layout {
 
 	template<class Int>
 	void write_pcm(Int in, void* data) const {
-		static_assert(dsp::is_integral<Int>::value, "Int must ba an integeral type");
+		static_assert(std::is_integral<Int>::value, "Int must ba an integeral type");
 		if (!((sample::type::pcm_signed == type && std::numeric_limits<Int>::is_signed) ||
 			(sample::type::pcm_unsigned == type && !std::numeric_limits<Int>::is_signed)))
 			throw std::invalid_argument("dsp::snd::sample_layout::write_pcm() requires compatible sample::type::pcm_(un)signed");
@@ -136,7 +137,7 @@ struct sample_layout {
 
 	template<class Float>
 	void write_ieee_float(Float in, void* out) const {
-		static_assert(dsp::is_floating_point<Float>::value, "Float must ba a floating-point type");
+		static_assert(std::is_floating_point<Float>::value, "Float must ba a floating-point type");
 		if (sample::type::ieee_float != type)
 			throw std::invalid_argument("dsp::snd::sample_layout::write_ieee_float() requires sample::type::ieee_float");
 		typedef typename select_int<sizeof(Float) * 8, false>::type uint;
@@ -169,7 +170,7 @@ private:
 			shift = 8 * (container_bytes - 1);
 			shift_step = -8;
 		}
-		for (unsigned i = 0; i < container_bytes; ++i, ++b, shift += shift_step) 
+		for (unsigned i = 0; i < container_bytes; ++i, ++b, shift += shift_step)
 			ures |= (static_cast<UInt>(*b) << shift);
 
 		ures >>= lsb_padding;	// cancel LSB padding bits
@@ -186,21 +187,21 @@ private:
 			b = static_cast<uint8_t*>(data);
 			for (unsigned i = 0; i < container_bytes; ++i, ++b) {
 				*b = static_cast<uint8_t>(bits);
-                bits = shr8.shift(bits);
+				bits = shr8.shift(bits);
 			}
 		}
 		else {
 			b = static_cast<uint8_t*>(data) + container_bytes - 1;
 			for (unsigned i = 0; i < container_bytes; ++i, --b) {
 				*b = static_cast<uint8_t>(bits);
-                bits = shr8.shift(bits);
+			bits = shr8.shift(bits);
 			}
 		}
 	}
 };
 
 namespace detail {
-	template<class In, class Out, 
+	template<class In, class Out,
 		bool InSigned = std::numeric_limits<In>::is_signed, bool OutSigned = std::numeric_limits<Out>::is_signed,
 		bool InFloat = !std::numeric_limits<In>::is_integer, bool OutFloat = !std::numeric_limits<Out>::is_integer>
 	struct sample_cast_impl;
