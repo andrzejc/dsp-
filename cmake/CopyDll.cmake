@@ -7,8 +7,8 @@ if(WIN32)
 			set(_destination $arg)
 			set(_next_arg_destination 0)
 		else()
-			if(${arg} MATCHES ".*${CMAKE_IMPORT_LIBRARY_SUFFIX}$" AND EXISTS ${arg})
-				string(REGEX REPLACE "${CMAKE_IMPORT_LIBRARY_SUFFIX}$"
+			if(${arg} MATCHES ".*\\${CMAKE_IMPORT_LIBRARY_SUFFIX}$" AND EXISTS ${arg})
+				string(REGEX REPLACE "\\${CMAKE_IMPORT_LIBRARY_SUFFIX}$"
 					"${CMAKE_SHARED_LIBRARY_SUFFIX}" _dll_name "${arg}")
                 if (NOT EXISTS ${_dll_name})
                     get_filename_component(_dir ${_dll_name} DIRECTORY)
@@ -37,7 +37,7 @@ if(WIN32)
 			set(_copy_dll_next "general")
 		endif()
 	endforeach()
-    
+
     set(_copy_dlls_name "copy_dlls-${TARGET}-$<CONFIG>")
     set(_list_file ${_copy_dlls_name}.list)
     set(_cmd_file ${_copy_dlls_name}.cmd)
