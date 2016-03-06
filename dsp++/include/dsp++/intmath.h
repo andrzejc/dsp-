@@ -254,7 +254,7 @@ template<class R> struct mod_impl<R, true> {
 
 template<class R, overflow::mode OverflowMode, bool IsSigned = std::numeric_limits<R>::is_signed> struct neg_impl;
 template<class R> struct neg_impl<R, overflow::wrap, true> {static R neg(R v0) {return -v0;}};  // specializations for the trivial (wrapping) case
-template<class R> struct neg_impl<R, overflow::wrap, false> {static R neg(R v0) {return -v0;}}; // we need both signed and unsigned variants so that we don't get compilation errors due to ambiguous template resolution
+template<class R> struct neg_impl<R, overflow::wrap, false> {static R neg(R v0) {return v0;}}; // we need both signed and unsigned variants so that we don't get compilation errors due to ambiguous template resolution
 // this specialization covers all non-wrapping unsigned cases
 template<class R, overflow::mode OverflowMode> struct neg_impl<R, OverflowMode, false> {
 	static R neg(R v0) {

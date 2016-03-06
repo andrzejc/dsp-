@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(test_fft_equals_fftw)
 	dsp::dft::fftw::dft<std::complex<float>, std::complex<float> > dft(64, in2, out2, dsp::dft::sign::forward);
 
 	for (size_t i = 0; i < 64; ++i)
-		in1[i] = in2[i] = sin(20 * DSP_M_PI * i / 64);
+		in1[i] = in2[i] = static_cast<float>(sin(20 * DSP_M_PI * i / 64));
 
 	fft();
 	dft();

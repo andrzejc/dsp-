@@ -13,6 +13,7 @@
 #include <dsp++/float.h>
 #include <dsp++/platform.h>
 #include <dsp++/intmath.h>
+#include <dsp++/compat.h>
 
 #include <limits>
 #include <stdexcept>
@@ -23,7 +24,7 @@ namespace byte_order { enum label {
 	little_endian,
 	big_endian,
 };
-    
+
 #if defined(DSP_ENDIAN_LITTLE)
 const label platform = little_endian;
 #elif defined(DSP_ENDIAN_BIG)
@@ -32,7 +33,7 @@ const label platform = big_endian;
 DSPXX_API extern const label platform;
 #endif
 } // namespace byte_order
-    
+
 namespace detail {
 
 template<class UInt>
@@ -42,7 +43,7 @@ struct shift_right8_impl {
         return in >> 8;
     }
 };
-    
+
 template<>
 struct shift_right8_impl<uint8_t> {
     uint8_t shift(uint8_t /* in */)
@@ -80,13 +81,13 @@ struct sample_layout {
 
 	//! @brief Read integer (LPCM) sample from byte buffer described by this layout into integer variable.
 	//! The type of sample data must be sample::type::pcm_signed for signed Int type or sample::type::pcm_unsigned
-	//! for unsigned Int type. 
+	//! for unsigned Int type.
 	//! @tparam Int type of output variable
 	//! @param[in] data pointer to byte buffer described by this sample_layout.
 	//! @param[out] variable which will receive read sample, full range of integer type will be used (sample will be normalized).
 	template<class Int>
 	void read_pcm(const void* data, Int& out) const {
-		static_assert(std::is_integral<Int>::value, "Int must ba an integeral type");
+		static_assert(dsp::is_integral<Int>::value, "Int must ba an integeral type");
 		if (!((sample::type::pcm_signed == type && std::numeric_limits<Int>::is_signed) ||
 			(sample::type::pcm_unsigned == type && !std::numeric_limits<Int>::is_signed)))
 			throw std::invalid_argument("dsp::snd::sample_layout::read_pcm() requires compatible sample::type::pcm_(un)signed");
@@ -106,7 +107,7 @@ struct sample_layout {
 	//! @param[in] data pointer to byte buffer described by this sample_layout.
 	template<class Float>
 	void read_ieee_float(const void* data, Float& out) const {
-		static_assert(std::is_floating_point<Float>::value, "Float must ba a floating-point type");
+		static_assert(dsp::is_floating_point<Float>::value, "Float must ba a floating-point type");
 		if (sample::type::ieee_float != type)
 			throw std::invalid_argument("dsp::snd::sample_layout::read_ieee_float() requires sample::type::ieee_float");
 		typedef typename select_int<sizeof(Float) * 8, false>::type uint;
@@ -120,7 +121,7 @@ struct sample_layout {
 
 	template<class Int>
 	void write_pcm(Int in, void* data) const {
-		static_assert(std::is_integral<Int>::value, "Int must ba an integeral type");
+		static_assert(dsp::is_integral<Int>::value, "Int must ba an integeral type");
 		if (!((sample::type::pcm_signed == type && std::numeric_limits<Int>::is_signed) ||
 			(sample::type::pcm_unsigned == type && !std::numeric_limits<Int>::is_signed)))
 			throw std::invalid_argument("dsp::snd::sample_layout::write_pcm() requires compatible sample::type::pcm_(un)signed");
@@ -135,7 +136,7 @@ struct sample_layout {
 
 	template<class Float>
 	void write_ieee_float(Float in, void* out) const {
-		static_assert(std::is_floating_point<Float>::value, "Float must ba a floating-point type");
+		static_assert(dsp::is_floating_point<Float>::value, "Float must ba a floating-point type");
 		if (sample::type::ieee_float != type)
 			throw std::invalid_argument("dsp::snd::sample_layout::write_ieee_float() requires sample::type::ieee_float");
 		typedef typename select_int<sizeof(Float) * 8, false>::type uint;

@@ -2,6 +2,7 @@ LOCAL_PATH := $(call my-dir)
 DSPXX_LOCAL_PATH := $(LOCAL_PATH)
 DEPS := $(LOCAL_PATH)/../deps
 LIBSNDFILE_DIR := $(DEPS)/libsndfile-android
+NDK_TOOLCHAIN_VERSION := clang
 
 include $(LIBSNDFILE_DIR)/jni/Android.mk
 LOCAL_PATH := $(DSPXX_LOCAL_PATH)
@@ -34,4 +35,4 @@ LOCAL_SRC_FILES := $(SRC)/arch/arm/cpu_arm.cpp \
 LOCAL_MODULE := dsp++
 include $(BUILD_SHARED_LIBRARY)
 
-$(call import-module,boost/1.57.0)
+$(call import-module,boost/1.59.0)

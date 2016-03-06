@@ -5,8 +5,12 @@
 #include <limits>
 #include <cassert>
 #include <cstring>
+#include <type_traits>
+
+#include <dsp++/compat.h>
 
 using namespace dsp::snd;
+using namespace dsp;
 
 namespace {
 template<class Int, class Res>
@@ -24,7 +28,7 @@ inline void write_float_as_pcm_(const dsp::snd::sample_layout& sl, Float in, voi
 
 template<class Res>
 inline void read_pcm_signed_as_float(const dsp::snd::sample_layout& sl, const void* data, Res& res) {
-	if (sl.container_bytes > sizeof(int32_t)) 
+	if (sl.container_bytes > sizeof(int32_t))
 		read_pcm_as_float_<int64_t>(sl, data, res);
 	else if (sl.container_bytes> sizeof(int16_t))
 		read_pcm_as_float_<int32_t>(sl, data, res);
@@ -36,7 +40,7 @@ inline void read_pcm_signed_as_float(const dsp::snd::sample_layout& sl, const vo
 
 template<class Float>
 inline void write_float_as_pcm_signed(const dsp::snd::sample_layout& sl, Float f, void* data) {
-	if (sl.container_bytes > sizeof(int32_t)) 
+	if (sl.container_bytes > sizeof(int32_t))
 		write_float_as_pcm_<int64_t>(sl, f, data);
 	else if (sl.container_bytes> sizeof(int16_t))
 		write_float_as_pcm_<int32_t>(sl, f, data);
@@ -48,7 +52,7 @@ inline void write_float_as_pcm_signed(const dsp::snd::sample_layout& sl, Float f
 
 template<class Res>
 inline void read_pcm_unsigned_as_float(const dsp::snd::sample_layout& sl, const void* data, Res& res) {
-	if (sl.container_bytes > sizeof(uint32_t)) 
+	if (sl.container_bytes > sizeof(uint32_t))
 		read_pcm_as_float_<uint64_t>(sl, data, res);
 	else if (sl.container_bytes> sizeof(uint16_t))
 		read_pcm_as_float_<uint32_t>(sl, data, res);
@@ -60,7 +64,7 @@ inline void read_pcm_unsigned_as_float(const dsp::snd::sample_layout& sl, const 
 
 template<class Float>
 inline void write_float_as_pcm_unsigned(const dsp::snd::sample_layout& sl, Float f, void* data) {
-	if (sl.container_bytes > sizeof(uint32_t)) 
+	if (sl.container_bytes > sizeof(uint32_t))
 		write_float_as_pcm_<uint64_t>(sl, f, data);
 	else if (sl.container_bytes> sizeof(uint16_t))
 		write_float_as_pcm_<uint32_t>(sl, f, data);
@@ -82,7 +86,7 @@ inline void read_ieee_as_float(const dsp::snd::sample_layout& sl, const void* da
 		sl.read_ieee_float(data, f);
 		res = static_cast<Float>(f);
 	}
-	else 
+	else
 		throw std::runtime_error("dsp::snd::sample_layout::read_float() IEEE 754 supports only 32 and 64-bit containers");
 }
 
@@ -96,7 +100,7 @@ inline void write_float_as_ieee(const dsp::snd::sample_layout& sl, Float in, voi
 		dsp::float64_t f = sample_cast<dsp::float64_t>(in);
 		sl.write_ieee_float(f, data);
 	}
-	else 
+	else
 		throw std::runtime_error("dsp::snd::sample_layout::write_float() IEEE 754 supports only 32 and 64-bit containers");
 }
 
