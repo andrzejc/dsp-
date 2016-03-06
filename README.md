@@ -48,18 +48,17 @@ The dsp++ library has the following dependencies:
  *  *Boost* library - currently it's impossible to build nor use dsp++ without
     Boost. On Windows you'll probably use
     [binary distribution](https://sourceforge.net/projects/boost/files/boost-binaries/),
-    in that case add `BOOST\_ROOT` environment variable pointing at the Boost
+    in that case add `BOOST_ROOT` environment variable pointing at the Boost
     installation dir and the rest should be automagickally done by CMake
     FindBoost macro (with a little help).
  *  *libsndfile* - on non-Windows systems just use package manager to install
     this in standard location and it should be automagickally found by CMake. On
     Windows you'll probably want to install from
     [prebuilt binaries](http://www.mega-nerd.com/libsndfile/#Download). In such case,
-    define `LIBSNDFILE\_ROOT` environment variable, and install 32-bit binary in
-    `%LIBSNDFILE\_ROOT%\x86` and 64-bit one in `%LIBSNDFILE\_ROOT%\x64`.
+    define `LIBSNDFILE_ROOT` environment variable, and install 32-bit binary in
+    `%LIBSNDFILE_ROOT%\x86` and 64-bit one in `%LIBSNDFILE_ROOT%\x64`.
  *  *fftw3* (optional) - on non-Windows system install as usual. On Windows
     download [prebuild binaries](http://www.fftw.org/install/windows.html) and
-    use `FFTW3\_ROOT` just like with `LIBSNDFILE\_ROOT` above (inluding x86/x64
+    use `FFTW3_ROOT` just like with `LIBSNDFILE_ROOT` above (inluding x86/x64
     subdirs). You will also need to generate import libs the way it's described
     under the link above.
-
