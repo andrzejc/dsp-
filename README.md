@@ -33,11 +33,13 @@ features. The contents of the directories is as follows:
 
 Building
 --------
-The only supported general-purpose solution for now is CMake. In the past there
+The only supported general-purpose solution for now is [CMake](https://cmake.org/). 
+In the past there
 were included project files for IDEs like Visual Studio, Eclipse and XCode, but
 maintaining them was painful and didn't allow for using CI servers easily.
 
-There's also possibility to build dsp++ for Android, using CrystaX NDK and
+There's also possibility to build dsp++ for Android, using
+[CrystaX NDK](https://www.crystax.net/android/ndk)  and
 ndk-build tools. This is not integrated with CMake (YET).
 See dsp++/android/README.
 
