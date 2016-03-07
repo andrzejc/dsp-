@@ -42,16 +42,14 @@ std::complex<float> dsp::simd::dot(const std::complex<float>* a, const std::comp
 #endif // DSP_ARCH_FAMILY_X86
 	else
 		return dsp::dot(a, b, len);
-
 }
 
 void dsp::simd::mul(float* res, const float* a, const float* b, size_t len)
 {
 	if (false) noop();
 #ifdef DSP_ARCH_FAMILY_X86
-	else if (DSP_SIMD_FEATURES & dsp::simd::feat::x86_sse) {
+	else if (DSP_SIMD_FEATURES & dsp::simd::feat::x86_sse)
 		x86_sse_mulf(res, a, b, len);
-
 #endif // DSP_ARCH_FAMILY_X86
 	else
 		dsp::mul(res, a, b, len);
