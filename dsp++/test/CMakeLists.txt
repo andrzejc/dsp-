@@ -18,7 +18,7 @@ set(SOURCES
 	overlap_add_test.cpp
 	pow2_test.cpp
 	resample_test.cpp
-#	simd_test.cpp
+	simd_test.cpp
 	window_test.cpp
 	xcorr_test.cpp
 
