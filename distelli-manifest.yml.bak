@@ -1,10 +1,4 @@
 andrzejc/dsp:
-    PreInstall:
-      - echo "Begin PreInstall"
-      - echo "End PreInstall"
-    PostInstall:
-      - echo "Begin PostInstall"
-      - echo "End PostInstall"
     Build:
       - echo "Prepare build directory"
       - mkdir build
