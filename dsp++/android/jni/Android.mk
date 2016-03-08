@@ -2,7 +2,6 @@ LOCAL_PATH := $(call my-dir)
 DSPXX_LOCAL_PATH := $(LOCAL_PATH)
 DEPS := $(LOCAL_PATH)/../deps
 LIBSNDFILE_DIR := $(DEPS)/libsndfile-android
-NDK_TOOLCHAIN_VERSION := clang
 
 include $(LIBSNDFILE_DIR)/jni/Android.mk
 LOCAL_PATH := $(DSPXX_LOCAL_PATH)
@@ -15,9 +14,9 @@ ifeq ($(TARGET_ARCH_ABI),x86)
   LOCAL_CFLAGS += -msse4.1
 endif
 
-LOCAL_CPPFLAGS := -std=gnu++11 
+LOCAL_CPPFLAGS := -std=gnu++11
 LOCAL_CPP_FEATURES := rtti exceptions
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../include 
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../include
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/../../include
 LOCAL_SHARED_LIBRARIES := pthread boost_atomic_shared sndfile
 
@@ -30,7 +29,7 @@ LOCAL_SRC_FILES := $(SRC)/arch/arm/cpu_arm.cpp \
 	$(SRC)/arch/x86/sse.cpp $(SRC)/arch/x86/sse3.cpp $(SRC)/arch/x86/sse41.cpp \
 	$(SRC)/mkfilter/mkfilter.cpp $(SRC)/remez/remez.cpp \
 	$(SRC)/rpoly/rpoly.cpp $(SRC)/snd/format.cpp $(SRC)/snd/io.cpp $(SRC)/snd/loudness.cpp \
-	$(SRC)/fftw/traits.cpp 
+	$(SRC)/fftw/traits.cpp
 
 LOCAL_MODULE := dsp++
 include $(BUILD_SHARED_LIBRARY)
