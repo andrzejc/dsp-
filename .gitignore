@@ -12,5 +12,8 @@
 **/.project
 **/.cproject
 **/.settings
+**/GPATH
+**/GRTAGS
+**/GTAGS
 /dsp++/android/libs
 /dsp++/android/obj
