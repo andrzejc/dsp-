@@ -124,8 +124,7 @@ export(TARGETS dsp++ FILE dsp++-exports.cmake)
 
 if (MSVC)
 	install(FILES $<TARGET_PDB_FILE:dsp++> DESTINATION lib OPTIONAL)
-	include(CopyDll)
-		copy_dlls(dsp++ ${LIBS})
+	copy_dlls(dsp++ ${LIBS})
 endif()
 
 install(TARGETS dsp++ EXPORT dsp++ DESTINATION lib)
