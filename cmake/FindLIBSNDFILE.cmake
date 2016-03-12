@@ -5,24 +5,31 @@
 #  LIBSNDFILE_LIBRARIES - The libraries needed to use libsndfile
 #  LIBSNDFILE_DEFINITIONS - Compiler switches required for using libsndfile
 
-set(LIBSNDFILE_SEARCH_LIBS libsndfile sndfile libsndfile-1 sndfile-1 libsndfile1 sndfile1 )
+set(LIBSNDFILE_SEARCH_LIBS libsndfile sndfile libsndfile-1 sndfile-1
+	libsndfile1 sndfile1)
 set(LIBSNDFILE_SEARCH_HEADERS sndfile.h)
 
 if (MSVC)
-	set(LIBSNDFILE_ROOT $ENV{LIBSNDFILE_ROOT} CACHE PATH "Installation folder of libsndfile" )
+	set(LIBSNDFILE_ROOT $ENV{LIBSNDFILE_ROOT} CACHE
+		PATH "Installation folder of libsndfile")
+
 	if (CMAKE_CL_64)
-		set(LIBSNDFILE_DIR ${LIBSNDFILE_ROOT}/x64)
+		set(_subdirs ${LIBSNDFILE_ROOT}/x64 ${LIBSNDFILE_ROOT}/x64/lib
+			${LIBSNDFILE_ROOT}/lib/x64 ${LIBSNDFILE_ROOT}/lib64
+			${LIBSNDFILE_ROOT}/lib ${LIBSNDFILE_ROOT})
 	else ()
-		set(LIBSNDFILE_DIR ${LIBSNDFILE_ROOT}/x86)
+		set(_subdirs ${LIBSNDFILE_ROOT}/x86 ${LIBSNDFILE_ROOT}/x86/lib
+			${LIBSNDFILE_ROOT}/lib/x86 ${LIBSNDFILE_ROOT}/lib32
+			${LIBSNDFILE_ROOT}/lib ${LIBSNDFILE_ROOT})
 	endif()
 
 	find_library(LIBSNDFILE_LIBRARY
 		NAMES ${LIBSNDFILE_SEARCH_LIBS}
-		PATHS ${LIBSNDFILE_DIR}/lib ${LIBSNDFILE_ROOT}/lib ${LIBSNDFILE_ROOT} )
+		PATHS ${_subdirs})
 
 	find_path(LIBSNDFILE_INCLUDE_DIR ${LIBSNDFILE_SEARCH_HEADERS}
-		PATHS ${LIBSNDFILE_DIR}/include ${LIBSNDFILE_DIR}
-		PATH_SUFFIXES sndfile )
+		PATHS ${_subdirs}
+		PATH_SUFFIXES include sndfile include/sndfile)
 
 else ()
 	find_package(PkgConfig)
@@ -31,16 +38,16 @@ else ()
 
 	find_library(LIBSNDFILE_LIBRARY
 		NAMES PL_LIBSNDFILE_LIBRARIES ${LIBSNDFILE_SEARCH_LIBS}
-		HINTS ${PC_LIBSNDFILE_LIBDIR} ${PC_LIBSNDFILE_LIBRARY_DIRS} )
+		HINTS ${PC_LIBSNDFILE_LIBDIR} ${PC_LIBSNDFILE_LIBRARY_DIRS})
 
 	find_path(LIBSNDFILE_INCLUDE_DIR ${LIBSNDFILE_SEARCH_HEADERS}
 		HINTS ${PC_LIBSNDFILE_INCLUDEDIR} ${PC_LIBSNDFILE_INCLUDE_DIRS}
-		PATH_SUFFIXES sndfile )
+		PATH_SUFFIXES sndfile)
 
 endif()
 
-set(LIBSNDFILE_LIBRARIES ${LIBSNDFILE_LIBRARY} )
-set(LIBSNDFILE_INCLUDE_DIRS ${LIBSNDFILE_INCLUDE_DIR} )
+set(LIBSNDFILE_LIBRARIES ${LIBSNDFILE_LIBRARY})
+set(LIBSNDFILE_INCLUDE_DIRS ${LIBSNDFILE_INCLUDE_DIR})
 
 include(FindPackageHandleStandardArgs)
 # handle the QUIETLY and REQUIRED arguments and set LIBSNDFILE_FOUND to TRUE
@@ -48,4 +55,4 @@ include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(LIBSNDFILE  DEFAULT_MSG
                                   LIBSNDFILE_LIBRARIES LIBSNDFILE_INCLUDE_DIRS)
 
-mark_as_advanced(LIBSNDFILE_INCLUDE_DIRS LIBSNDFILE_LIBRARIES )
+mark_as_advanced(LIBSNDFILE_INCLUDE_DIRS LIBSNDFILE_LIBRARIES)
