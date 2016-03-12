@@ -25,8 +25,70 @@ else ()
 	add_definitions(-DDSP_SNDFILE_DISABLED=1)
 endif ()
 
-file(GLOB_RECURSE PUBLIC_HEADERS include/dsp++/*.h)
-list(APPEND PUBLIC_HEADERS ${PROJECT_BINARY_DIR}/include/dsp++/version.h)
+list(APPEND PUBLIC_HEADERS
+	${PROJECT_BINARY_DIR}/include/dsp++/version.h
+	include/dsp++/adaptfilt.h
+	include/dsp++/algorithm.h
+	include/dsp++/buffer.h
+	include/dsp++/buffer_traits.h
+	include/dsp++/compat.h
+	include/dsp++/complex.h
+	include/dsp++/config.h
+	include/dsp++/const.h
+	include/dsp++/csvread.h
+	include/dsp++/debug.h
+	include/dsp++/dft.h
+	include/dsp++/doc.h
+	include/dsp++/dynamics.h
+	include/dsp++/export.h
+	include/dsp++/fdaf.h
+	include/dsp++/fft/detail.h
+	include/dsp++/fft.h
+	include/dsp++/fftw/allocator.h
+	include/dsp++/fftw/dft.h
+	include/dsp++/fftw/plan_unavailable.h
+	include/dsp++/fftw/traits.h
+	include/dsp++/filter.h
+	include/dsp++/filter_design.h
+	include/dsp++/fixed.h
+	include/dsp++/float.h
+	include/dsp++/flt/biquad_design.h
+	include/dsp++/flt/fir_design.h
+	include/dsp++/flt/iir_design.h
+	include/dsp++/intmath.h
+	include/dsp++/ioport.h
+	include/dsp++/lattice.h
+	include/dsp++/levinson.h
+	include/dsp++/lpc.h
+	include/dsp++/mean.h
+	include/dsp++/noncopyable.h
+	include/dsp++/norm.h
+	include/dsp++/overlap_add.h
+	include/dsp++/overlap_save.h
+	include/dsp++/platform.h
+	include/dsp++/polyroots.h
+	include/dsp++/pow2.h
+	include/dsp++/resample.h
+	include/dsp++/simd.h
+	include/dsp++/snd/buffer.h
+	include/dsp++/snd/convert.h
+	include/dsp++/snd/format.h
+	include/dsp++/snd/io_error.h
+	include/dsp++/snd/iobase.h
+	include/dsp++/snd/loudness.h
+	include/dsp++/snd/reader.h
+	include/dsp++/snd/sample.h
+	include/dsp++/snd/sndfile_error.h
+	include/dsp++/snd/writer.h
+	include/dsp++/stdint.h
+	include/dsp++/stride_iterator.h
+	include/dsp++/trivial_array.h
+	include/dsp++/utility.h
+	include/dsp++/vectmath.h
+	include/dsp++/window.h
+	include/dsp++/xcorr.h
+	include/dsp++/zeropole.h
+	)
 
 set(HEADERS
 	${PUBLIC_HEADERS}
