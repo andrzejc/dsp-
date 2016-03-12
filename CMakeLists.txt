@@ -10,7 +10,7 @@ set(DSPXX_FULL_NAME "${PROJECT_NAME}-${DSPXX_VERSION}")
 set(DSPXX_DOC_PREFIX share/doc/${DSPXX_FULL_NAME})
 set(DSPXX_SLOGAN "Digital Signal Processing library written in modern C++")
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/build-scripts/cmake)
 include(CMakeCompatibility NO_POLICY_SCOPE)
 
 include(BoostOnMSVC)
