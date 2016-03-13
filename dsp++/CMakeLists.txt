@@ -6,8 +6,10 @@ find_package(FFTW3)
 find_package(LIBSNDFILE)
 
 # options
-option(FFTW3_ENABLED "Enable the use and support for FFTW3 library" ${FFTW3_FOUND} )
-option(LIBSNDFILE_ENABLED "Enable the use and support for libsndfile library" ${LIBSNDFILE_FOUND} )
+option(FFTW3_ENABLED "Enable the use and support for FFTW3 library" 
+	${FFTW3_FOUND} )
+option(LIBSNDFILE_ENABLED "Enable the use and support for libsndfile library" 
+	${LIBSNDFILE_FOUND} )
 option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
 
 # consider detecting fftw and setting FFTW_DISABLED automatically
@@ -205,6 +207,7 @@ if (BUILD_DOCUMENTATION)
 
 	add_custom_command(TARGET dsp++ POST_BUILD
 		COMMAND ${DOXYGEN_EXECUTABLE} doxyfile
+		DEPENDS ${SOURCES}
 		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 		COMMENT "Generating API documentation with Doxygen"
 		VERBATIM)
