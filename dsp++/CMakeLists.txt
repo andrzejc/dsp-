@@ -1,5 +1,6 @@
 project(libdsp++)
 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 find_package(Doxygen)
 find_package(FFTW3)
 find_package(LIBSNDFILE)
@@ -124,7 +125,8 @@ export(TARGETS dsp++ FILE dsp++-exports.cmake)
 
 if (MSVC)
 	install(FILES $<TARGET_PDB_FILE:dsp++> DESTINATION lib OPTIONAL)
-	copy_dlls(dsp++ ${LIBS})
+	include(CopyDll)
+		copy_dlls(dsp++ ${LIBS})
 endif()
 
 install(TARGETS dsp++ EXPORT dsp++ DESTINATION lib)
@@ -139,7 +141,7 @@ if (BUILD_DOCUMENTATION)
 
 	configure_file(doxyfile.in doxyfile @ONLY)
 
-	add_custom_target(doc
+	add_custom_command(TARGET dsp++ POST_BUILD
 		COMMAND ${DOXYGEN_EXECUTABLE} doxyfile
 		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 		COMMENT "Generating API documentation with Doxygen"
