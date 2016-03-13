@@ -39,8 +39,6 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_COMPILER_IS_GNUCXX)
 	add_definitions (-Wno-unused-local-typedefs)
 endif()
 
-include(CopyDlls)
-
 add_subdirectory(dsp++)
 add_subdirectory(compressor_demo)
 add_subdirectory(filter_demo)
