@@ -28,50 +28,50 @@ inline void write_float_as_pcm_(const dsp::snd::sample_layout& sl, Float in, voi
 
 template<class Res>
 inline void read_pcm_signed_as_float(const dsp::snd::sample_layout& sl, const void* data, Res& res) {
-	if (sl.container_bytes > sizeof(int32_t))
-		read_pcm_as_float_<int64_t>(sl, data, res);
-	else if (sl.container_bytes> sizeof(int16_t))
-		read_pcm_as_float_<int32_t>(sl, data, res);
-	else if (sl.container_bytes > sizeof(int8_t))
-		read_pcm_as_float_<int16_t>(sl, data, res);
+	if (sl.container_bytes > sizeof(dsp::int32_t))
+		read_pcm_as_float_<dsp::int64_t>(sl, data, res);
+	else if (sl.container_bytes> sizeof(dsp::int16_t))
+		read_pcm_as_float_<dsp::int32_t>(sl, data, res);
+	else if (sl.container_bytes > sizeof(dsp::int8_t))
+		read_pcm_as_float_<dsp::int16_t>(sl, data, res);
 	else
-		read_pcm_as_float_<int8_t>(sl, data, res);
+		read_pcm_as_float_<dsp::int8_t>(sl, data, res);
 }
 
 template<class Float>
 inline void write_float_as_pcm_signed(const dsp::snd::sample_layout& sl, Float f, void* data) {
-	if (sl.container_bytes > sizeof(int32_t))
-		write_float_as_pcm_<int64_t>(sl, f, data);
-	else if (sl.container_bytes> sizeof(int16_t))
-		write_float_as_pcm_<int32_t>(sl, f, data);
-	else if (sl.container_bytes > sizeof(int8_t))
-		write_float_as_pcm_<int16_t>(sl, f, data);
+	if (sl.container_bytes > sizeof(dsp::int32_t))
+		write_float_as_pcm_<dsp::int64_t>(sl, f, data);
+	else if (sl.container_bytes> sizeof(dsp::int16_t))
+		write_float_as_pcm_<dsp::int32_t>(sl, f, data);
+	else if (sl.container_bytes > sizeof(dsp::int8_t))
+		write_float_as_pcm_<dsp::int16_t>(sl, f, data);
 	else
-		write_float_as_pcm_<int8_t>(sl, f, data);
+		write_float_as_pcm_<dsp::int8_t>(sl, f, data);
 }
 
 template<class Res>
 inline void read_pcm_unsigned_as_float(const dsp::snd::sample_layout& sl, const void* data, Res& res) {
-	if (sl.container_bytes > sizeof(uint32_t))
+	if (sl.container_bytes > sizeof(dsp::uint32_t))
 		read_pcm_as_float_<uint64_t>(sl, data, res);
-	else if (sl.container_bytes> sizeof(uint16_t))
-		read_pcm_as_float_<uint32_t>(sl, data, res);
-	else if (sl.container_bytes > sizeof(uint8_t))
-		read_pcm_as_float_<uint16_t>(sl, data, res);
+	else if (sl.container_bytes> sizeof(dsp::uint16_t))
+		read_pcm_as_float_<dsp::uint32_t>(sl, data, res);
+	else if (sl.container_bytes > sizeof(dsp::uint8_t))
+		read_pcm_as_float_<dsp::uint16_t>(sl, data, res);
 	else
-		read_pcm_as_float_<uint8_t>(sl, data, res);
+		read_pcm_as_float_<dsp::uint8_t>(sl, data, res);
 }
 
 template<class Float>
 inline void write_float_as_pcm_unsigned(const dsp::snd::sample_layout& sl, Float f, void* data) {
-	if (sl.container_bytes > sizeof(uint32_t))
+	if (sl.container_bytes > sizeof(dsp::uint32_t))
 		write_float_as_pcm_<uint64_t>(sl, f, data);
-	else if (sl.container_bytes> sizeof(uint16_t))
-		write_float_as_pcm_<uint32_t>(sl, f, data);
-	else if (sl.container_bytes > sizeof(uint8_t))
-		write_float_as_pcm_<uint16_t>(sl, f, data);
+	else if (sl.container_bytes> sizeof(dsp::uint16_t))
+		write_float_as_pcm_<dsp::uint32_t>(sl, f, data);
+	else if (sl.container_bytes > sizeof(dsp::uint8_t))
+		write_float_as_pcm_<dsp::uint16_t>(sl, f, data);
 	else
-		write_float_as_pcm_<uint8_t>(sl, f, data);
+		write_float_as_pcm_<dsp::uint8_t>(sl, f, data);
 }
 
 template<class Float>
@@ -145,8 +145,8 @@ inline void write_sample_as_float(const dsp::snd::sample_layout& sl, Float in, v
 
 namespace {
 static dsp::snd::byte_order::label platform_test() {
-	int16_t i = 1;
-	int8_t buf[2];
+	dsp::int16_t i = 1;
+	dsp::int8_t buf[2];
 	std::memcpy(buf, &i, 2);
 	return ((buf[0] != 0) ? dsp::snd::byte_order::little_endian : dsp::snd::byte_order::big_endian);
 }
@@ -202,13 +202,13 @@ static bool test() {
 
 static const bool t = test();
 
-#endif 
+#endif
 
 void dsp::snd::convert_samples(const dsp::snd::sample_layout& sl_in, unsigned sample_stride_in, const void* in,
-	const dsp::snd::sample_layout& sl_out, unsigned sample_stride_out, void* out, unsigned length) 
+	const dsp::snd::sample_layout& sl_out, unsigned sample_stride_out, void* out, unsigned length)
 {
-	const uint8_t* bi = static_cast<const uint8_t*>(in);
-	uint8_t* bo = static_cast<uint8_t*>(out);
+	const dsp::uint8_t* bi = static_cast<const dsp::uint8_t*>(in);
+	dsp::uint8_t* bo = static_cast<dsp::uint8_t*>(out);
 	//sample::type::label fmt;
 	//if (sample::type::ieee_float == sl_in.type || sample::type::ieee_float == sl_out.type)
 	//	fmt = sample::type::ieee_float;
@@ -217,15 +217,15 @@ void dsp::snd::convert_samples(const dsp::snd::sample_layout& sl_in, unsigned sa
 	//else
 	//	fmt = sample::type::pcm_unsigned;
 	unsigned bytes = std::max(sl_in.container_bytes, sl_out.container_bytes);
-	
-	for (unsigned i = 0; i < length; ++i, bi += sample_stride_in, bo += sample_stride_out) 
+
+	for (unsigned i = 0; i < length; ++i, bi += sample_stride_in, bo += sample_stride_out)
 	//switch (fmt) {
 	//case sample::type::ieee_float:
 		if (bytes > 4) {
 			float64_t f;
 			sl_in.read_float(bi, f);
 			sl_out.write_float(f, bo);
-		} 
+		}
 		else {
 			float32_t f;
 			sl_in.read_float(bi, f);
@@ -238,9 +238,9 @@ void dsp::snd::convert_samples(const dsp::snd::sample_layout& sl_in, unsigned sa
 void dsp::snd::convert_samples(const dsp::snd::sample_layout& sl_in, const dsp::snd::buffer_layout& bl_in, const void* in,
 	const dsp::snd::sample_layout& sl_out, const dsp::snd::buffer_layout& bl_out, void* out, unsigned length, unsigned channels)
 {
-	const uint8_t* bi = static_cast<const uint8_t*>(in);
-	uint8_t* bo = static_cast<uint8_t*>(out);
+	const dsp::uint8_t* bi = static_cast<const dsp::uint8_t*>(in);
+	dsp::uint8_t* bo = static_cast<dsp::uint8_t*>(out);
 
-	for (unsigned c = 0; c < channels; ++c, bi += bl_in.channel_stride, bo += bl_out.channel_stride) 
+	for (unsigned c = 0; c < channels; ++c, bi += bl_in.channel_stride, bo += bl_out.channel_stride)
 		convert_samples(sl_in, bl_in.sample_stride, bi, sl_out, bl_out.sample_stride, bo, length);
 }
