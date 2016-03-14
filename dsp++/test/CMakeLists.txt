@@ -28,11 +28,12 @@ set(SOURCES
 add_definitions(-DBOOST_TEST_DYN_LINK)
 include_directories(${Boost_INCLUDE_DIRS})
 add_executable(dsp++-test ${SOURCES})
-target_link_libraries(dsp++-test dsp++ ${Boost_LIBRARIES})
+target_link_libraries(dsp++-test dsp++ ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES})
 install(TARGETS dsp++-test DESTINATION bin)
 
 macro(dsp_test name)
-	add_test(${name} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dsp++-test --run_test=${name})
+	add_test(${name}
+		${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dsp++-test --run_test=${name})
 endmacro()
 
 dsp_test(adaptfilt)

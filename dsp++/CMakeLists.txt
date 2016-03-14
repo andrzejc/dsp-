@@ -6,18 +6,19 @@ find_package(FFTW3)
 find_package(LIBSNDFILE)
 
 # options
-option(FFTW3_ENABLED "Enable the use and support for FFTW3 library" 
-	${FFTW3_FOUND} )
-option(LIBSNDFILE_ENABLED "Enable the use and support for libsndfile library" 
-	${LIBSNDFILE_FOUND} )
-option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
+option(FFTW3_ENABLED "Enable the use and support for FFTW3 library"
+	${FFTW3_FOUND})
+option(LIBSNDFILE_ENABLED "Enable the use and support for libsndfile library"
+	${LIBSNDFILE_FOUND})
+option(BUILD_DOCUMENTATION "Create and install the HTML based API\
+ documentation (requires Doxygen)" ${DOXYGEN_FOUND})
 
 # consider detecting fftw and setting FFTW_DISABLED automatically
 if (FFTW3_ENABLED)
 	list(APPEND INCLUDE_DIRS ${FFTW3_INCLUDE_DIRS})
 	list(APPEND LIBS ${FFTW3_LIBRARIES})
 else ()
-	add_definitions(-DDSP_FFTW_DISABLED=1)
+	add_definitions(DSP_FFTW_DISABLED)
 endif ()
 
 # consider detecting libsndfile and setting LIBSNDFILE_DISABLED automatically
@@ -25,7 +26,7 @@ if (LIBSNDFILE_ENABLED)
 	list(APPEND INCLUDE_DIRS ${LIBSNDFILE_INCLUDE_DIRS})
 	list(APPEND LIBS ${LIBSNDFILE_LIBRARIES})
 else ()
-	add_definitions(-DDSP_SNDFILE_DISABLED=1)
+	add_definitions(DSP_SNDFILE_DISABLED)
 endif ()
 
 list(APPEND PUBLIC_HEADERS
@@ -101,7 +102,7 @@ set(HEADERS
 	src/utility.h
 	src/mkfilter/mkfilter.h
 	src/remez/remez.h
-)
+	)
 
 set(SOURCES
 	${HEADERS}
@@ -128,7 +129,7 @@ set(SOURCES
 	src/snd/format.cpp
 	src/snd/io.cpp
 	src/snd/loudness.cpp
-)
+	)
 
 set(ALL_FILES ${SOURCES})
 string(REPLACE ";" "\n" CSCOPE_FILES "${ALL_FILES}")
@@ -147,38 +148,42 @@ if (TARGET_PLATFORM_X86)
 		src/arch/x86/sse.cpp
 		src/arch/x86/sse3.cpp
 		src/arch/x86/sse41.cpp
-	)
+		)
 
-	set_source_files_properties(src/arch/x86/sse.cpp PROPERTIES COMPILE_FLAGS "${CXX_COMPILER_SSE_FLAG}")
-	set_source_files_properties(src/arch/x86/sse3.cpp PROPERTIES COMPILE_FLAGS "${CXX_COMPILER_SSE3_FLAG}")
-	set_source_files_properties(src/arch/x86/sse41.cpp PROPERTIES COMPILE_FLAGS "${CXX_COMPILER_SSE41_FLAG}")
+	set_source_files_properties(src/arch/x86/sse.cpp PROPERTIES
+		COMPILE_FLAGS "${CXX_COMPILER_SSE_FLAG}")
+	set_source_files_properties(src/arch/x86/sse3.cpp PROPERTIES
+		COMPILE_FLAGS "${CXX_COMPILER_SSE3_FLAG}")
+	set_source_files_properties(src/arch/x86/sse41.cpp PROPERTIES
+		COMPILE_FLAGS "${CXX_COMPILER_SSE41_FLAG}")
+
 	list(APPEND HEADERS
 		src/arch/x86/sse_utils.h
 		src/arch/x86/sse.h
-	)
+		)
 endif()
 # ARM - specific
 if (TARGET_PLATFORM_ARM)
 	list(APPEND SOURCES
 		src/arch/arm/cpu_arm.cpp
-	)
+		)
 endif()
 # PowerPC - specific
 if (TARGET_PLATFORM_PPC)
 	list(APPEND SOURCES
 		src/arch/ppc/cpu_ppc.cpp
-	)
+		)
 endif()
 #
 
 list(APPEND INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
-list(APPEND LIBS ${Boost_LIBRARIES})
 
 configure_file(src/version.h.in include/dsp++/version.h @ONLY)
 
 add_library(dsp++ SHARED ${SOURCES})
 target_compile_definitions(dsp++ PRIVATE DSPXX_EXPORTS)
-target_include_directories(dsp++ PRIVATE src include ${PROJECT_BINARY_DIR}/include ${INCLUDE_DIRS})
+target_include_directories(dsp++ PRIVATE src include
+	${PROJECT_BINARY_DIR}/include ${INCLUDE_DIRS})
 target_include_directories(dsp++ INTERFACE
 	$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
 	$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
@@ -217,4 +222,6 @@ if (BUILD_DOCUMENTATION)
 		OPTIONAL)
 endif()
 
-add_subdirectory(test)
+if(BUILD_TESTS)
+	add_subdirectory(test)
+endif()
