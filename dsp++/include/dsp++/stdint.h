@@ -67,6 +67,9 @@ typedef select_int<64, false>::type uint64_t;
 /// @brief Declare unsigned int type counterpart: @code{.cpp} typename unsigned_of<int>::type @endcode.
 template<class T> struct unsigned_of;
 template<> struct unsigned_of<signed char> {typedef unsigned char type;};
+/// @note stdc++ 3.9.1 [basic.fundamental]: char != signed char, these are
+/// different types!
+template<> struct unsigned_of<char> {typedef unsigned char type;};
 template<> struct unsigned_of<unsigned char> {typedef unsigned char type;};
 template<> struct unsigned_of<signed short> {typedef unsigned short type;};
 template<> struct unsigned_of<unsigned short> {typedef unsigned short type;};
@@ -80,6 +83,9 @@ template<> struct unsigned_of<unsigned long long> {typedef unsigned long long ty
 /// @brief Declare signed int type counterpart: @code{.cpp} typename signed_of<unsigned>::type @endcode.
 template<class T> struct signed_of;
 template<> struct signed_of<signed char> {typedef signed char type;};
+/// @note stdc++ 3.9.1 [basic.fundamental]: char != signed char, these are
+/// different types!
+template<> struct signed_of<char> {typedef signed char type;};
 template<> struct signed_of<unsigned char> {typedef signed char type;};
 template<> struct signed_of<signed short> {typedef signed short type;};
 template<> struct signed_of<unsigned short> {typedef signed short type;};
