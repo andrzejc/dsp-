@@ -5,7 +5,7 @@ project(dsp++)
 set(DSPXX_VERSION_MAJOR 0)
 set(DSPXX_VERSION_MINOR 1)
 set(DSPXX_VERSION_PATCH 0)
-set(DSPXX_VERSION 
+set(DSPXX_VERSION
 	${DSPXX_VERSION_MAJOR}.${DSPXX_VERSION_MINOR}.${DSPXX_VERSION_PATCH})
 set(DSPXX_FULL_NAME "${PROJECT_NAME}-${DSPXX_VERSION}")
 set(DSPXX_DOC_PREFIX share/doc/${DSPXX_FULL_NAME})
@@ -27,9 +27,9 @@ endif()
 if(MSVC OR CMAKE_CXX_COMPILER_ID MATCHES "Intel")
 	add_definitions(
 		/D_CRT_SECURE_NO_WARNINGS # no warnings on perfectly fine C++ code
-		/D_SCL_SECURE_NO_WARNINGS 
-		/wd4251 
-		/wd4275 
+		/D_SCL_SECURE_NO_WARNINGS
+		/wd4251
+		/wd4275
 		/MP # enable parallel  build too
 		)
 endif()
@@ -38,9 +38,9 @@ include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag("-std=c++11" COMPILER_SUPPORTS_CXX11)
 check_cxx_compiler_flag("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
 if(COMPILER_SUPPORTS_CXX11)
-	list(APPEND CMAKE_CXX_FLAGS "-std=c++11")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 elseif(COMPILER_SUPPORTS_CXX0X)
-	list(APPEND CMAKE_CXX_FLAGS "-std=c++0x")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_COMPILER_IS_GNUCXX)
