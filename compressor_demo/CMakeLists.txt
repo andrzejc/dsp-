@@ -5,6 +5,6 @@ set(SOURCES
 )
 
 add_executable(compressor_demo ${SOURCES})
-include_directories(${Boost_INCLUDE_DIRS})
-target_link_libraries(compressor_demo dsp++)
+target_include_directories(compressor_demo PRIVATE ${Boost_INCLUDE_DIRS})
+target_link_libraries(compressor_demo PRIVATE dsp++)
 install(TARGETS compressor_demo DESTINATION bin)
