@@ -38,15 +38,15 @@ include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag("-std=c++11" COMPILER_SUPPORTS_CXX11)
 check_cxx_compiler_flag("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
 if(COMPILER_SUPPORTS_CXX11)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+	add_definitions(-std=c++11)
 elseif(COMPILER_SUPPORTS_CXX0X)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+	add_definitions(-std=c++0x)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_COMPILER_IS_GNUCXX)
 	# Disable some warnings for Clang, for some things that are too awkward
 	# to change just for the sake of having no warnings.
-	add_definitions (-Wno-unused-local-typedefs)
+	add_definitions(-Wno-unused-local-typedefs)
 endif()
 
 add_subdirectory(dsp++)
