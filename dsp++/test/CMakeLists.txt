@@ -31,6 +31,13 @@ add_executable(dsp++-test ${SOURCES})
 target_link_libraries(dsp++-test dsp++ ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES})
 install(TARGETS dsp++-test DESTINATION bin)
 
+if (MSVC)
+	install(FILES $<TARGET_PDB_FILE:dsp++-test> DESTINATION lib OPTIONAL)
+	include(CopyDlls)
+	copy_dlls(dsp++-test ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES})
+endif()
+
+
 macro(dsp_test name)
 	add_test(${name}
 		${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dsp++-test --run_test=${name})
