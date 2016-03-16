@@ -19,6 +19,8 @@ include(CMakeCompatibility NO_POLICY_SCOPE)
 
 include(BoostOnMSVC)
 find_package(Boost REQUIRED COMPONENTS unit_test_framework)
+# Boost autolinking support
+link_directories(${Boost_LIBRARY_DIRS})
 
 if(BUILD_TESTS)
 	enable_testing()
