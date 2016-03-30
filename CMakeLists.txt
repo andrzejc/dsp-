@@ -47,6 +47,8 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_COMPILER_IS_GNUCXX)
 	add_definitions(-Wno-unused-local-typedefs)
 endif()
 
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+
 add_subdirectory(dsp++)
 if(BUILD_DEMOS)
 	add_subdirectory(compressor_demo)
