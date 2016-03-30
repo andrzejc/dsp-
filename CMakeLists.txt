@@ -11,7 +11,7 @@ set(DSPXX_FULL_NAME "${PROJECT_NAME}-${DSPXX_VERSION}")
 set(DSPXX_DOC_PREFIX share/doc/${DSPXX_FULL_NAME})
 set(DSPXX_SLOGAN "Digital Signal Processing library written in modern C++")
 
-option(BUILD_TESTS "Enable testing code" ON)
+include(CTest)
 option(BUILD_DEMOS "Build example/demo code" OFF)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/build-scripts/cmake)
@@ -21,10 +21,6 @@ include(BoostOnMSVC)
 find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 # Boost autolinking support
 link_directories(${Boost_LIBRARY_DIRS})
-
-if(BUILD_TESTS)
-	enable_testing()
-endif()
 
 if(MSVC OR CMAKE_CXX_COMPILER_ID MATCHES "Intel")
 	add_definitions(
