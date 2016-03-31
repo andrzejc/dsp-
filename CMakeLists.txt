@@ -29,6 +29,7 @@ if(MSVC OR CMAKE_CXX_COMPILER_ID MATCHES "Intel")
 		/wd4251
 		/wd4275
 		/MP # enable parallel  build too
+		/EHsc # enable exception handling
 		)
 endif()
 
