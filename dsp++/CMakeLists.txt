@@ -210,13 +210,16 @@ if (BUILD_DOCUMENTATION)
 
 	configure_file(doxyfile.in doxyfile @ONLY)
 
-	add_custom_command(TARGET dsp++ POST_BUILD
+	add_custom_command(OUTPUT doc/html/toc.xml
 		COMMAND ${DOXYGEN_EXECUTABLE} doxyfile
-		MAIN_DEPENDENCY ${CMAKE_CURRENT_BINARY_DIR}/doxyfile
+		MAIN_DEPENDENCY "${CMAKE_CURRENT_BINARY_DIR}/doxyfile"
 		DEPENDS ${SOURCES}
-		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+		WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
 		COMMENT "Generating API documentation with Doxygen"
 		VERBATIM)
+    
+    add_custom_target(dsp++-doc ALL 
+        DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/doc/html/toc.xml")
 
 	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc/
 		DESTINATION ${DSPXX_DOC_PREFIX}
