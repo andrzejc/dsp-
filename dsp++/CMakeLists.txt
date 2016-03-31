@@ -182,12 +182,12 @@ configure_file(src/version.h.in include/dsp++/version.h @ONLY)
 
 add_library(dsp++ SHARED ${SOURCES})
 target_compile_definitions(dsp++ PRIVATE DSPXX_EXPORTS)
-target_include_directories(dsp++ PRIVATE src include
-	${PROJECT_BINARY_DIR}/include ${INCLUDE_DIRS})
+target_include_directories(dsp++ PRIVATE
+	src include ${PROJECT_BINARY_DIR}/include ${INCLUDE_DIRS})
 target_include_directories(dsp++ INTERFACE
 	$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
 	$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-	$<INSTALL_INTERFACE:include>)
+	$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>)
 target_link_libraries(dsp++ PRIVATE ${LIBS})
 set_target_properties(dsp++ PROPERTIES VERSION ${DSPXX_VERSION})
 export(TARGETS dsp++ FILE dsp++-exports.cmake)
@@ -195,7 +195,7 @@ export(TARGETS dsp++ FILE dsp++-exports.cmake)
 if (MSVC)
 	install(FILES $<TARGET_PDB_FILE:dsp++> DESTINATION lib OPTIONAL)
 	include(CopyDlls)
-    copy_dlls(dsp++ ${LIBS})
+	copy_dlls(dsp++ ${LIBS})
 endif()
 
 install(TARGETS dsp++ EXPORT dsp++ DESTINATION lib)
