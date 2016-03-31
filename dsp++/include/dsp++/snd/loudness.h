@@ -31,7 +31,7 @@ namespace dsp { namespace snd {
 //! @brief K-weighting stage 2 prefilter (high-pass) cutoff frequency
 #define DSP_SND_K_WEIGHTING_STAGE2_FC (38.)
 
-/*! 
+/*!
  * @brief Design 2 biquad sections of K-weighting filter for given sampling rate.
  * @param[in] fs sampling rate.
  * @param[out] sos_num 2x3 array receiving designed second-order section numerators upon output.
@@ -52,7 +52,7 @@ public:
 	//! @brief Construct K-weighting filter for given sampling rate.
 	//! @param[in] sr sampling rate.
 	explicit k_weighting(double sr)
-		:	flt_(2) 
+		:	flt_(2)
 	{
 		double num[2][dsp::sos_length];
 		double den[2][dsp::sos_length];
@@ -73,6 +73,7 @@ class block_k_weighting {
 public:
 
 	//! @brief Construct K-weighting filter for given sampling rate.
+	//! @param[in] L block length.
 	//! @param[in] sr sampling rate.
 	explicit block_k_weighting(size_t L, double sr)
 	 :	flt1_(L, 3, 3)
@@ -103,7 +104,7 @@ private:
 	dsp::block_filter<Sample> flt2_;
 };
 
-/*! 
+/*!
  * @brief LKFS (aka LUFS) loudness measurement algorithm.
  * @see http://www.itu.int/dms_pubrec/itu-r/rec/bs/R-REC-BS.1770-3-201208-I!!PDF-E.pdf
  */
@@ -117,9 +118,9 @@ public:
 	 * @param[in] channels number of channels
 	 * @param[in] period gating interval in seconds, default 0.4 (400ms), set to 1.0 to use sample-by-sample sliding window
 	 * @param[in] overlap gating interval overlap, default 0.75 (75%)
-	 * @param[in] channel_weights optional vector of channel scaling weights, defaults to 1.0 for first 3 channels 
+	 * @param[in] channel_weights optional vector of channel scaling weights, defaults to 1.0 for first 3 channels
 	 *	(left, right, center in "standard" layout) and 1.41 for the remaining ones (surround channels).
-	 * @param[in] wait_full_period if false, start readings immediately after first overlap, otherwise - only after 
+	 * @param[in] wait_full_period if false, start readings immediately after first overlap, otherwise - only after
 	 *	first full frame period is accumulated, which is in accordance with BS.1770 (default)
 	 */
 	loudness_lkfs(double sr, unsigned channels, double period = 0.4, double overlap = 0.75, const Sample* channel_weights = NULL, bool wait_full_period = true);
@@ -148,7 +149,7 @@ public:
 	//! @return number of channels the loudness meter is configured for
 	unsigned channel_count() const {return cc_;}
 
-	//! @return length of gating/integration block in samples 
+	//! @return length of gating/integration block in samples
 	unsigned gating_block_length() const {return len_;}
 
 	//! @return length of gating step (block overlap)
@@ -176,8 +177,8 @@ private:
 	unsigned const len_;		//!< Length of gating block in samples
 	unsigned const step_;		//!< Number of samples after which gating block is advanced
 	unsigned i_;				//!< Current sample index
-	dsp::trivial_array<Sample> buf_;	//!< 
-	Sample* const pow_;			
+	dsp::trivial_array<Sample> buf_;	//!<
+	Sample* const pow_;
 	Sample* const sum_;			//!< Power moving average for each channel
 	Sample* const w_;			//!< Channel summing weights
 	Sample val_, dot_, peak_;	//!< Current measurement, weighted power sum and peak value
@@ -198,7 +199,7 @@ loudness_lkfs<Sample>::loudness_lkfs(double sr, unsigned channels, double period
 {
 	reset(wait_full_period);
 
-	if (NULL != weights) 
+	if (NULL != weights)
 		std::copy_n(weights, cc_, w_);
 	else {
 		std::fill_n(w_, std::min<unsigned>(3, cc_), Sample(1.));
@@ -211,13 +212,13 @@ loudness_lkfs<Sample>::loudness_lkfs(double sr, unsigned channels, double period
 }
 
 template<class Sample>
-bool loudness_lkfs<Sample>::operator()(Sample x) 
+bool loudness_lkfs<Sample>::operator()(Sample x)
 {
 	using std::pow; using std::log10;
 	unsigned c = i_ % cc_;
 	Sample kx = (*kw_[c])(x);	// k-weighting through appropriate channel prefilter
-	sum_[c] -= pow_[i_];			
-	
+	sum_[c] -= pow_[i_];
+
 	if (sum_[c] < Sample()) // roundoff errors tend to accumulate and power sum may become negative after subtraction
 		sum_[c] = Sample();
 
@@ -249,9 +250,9 @@ public:
 	 * @brief Initialize 'EBU Mode' loudness metering.
 	 * @param[in] sr sampling rate
 	 * @param[in] channels number of channels
-	 * @param[in] channel_weights optional vector of channel scaling weights, defaults to 1.0 for first 3 channels 
+	 * @param[in] channel_weights optional vector of channel scaling weights, defaults to 1.0 for first 3 channels
 	 *	(left, right, center in "standard" layout) and 1.41 for the remaining ones (surround channels).
-	 * @param[in] wait_full_period if false, start readings immediately after first overlap, otherwise - only after 
+	 * @param[in] wait_full_period if false, start readings immediately after first overlap, otherwise - only after
 	 *	first full frame period is accumulated, which is in accordance with BS.1770 (default)
 	 */
 	loudness_ebu(double sr, unsigned channels, const Sample* channel_weights = NULL, bool wait_full_period = true)
@@ -265,7 +266,7 @@ public:
 	//! @brief Pass next sample for measurement, samples are assumed to be in channel-interleaved format.
 	//! Use next_frame() for passing entire audio frame (channel_count() worh of samples) at a time.
 	//! @return true if new reading is available (use value() to get it at any time until next reading is available).
-	bool operator()(Sample x) 
+	bool operator()(Sample x)
 	{
 		using std::log10;
 		s_(x);
@@ -279,7 +280,7 @@ public:
 		g70_.push_back(m_.power());	// store power value for further calculations
 		size_t cnt = g70_.size();
 		Sample avg = std::accumulate(g70_.begin(), g70_.end(), Sample()) / cnt;	// averaged power across all readings above gating threshold -70 LUFS
-		Sample Tr = avg * Sample(0.08529037030705662976325140579496); // 'relative' gating threshold at -10.691 LU, no need to calculate logs and pows, we're operating on power levels here		
+		Sample Tr = avg * Sample(0.08529037030705662976325140579496); // 'relative' gating threshold at -10.691 LU, no need to calculate logs and pows, we're operating on power levels here
 		size_t num = 0;
 		avg = Sample();
 		for (size_t i = 0; i < cnt; ++i) {
@@ -386,6 +387,6 @@ private:
 	unsigned index_;
 };
 
-} } 
+} }
 
 #endif // DSP_SND_LOUDNESS_H_INCLUDED

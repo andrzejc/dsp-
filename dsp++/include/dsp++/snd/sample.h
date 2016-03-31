@@ -85,7 +85,7 @@ struct sample_layout {
 	//! for unsigned Int type.
 	//! @tparam Int type of output variable
 	//! @param[in] data pointer to byte buffer described by this sample_layout.
-	//! @param[out] variable which will receive read sample, full range of integer type will be used (sample will be normalized).
+	//! @param[out] out variable which will receive read sample, full range of integer type will be used (sample will be normalized).
 	template<class Int>
 	void read_pcm(const void* data, Int& out) const {
 		static_assert(std::is_integral<Int>::value, "Int must ba an integeral type");
@@ -104,8 +104,8 @@ struct sample_layout {
 	//! @brief Read floating-point sample from byte buffer described by this layout into float variable.
 	//! The type of sample data must be sample::type::ieee_float.
 	//! @tparam Int type of output variable
-	//! @param[out] variable which will receive read sample, full range of integer type will be used (sample will be normalized).
 	//! @param[in] data pointer to byte buffer described by this sample_layout.
+	//! @param[out] out variable which will receive read sample, full range of integer type will be used (sample will be normalized).
 	template<class Float>
 	void read_ieee_float(const void* data, Float& out) const {
 		static_assert(std::is_floating_point<Float>::value, "Float must ba a floating-point type");

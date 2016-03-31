@@ -14,15 +14,15 @@ namespace dsp {
 namespace iir {
 
 /// @brief IIR filter type constants for use with {@link design()}.
-namespace type { enum spec 
-{	
+namespace type { enum spec
+{
 	butterworth		=	0,	///< Design Butterworth LP, HP, BP or BS filter
 	bessel			=	1,	///< Design Bessel LP, HP, BP or BS filter
 	chebyshev		=	2,	///< Design Chebyshev LP, HP, BP or BS filter
 };}
 
 /// @brief Filter response characteristics constants for use with {@link design()}.
-namespace resp { enum spec 
+namespace resp { enum spec
 {
 	lowpass			=  16,	///< Lowpass characteristic
 	highpass		=  32,	///< Highpass characteristic
@@ -34,14 +34,14 @@ namespace resp { enum spec
 /// @brief IIR filter design flags for use with {@link design()}.
 namespace flag { enum spec
 {
-	prewrap			= 512,	///< 
+	prewrap			= 512,	///<
 	matched_z		=1024,	///< Use matched Z-transform instead of bilinear transform
 };}
 
 /// @brief Design IIR resonator filter in the z-plane
 // XXX check number of coefficients
 DSPXX_API void resonator_design(
-	unsigned order,
+	unsigned order,					///< [in] filter order
 	resp::spec characteristic,		///< [in] filter characteristic ({@link iir::resp::bandstop} (notch), {@link iir::resp::bandpass} or {@link iir::resp::allpass})
 	double fc,						///< [in] normalized centre frequency (0, 0.5) range
 	double q,						///< [in] quality factor
@@ -87,8 +87,8 @@ DSPXX_API unsigned sos_design(
 	unsigned order,				///< [in] filter order
 	unsigned type,				///< [in] filter type, characteristic and flags (combination of reasonable {@link iir::type}, {@link iir::resp} &amp; {@link iir::flag} values)
 	const double* fc,			///< [in] normalized corner frequency/ies (0, 0.5) range
-	double num[],					///< [out] 
-	double den[],					///< [out] 
+	double num[],					///< [out]
+	double den[],					///< [out]
 	const double* cheb_rip = NULL,	///< [in] Chebyshev ripple in dB, defaults to 3dB if not set
 	const double* zero_freq = NULL,	///< [in] put additional zero at specified normalized frequency
 	unsigned pole_mask = 0		///< [in] Use only specified poles
