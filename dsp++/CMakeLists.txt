@@ -10,8 +10,9 @@ option(FFTW3_ENABLED "Enable the use and support for FFTW3 library"
 	${FFTW3_FOUND})
 option(LIBSNDFILE_ENABLED "Enable the use and support for libsndfile library"
 	${LIBSNDFILE_FOUND})
-option(BUILD_DOCUMENTATION "Create and install the HTML based API\
- documentation (requires Doxygen)" ${DOXYGEN_FOUND})
+option(BUILD_DOCUMENTATION
+	"Create and install the HTML based API documentation (requires Doxygen)"
+	${DOXYGEN_FOUND})
 
 # consider detecting fftw and setting FFTW_DISABLED automatically
 if (FFTW3_ENABLED)
