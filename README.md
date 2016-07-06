@@ -40,8 +40,7 @@ maintaining them was painful and didn't allow for using CI servers easily.
 
 There's also possibility to build dsp++ for Android, using
 [CrystaX NDK](https://www.crystax.net/android/ndk)  and
-ndk-build tools. This is not integrated with CMake (YET).
-See dsp++/android/README.
+ndk-build tools.
 
 Prerequisites
 -------------
