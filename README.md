@@ -5,7 +5,8 @@ This is README file for dsp++ repository, whose master copy is located at
 
 Builds:
 
- *  Ubuntu [![Build Status](https://drone.io/bitbucket.org/andrzejc/dsp/status.png)](https://drone.io/bitbucket.org/andrzejc/dsp/latest)
+ *  Linux x64 (Ubuntu) [![Build Status](https://drone.io/bitbucket.org/andrzejc/dsp/status.png)](https://drone.io/bitbucket.org/andrzejc/dsp/latest)
+ *  Linux x64 (LFS) [![Build Status](https://ciarkowski.club/jenkins/buildStatus/icon?job=dsp++)](https://ciarkowski.club/jenkins/job/dsp++/)
  *  Windows #WIP
  *  MacOS X #WIP
 
