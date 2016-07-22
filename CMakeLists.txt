@@ -69,4 +69,6 @@ set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "dsp++ is a ${DSPXX_SLOGAN}")
 set(CPACK_PACKAGE_VENDOR "Andrzej Ciarkowski")
 set(CPACK_PACKAGE_CONTACT "andrzej.ciarkowski@gmail.com")
 
-include(CPack)
+if(NOT WIN32)
+	include(CPack)
+endif()

@@ -7,9 +7,9 @@ Builds:
 
  *  Linux x64 (Ubuntu) [![Build Status](https://drone.io/bitbucket.org/andrzejc/dsp/status.png)](https://drone.io/bitbucket.org/andrzejc/dsp/latest)
  *  Linux x64 (LFS) [![Build Status](https://ciarkowski.club/jenkins/buildStatus/icon?job=dsp%2b%2b/generator=Ninja,label=linux)](https://ciarkowski.club/jenkins/job/dsp%2b%2b/generator=Ninja,label=linux/) 
- *  Windows 64-bit [![Build Status](https://ciarkowski.club/jenkins/buildStatus/icon?job=dsp%2b%2b/generator=Visual Studio 14 2015 Win64,label=windows)](https://ciarkowski.club/jenkins/job/dsp%2b%2b/generator=Visual%20Studio%2014%202015%20Win64,label=windows/)
- *  Windows 32-bit [![Build Status](https://ciarkowski.club/jenkins/buildStatus/icon?job=dsp%2b%2b/generator=Visual Studio 14 2015,label=windows)](https://ciarkowski.club/jenkins/job/dsp%2b%2b/generator=Visual%20Studio%2014%202015,label=windows/)
- *  MacOS X #TODO
+ *  Windows 64-bit [![Build Status](https://ciarkowski.club/jenkins/buildStatus/icon?job=dsp%2b%2b/generator=Visual+Studio+14+2015+Win64,label=windows)](https://ciarkowski.club/jenkins/job/dsp%2b%2b/generator=Visual%20Studio%2014%202015%20Win64,label=windows/)
+ *  Windows 32-bit [![Build Status](https://ciarkowski.club/jenkins/buildStatus/icon?job=dsp%2b%2b/generator=Visual+Studio+14+2015,label=windows)](https://ciarkowski.club/jenkins/job/dsp%2b%2b/generator=Visual%20Studio%2014%202015,label=windows/)
+ *  Mac OS X [![Build Status](https://ciarkowski.club/jenkins/buildStatus/icon?job=dsp%2b%2b/generator=Ninja,label=osx)](https://ciarkowski.club/jenkins/job/dsp%2b%2b/generator=Ninja,label=osx/)
 
 Introduction
 ------------
