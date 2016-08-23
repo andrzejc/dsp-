@@ -3,7 +3,7 @@ project(libdsp++)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 find_package(Doxygen)
 find_package(FFTW3)
-find_package(LIBSNDFILE)
+find_package(libsndfile)
 
 # options
 option(FFTW3_ENABLED "Enable the use and support for FFTW3 library"
