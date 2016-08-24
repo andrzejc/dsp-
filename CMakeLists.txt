@@ -19,10 +19,8 @@ include(CMakeCompatibility NO_POLICY_SCOPE)
 
 include(BoostOnMSVC)
 find_package(Boost REQUIRED COMPONENTS unit_test_framework)
-# Boost autolinking support
-link_directories(${Boost_LIBRARY_DIRS})
 
-if(MSVC OR CMAKE_CXX_COMPILER_ID MATCHES "Intel")
+if(MSVC OR (WIN32 AND CMAKE_CXX_COMPILER_ID MATCHES "Intel"))
 	add_definitions(
 		/D_CRT_SECURE_NO_WARNINGS # no warnings on perfectly fine C++ code
 		/D_SCL_SECURE_NO_WARNINGS

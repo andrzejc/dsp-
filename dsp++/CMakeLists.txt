@@ -1,6 +1,5 @@
 project(libdsp++)
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 find_package(Doxygen)
 find_package(FFTW3)
 find_package(libsndfile)
@@ -9,7 +8,7 @@ find_package(libsndfile)
 option(FFTW3_ENABLED "Enable the use and support for FFTW3 library"
 	${FFTW3_FOUND})
 option(LIBSNDFILE_ENABLED "Enable the use and support for libsndfile library"
-	${LIBSNDFILE_FOUND})
+	${libsndfile_FOUND})
 option(BUILD_DOCUMENTATION
 	"Create and install the HTML based API documentation (requires Doxygen)"
 	${DOXYGEN_FOUND})
@@ -24,8 +23,8 @@ endif ()
 
 # consider detecting libsndfile and setting LIBSNDFILE_DISABLED automatically
 if (LIBSNDFILE_ENABLED)
-	list(APPEND INCLUDE_DIRS ${LIBSNDFILE_INCLUDE_DIRS})
-	list(APPEND LIBS ${LIBSNDFILE_LIBRARIES})
+	list(APPEND INCLUDE_DIRS ${libsndfile_INCLUDE_DIRS})
+	list(APPEND LIBS ${libsndfile_LIBRARIES})
 else ()
 	add_definitions(DSP_SNDFILE_DISABLED)
 endif ()
@@ -177,8 +176,6 @@ if (TARGET_PLATFORM_PPC)
 endif()
 #
 
-list(APPEND INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
-
 configure_file(src/version.h.in include/dsp++/version.h @ONLY)
 
 add_library(dsp++ SHARED ${SOURCES})
@@ -190,6 +187,7 @@ target_include_directories(dsp++ INTERFACE
 	$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
 	$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>)
 target_link_libraries(dsp++ PRIVATE ${LIBS})
+target_link_libraries(dsp++ PUBLIC Boost::boost)
 set_target_properties(dsp++ PROPERTIES VERSION ${DSPXX_VERSION})
 export(TARGETS dsp++ FILE dsp++-exports.cmake)
 

@@ -26,10 +26,7 @@ set(SOURCES
 )
 
 add_executable(dsp++-test ${SOURCES})
-target_include_directories(dsp++-test PRIVATE ${Boost_INCLUDE_DIRS})
-target_compile_definitions(dsp++-test PRIVATE BOOST_TEST_DYN_LINK)
-target_link_libraries(dsp++-test PRIVATE
-	dsp++ ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES})
+target_link_libraries(dsp++-test PRIVATE dsp++ Boost::unit_test_framework)
 install(TARGETS dsp++-test DESTINATION bin)
 
 if (MSVC)
