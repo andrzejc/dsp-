@@ -156,12 +156,11 @@ configure_file(src/version.h.in include/dsp++/version.h @ONLY)
 
 add_library(dsp++ SHARED ${SOURCES})
 target_compile_definitions(dsp++ PRIVATE DSPXX_EXPORTS)
-target_include_directories(dsp++ PRIVATE src ${INCLUDE_DIRS})
+target_include_directories(dsp++ PRIVATE src)
 target_include_directories(dsp++ PUBLIC
 	$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
 	$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
 	$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>)
-target_link_libraries(dsp++ PRIVATE ${LIBS})
 target_link_libraries(dsp++ PUBLIC Boost::boost)
 
 if(LIBSNDFILE_ENABLED)
@@ -182,6 +181,7 @@ export(TARGETS dsp++ FILE dsp++-exports.cmake)
 if(MSVC)
 	install(FILES $<TARGET_PDB_FILE:dsp++> DESTINATION lib OPTIONAL)
 	include(CopyDlls)
+# TODO: modify copy_dlls to work on targets not only files
 	copy_dlls(dsp++ ${LIBS})
 endif()
 
