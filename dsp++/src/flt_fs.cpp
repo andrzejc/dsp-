@@ -12,9 +12,9 @@
 #include <dsp++/debug.h>
 #include <dsp++/compat.h>
 
-#if !DSP_FFTW_DISABLED
+#if !DSPXX_FFTW3_DISABLED
 #include <dsp++/fftw/dft.h>
-#endif // !DSP_FFTW_DISABLED
+#endif // !DSPXX_FFTW3_DISABLED
 
 namespace {
 
@@ -92,26 +92,26 @@ unsigned fir_fs_impl(
 		double h[]					//!< [out] designed filter impulse response [order + 1].
 )
 {
-#if DSP_FFTW_DISABLED
+#if DSPXX_FFTW3_DISABLED
 	fir_fs_check_preconditions(point_count, freqs);
 	if (!dsp::ispow2(fir_fs_length(order, amps)))
 		throw std::invalid_argument("dsp::fir::fs::design(): with fftw disabled only filters of power-of-2 length allowed");
 	dsp::trivial_array<std::complex<double>> H(order + 1);
-#else // !DSP_FFTW_DISABLED
+#else // !DSPXX_FFTW3_DISABLED
 	dsp::trivial_array<std::complex<double>, dsp::dft::fftw::allocator<std::complex<double> > > H(order + 1);
-#endif // !DSP_FFTW_DISABLED
+#endif // !DSPXX_FFTW3_DISABLED
 
 	unsigned n = dsp::fir::fs::design(order, point_count, freqs, amps, H.begin());
 	if (dsp::ispow2(n)) {
 		dsp::dft::fft<std::complex<double>, double> fft(n, H.begin(), h);
 		fft();
 	}
-#if !DSP_FFTW_DISABLED
+#if !DSPXX_FFTW3_DISABLED
 	else {
 		dsp::dft::fftw::dft<std::complex<double>, double> fft(n, H.begin(), h);
 		fft();
 	}
-#endif // !DSP_FFTW_DISABLED
+#endif // !DSPXX_FFTW3_DISABLED
 
 	std::transform(h, h + n, h, std::bind2nd(std::multiplies<double>(), 1./n));
 	std::fill(h + n, h + order + 1, 0.);

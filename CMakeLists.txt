@@ -11,14 +11,17 @@ set(DSPXX_FULL_NAME "${PROJECT_NAME}-${DSPXX_VERSION}")
 set(DSPXX_DOC_PREFIX share/doc/${DSPXX_FULL_NAME})
 set(DSPXX_SLOGAN "Digital Signal Processing library written in modern C++")
 
-include(CTest)
-option(BUILD_DEMOS "Build example/demo code" OFF)
-
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/build-scripts/cmake)
+
 include(CMakeCompatibility NO_POLICY_SCOPE)
 
+include(CTest)
+
 include(BoostOnMSVC)
-find_package(Boost REQUIRED COMPONENTS unit_test_framework)
+find_package(Boost REQUIRED OPTIONAL_COMPONENTS unit_test_framework)
+
+option(BUILD_TESTING "Build testing code" ${Boost_UNIT_TEST_FRAMEWORK_FOUND})
+option(BUILD_DEMOS "Build example/demo code" OFF)
 
 if(MSVC OR (WIN32 AND CMAKE_CXX_COMPILER_ID MATCHES "Intel"))
 	add_definitions(
@@ -49,6 +52,7 @@ endif()
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
 add_subdirectory(dsp++)
+
 if(BUILD_DEMOS)
 	add_subdirectory(compressor_demo)
 	add_subdirectory(filter_demo)

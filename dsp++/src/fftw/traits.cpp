@@ -10,7 +10,7 @@
 // emit vtable and type_info for the exception in this translation unit
 dsp::dft::fftw::plan_unavailable::~plan_unavailable() throw() {}
 
-#if !DSP_FFTW_DISABLED
+#if !DSPXX_FFTW3_DISABLED
 
 #include <dsp++/export.h>
 #include <dsp++/fft.h> // for dft::sign::forward/dft::sign::backward

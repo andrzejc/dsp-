@@ -1,5 +1,10 @@
 project(dsp++-test)
 
+if(NOT Boost_UNIT_TEST_FRAMEWORK_FOUND)
+	message(FATAL_ERROR "Boost Unit Test Framework is required for testing\
+ code")
+endif()
+
 set(SOURCES
 	execution_timer.h
 	execution_timer.cpp
@@ -57,4 +62,3 @@ dsp_test(pow2)
 # dsp_test(simd)
 dsp_test(window)
 dsp_test(xcorr)
-

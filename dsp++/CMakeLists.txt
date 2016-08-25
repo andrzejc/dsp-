@@ -13,22 +13,6 @@ option(BUILD_DOCUMENTATION
 	"Create and install the HTML based API documentation (requires Doxygen)"
 	${DOXYGEN_FOUND})
 
-# consider detecting fftw and setting FFTW_DISABLED automatically
-if (FFTW3_ENABLED)
-	list(APPEND INCLUDE_DIRS ${FFTW3_INCLUDE_DIRS})
-	list(APPEND LIBS ${FFTW3_LIBRARIES})
-else ()
-	add_definitions(DSP_FFTW_DISABLED)
-endif ()
-
-# consider detecting libsndfile and setting LIBSNDFILE_DISABLED automatically
-if (LIBSNDFILE_ENABLED)
-	list(APPEND INCLUDE_DIRS ${libsndfile_INCLUDE_DIRS})
-	list(APPEND LIBS ${libsndfile_LIBRARIES})
-else ()
-	add_definitions(DSP_SNDFILE_DISABLED)
-endif ()
-
 list(APPEND PUBLIC_HEADERS
 	${PROJECT_BINARY_DIR}/include/dsp++/version.h
 	include/dsp++/adaptfilt.h
@@ -131,18 +115,10 @@ set(SOURCES
 	src/snd/loudness.cpp
 	)
 
-set(ALL_FILES ${SOURCES})
-string(REPLACE ";" "\n" CSCOPE_FILES "${ALL_FILES}")
-file(WRITE ${CMAKE_BINARY_DIR}/cscope.files.in "${CSCOPE_FILES}")
-configure_file(
-	${CMAKE_BINARY_DIR}/cscope.files.in
-	${CMAKE_CURRENT_LIST_DIR}/cscope.files
-	COPYONLY)
-
 # platform-specific stuff
 include(TargetPlatform)
 # x86 - specific sources & configuration
-if (TARGET_PLATFORM_X86)
+if(TARGET_PLATFORM_X86)
 	list(APPEND SOURCES
 		src/arch/x86/cpu_x86.cpp
 		src/arch/x86/sse.cpp
@@ -163,13 +139,13 @@ if (TARGET_PLATFORM_X86)
 		)
 endif()
 # ARM - specific
-if (TARGET_PLATFORM_ARM)
+if(TARGET_PLATFORM_ARM)
 	list(APPEND SOURCES
 		src/arch/arm/cpu_arm.cpp
 		)
 endif()
 # PowerPC - specific
-if (TARGET_PLATFORM_PPC)
+if(TARGET_PLATFORM_PPC)
 	list(APPEND SOURCES
 		src/arch/ppc/cpu_ppc.cpp
 		)
@@ -180,18 +156,30 @@ configure_file(src/version.h.in include/dsp++/version.h @ONLY)
 
 add_library(dsp++ SHARED ${SOURCES})
 target_compile_definitions(dsp++ PRIVATE DSPXX_EXPORTS)
-target_include_directories(dsp++ PRIVATE
-	src include ${PROJECT_BINARY_DIR}/include ${INCLUDE_DIRS})
-target_include_directories(dsp++ INTERFACE
+target_include_directories(dsp++ PRIVATE src ${INCLUDE_DIRS})
+target_include_directories(dsp++ PUBLIC
 	$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
 	$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
 	$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>)
 target_link_libraries(dsp++ PRIVATE ${LIBS})
 target_link_libraries(dsp++ PUBLIC Boost::boost)
+
+if(LIBSNDFILE_ENABLED)
+    target_link_libraries(dsp++ PRIVATE libsndfile)
+else()
+    target_compile_definitions(dsp++ PRIVATE DSPXX_LIBSNDFILE_DISABLED)
+endif()
+
+if(FFTW3_ENABLED)
+    target_link_libraries(dsp++ PRIVATE fftw3 fftw3f fftw3l)
+else()
+    target_compile_definitions(dsp++ PRIVATE DSPXX_FFTW3_DISABLED)
+endif()
+
 set_target_properties(dsp++ PROPERTIES VERSION ${DSPXX_VERSION})
 export(TARGETS dsp++ FILE dsp++-exports.cmake)
 
-if (MSVC)
+if(MSVC)
 	install(FILES $<TARGET_PDB_FILE:dsp++> DESTINATION lib OPTIONAL)
 	include(CopyDlls)
 	copy_dlls(dsp++ ${LIBS})
@@ -202,7 +190,7 @@ install(DIRECTORY include/dsp++ DESTINATION include)
 install(DIRECTORY ${PROJECT_BINARY_DIR}/include/dsp++ DESTINATION include)
 install(EXPORT dsp++ DESTINATION lib/dsp++ FILE dsp++-config.cmake)
 
-if (BUILD_DOCUMENTATION)
+if(BUILD_DOCUMENTATION)
 	if(NOT DOXYGEN_FOUND)
 		message(FATAL_ERROR "Doxygen is needed to build the documentation.")
 	endif()

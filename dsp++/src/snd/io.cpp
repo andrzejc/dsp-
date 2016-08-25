@@ -13,7 +13,7 @@
 #include <dsp++/config.h>
 #include <dsp++/snd/sndfile_error.h>
 
-#if !DSP_SNDFILE_DISABLED
+#if !DSPXX_LIBSNDFILE_DISABLED
 
 
 #include <dsp++/snd/reader.h>
@@ -556,4 +556,4 @@ WRITE_SAMPLES(short);
 WRITE_SAMPLES(int);
 WRITE_SAMPLES(double);
 
-#endif // !DSP_SNDFILE_DISABLED
+#endif // !DSPXX_LIBSNDFILE_DISABLED
