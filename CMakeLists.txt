@@ -1,27 +1,25 @@
 cmake_minimum_required(VERSION 2.8)
-
 project(dsp++)
 
-set(DSPXX_VERSION_MAJOR 0)
-set(DSPXX_VERSION_MINOR 1)
-set(DSPXX_VERSION_PATCH 0)
-set(DSPXX_VERSION
-	${DSPXX_VERSION_MAJOR}.${DSPXX_VERSION_MINOR}.${DSPXX_VERSION_PATCH})
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/build-scripts/cmake)
+include(CMakeCompatibility NO_POLICY_SCOPE)
+
+set(DSPXX_VERSION 0.1.0)
+include(SetupVersion)
+setup_version(DSPXX)
+
 set(DSPXX_FULL_NAME "${PROJECT_NAME}-${DSPXX_VERSION}")
 set(DSPXX_DOC_PREFIX share/doc/${DSPXX_FULL_NAME})
 set(DSPXX_SLOGAN "Digital Signal Processing library written in modern C++")
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/build-scripts/cmake)
-
-include(CMakeCompatibility NO_POLICY_SCOPE)
-
-include(CTest)
 
 include(BoostOnMSVC)
 find_package(Boost REQUIRED OPTIONAL_COMPONENTS unit_test_framework)
 
+
 option(BUILD_TESTING "Build testing code" ${Boost_UNIT_TEST_FRAMEWORK_FOUND})
 option(BUILD_DEMOS "Build example/demo code" OFF)
+
 
 if(MSVC OR (WIN32 AND CMAKE_CXX_COMPILER_ID MATCHES "Intel"))
 	add_definitions(
@@ -50,6 +48,12 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_COMPILER_IS_GNUCXX)
 endif()
 
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+
+
+if(BUILD_TESTING)
+    enable_testing()
+endif()
+
 
 add_subdirectory(dsp++)
 
