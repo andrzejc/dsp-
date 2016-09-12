@@ -54,7 +54,7 @@ public:
 	stride_iterator operator++(int) 
 	{
 		stride_iterator tmp(*this);
-		operator++();
+		++(*this);
 		return tmp;
 	}
 
@@ -63,7 +63,7 @@ public:
 	stride_iterator operator--(int) 
 	{
 		stride_iterator tmp(*this);
-		operator--();
+		--(*this);
 		return tmp;
 	}
 

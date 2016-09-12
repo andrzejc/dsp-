@@ -40,7 +40,7 @@ struct window_function: public std::unary_function<size_t, Result>
 	 * @param length the window length.
 	 * @param type the window type.
 	 */
-	window_function(size_t length, window_type type = symmetric)
+	explicit window_function(size_t length, window_type type = symmetric)
 	 : 	length_(length)
 	 , 	type_(type)
 	 , 	l_(symmetric == type ? length : length + 1)
@@ -231,7 +231,7 @@ template<class Result>
 struct unspecified: public window_function<Result>
 {
 	//! @copydoc window_function::window_function()
-	unspecified(size_t length, window_type type = symmetric);
+	explicit unspecified(size_t length, window_type type = symmetric);
 	/*!
 	 * @brief Calculate n-th sample of window function.
 	 * @return window function sample for given point.
@@ -276,7 +276,7 @@ struct rectwin: public window_function<Result>
 	 * @note the parameters are allowed just for the consistency with other
 	 * window function generators, as rectangular window doesn't use them.
 	 */
-	rectwin(size_t length = 0, window_type type = symmetric): window_function<Result>(length, type) {}
+	explicit rectwin(size_t length = 0, window_type type = symmetric): window_function<Result>(length, type) {}
 	//! @copydoc unspecified::operator()(size_t) const
 	Result operator()(size_t n) const {return Result(1);}
 
@@ -309,12 +309,13 @@ template<class Result>
 struct hamming: public window_function<Result>
 {
 	//! @copydoc window_function::window_function()
-	hamming(size_t length, window_type type = symmetric): window_function<Result>(length, type) {}
+	explicit hamming(size_t length, window_type type = symmetric): window_function<Result>(length, type) {}
 	//! @copydoc unspecified::operator()(size_t) const
 	Result operator()(size_t n) const
 	{
 		using std::cos;
-		return Result(0.54) - Result(0.46) * cos(2 * Result(DSP_M_PI) * n / (window_function<Result>::l_ - 1));
+		return Result(0.54) -
+				Result(0.46) * cos(2 * Result(DSP_M_PI) * n / (window_function<Result>::l_ - 1));
 	}
 
 	/*! @typedef const_iterator
@@ -347,7 +348,7 @@ template<class Result>
 struct hann: public window_function<Result>
 {
 	//! @copydoc dsp::wnd::window_function::window_function()
-	hann(size_t length, window_type type = symmetric): window_function<Result>(length, type) {}
+	explicit hann(size_t length, window_type type = symmetric): window_function<Result>(length, type) {}
 	//! @copydoc unspecified::operator()(size_t) const
 	Result operator()(size_t n) const
 	{
@@ -399,7 +400,7 @@ struct blackman: public window_function<Result>
 	 * @copydoc window_function::window_function()
 	 * @param alpha \f$\alpha\f$ parameter in the equation above.
 	 */
-	blackman(size_t length, window_type type = symmetric, Result alpha = Result(DSP_WND_BLACKMAN_ALPHA_DEFAULT))
+	explicit blackman(size_t length, window_type type = symmetric, Result alpha = Result(DSP_WND_BLACKMAN_ALPHA_DEFAULT))
 	 : 	window_function<Result>(length, type)
 	 ,	alpha_(alpha)
 	 ,	a0_((1 - alpha_) / 2)
@@ -452,7 +453,7 @@ template<class Result>
 struct cosine: public window_function<Result>
 {
 	//! @copydoc window_function::window_function()
-	cosine(size_t length, window_type type = symmetric): window_function<Result>(length, type) {}
+	explicit cosine(size_t length, window_type type = symmetric): window_function<Result>(length, type) {}
 	//!@copydoc unspecified::operator()(size_t) const
 	Result operator()(size_t n) const
 	{
@@ -492,7 +493,7 @@ template<class Result>
 struct bartlett: public window_function<Result>
 {
 	//! @copydoc window_function::window_function()
-	bartlett(size_t length, window_type type = symmetric): window_function<Result>(length, type) {}
+	explicit bartlett(size_t length, window_type type = symmetric): window_function<Result>(length, type) {}
 	//! @copydoc unspecified::operator()(size_t) const
 	Result operator()(size_t n) const
 	{
@@ -532,7 +533,7 @@ template<class Result>
 struct triang: public window_function<Result>
 {
 	//! @copydoc window_function::window_function()
-	triang(size_t length, window_type type = symmetric): window_function<Result>(length, type) {}
+	explicit triang(size_t length, window_type type = symmetric): window_function<Result>(length, type) {}
 	//! @copydoc unspecified::operator()(size_t) const
 	Result operator()(size_t n) const
 	{
@@ -577,7 +578,7 @@ struct gausswin: public window_function<Result>
 #endif 
 	//! @copydoc window_function::window_function()
 	//! @param sigma \f$\sigma\f$ parameter in the equation above.
-	gausswin(size_t length, window_type type = symmetric, Result sigma = Result(DSP_WND_GAUSSWIN_SIGMA_DEFAULT))
+	explicit gausswin(size_t length, window_type type = symmetric, Result sigma = Result(DSP_WND_GAUSSWIN_SIGMA_DEFAULT))
 	 : 	window_function<Result>(length, type)
 	 ,	sigma_(sigma){}
 	//! @copydoc unspecified::operator()(size_t) const
@@ -633,7 +634,7 @@ struct kaiser: public window_function<Result>
 #endif
 	//! @copydoc window_function::window_function()
 	//! @param alpha @f$\alpha@f$ parameter in the equation above.
-	kaiser(size_t length, window_type type = symmetric, Result alpha = DSP_WND_KAISER_ALPHA_DEFAULT)
+	explicit kaiser(size_t length, window_type type = symmetric, Result alpha = DSP_WND_KAISER_ALPHA_DEFAULT)
 	 : 	window_function<Result>(length, type)
 	 ,	alpha_(alpha){}
 	//! @copydoc unspecified::operator()(size_t) const
