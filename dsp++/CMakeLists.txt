@@ -154,8 +154,6 @@ endif()
 configure_file(src/version.h.in include/dsp++/version.h @ONLY)
 
 if(BUILD_SHARED)
-	set(CMAKE_CXX_VISIBILITY_PRESET hidden)
-
 	add_library(dsp++ SHARED ${SOURCES})
 	target_compile_definitions(dsp++ PRIVATE DSPXX_EXPORTS)
 	target_include_directories(dsp++ PRIVATE src)
@@ -191,10 +189,10 @@ if(BUILD_SHARED)
 	install(DIRECTORY include/dsp++ DESTINATION include)
 	install(DIRECTORY ${PROJECT_BINARY_DIR}/include/dsp++ DESTINATION include)
 	install(EXPORT dsp++ DESTINATION lib/dsp++ FILE dsp++-config.cmake)
-	set(DSPXX_LIBRARY_TARGET dsp++)
 endif()
 
 if(BUILD_STATIC)
+	set(_DSPXX_CMAKE_CXX_VISIBILITY_PRESET_SAVE ${CMAKE_CXX_VISIBILITY_PRESET})
 	set(CMAKE_CXX_VISIBILITY_PRESET default)
 
  	add_library(dsp++-static STATIC ${SOURCES})
@@ -207,13 +205,13 @@ if(BUILD_STATIC)
 	target_link_libraries(dsp++-static PUBLIC Boost::boost)
 
 	if(LIBSNDFILE_ENABLED)
-		target_link_libraries(dsp++-static PRIVATE libsndfile)
+		target_link_libraries(dsp++-static PUBLIC libsndfile)
 	else()
 		target_compile_definitions(dsp++-static PRIVATE DSPXX_LIBSNDFILE_DISABLED)
 	endif()
 
 	if(FFTW3_ENABLED)
-		target_link_libraries(dsp++-static PRIVATE fftw3 fftw3f fftw3l)
+		target_link_libraries(dsp++-static PUBLIC fftw3 fftw3f fftw3l)
 	else()
 		target_compile_definitions(dsp++-static PRIVATE DSPXX_FFTW3_DISABLED)
 	endif()
@@ -228,9 +226,8 @@ if(BUILD_STATIC)
 
 	install(TARGETS dsp++-static EXPORT dsp++-static DESTINATION lib)
 	install(EXPORT dsp++-static DESTINATION lib/dsp++-static FILE dsp++-static-config.cmake)
-	if(NOT DEFINED DSPXX_LIBRARY_TARGET)
-		set(DSPXX_LIBRARY_TARGET dsp++-static)
-	endif()
+
+	set(CMAKE_CXX_VISIBILITY_PRESET ${_DSPXX_CMAKE_CXX_VISIBILITY_PRESET_SAVE})
 endif()
 
 if(BUILD_DOCUMENTATION)
