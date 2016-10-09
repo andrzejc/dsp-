@@ -94,8 +94,7 @@ set(SOURCES
 	src/debug.cpp
 	src/fft.cpp
 	src/filter.cpp
-	src/fixed.cpp
-	src/flt_biquad.cpp
+		src/flt_biquad.cpp
 	src/flt_fs.cpp
 	src/flt_iir.cpp
 	src/flt_pm.cpp
@@ -154,41 +153,85 @@ endif()
 
 configure_file(src/version.h.in include/dsp++/version.h @ONLY)
 
-add_library(dsp++ SHARED ${SOURCES})
-target_compile_definitions(dsp++ PRIVATE DSPXX_EXPORTS)
-target_include_directories(dsp++ PRIVATE src)
-target_include_directories(dsp++ PUBLIC
-	$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
-	$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-	$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>)
-target_link_libraries(dsp++ PUBLIC Boost::boost)
+if(BUILD_SHARED)
+	set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
-if(LIBSNDFILE_ENABLED)
-    target_link_libraries(dsp++ PRIVATE libsndfile)
-else()
-    target_compile_definitions(dsp++ PRIVATE DSPXX_LIBSNDFILE_DISABLED)
+	add_library(dsp++ SHARED ${SOURCES})
+	target_compile_definitions(dsp++ PRIVATE DSPXX_EXPORTS)
+	target_include_directories(dsp++ PRIVATE src)
+	target_include_directories(dsp++ PUBLIC
+		$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+		$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+		$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>)
+	target_link_libraries(dsp++ PUBLIC Boost::boost)
+
+	if(LIBSNDFILE_ENABLED)
+		target_link_libraries(dsp++ PRIVATE libsndfile)
+	else()
+		target_compile_definitions(dsp++ PRIVATE DSPXX_LIBSNDFILE_DISABLED)
+	endif()
+
+	if(FFTW3_ENABLED)
+		target_link_libraries(dsp++ PRIVATE fftw3 fftw3f fftw3l)
+	else()
+		target_compile_definitions(dsp++ PRIVATE DSPXX_FFTW3_DISABLED)
+	endif()
+
+	set_target_properties(dsp++ PROPERTIES VERSION ${DSPXX_VERSION})
+	export(TARGETS dsp++ FILE dsp++-exports.cmake)
+
+	if(MSVC)
+		install(FILES $<TARGET_PDB_FILE:dsp++> DESTINATION lib OPTIONAL)
+		include(CopyDlls)
+		# TODO: modify copy_dlls to work on targets not only files
+		copy_dlls(dsp++ ${LIBS})
+	endif()
+
+	install(TARGETS dsp++ EXPORT dsp++ DESTINATION lib)
+	install(DIRECTORY include/dsp++ DESTINATION include)
+	install(DIRECTORY ${PROJECT_BINARY_DIR}/include/dsp++ DESTINATION include)
+	install(EXPORT dsp++ DESTINATION lib/dsp++ FILE dsp++-config.cmake)
+	set(DSPXX_LIBRARY_TARGET dsp++)
 endif()
 
-if(FFTW3_ENABLED)
-    target_link_libraries(dsp++ PRIVATE fftw3 fftw3f fftw3l)
-else()
-    target_compile_definitions(dsp++ PRIVATE DSPXX_FFTW3_DISABLED)
+if(BUILD_STATIC)
+	set(CMAKE_CXX_VISIBILITY_PRESET default)
+
+ 	add_library(dsp++-static STATIC ${SOURCES})
+	target_compile_definitions(dsp++-static PRIVATE DSPXX_STATIC)
+	target_include_directories(dsp++-static PRIVATE src)
+	target_include_directories(dsp++-static PUBLIC
+			$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+			$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+			$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>)
+	target_link_libraries(dsp++-static PUBLIC Boost::boost)
+
+	if(LIBSNDFILE_ENABLED)
+		target_link_libraries(dsp++-static PRIVATE libsndfile)
+	else()
+		target_compile_definitions(dsp++-static PRIVATE DSPXX_LIBSNDFILE_DISABLED)
+	endif()
+
+	if(FFTW3_ENABLED)
+		target_link_libraries(dsp++-static PRIVATE fftw3 fftw3f fftw3l)
+	else()
+		target_compile_definitions(dsp++-static PRIVATE DSPXX_FFTW3_DISABLED)
+	endif()
+
+	set_target_properties(dsp++-static PROPERTIES VERSION ${DSPXX_VERSION})
+	export(TARGETS dsp++-static FILE dsp++-static-exports.cmake)
+
+	if(MSVC)
+		install(FILES $<TARGET_PDB_FILE:dsp++-static> DESTINATION lib OPTIONAL)
+		copy_dlls(dsp++-static ${LIBS})
+	endif()
+
+	install(TARGETS dsp++-static EXPORT dsp++-static DESTINATION lib)
+	install(EXPORT dsp++-static DESTINATION lib/dsp++-static FILE dsp++-static-config.cmake)
+	if(NOT DEFINED DSPXX_LIBRARY_TARGET)
+		set(DSPXX_LIBRARY_TARGET dsp++-static)
+	endif()
 endif()
-
-set_target_properties(dsp++ PROPERTIES VERSION ${DSPXX_VERSION})
-export(TARGETS dsp++ FILE dsp++-exports.cmake)
-
-if(MSVC)
-	install(FILES $<TARGET_PDB_FILE:dsp++> DESTINATION lib OPTIONAL)
-	include(CopyDlls)
-# TODO: modify copy_dlls to work on targets not only files
-	copy_dlls(dsp++ ${LIBS})
-endif()
-
-install(TARGETS dsp++ EXPORT dsp++ DESTINATION lib)
-install(DIRECTORY include/dsp++ DESTINATION include)
-install(DIRECTORY ${PROJECT_BINARY_DIR}/include/dsp++ DESTINATION include)
-install(EXPORT dsp++ DESTINATION lib/dsp++ FILE dsp++-config.cmake)
 
 if(BUILD_DOCUMENTATION)
 	if(NOT DOXYGEN_FOUND)
@@ -204,9 +247,9 @@ if(BUILD_DOCUMENTATION)
 		WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
 		COMMENT "Generating API documentation with Doxygen"
 		VERBATIM)
-    
-    add_custom_target(dsp++-doc ALL 
-        DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/doc/html/toc.xml")
+
+	add_custom_target(dsp++-doc ALL
+		DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/doc/html/toc.xml")
 
 	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc/
 		DESTINATION ${DSPXX_DOC_PREFIX}

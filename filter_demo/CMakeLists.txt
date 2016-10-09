@@ -7,5 +7,5 @@ set(SOURCES
 
 add_executable(filter_demo ${SOURCES})
 target_compile_definitions(filter_demo PRIVATE FILTER_FREQ_DOMAIN)
-target_link_libraries(filter_demo PRIVATE dsp++)
+target_link_libraries(filter_demo PRIVATE ${DSPXX_LIBRARY_TARGET})
 install(TARGETS filter_demo DESTINATION bin)

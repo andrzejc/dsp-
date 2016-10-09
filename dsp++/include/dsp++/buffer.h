@@ -55,9 +55,9 @@ public:
 	 * @param frame_size size of the output frame partition.
 	 * @param overlap
 	 * @param initial_value
-	 * @throw std::invalid_argument if frame_length is greater than buffer capacity,
-	 * overlap is positive and not less than frame_length or negative and the sum of
-	 * frame_size and (-overlap) is greater than buffer capacity.
+	 * @throw std::invalid_argument if @p frame_length is greater than buffer capacity,
+	 * @p overlap is positive and not less than @p frame_length or negative and the sum of
+	 * @p frame_size and (@p -overlap) is greater than buffer capacity.
 	 */
 	explicit buffer(capacity_type capacity, size_type frame_size,
 			difference_type overlap = 0, const_reference initial_value = value_type())

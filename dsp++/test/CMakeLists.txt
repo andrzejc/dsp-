@@ -31,7 +31,16 @@ set(SOURCES
 )
 
 add_executable(dsp++-test ${SOURCES})
-target_link_libraries(dsp++-test PRIVATE dsp++ Boost::unit_test_framework)
+# Warning: we can't use Boost::unit_test_framework here as the library target
+# is initially created as shared and will not be recreated 2nd time
+target_link_libraries(dsp++-test PRIVATE
+	${DSPXX_LIBRARY_TARGET}
+	Boost::boost
+	${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+if(NOT Boost_USE_STATIC_LIBS)
+	target_compile_definitions(dsp++-test PRIVATE -DBOOST_TEST_DYN_LINK)
+endif()
+
 install(TARGETS dsp++-test DESTINATION bin)
 
 if (MSVC)

@@ -12,14 +12,25 @@ set(DSPXX_FULL_NAME "${PROJECT_NAME}-${DSPXX_VERSION}")
 set(DSPXX_DOC_PREFIX share/doc/${DSPXX_FULL_NAME})
 set(DSPXX_SLOGAN "Digital Signal Processing library written in modern C++")
 
+option(BUILD_SHARED "Build shared libraries" ON)
+option(BUILD_STATIC "Build static libraries" ON)
+if(NOT BUILD_STATIC AND NOT BUILD_SHARED)
+	message(FATAL_ERROR "At least one of options BUILD_SHARED and BUILD_STATIC must be set")
+endif()
 
 include(BoostOnMSVC)
+set(_DSPXX_Boost_USE_STATIC_LIBS_SAVE ${Boost_USE_STATIC_LIBS})
+if(BUILD_SHARED)
+	set(Boost_USE_STATIC_LIBS OFF)
+else()
+	set(Boost_USE_STATIC_LIBS ON)
+endif()
+
 find_package(Boost REQUIRED OPTIONAL_COMPONENTS unit_test_framework)
 
 
 option(BUILD_TESTING "Build testing code" ${Boost_UNIT_TEST_FRAMEWORK_FOUND})
 option(BUILD_DEMOS "Build example/demo code" OFF)
-
 
 if(MSVC OR (WIN32 AND CMAKE_CXX_COMPILER_ID MATCHES "Intel"))
 	add_definitions(
@@ -47,11 +58,8 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_COMPILER_IS_GNUCXX)
 	add_definitions(-Wno-unused-local-typedefs)
 endif()
 
-set(CMAKE_CXX_VISIBILITY_PRESET hidden)
-
-
 if(BUILD_TESTING)
-    enable_testing()
+	enable_testing()
 endif()
 
 
@@ -76,3 +84,5 @@ set(CPACK_PACKAGE_VENDOR "Andrzej Ciarkowski")
 set(CPACK_PACKAGE_CONTACT "andrzej.ciarkowski@gmail.com")
 
 include(CPack)
+
+set(Boost_USE_STATIC_LIBS ${_DSPXX_Boost_USE_STATIC_LIBS_SAVE})
