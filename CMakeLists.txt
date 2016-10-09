@@ -14,19 +14,23 @@ set(DSPXX_SLOGAN "Digital Signal Processing library written in modern C++")
 
 option(BUILD_SHARED "Build shared libraries" ON)
 option(BUILD_STATIC "Build static libraries" ON)
-option(MINIMIZE_DEPENDENCIES "Minimize dependencies by linking stdlib & Boost statically" ON)
 
 if(NOT BUILD_STATIC AND NOT BUILD_SHARED)
 	message(FATAL_ERROR "At least one of options BUILD_SHARED and BUILD_STATIC must be set")
 elseif(BUILD_SHARED)
 	set(DSPXX_LIBRARY_TARGET dsp++)
 	set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+	set(Boost_USE_STATIC_LIBS OFF)
 else()
 	set(DSPXX_LIBRARY_TARGET dsp++-static)
 	set(CMAKE_CXX_VISIBILITY_PRESET default)
+	set(Boost_USE_STATIC_LIBS ON)
+	if(CMAKE_COMPILER_IS_GNUCXX)
+		set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
+		set(CMAKE_SHARED_LINKER_FLAGS "-static-libgcc -static-libstdc++")
+	endif()
 endif()
 
-set(Boost_USE_STATIC_LIBS ${MINIMIZE_DEPENDENCIES})
 include(BoostOnMSVC)
 find_package(Boost REQUIRED OPTIONAL_COMPONENTS unit_test_framework)
 
@@ -68,7 +72,6 @@ endif()
 if(BUILD_TESTING)
 	enable_testing()
 endif()
-
 
 add_subdirectory(dsp++)
 
