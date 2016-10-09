@@ -175,7 +175,9 @@ if(BUILD_SHARED)
 		target_compile_definitions(dsp++ PRIVATE DSPXX_FFTW3_DISABLED)
 	endif()
 
-	set_target_properties(dsp++ PROPERTIES VERSION ${DSPXX_VERSION})
+	set_target_properties(dsp++ PROPERTIES
+		VERSION ${DSPXX_VERSION})
+
 	export(TARGETS dsp++ FILE dsp++-exports.cmake)
 
 	if(MSVC)
@@ -192,9 +194,6 @@ if(BUILD_SHARED)
 endif()
 
 if(BUILD_STATIC)
-	set(_DSPXX_CMAKE_CXX_VISIBILITY_PRESET_SAVE ${CMAKE_CXX_VISIBILITY_PRESET})
-	set(CMAKE_CXX_VISIBILITY_PRESET default)
-
  	add_library(dsp++-static STATIC ${SOURCES})
 	target_compile_definitions(dsp++-static PRIVATE DSPXX_STATIC)
 	target_include_directories(dsp++-static PRIVATE src)
@@ -216,7 +215,11 @@ if(BUILD_STATIC)
 		target_compile_definitions(dsp++-static PRIVATE DSPXX_FFTW3_DISABLED)
 	endif()
 
-	set_target_properties(dsp++-static PROPERTIES VERSION ${DSPXX_VERSION})
+	set_target_properties(dsp++-static PROPERTIES
+		VERSION ${DSPXX_VERSION}
+		CXX_VISIBILITY_PRESET default
+		POSITION_INDEPENDENT_CODE ON)
+
 	export(TARGETS dsp++-static FILE dsp++-static-exports.cmake)
 
 	if(MSVC)
@@ -226,8 +229,6 @@ if(BUILD_STATIC)
 
 	install(TARGETS dsp++-static EXPORT dsp++-static DESTINATION lib)
 	install(EXPORT dsp++-static DESTINATION lib/dsp++-static FILE dsp++-static-config.cmake)
-
-	set(CMAKE_CXX_VISIBILITY_PRESET ${_DSPXX_CMAKE_CXX_VISIBILITY_PRESET_SAVE})
 endif()
 
 if(BUILD_DOCUMENTATION)
