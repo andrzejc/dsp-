@@ -31,15 +31,15 @@ set(SOURCES
 )
 
 add_executable(dsp++-test ${SOURCES})
-target_link_libraries(dsp++-test PRIVATE ${DSPXX_LIBRARY_TARGET}
+target_link_libraries(dsp++-test PRIVATE
+	${DSPXX_LIBRARY_TARGET}
 	Boost::unit_test_framework)
+set_target_properties(dsp++-test PROPERTIES
+	VERSION ${DSPXX_VERSION})
+
 if(NOT Boost_USE_STATIC_LIBS)
 	target_compile_definitions(dsp++-test PRIVATE BOOST_TEST_DYN_LINK)
 endif()
-
-set_target_properties(dsp++-test PROPERTIES
-	VERSION ${DSPXX_VERSION}
-	CXX_VISIBILITY_PRESET default)
 
 install(TARGETS dsp++-test DESTINATION bin)
 

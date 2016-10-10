@@ -94,11 +94,10 @@ set(SOURCES
 	src/debug.cpp
 	src/fft.cpp
 	src/filter.cpp
-		src/flt_biquad.cpp
+	src/flt_biquad.cpp
 	src/flt_fs.cpp
 	src/flt_iir.cpp
 	src/flt_pm.cpp
-	src/format_win32.cpp
 	src/resample.cpp
 	src/sample.cpp
 	src/simd.cpp
@@ -113,6 +112,11 @@ set(SOURCES
 	src/snd/io.cpp
 	src/snd/loudness.cpp
 	)
+
+if(WIN32)
+	list(APPEND sources
+		src/format_win32.cpp)
+endif()
 
 # platform-specific stuff
 include(TargetPlatform)
@@ -156,8 +160,7 @@ configure_file(src/version.h.in include/dsp++/version.h @ONLY)
 if(BUILD_SHARED)
 	add_library(dsp++ SHARED ${SOURCES})
 	target_compile_definitions(dsp++ PRIVATE DSPXX_EXPORTS)
-	target_include_directories(dsp++ PRIVATE src)
-	target_include_directories(dsp++ PUBLIC
+	target_include_directories(dsp++ PRIVATE src PUBLIC
 		$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
 		$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
 		$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>)
@@ -176,7 +179,8 @@ if(BUILD_SHARED)
 	endif()
 
 	set_target_properties(dsp++ PROPERTIES
-		VERSION ${DSPXX_VERSION})
+		VERSION ${DSPXX_VERSION}
+		CXX_VISIBILITY_PRESET hidden)
 
 	export(TARGETS dsp++ FILE dsp++-exports.cmake)
 
@@ -196,11 +200,10 @@ endif()
 if(BUILD_STATIC)
  	add_library(dsp++-static STATIC ${SOURCES})
 	target_compile_definitions(dsp++-static PRIVATE DSPXX_STATIC)
-	target_include_directories(dsp++-static PRIVATE src)
-	target_include_directories(dsp++-static PUBLIC
-			$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
-			$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-			$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>)
+	target_include_directories(dsp++-static PRIVATE src PUBLIC
+		$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+		$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+		$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>)
 	target_link_libraries(dsp++-static PUBLIC Boost::boost)
 
 	if(LIBSNDFILE_ENABLED)
@@ -215,9 +218,9 @@ if(BUILD_STATIC)
 		target_compile_definitions(dsp++-static PRIVATE DSPXX_FFTW3_DISABLED)
 	endif()
 
+	# TODO currently build static variant as PIC to be able to link JNI lib, consider changing this later
 	set_target_properties(dsp++-static PROPERTIES
 		VERSION ${DSPXX_VERSION}
-		CXX_VISIBILITY_PRESET default
 		POSITION_INDEPENDENT_CODE ON)
 
 	export(TARGETS dsp++-static FILE dsp++-static-exports.cmake)
