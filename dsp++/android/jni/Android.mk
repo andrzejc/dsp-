@@ -8,7 +8,7 @@ LOCAL_PATH := $(DSPXX_LOCAL_PATH)
 
 include $(CLEAR_VARS)
 LOCAL_ARM_MODE := arm
-LOCAL_CFLAGS := -DDSPXX_EXPORTS -DNDEBUG -fPIC -fvisibility=hidden -DDSP_FFTW_DISABLED
+LOCAL_CFLAGS := -DDSPXX_EXPORTS -DNDEBUG -fPIC -fvisibility=hidden -DDSPXX_FFTW3_DISABLED
 
 ifeq ($(TARGET_ARCH_ABI),x86)
   LOCAL_CFLAGS += -msse4.1
@@ -23,7 +23,7 @@ LOCAL_SHARED_LIBRARIES := pthread boost_atomic_shared sndfile
 SRC := ../../src
 
 LOCAL_SRC_FILES := $(SRC)/arch/arm/cpu_arm.cpp \
-  $(SRC)/debug.cpp $(SRC)/fft.cpp $(SRC)/filter.cpp $(SRC)/fixed.cpp $(SRC)/flt_biquad.cpp \
+	$(SRC)/debug.cpp $(SRC)/fft.cpp $(SRC)/filter.cpp $(SRC)/flt_biquad.cpp \
 	$(SRC)/flt_fs.cpp $(SRC)/flt_iir.cpp $(SRC)/flt_pm.cpp $(SRC)/resample.cpp $(SRC)/sample.cpp \
 	$(SRC)/simd.cpp $(SRC)/vectmath.cpp $(SRC)/zeropole.cpp $(SRC)/arch/x86/cpu_x86.cpp \
 	$(SRC)/arch/x86/sse.cpp $(SRC)/arch/x86/sse3.cpp $(SRC)/arch/x86/sse41.cpp \
