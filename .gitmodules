@@ -2,3 +2,4 @@
 	path = build-scripts
 	url = https://github.com/andrzejc/build-scripts.git
 	branch = master
+	fetchRecurseSubmodules = yes
