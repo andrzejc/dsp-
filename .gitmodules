@@ -5,7 +5,7 @@
 	fetchRecurseSubmodules = yes
 [submodule "external/cmake-precompiled-header"]
 	path = external/cmake-precompiled-header
-	url = https://github.com/larsch/cmake-precompiled-header.git
+	url = git@github.com:andrzejc/cmake-precompiled-header.git
 	branch = master
 	fetchRecurseSubmodules = yes
 
