@@ -1,5 +1,5 @@
 #include <dsp++/config.h>
-#include <dsp++/csvread.h>
+#include <dsp++/csv.h>
 // TODO: create exception classes based on std:ios:fail for i/o operation failures
 #include <iostream>
 #include <fstream>
@@ -24,17 +24,17 @@ void csvread_impl(std::istream& f, std::vector<std::vector<T> >& vec)
 	while (f)
 	{
 		std::string line;
-        std::getline(f, line);
+		std::getline(f, line);
 		if (!f)
 			break;
 
 		vec.push_back(std::vector<T>());
 		std::vector<T>& v = vec.back();
 
-        std::stringstream  ss(line);
-        std::string cell;
+		std::stringstream  ss(line);
+		std::string cell;
 
-        while (std::getline(ss, cell, ','))
+		while (std::getline(ss, cell, ','))
 		{
 #ifndef DSP_BOOST_DISABLED
 			boost::algorithm::trim(cell);
@@ -42,7 +42,7 @@ void csvread_impl(std::istream& f, std::vector<std::vector<T> >& vec)
 #else // DSP_BOOST_DISABLED
 			T var;
 			if (1 != sscanf(cell.c_str(), sscanf_spec<T>(), &var))
-				throw std::runtime_error("csvread: unable to read floating-point value \"" + cell + "\"");
+				throw std::runtime_error("dsp::csv::read: unable to read floating-point value \"" + cell + "\"");
 			v.push_back(var);
 #endif // DSP_BOOST_DISABLED
 		}
@@ -51,34 +51,34 @@ void csvread_impl(std::istream& f, std::vector<std::vector<T> >& vec)
 			vec.pop_back();
 	}
 	if (!f.eof())
-		throw std::runtime_error("csvread: error reading CSV stream");
+		throw std::runtime_error("dsp::csv::read: error reading CSV stream");
 }
 
 }
 
-void dsp::csvread(std::istream& is, std::vector<std::vector<float> >& vec)
+void dsp::csv::read(std::istream& is, std::vector<std::vector<float> >& vec)
 {
 	csvread_impl(is, vec);
 }
 
-void dsp::csvread(std::istream& is, std::vector<std::vector<double> >& vec)
+void dsp::csv::read(std::istream& is, std::vector<std::vector<double> >& vec)
 {
 	csvread_impl(is, vec);
 }
 
-void dsp::csvread(const char* path, std::vector<std::vector<float> >& vec)
+void dsp::csv::read(const char* path, std::vector<std::vector<float> >& vec)
 {
 	std::ifstream f(path);
 	csvread_impl(f, vec);
 }
 
-void dsp::csvread(const char* path, std::vector<std::vector<double> >& vec)
+void dsp::csv::read(const char* path, std::vector<std::vector<double> >& vec)
 {
 	std::ifstream f(path);
 	csvread_impl(f, vec);
 }
 
-void dsp::csvread(const wchar_t* path, std::vector<std::vector<float> >& vec)
+void dsp::csv::read(const wchar_t* path, std::vector<std::vector<float> >& vec)
 {
 #ifdef _MSC_VER
 	std::ifstream f(path);
@@ -86,7 +86,7 @@ void dsp::csvread(const wchar_t* path, std::vector<std::vector<float> >& vec)
 #endif
 }
 
-void dsp::csvread(const wchar_t* path, std::vector<std::vector<double> >& vec)
+void dsp::csv::read(const wchar_t* path, std::vector<std::vector<double> >& vec)
 {
 #ifdef _MSC_VER
 	std::ifstream f(path);
@@ -94,34 +94,34 @@ void dsp::csvread(const wchar_t* path, std::vector<std::vector<double> >& vec)
 #endif
 }
 
-void dsp::csvread(const std::string& path, std::vector<std::vector<float> >& vec)
+void dsp::csv::read(const std::string& path, std::vector<std::vector<float> >& vec)
 {
 	std::ifstream f(path.c_str());
 	csvread_impl(f, vec);
 }
 
-void dsp::csvread(const std::string& path, std::vector<std::vector<double> >& vec)
+void dsp::csv::read(const std::string& path, std::vector<std::vector<double> >& vec)
 {
 	std::ifstream f(path.c_str());
 	csvread_impl(f, vec);
 }
 
-void dsp::csvread(const std::wstring& path, std::vector<std::vector<float> >& vec)
+void dsp::csv::read(const std::wstring& path, std::vector<std::vector<float> >& vec)
 {
 #ifdef _MSC_VER
 	std::ifstream f(path);
 	csvread_impl(f, vec);
 #else
-	csvread(path.c_str(), vec);
+	csv::read(path.c_str(), vec);
 #endif
 }
 
-void dsp::csvread(const std::wstring& path, std::vector<std::vector<double> >& vec)
+void dsp::csv::read(const std::wstring& path, std::vector<std::vector<double> >& vec)
 {
 #ifdef _MSC_VER
 	std::ifstream f(path);
 	csvread_impl(f, vec);
 #else
-	csvread(path.c_str(), vec);
+	csv::read(path.c_str(), vec);
 #endif
 }

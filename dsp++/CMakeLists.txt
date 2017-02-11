@@ -2,14 +2,14 @@ project(libdsp++)
 
 find_package(Doxygen)
 find_package(FFTW3)
-find_package(libsndfile)
+find_package(SndFile)
 
 # options
-option(FFTW3_ENABLED "Enable the use and support for FFTW3 library"
+option(DSPXX_FFTW3_ENABLED "Enable the use and support for FFTW3 library"
 	${FFTW3_FOUND})
-option(LIBSNDFILE_ENABLED "Enable the use and support for libsndfile library"
-	${libsndfile_FOUND})
-option(BUILD_DOCUMENTATION
+option(DSPXX_LIBSNDFILE_ENABLED "Enable the use and support for libsndfile library"
+	${SndFile_FOUND})
+option(DSPXX_BUILD_DOCS
 	"Create and install the HTML based API documentation (requires Doxygen)"
 	${DOXYGEN_FOUND})
 
@@ -23,7 +23,7 @@ list(APPEND PUBLIC_HEADERS
 	include/dsp++/complex.h
 	include/dsp++/config.h
 	include/dsp++/const.h
-	include/dsp++/csvread.h
+	include/dsp++/csv.h
 	include/dsp++/debug.h
 	include/dsp++/dft.h
 	include/dsp++/doc.h
@@ -69,7 +69,7 @@ list(APPEND PUBLIC_HEADERS
 	include/dsp++/snd/sndfile_error.h
 	include/dsp++/snd/writer.h
 	include/dsp++/stdint.h
-	include/dsp++/stride_iterator.h
+	include/dsp++/stride.h
 	include/dsp++/trivial_array.h
 	include/dsp++/utility.h
 	include/dsp++/vectmath.h
@@ -81,16 +81,15 @@ list(APPEND PUBLIC_HEADERS
 set(HEADERS
 	${PUBLIC_HEADERS}
 	src/polyroots.h
-	src/prefix.h
 	src/simd.h
 	src/utility.h
 	src/mkfilter/mkfilter.h
 	src/remez/remez.h
-	)
+	include/dsp++/concept_checks.h)
 
 set(SOURCES
 	${HEADERS}
-	src/csvread.cpp
+	src/csv.cpp
 	src/debug.cpp
 	src/fft.cpp
 	src/filter.cpp
@@ -113,10 +112,6 @@ set(SOURCES
 	src/snd/loudness.cpp
 	)
 
-if(WIN32)
-	list(APPEND sources
-		src/format_win32.cpp)
-endif()
 
 # platform-specific stuff
 include(TargetPlatform)
@@ -157,7 +152,12 @@ endif()
 
 configure_file(src/version.h.in include/dsp++/version.h @ONLY)
 
-if(BUILD_SHARED)
+option(DSPXX_USE_PRECOMPILED_HEADERS "Use precompiled headers during dsp++ build (if compiler supports)" OFF)
+if(DSPXX_USE_PRECOMPILED_HEADERS)
+	include(PrecompiledHeader)
+endif()
+
+if(DSPXX_BUILD_SHARED)
 	add_library(dsp++ SHARED ${SOURCES})
 	target_compile_definitions(dsp++ PRIVATE DSPXX_EXPORTS)
 	target_include_directories(dsp++ PRIVATE src PUBLIC
@@ -165,14 +165,17 @@ if(BUILD_SHARED)
 		$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
 		$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>)
 	target_link_libraries(dsp++ PUBLIC Boost::boost)
+	if(DSPXX_USE_PRECOMPILED_HEADERS)
+		add_precompiled_header(dsp++ src/pch.h FORCEINCLUDE)
+	endif()
 
-	if(LIBSNDFILE_ENABLED)
-		target_link_libraries(dsp++ PRIVATE libsndfile)
+	if(DSPXX_LIBSNDFILE_ENABLED)
+		target_link_libraries(dsp++ PRIVATE sndfile)
 	else()
 		target_compile_definitions(dsp++ PRIVATE DSPXX_LIBSNDFILE_DISABLED)
 	endif()
 
-	if(FFTW3_ENABLED)
+	if(DSPXX_FFTW3_ENABLED)
 		target_link_libraries(dsp++ PRIVATE fftw3 fftw3f fftw3l)
 	else()
 		target_compile_definitions(dsp++ PRIVATE DSPXX_FFTW3_DISABLED)
@@ -197,7 +200,7 @@ if(BUILD_SHARED)
 	install(EXPORT dsp++ DESTINATION lib/dsp++ FILE dsp++-config.cmake)
 endif()
 
-if(BUILD_STATIC)
+if(DSPXX_BUILD_STATIC)
  	add_library(dsp++-static STATIC ${SOURCES})
 	target_compile_definitions(dsp++-static PRIVATE DSPXX_STATIC)
 	target_include_directories(dsp++-static PRIVATE src PUBLIC
@@ -205,14 +208,17 @@ if(BUILD_STATIC)
 		$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
 		$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>)
 	target_link_libraries(dsp++-static PUBLIC Boost::boost)
+	if(DSPXX_USE_PRECOMPILED_HEADERS)
+		add_precompiled_header(dsp++-static src/pch.h FORCEINCLUDE)
+	endif()
 
-	if(LIBSNDFILE_ENABLED)
-		target_link_libraries(dsp++-static PUBLIC libsndfile)
+	if(DSPXX_LIBSNDFILE_ENABLED)
+		target_link_libraries(dsp++-static PUBLIC sndfile)
 	else()
 		target_compile_definitions(dsp++-static PRIVATE DSPXX_LIBSNDFILE_DISABLED)
 	endif()
 
-	if(FFTW3_ENABLED)
+	if(DSPXX_FFTW3_ENABLED)
 		target_link_libraries(dsp++-static PUBLIC fftw3 fftw3f fftw3l)
 	else()
 		target_compile_definitions(dsp++-static PRIVATE DSPXX_FFTW3_DISABLED)
@@ -220,8 +226,7 @@ if(BUILD_STATIC)
 
 	# TODO currently build static variant as PIC to be able to link JNI lib, consider changing this later
 	set_target_properties(dsp++-static PROPERTIES
-		VERSION ${DSPXX_VERSION}
-		POSITION_INDEPENDENT_CODE ON)
+		VERSION ${DSPXX_VERSION})
 
 	export(TARGETS dsp++-static FILE dsp++-static-exports.cmake)
 
@@ -234,7 +239,10 @@ if(BUILD_STATIC)
 	install(EXPORT dsp++-static DESTINATION lib/dsp++-static FILE dsp++-static-config.cmake)
 endif()
 
-if(BUILD_DOCUMENTATION)
+set_target_properties(${DSPXX_LIBRARY_TARGET} PROPERTIES
+	POSITION_INDEPENDENT_CODE ON)
+
+if(DSPXX_BUILD_DOCS)
 	if(NOT DOXYGEN_FOUND)
 		message(FATAL_ERROR "Doxygen is needed to build the documentation.")
 	endif()
@@ -242,7 +250,7 @@ if(BUILD_DOCUMENTATION)
 	configure_file(doxyfile.in doxyfile @ONLY)
 
 	add_custom_command(OUTPUT doc/html/toc.xml
-		COMMAND ${DOXYGEN_EXECUTABLE} doxyfile
+		COMMAND ${DOXYGEN_EXECUTABLE} doxyfile > doxygen.log
 		MAIN_DEPENDENCY "${CMAKE_CURRENT_BINARY_DIR}/doxyfile"
 		DEPENDS ${SOURCES}
 		WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"

@@ -56,7 +56,7 @@ namespace dsp { namespace simd {
 		ppc_altivec =		0x00010000,	//!< PowerPC AltiVec instructions @see http://en.wikipedia.org/wiki/AltiVec @note Not detected yet!
 
 		// and now ARM features...
-		arm_neon =			0x00100000,	
+		arm_neon =			0x00100000,
 		arm_vfp2 =			0x00200000,
 		arm_vfp3 =			0x00400000,
 		arm_vfp4 =			0x00800000,
@@ -113,7 +113,7 @@ namespace dsp { namespace simd {
 		inline bool operator!=(allocator const& a) { return !operator==(a); }
 	};
 
-	//! @brief Required number of elements in a vector of specified length and element size, to make 
+	//! @brief Required number of elements in a vector of specified length and element size, to make
 	//! the one-past-last element aligned. This function is intended as a utility for allocating several
 	//! aligned vectors in one allocator call.
 	//! @param count number of elements in allocated vector.
@@ -123,8 +123,8 @@ namespace dsp { namespace simd {
 	//! @return number of elements to make the subsequent element aligned.
 	DSPXX_API size_t aligned_count(size_t count, size_t element_size);
 
-	//! @brief Required number of elements in a vector of specified length, to make the one-past-last 
-	//! element aligned. This function is intended as a utility for allocating several aligned vectors in one 
+	//! @brief Required number of elements in a vector of specified length, to make the one-past-last
+	//! element aligned. This function is intended as a utility for allocating several aligned vectors in one
 	//! allocator call.
 	//! @param count number of elements in allocated vector.
 	//! @tparam T type of vector element.
@@ -134,8 +134,8 @@ namespace dsp { namespace simd {
 	template<class T>
 	inline size_t aligned_count(size_t count) {return aligned_count(count, sizeof(T));}
 
-	//! @brief Number of padding elements in a vector of specified length, to make the one-past-last 
-	//! element aligned. This function is intended as a utility for allocating several aligned vectors in one 
+	//! @brief Number of padding elements in a vector of specified length, to make the one-past-last
+	//! element aligned. This function is intended as a utility for allocating several aligned vectors in one
 	//! allocator call.
 	//! @param count number of elements in allocated vector.
 	//! @tparam T type of vector element.
@@ -160,7 +160,7 @@ namespace dsp { namespace simd {
 		static size_t alignment()
 		{
 			const size_t a = dsp::simd::alignment();
-			return (a > DSP_ALIGNOF(Elem) ? a : DSP_ALIGNOF(Elem));
+			return (a > alignof(Elem) ? a : alignof(Elem));
 		}
 
 		static size_t padding_size(size_t count) {return aligned_pad<Elem>(count);}

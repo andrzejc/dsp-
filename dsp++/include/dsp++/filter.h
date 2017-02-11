@@ -13,15 +13,11 @@
 #include <dsp++/algorithm.h>
 #include <dsp++/simd.h>
 #include <dsp++/ioport.h>
+#include <dsp++/concept_checks.h>
 
 #include <algorithm>
 #include <functional>
 #include <stdexcept>
-
-#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
-#include <boost/concept/requires.hpp>
-#include <boost/concept_check.hpp>
-#endif
 
 namespace dsp {
 
@@ -131,13 +127,13 @@ class df2_filter_base
 	 * @brief Normalize numerator and denominator by a[0]
 	 */
 	void normalize()
-    {
+	{
 		if (0 == N_ || Sample(1) == *a_)
 			return;
-        
-        std::transform(b_, b_ + M_, b_, std::bind2nd(std::divides<Sample>(), *a_));
-        std::transform(a_, a_ + N_, a_, std::bind2nd(std::divides<Sample>(), *a_));
-        *a_ = Sample();
+
+		std::transform(b_, b_ + M_, b_, std::bind2nd(std::divides<Sample>(), *a_));
+		std::transform(a_, a_ + N_, a_, std::bind2nd(std::divides<Sample>(), *a_));
+		*a_ = Sample();
 	}
 
 public:
@@ -146,64 +142,62 @@ public:
 	size_t order() const {return P_ - 1;}
 
 	template<class BIterator>
-#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
-	BOOST_CONCEPT_REQUIRES(((boost::OutputIterator<BIterator, Sample>)),(void))
-#else
-	void
-#endif
+	DSP_CONCEPT_REQUIRES(
+		((boost::InputIterator<BIterator>))
+		((boost::Convertible<typename std::iterator_traits<BIterator>::value_type, Sample>)),
+	(void))
 	set(BIterator b_begin, BIterator b_end)
 	{
-		const size_t m = std::distance(b_begin, b_end);
+		const size_t m = static_cast<size_t>(std::distance(b_begin, b_end));
 		if (m > M_pad_)
 			throw std::length_error("filter length exceeds declared one");
-        if (m < M_)
-            std::fill_n(b_ + m, b_ + M_, Sample());
+		if (m < M_)
+			std::fill_n(b_ + m, b_ + M_, Sample());
 		std::fill_n(a_, a_ + N_, Sample());
-        std::transform(b_begin, b_end, b_, static_caster<Sample>());
+		std::transform(b_begin, b_end, b_, static_caster<Sample>());
 		M_ = m;
-        N_ = 0;
+		N_ = 0;
 	}
 
 	template<class BIterator, class AIterator>
-#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
-	BOOST_CONCEPT_REQUIRES(((boost::OutputIterator<BIterator, Sample>))((boost::OutputIterator<AIterator, Sample>)),(void))
-#else
-	void
-#endif
+	DSP_CONCEPT_REQUIRES(
+		((boost::InputIterator<BIterator>))
+		((boost::InputIterator<AIterator>)),
+	(void))
 	set(BIterator b_begin, BIterator b_end, AIterator a_begin, AIterator a_end)
 	{
-		size_t m = std::distance(b_begin, b_end), n = std::distance(a_begin, a_end);
+		size_t m = static_cast<size_t>(std::distance(b_begin, b_end)),
+		       n = static_cast<size_t>(std::distance(a_begin, a_end));
 		if (m > M_pad_ || n > N_pad_)
 			throw std::length_error("filter length exceeds declared one");
 
-        if (m < M_)
-            std::fill_n(b_ + m, b_ + M_, Sample());
-        std::transform(b_begin, b_end, b_, static_caster<Sample>());
-        if (n < N_)
-            std::fill_n(a_ + n, a_ + N_, Sample());
-        std::transform(a_begin, a_end, a_, static_caster<Sample>());
+		if (m < M_)
+			std::fill_n(b_ + m, b_ + M_, Sample());
+		std::transform(b_begin, b_end, b_, static_caster<Sample>());
+		if (n < N_)
+			std::fill_n(a_ + n, a_ + N_, Sample());
+		std::transform(a_begin, a_end, a_, static_caster<Sample>());
 		M_ = m;
 		N_ = n;
-        normalize();
+		normalize();
 	}
 
 	template<class BSample, class ASample>
-#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
-	BOOST_CONCEPT_REQUIRES(((boost::Convertible<BSample, Sample>))((boost::Convertible<ASample, Sample>)),(void))
-#else
-	void
-#endif
+	DSP_CONCEPT_REQUIRES(
+		((boost::Convertible<BSample, Sample>))
+		((boost::Convertible<ASample, Sample>)),
+	(void))
 	set(const BSample* b_vec, size_t b_len, const ASample* a_vec, size_t a_len)
 	{
 		if (b_len > M_pad_ || a_len > N_pad_)
 			throw std::length_error("filter length exceeds declared one");
 
 		if (b_len < M_)
-            std::fill_n(b_ + b_len, b_ + M_, Sample());
-        std::transform(b_vec, b_vec + b_len, b_, static_caster<Sample>());
-        if (a_len < N_)
-            std::fill_n(a_ + a_len, a_ + N_, Sample());
-        std::transform(a_vec, a_vec + a_len, b_, static_caster<Sample>());
+			std::fill_n(b_ + b_len, b_ + M_, Sample());
+		std::transform(b_vec, b_vec + b_len, b_, static_caster<Sample>());
+		if (a_len < N_)
+			std::fill_n(a_ + a_len, a_ + N_, Sample());
+		std::transform(a_vec, a_vec + a_len, b_, static_caster<Sample>());
 		M_ = b_len;
 		N_ = a_len;
 		normalize();
@@ -217,12 +211,12 @@ public:
 #endif
 	set(const BSample* b_vec, size_t b_len)
 	{
-		if (b_len > M_)
+		if (b_len > M_pad_)
 			throw std::length_error("filter length exceeds declared one");
-        if (b_len < M_)
-            std::fill_n(b_ + b_len, b_ + M_, Sample());
+		if (b_len < M_)
+			std::fill_n(b_ + b_len, b_ + M_, Sample());
 		std::fill_n(a_, a_ + N_, Sample());
-        std::transform(b_vec, b_vec + b_len, b_, static_caster<Sample>());
+		std::transform(b_vec, b_vec + b_len, b_, static_caster<Sample>());
 		M_ = b_len;
 		N_ = 0;
 	}
@@ -252,9 +246,9 @@ protected:
 	{
 	}
 
-	const size_t N_; 				//!< Number of AR coefficients.
+	size_t N_; 						//!< Number of AR coefficients.
 	const size_t N_pad_;			//!< Length of a_ vector with padding included.
-	const size_t M_;				//!< Number of MA coefficients.
+	size_t M_;						//!< Number of MA coefficients.
 	const size_t M_pad_;			//!< Length of b_ vector with padding included.
 	const size_t P_;				//!< filter order + 1 (max(N_, M_))
 	const size_t W_pad_;			//!< Length of w_ vector with padding included.
@@ -268,21 +262,21 @@ protected:
 template<class Sample, class BufferTraits>
 template<class BIterator, class AIterator>
 df2_filter_base<Sample, BufferTraits>::df2_filter_base(BIterator b_begin, BIterator b_end, AIterator a_begin, AIterator a_end, size_t L)
- :	N_(std::distance(a_begin, a_end)), N_pad_(BufferTraits::aligned_count(N_))
- ,	M_(std::distance(b_begin, b_end)), M_pad_(BufferTraits::aligned_count(M_))
+ :	N_(std::distance(a_begin, a_end))
+ , 	N_pad_(BufferTraits::aligned_count(N_))
+ ,	M_(std::distance(b_begin, b_end))
+ ,	M_pad_(BufferTraits::aligned_count(M_))
  ,	P_(std::max(N_, M_)), W_pad_(BufferTraits::aligned_count(P_ + L - 1))
  ,	buffer_(N_pad_ + M_pad_ + W_pad_)
  ,	a_(buffer_.get())
  ,	b_(a_ + N_pad_)
  ,	w_(b_ + M_pad_)
 {
-#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
-	BOOST_CONCEPT_ASSERT((boost::InputIterator<AIterator>));
-	BOOST_CONCEPT_ASSERT((boost::InputIterator<BIterator>));
-#endif
+	DSP_CONCEPT_ASSERT((boost::InputIterator<AIterator>));
+	DSP_CONCEPT_ASSERT((boost::InputIterator<BIterator>));
 
-    std::transform(b_begin, b_end, b_, static_caster<Sample>());
-    std::transform(a_begin, a_end, a_, static_caster<Sample>());
+	std::transform(b_begin, b_end, b_, static_caster<Sample>());
+	std::transform(a_begin, a_end, a_, static_caster<Sample>());
 	normalize();
 }
 
@@ -297,11 +291,9 @@ df2_filter_base<Sample, BufferTraits>::df2_filter_base(BIterator b_begin, BItera
  ,	b_(a_)
  ,	w_(b_ + M_pad_)
 {
-#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
-	BOOST_CONCEPT_ASSERT((boost::InputIterator<BIterator>));
-#endif
+	DSP_CONCEPT_ASSERT((boost::InputIterator<BIterator>));
 
-    std::transform(b_begin, b_end, b_, static_caster<Sample>());
+	std::transform(b_begin, b_end, b_, static_caster<Sample>());
 }
 
 template<class Sample, class BufferTraits>
@@ -315,13 +307,11 @@ df2_filter_base<Sample, BufferTraits>::df2_filter_base(const BSample* b_vec, siz
  ,	b_(a_ + N_pad_)
  ,	w_(b_ + M_pad_)
 {
-#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
-	BOOST_CONCEPT_ASSERT((boost::Convertible<BSample, Sample>));
-	BOOST_CONCEPT_ASSERT((boost::Convertible<ASample, Sample>));
-#endif
+	DSP_CONCEPT_ASSERT((boost::Convertible<BSample, Sample>));
+	DSP_CONCEPT_ASSERT((boost::Convertible<ASample, Sample>));
 
-    std::transform(b_vec, b_vec + b_len, b_, static_caster<Sample>());
-    std::transform(a_vec, a_vec + a_len, a_, static_caster<Sample>());
+	std::transform(b_vec, b_vec + b_len, b_, static_caster<Sample>());
+	std::transform(a_vec, a_vec + a_len, a_, static_caster<Sample>());
 	normalize();
 }
 
@@ -336,11 +326,9 @@ df2_filter_base<Sample, BufferTraits>::df2_filter_base(const BSample* b_vec, siz
  ,	b_(a_)
  ,	w_(b_ + M_pad_)
 {
-#if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
-	BOOST_CONCEPT_ASSERT((boost::Convertible<BSample, Sample>));
-#endif
+	DSP_CONCEPT_ASSERT((boost::Convertible<BSample, Sample>));
 
-    std::transform(b_vec, b_vec + b_len, b_, static_caster<Sample>());
+	std::transform(b_vec, b_vec + b_len, b_, static_caster<Sample>());
 }
 
 /*!
@@ -390,7 +378,7 @@ public:
 	template<class BSample, class ASample>
 	filter(const BSample* b_vec, size_t b_len, const ASample* a_vec, size_t a_len)
 	 :	base(b_vec, b_len, a_vec, a_len, 1)
-    {}
+	{}
 
 	/*!
 	 * @brief Construct all-zero filter given coefficients vector as C array.
@@ -400,7 +388,7 @@ public:
 	template<class BSample>
 	filter(const BSample* b_vec, size_t b_len)
 	 :	base(b_vec, b_len, 1)
-    {}
+	{}
 
 	/*!
 	 * @brief Prepare filter for operation with given number of coefficients without actually initializing them.
@@ -436,7 +424,7 @@ public:
 	 * @return filtered sample.
 	 */
 	inline float operator()(float x)
-    {
+	{
 		delay(w_, P_);
 		*w_ = x;
 		return dsp::simd::filter_sample_df2(w_, b_, M_pad_, a_, N_pad_);
@@ -456,7 +444,7 @@ public:
 	template<class BIterator, class AIterator>
 	filter(BIterator b_begin, BIterator b_end, AIterator a_begin, AIterator a_end)
 	 :	base(b_begin, b_end, a_begin, a_end, 1)
-    {}
+	{}
 
 	/*!
 	 * @brief Construct all-zero filter given coefficients vector as iterator range [b_begin, b_end).
@@ -468,7 +456,7 @@ public:
 	template<class BIterator>
 	filter(BIterator b_begin, BIterator b_end)
 	 :	base(b_begin, b_end, 1)
-    {}
+	{}
 
 	/*!
 	 * @brief Construct filter given coefficients vectors as C arrays.
@@ -480,7 +468,7 @@ public:
 	template<class BSample, class ASample>
 	filter(const BSample* b_vec, size_t b_len, const ASample* a_vec, size_t a_len)
 	 :	base(b_vec, b_len, a_vec, a_len, 1)
-    {}
+	{}
 
 	/*!
 	 * @brief Construct all-zero filter given coefficients vector as C array.
@@ -490,7 +478,7 @@ public:
 	template<class BSample>
 	filter(const BSample* b_vec, size_t b_len)
 	 :	base(b_vec, b_len, 1)
-    {}
+	{}
 
 	/*!
 	 * @brief Prepare filter for operation with given number of coefficients without actually initializing them.
@@ -500,7 +488,7 @@ public:
 	 */
 	explicit filter(size_t b_len, size_t a_len)
  	 :	base(a_len, b_len, std::max(a_len, b_len), 1)
-    {}
+	{}
 };
 
 
@@ -759,8 +747,8 @@ public:
 	 :	base(b_begin, b_end, a_begin, a_end, L * 2)
 	 ,	L_(L)
 	 ,	x_(base::w_ + base::P_ + L_ - 1)
-	 ,	x(x_, L_) 
-	 ,	y(x_, L_) 
+	 ,	x(x_, L_)
+	 ,	y(x_, L_)
 	{}
 
 	/*!
@@ -776,8 +764,8 @@ public:
 	 :	base(b_begin, b_end, L * 2)
 	 ,	L_(L)
 	 ,	x_(base::w_ + base::P_ + L_ - 1)
-	 ,	x(x_, L_) 
-	 ,	y(x_, L_) 
+	 ,	x(x_, L_)
+	 ,	y(x_, L_)
 	{}
 
 	/*!
@@ -793,8 +781,8 @@ public:
 	 :	base(b_vec, b_len, a_vec, a_len, L * 2)
 	 ,	L_(L)
 	 ,	x_(base::w_ + base::P_ + L_ - 1)
-	 ,	x(x_, L_) 
-	 ,	y(x_, L_) 
+	 ,	x(x_, L_)
+	 ,	y(x_, L_)
 	{}
 
 	/*!
@@ -808,8 +796,8 @@ public:
 	 :	base(b_vec, b_len, L * 2)
 	 ,	L_(L)
 	 ,	x_(base::w_ + base::P_ + L_ - 1)
-	 ,	x(x_, L_) 
-	 ,	y(x_, L_) 
+	 ,	x(x_, L_)
+	 ,	y(x_, L_)
 	{}
 
 	/*!
@@ -823,8 +811,8 @@ public:
 	 :	base(a_len, b_len, std::max(b_len, a_len), L * 2)
 	 ,	L_(L)
 	 ,	x_(base::w_ + base::P_ + L_ - 1)
-	 ,	x(x_, L_) 
-	 ,	y(x_, L_) 
+	 ,	x(x_, L_)
+	 ,	y(x_, L_)
 	{}
 
 	//! @brief Apply the filter to the sample sequence specified by [begin(), end()) range.
@@ -863,8 +851,8 @@ public:
 	 :	base(b_begin, b_end, a_begin, a_end, L * 2)
 	 ,	L_(L)
 	 ,	x_(w_ + P_ + L_ - 1)
-	 ,	x(x_, L_) 
-	 ,	y(x_, L_) 
+	 ,	x(x_, L_)
+	 ,	y(x_, L_)
 	{}
 
 	template<class BIterator>
@@ -872,26 +860,26 @@ public:
 	 :	base(b_begin, b_end, L * 2)
 	 ,	L_(L)
 	 ,	x_(w_ + P_ + L_ - 1)
-	 ,	x(x_, L_) 
-	 ,	y(x_, L_) 
+	 ,	x(x_, L_)
+	 ,	y(x_, L_)
 	{}
 
 	template<class BSample, class ASample>
 	block_filter(size_t L, const BSample* b_vec, size_t b_len, const ASample* a_vec, size_t a_len)
 	 :	base(b_vec, b_len, a_vec, a_len, L * 2)
 	 ,	L_(L)
-	 ,	x_(w_ + P_ + L_ - 1) 
-	 ,	x(x_, L_) 
-	 ,	y(x_, L_) 
+	 ,	x_(w_ + P_ + L_ - 1)
+	 ,	x(x_, L_)
+	 ,	y(x_, L_)
 	{}
 
 	template<class BSample>
 	block_filter(size_t L, const BSample* b_vec, size_t b_len)
 	 :	base(b_vec, b_len, L * 2)
 	 ,	L_(L)
-	 ,	x_(w_ + P_ + L_ - 1) 
-	 ,	x(x_, L_) 
-	 ,	y(x_, L_) 
+	 ,	x_(w_ + P_ + L_ - 1)
+	 ,	x(x_, L_)
+	 ,	y(x_, L_)
 	{}
 
 	/*!
@@ -905,8 +893,8 @@ public:
 	 :	base(a_len, b_len, std::max(b_len, a_len), L * 2)
 	 ,	L_(L)
 	 ,	x_(base::w_ + base::P_ + L_ - 1)
-	 ,	x(x_, L_) 
-	 ,	y(x_, L_) 
+	 ,	x(x_, L_)
+	 ,	y(x_, L_)
 	{}
 
 	void operator()();
@@ -920,11 +908,11 @@ public:
 	ioport_ro<const_iterator> y;
 };
 
-template<class InputIterator, class OutputIterator, class BlockAlgorithm> inline 
+template<class InputIterator, class OutputIterator, class BlockAlgorithm> inline
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 BOOST_CONCEPT_REQUIRES(
 	((boost::InputIterator<InputIterator>))
-	((boost::OutputIterator<OutputIterator, typename std::iterator_traits<typename BlockAlgorithm::const_iterator>::value_type>)), 
+	((boost::OutputIterator<OutputIterator, typename std::iterator_traits<typename BlockAlgorithm::const_iterator>::value_type>)),
 	(void))
 #else
 void

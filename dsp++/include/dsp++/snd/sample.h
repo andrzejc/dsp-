@@ -21,64 +21,56 @@
 
 namespace dsp { namespace snd {
 
-namespace byte_order { enum label {
-	little_endian,
-	big_endian,
-};
-
-#if defined(DSP_ENDIAN_LITTLE)
-const label platform = little_endian;
-#elif defined(DSP_ENDIAN_BIG)
-const label platform = big_endian;
-#else
-DSPXX_API extern const label platform;
-#endif
-} // namespace byte_order
-
 namespace detail {
 
 template<class UInt>
 struct shift_right8_impl {
-    UInt shift(UInt in)
-    {
-        return in >> 8;
-    }
+	UInt shift(UInt in)
+	{
+		return in >> 8;
+	}
 };
 
 template<>
 struct shift_right8_impl<uint8_t> {
-    uint8_t shift(uint8_t /* in */)
-    {
-        return 0;
-    }
+	uint8_t shift(uint8_t /* in */)
+	{
+		return 0;
+	}
 };
 }
 
 
 //! @brief Describes memory organization of a single sample.
 struct sample_layout {
+
 	sample::type::label type;		//!< Type of sample data.
 	unsigned container_bytes;		//!< Number of bytes the sample is stored in.
 	unsigned significant_bits;		//!< Number of bits carrying significant data.
 	unsigned lsb_padding;			//!< Number of padding bits to the right of LSB
-	byte_order::label endianness;	//!< Sample endianness
+	byte_order::label byte_order;	//!< Sample byte order
 
 	//! @brief Construct sample_layout object with specified configuration.
 	//! @param[in] t sample type (coding)
 	//! @param[in] bytes size of sample container in bytes
-	//! @param[in] end endianness (big/little)
+	//! @param[in] bo byte order (big/little)
 	//! @param[in] sig number of significant bits in sample (if 0/default: 8 * bytes, entire containter is used)
 	//! @param[in] lsb_pad number of padding bits to the left of LSB
-	sample_layout(sample::type::label t, unsigned bytes, byte_order::label end, unsigned sig = 0, unsigned lsb_pad = 0)
+	sample_layout(sample::type::label t, unsigned bytes, byte_order::label bo, unsigned sig = 0, unsigned lsb_pad = 0)
 	 :	type(t)
 	 ,	container_bytes(bytes)
 	 ,	significant_bits(0 == sig ? bytes * 8 : sig)
 	 ,	lsb_padding(lsb_pad)
-	 ,	endianness(end)
+	 ,	byte_order(bo)
 	{}
 
-	sample_layout(): type(sample::type::unknown), container_bytes(0), significant_bits(0), lsb_padding(0), endianness(byte_order::little_endian) {}
-
+	sample_layout()
+	 : type(sample::type::unknown)
+	 , container_bytes(0)
+	 , significant_bits(0)
+	 , lsb_padding(0)
+	 , byte_order(byte_order::little_endian)
+	{}
 
 	//! @brief Read integer (LPCM) sample from byte buffer described by this layout into integer variable.
 	//! The type of sample data must be sample::type::pcm_signed for signed Int type or sample::type::pcm_unsigned
@@ -91,14 +83,16 @@ struct sample_layout {
 		static_assert(std::is_integral<Int>::value, "Int must ba an integeral type");
 		if (!((sample::type::pcm_signed == type && std::numeric_limits<Int>::is_signed) ||
 			(sample::type::pcm_unsigned == type && !std::numeric_limits<Int>::is_signed)))
-			throw std::invalid_argument("dsp::snd::sample_layout::read_pcm() requires compatible sample::type::pcm_(un)signed");
+			throw std::invalid_argument("dsp::snd::sample_layout::read_pcm() requires compatible "
+			                            "sample::type::pcm_(un)signed");
 		out = static_cast<Int>(read_bits<typename unsigned_of<Int>::type>(data));
 	}
 
 	template<class Int>
 	void read_pcm_right_aligned(const void* data, Int& out) const {
 		read_pcm(data, out);
-		out >>= (sizeof(Int) * 8 - significant_bits); // perform arithmetic shift of output so that sign is preserved and LSB is right-aligned
+		out >>= (sizeof(Int) * 8 - significant_bits);	// perform arithmetic shift of output so that sign is preserved
+														// and LSB is right-aligned
 	}
 
 	//! @brief Read floating-point sample from byte buffer described by this layout into float variable.
@@ -162,7 +156,7 @@ private:
 		UInt ures = 0;
 		int shift;
 		int shift_step;
-		if (byte_order::little_endian == endianness) {
+		if (byte_order::little_endian == this->byte_order) {
 			shift = 0;
 			shift_step = 8;
 		}
@@ -174,16 +168,17 @@ private:
 			ures |= (static_cast<UInt>(*b) << shift);
 
 		ures >>= lsb_padding;	// cancel LSB padding bits
-		ures <<= (sizeof(UInt) * 8 - significant_bits); // normalize to take full use of output type, put sign bit in place and cancel MSB padding bits
+		ures <<= (sizeof(UInt) * 8 - significant_bits);	// normalize to take full use of output type, put sign bit in
+														// place and cancel MSB padding bits
 		return ures;
 	}
 
 	template<class UInt>
 	void write_bits(UInt bits, void* data) const {
 		uint8_t* b;
-        detail::shift_right8_impl<UInt> shr8;
+		detail::shift_right8_impl<UInt> shr8;
 		bits >>= 8 * (sizeof(UInt) - container_bytes);
-		if (byte_order::little_endian == endianness) {
+		if (byte_order::little_endian == byte_order) {
 			b = static_cast<uint8_t*>(data);
 			for (unsigned i = 0; i < container_bytes; ++i, ++b) {
 				*b = static_cast<uint8_t>(bits);
@@ -194,7 +189,7 @@ private:
 			b = static_cast<uint8_t*>(data) + container_bytes - 1;
 			for (unsigned i = 0; i < container_bytes; ++i, --b) {
 				*b = static_cast<uint8_t>(bits);
-			bits = shr8.shift(bits);
+				bits = shr8.shift(bits);
 			}
 		}
 	}

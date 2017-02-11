@@ -322,8 +322,8 @@ struct dsp::snd::base_impl
 	{
 		if (NULL != f)
 		{
-			f->set_sample_rate(info_.samplerate);
-			f->set_channel_count(info_.channels);
+			f->set_sample_rate(static_cast<unsigned>(info_.samplerate));
+			f->set_channel_count(static_cast<unsigned>(info_.channels));
 			map_format(info_.format, *f);
 
 			if (read_)
@@ -376,9 +376,12 @@ struct dsp::snd::base_impl
 
 	static sf_count_t io_write(const void* buf, sf_count_t count, void* p)
 	{
-		if (count < 0 || 
-			((sizeof(sf_count_t) > sizeof(size_t)) && (count > static_cast<sf_count_t>(std::numeric_limits<size_t>::max()))))
+		if (count < 0 ||
+		    ((sizeof(sf_count_t) > sizeof(size_t)) &&
+		      (count > static_cast<sf_count_t>(std::numeric_limits<size_t>::max()))))
+		{
 			return -1;
+		}
 		return static_cast<io*>(p)->write(buf, static_cast<size_t>(count));
 	}
 
@@ -497,7 +500,7 @@ int iobase::command(int cmd, void* data, int datasize)
 	return sf_command(impl_->sf_, cmd, data, datasize);
 }
 
-bool iobase::is_open() const 
+bool iobase::is_open() const
 {
 	return (NULL != impl_->sf_);
 }

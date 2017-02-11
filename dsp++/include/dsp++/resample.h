@@ -8,7 +8,7 @@
 
 #include <dsp++/export.h>
 #include <dsp++/filter.h>
-#include <dsp++/stride_iterator.h>
+#include <dsp++/stride.h>
 #include <vector>
 
 namespace dsp {
@@ -90,7 +90,7 @@ private:
 };
 
 template<class Sample>
-void interpolator<Sample>::init_filters(double transition) 
+void interpolator<Sample>::init_filters(double transition)
 {
 	size_t p = (base::P_ + base::M_ - 1) / base::M_;		// length of single phase section
 	size_t bn = p * base::M_;								// total number of coefficients
@@ -100,8 +100,8 @@ void interpolator<Sample>::init_filters(double transition)
 	flt_.reserve(base::M_);
 	try {
 		for (size_t i = 0; i < base::M_; ++i) {				// deinterleave coefficients for each phase
-			for (size_t j = 0; j < p; ++j) 
-				buf[bn + j] = base::M_ * buf[i + j * base::M_];			
+			for (size_t j = 0; j < p; ++j)
+				buf[bn + j] = base::M_ * buf[i + j * base::M_];
 			flt_.push_back(new filter_type(&buf[bn], p));
 		}
 	}
@@ -181,7 +181,7 @@ public:
 };
 
 template<class Sample>
-void block_interpolator<Sample>::init_filters(double transition) 
+void block_interpolator<Sample>::init_filters(double transition)
 {
 	size_t p = (base::P_ + base::M_ - 1) / base::M_;		// length of single phase section
 	size_t bn = p * base::M_;								// total number of coefficients
@@ -191,8 +191,8 @@ void block_interpolator<Sample>::init_filters(double transition)
 	flt_.reserve(base::M_);
 	try {
 		for (size_t i = 0; i < base::M_; ++i) {				// deinterleave coefficients for each phase
-			for (size_t j = 0; j < p; ++j) 
-				buf[bn + j] = base::M_ * buf[i + j * base::M_];			
+			for (size_t j = 0; j < p; ++j)
+				buf[bn + j] = base::M_ * buf[i + j * base::M_];
 			flt_.push_back(new filter_type(L_, &buf[bn], p));
 		}
 	}

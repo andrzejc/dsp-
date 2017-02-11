@@ -14,7 +14,7 @@ namespace dsp {
 
 /// @brief Specify norm kind - absolute or relative.
 namespace norm { enum type {
-	abs,	///< Absolute 
+	abs,	///< Absolute
 	rel
 }; }
 
@@ -23,9 +23,9 @@ namespace detail {
 	struct error_impl;
 
 	template<class T>
-	struct error_impl<norm::abs, T> 
+	struct error_impl<norm::abs, T>
 	{
-		typename dsp::remove_complex<T>::type operator()(const T& a, const T& b) 
+		typename dsp::remove_complex<T>::type operator()(const T& a, const T& b)
 		{
 			using namespace std;
 			return abs(a - b);
@@ -33,9 +33,9 @@ namespace detail {
 	};
 
 	template<class T>
-	struct error_impl<norm::rel, T> 
+	struct error_impl<norm::rel, T>
 	{
-		typename dsp::remove_complex<T>::type operator()(const T& a, const T& b) 
+		typename dsp::remove_complex<T>::type operator()(const T& a, const T& b)
 		{
 			using namespace std;
 			return abs(a - b) / abs(b);
@@ -44,7 +44,7 @@ namespace detail {
 }
 
 /// @brief Calculate error (absolute difference) between two values, either absolute or relative.
-/// Absolute error is calculated as: \f$\varepsilon_{abs} = \left|a - b\right|\f$; relative error is: 
+/// Absolute error is calculated as: \f$\varepsilon_{abs} = \left|a - b\right|\f$; relative error is:
 /// \f$\varepsilon_{rel} = {{\left|a - b\right|}\over{\left|b\right|}}\f$.
 /// @tparam t Type of error - either absolute or relative.
 /// @tparam T Type of values being compared.
@@ -52,12 +52,13 @@ namespace detail {
 /// @param b value to compare.
 /// @return either absolute or relative error between the two values @p a and @p b.
 template<norm::type t, class T>
-inline typename dsp::remove_complex<T>::type error(const T& a, const T& b) 
+inline typename dsp::remove_complex<T>::type error(const T& a, const T& b)
 { return detail::error_impl<t, T>()(a, b); }
 
 
 template<class InputIterator>
-inline typename dsp::remove_complex<typename std::iterator_traits<InputIterator>::value_type>::type norm_1(InputIterator begin, InputIterator end)
+inline typename dsp::remove_complex<typename std::iterator_traits<InputIterator>::value_type>::type
+norm_1(InputIterator begin, InputIterator end)
 {
 	typedef typename std::iterator_traits<InputIterator>::value_type T;
 	typedef typename dsp::remove_complex<typename std::iterator_traits<InputIterator>::value_type>::type R;
@@ -76,7 +77,7 @@ inline typename dsp::remove_complex<T>::type norm_1(const T* a, size_t len)
 
 
 template<norm::type t, class T>
-typename dsp::remove_complex<T>::type norm_1(const T* a, const T* b, size_t len) 
+typename dsp::remove_complex<T>::type norm_1(const T* a, const T* b, size_t len)
 {
 	typedef typename dsp::remove_complex<T>::type R;
 	R res = R();
@@ -86,7 +87,7 @@ typename dsp::remove_complex<T>::type norm_1(const T* a, const T* b, size_t len)
 }
 
 template<class T>
-inline typename dsp::remove_complex<T>::type norm_2(const T* a, size_t len) 
+inline typename dsp::remove_complex<T>::type norm_2(const T* a, size_t len)
 {
 	typedef typename dsp::remove_complex<T>::type R;
 	using namespace std;
@@ -99,7 +100,7 @@ inline typename dsp::remove_complex<T>::type norm_2(const T* a, size_t len)
 }
 
 template<norm::type t, class T>
-typename dsp::remove_complex<T>::type norm_2(const T* a, const T* b, size_t len) 
+typename dsp::remove_complex<T>::type norm_2(const T* a, const T* b, size_t len)
 {
 	typedef typename dsp::remove_complex<T>::type R;
 	using namespace std;
@@ -112,7 +113,7 @@ typename dsp::remove_complex<T>::type norm_2(const T* a, const T* b, size_t len)
 }
 
 template<class T>
-inline typename dsp::remove_complex<T>::type norm_inf(const T* a, size_t len) 
+inline typename dsp::remove_complex<T>::type norm_inf(const T* a, size_t len)
 {
 	typedef typename dsp::remove_complex<T>::type R;
 	using namespace std;
@@ -123,7 +124,7 @@ inline typename dsp::remove_complex<T>::type norm_inf(const T* a, size_t len)
 }
 
 template<norm::type t, class T>
-inline typename dsp::remove_complex<T>::type norm_inf(const T* a, const T* b, size_t len) 
+inline typename dsp::remove_complex<T>::type norm_inf(const T* a, const T* b, size_t len)
 {
 	typedef typename dsp::remove_complex<T>::type R;
 	using namespace std;
@@ -134,7 +135,7 @@ inline typename dsp::remove_complex<T>::type norm_inf(const T* a, const T* b, si
 }
 
 template<class T>
-inline typename dsp::remove_complex<T>::type norm_rms(const T* a, size_t len) 
+inline typename dsp::remove_complex<T>::type norm_rms(const T* a, size_t len)
 {
 	typedef typename dsp::remove_complex<T>::type R;
 	using namespace std;
@@ -147,7 +148,7 @@ inline typename dsp::remove_complex<T>::type norm_rms(const T* a, size_t len)
 }
 
 template<norm::type t, class T>
-typename dsp::remove_complex<T>::type norm_rms(const T* a, const T* b, size_t len) 
+typename dsp::remove_complex<T>::type norm_rms(const T* a, const T* b, size_t len)
 {
 	typedef typename dsp::remove_complex<T>::type R;
 	using namespace std;

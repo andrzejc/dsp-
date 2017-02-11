@@ -14,3 +14,4 @@ const char* dsp::ver::cstr()
 unsigned dsp::ver::major() {return DSPXX_VERSION_MAJOR;}
 unsigned dsp::ver::minor() {return DSPXX_VERSION_MINOR;}
 unsigned dsp::ver::patch() {return DSPXX_VERSION_PATCH;}
+unsigned dsp::ver::number() {return DSPXX_VERSION;}

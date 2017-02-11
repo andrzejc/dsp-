@@ -235,8 +235,8 @@ void dsp::snd::convert_samples(const dsp::snd::sample_layout& sl_in, unsigned sa
 	//}
 }
 
-void dsp::snd::convert_samples(const dsp::snd::sample_layout& sl_in, const dsp::snd::buffer_layout& bl_in, const void* in,
-	const dsp::snd::sample_layout& sl_out, const dsp::snd::buffer_layout& bl_out, void* out, unsigned length, unsigned channels)
+void dsp::snd::convert_samples(const dsp::snd::sample_layout& sl_in, const dsp::snd::buf::layout& bl_in, const void* in,
+	const dsp::snd::sample_layout& sl_out, const dsp::snd::buf::layout& bl_out, void* out, unsigned length, unsigned channels)
 {
 	const dsp::uint8_t* bi = static_cast<const dsp::uint8_t*>(in);
 	dsp::uint8_t* bo = static_cast<dsp::uint8_t*>(out);

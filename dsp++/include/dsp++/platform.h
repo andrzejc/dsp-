@@ -9,7 +9,8 @@
 #pragma once
 
 #ifndef DOXYGEN_RUNNING
-// All the tested macros are listed on http://nadeausoftware.com/articles/2012/02/c_c_tip_how_detect_processor_type_using_compiler_predefined_macros
+// All the tested macros are listed on
+// http://nadeausoftware.com/articles/2012/02/c_c_tip_how_detect_processor_type_using_compiler_predefined_macros
 #if defined(__ia64) || defined(__itanium__) || defined(_M_IA64)
 # define DSP_ARCH_IA64
 # define DSP_ENDIAN_LITTLE
@@ -32,11 +33,11 @@
 # define DSP_ARCH_FAMILY_X86
 # define DSP_ENDIAN_LITTLE
 #elif defined(__arm__) || defined(_M_ARM)
-#define DSP_ARCH_ARM
-#define DSP_ARCH_FAMILY_ARM
+# define DSP_ARCH_ARM
+# define DSP_ARCH_FAMILY_ARM
 #elif defined(__thumb__) || defined(_M_ARMT)
-#define DSP_ARCH_THUMB
-#define DSP_ARCH_FAMILY_ARM
+# define DSP_ARCH_THUMB
+# define DSP_ARCH_FAMILY_ARM
 #else
 # error "Unsupported processor architecture, tweak dsp++/platform.h to detect it."
 #endif
@@ -269,5 +270,29 @@
 #define DSP_OS_FAMILY_POSIX
 
 #endif
+
+#ifdef __cplusplus
+
+namespace dsp {
+
+namespace byte_order {
+
+enum label {
+	little_endian,
+	big_endian,
+};
+
+#if defined(DSP_ENDIAN_LITTLE)
+const label platform = little_endian;
+#elif defined(DSP_ENDIAN_BIG)
+const label platform = big_endian;
+#else
+DSPXX_API extern const label platform;
+#endif
+} // namespace byte_order
+
+}
+
+#endif /* __cplusplus */
 
 #endif /* DSP_PLATFORM_H_INCLUDED */

@@ -12,8 +12,6 @@
  * permission notice appear in supporting documentation.
  */
 
-// #include "pch.h"
-
 #include <dsp++/fft.h>
 #include <cmath>
 #include <algorithm>

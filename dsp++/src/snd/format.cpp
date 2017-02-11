@@ -1,11 +1,8 @@
 /*!
  * @file format.cpp
- * 
+ *
  * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
  */
-
-//#include "../pch.h"
-
 #include <dsp++/snd/format.h>
 #include <cstdlib>
 #include <cstring>
@@ -14,10 +11,6 @@
 #include <algorithm>
 
 #include "../utility.h"
-
-#ifdef _WIN32
-#include <windows.h>
-#endif 
 
 using namespace dsp::snd;
 
@@ -43,6 +36,8 @@ const file_format_entry file_formats[] = {
 	{ file_type::label::core_audio, "caf" },
 	{ file_type::label::ogg, "oga" },
 	{ file_type::label::ogg, "ogg" },
+	{ file_type::label::htk, "htk" },
+	{ file_type::label::rf64, "wav"}
 };
 
 const file_format_entry file_mime_types[] = {
@@ -56,6 +51,7 @@ const file_format_entry file_mime_types[] = {
 	{ file_type::label::flac, "x-flac" },
 	{ file_type::label::core_audio, "x-caf" },
 	{ file_type::label::ogg, "ogg" },
+	{ file_type::label::rf64, "vnd.wave" }
 };
 
 }
@@ -134,58 +130,10 @@ unsigned sample::bit_size_of(const char* sf)
 	return static_cast<unsigned>(sz);
 }
 
-format::format(unsigned sample_rate, unsigned channel_mask, dsp::snd::format_tag_, const char* sample_format)
- :	sample_format_(NULL != sample_format ? sample_format : "")
-#if defined(_MSC_VER) && (_MSC_VER <= 1600)
- ,	channel_layout_(static_cast<int>(channel_mask))
-#else
- ,	channel_layout_(channel_mask)
-#endif
- ,	sample_rate_(sample_rate)
- ,	channel_count_(static_cast<unsigned>(channel_layout_.count()))
-{
-}
-
-format::format(unsigned sample_rate, unsigned channel_count, const char* sample_format)
- :	sample_format_(NULL != sample_format ? sample_format : "")
-#if defined(_MSC_VER) && (_MSC_VER <= 1600)
- ,	channel_layout_(static_cast<int>(channel::mask::unknown))
-#else
- ,	channel_layout_(channel::mask::unknown)
-#endif
- ,	sample_rate_(sample_rate)
- ,	channel_count_(channel_count)
-{
-}
-
-format::format(unsigned sample_rate, unsigned channel_mask, dsp::snd::format_tag_, const std::string& sample_format)
- :	sample_format_(sample_format)
-#if defined(_MSC_VER) && (_MSC_VER <= 1600)
- ,	channel_layout_(static_cast<int>(channel_mask))
-#else
- ,	channel_layout_(channel_mask)
-#endif
- ,	sample_rate_(sample_rate)
- ,	channel_count_(static_cast<unsigned>(channel_layout_.count()))
-{
-}
-
-format::format(unsigned sample_rate, unsigned channel_count, const std::string& sample_format)
- :	sample_format_(sample_format)
- ,	channel_layout_(channel::mask::unknown)
- ,	sample_rate_(sample_rate)
- ,	channel_count_(channel_count)
-{
-}
-
-format::format()
- :	channel_layout_(channel::mask::unknown)
- ,	sample_rate_(0)
- ,	channel_count_(0)
-{
-}
-
-const format format::format_audio_cd(sampling_rate_audio_cd, channel::config::stereo, dsp::snd::format_channel_mask, sample::label::s16);
+const format format::format_audio_cd(sampling_rate_audio_cd,
+                                     channel::config::stereo,
+                                     dsp::snd::format_channel_mask,
+                                     sample::label::s16);
 
 unsigned format::channel_index(channel::location::label ch) const
 {
@@ -198,31 +146,96 @@ unsigned format::channel_index(channel::location::label ch) const
 	return c;
 }
 
-file_format::file_format()
-{
-}
-
-file_format::file_format(unsigned sample_rate, unsigned channel_mask, dsp::snd::format_tag_ tag, const char* sample_format, const char* type)
+file_format::file_format(unsigned sample_rate,
+                         unsigned channel_mask,
+                         dsp::snd::format_tag_ tag,
+                         const char* sample_format,
+                         const char* type)
  :	format(sample_rate, channel_mask, tag, sample_format)
  ,	type_(NULL != type ? type : "")
 {
 }
 
-file_format::file_format(unsigned sample_rate, unsigned channel_mask, dsp::snd::format_tag_ tag, const std::string& sample_format, const std::string& type)
-:	format(sample_rate, channel_mask, tag, sample_format)
-,	type_(type)
+file_format::file_format(unsigned sample_rate,
+                         unsigned channel_mask,
+                         dsp::snd::format_tag_ tag,
+                         const std::string& sample_format,
+                         const std::string& type)
+ :	format(sample_rate, channel_mask, tag, sample_format)
+ ,	type_(type)
 {
 }
 
-file_format::file_format(unsigned sample_rate, unsigned channel_count, const char* sample_format, const char* type)
+file_format::file_format(unsigned sample_rate,
+                         unsigned channel_count,
+                         const char* sample_format,
+                         const char* type)
  :	format(sample_rate, channel_count, sample_format)
  ,	type_(NULL != type ? type : "")
 {
 }
 
-file_format::file_format(unsigned sample_rate, unsigned channel_count, const std::string& sample_format, const std::string& type)
+file_format::file_format(unsigned sample_rate,
+                         unsigned channel_count,
+                         const std::string& sample_format,
+                         const std::string& type)
 :	format(sample_rate, channel_count, sample_format)
 ,	type_(type)
 {
 }
 
+#ifdef _WIN32
+
+#include <windows.h>
+#include <mmreg.h>
+
+void format::render_waveformatex(void* wfx) const {
+	WAVEFORMATEX* w = static_cast<WAVEFORMATEX*>(wfx);
+	switch (sample_type()) {
+		case sample::type::ieee_float:
+			w->wFormatTag = WAVE_FORMAT_IEEE_FLOAT;
+			break;
+		case sample::type::pcm_unsigned:
+			if (sample_bits() != 8)
+				goto noformat;
+			w->wFormatTag = WAVE_FORMAT_PCM;
+			break;
+		case sample::type::pcm_signed:
+			if (sample_bits() == 8)
+				goto noformat;
+			w->wFormatTag = WAVE_FORMAT_PCM;
+			break;
+		default:
+			goto noformat;
+	}
+	w->nChannels = channel_count();
+	w->nSamplesPerSec = sample_rate();
+	w->wBitsPerSample = sample_bits();
+	w->nBlockAlign = w->nChannels * w->wBitsPerSample / 8;
+	w->nAvgBytesPerSec = w->nBlockAlign * w->nSamplesPerSec;
+	w->cbSize = 0;
+	return;
+	noformat:
+	throw std::runtime_error("dsp::snd::format::render_waveformatex(): no direct WAVEFORMATEX::wFormtTag value "
+								 "for dsp::snd::format::sample_type()");
+}
+
+void format::render_waveformatextensible(void* wfx) const {
+	WAVEFORMATEXTENSIBLE* w = static_cast<WAVEFORMATEXTENSIBLE*>(wfx);
+	render_waveformatex(&w->Format);
+	switch (w->Format.wFormatTag) {
+		case WAVE_FORMAT_PCM:
+			w->SubFormat = KSDATAFORMAT_SUBTYPE_PCM;
+			w->Format.wFormatTag = WAVE_FORMAT_EXTENSIBLE;
+			break;
+		case WAVE_FORMAT_IEEE_FLOAT:
+			w->SubFormat = KSDATAFORMAT_SUBTYPE_IEEE_FLOAT;
+			w->Format.wFormatTag = WAVE_FORMAT_EXTENSIBLE;
+			break;
+	}
+	w->Format.cbSize = 22;
+	w->dwChannelMask = channel_config();
+	w->Samples.wValidBitsPerSample = w->Format.wBitsPerSample;
+}
+
+#endif // _WIN32

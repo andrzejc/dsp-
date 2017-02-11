@@ -9,76 +9,81 @@
 
 #include <dsp++/export.h>
 #include <dsp++/config.h>
-#include <dsp++/stride_iterator.h>
+#include <dsp++/stride.h>
+#include <dsp++/algorithm.h>
+#include <dsp++/concept_checks.h>
 
-#ifndef DSP_BOOST_CONCEPT_CHECKS_DISABLED
-#include <boost/concept_check.hpp>
-#endif // DSP_BOOST_CONCEPT_CHECKS_DISABLED
-
-namespace dsp { namespace snd {
+namespace dsp { namespace snd { namespace buf {
 
 //! @brief Describes layout of samples/channels in a memory buffer.
-struct buffer_layout 
+struct layout
 {
-	buffer_layout(unsigned ss, unsigned cs): sample_stride(ss), channel_stride(cs) {}
+	//! @param ss sample stride
+	//! @param cs channel stride
+	layout(unsigned ss, unsigned cs): sample_stride(ss), channel_stride(cs) {}
 
-	unsigned sample_stride;			//!< Byte offset between first bytes of consecutive samples belonging to single channel.
-	unsigned channel_stride;		//!< Byte offset between first bytes of samples belonging to consecutive channels, forming a single frame (sampled at the same time instant).
+	unsigned sample_stride;			//!< Byte offset between first bytes of consecutive samples belonging to single
+									//!< channel.
+	unsigned channel_stride;		//!< Byte offset between first bytes of samples belonging to consecutive channels,
+									//!< forming a single frame (sampled at the same time instant).
 
-	//! @param[in] channel index of channel
 	//! @param[in] frame index of frame
-	//! @return offset of first byte of <code>index</code>th sample belonging to specified frame.
-	unsigned offset_of(unsigned channel, unsigned frame) {
+	//! @param[in] channel index of channel
+	//! @return offset of first byte of `index`th sample belonging to specified frame.
+	unsigned offset_of(unsigned frame, unsigned channel) const {
 		return channel * channel_stride + frame * sample_stride;
 	}
 
-	//! @return buffer_layout for planar sample buffer with specified configuration
-	static buffer_layout planar(unsigned channel_count, unsigned length, unsigned sample_bytes) {
-		return buffer_layout(sample_bytes, sample_bytes * length);
+	//! @return layout for planar sample buffer with specified configuration. Planar buffer is the one in which
+	//!         samples belonging to one channel form continuous sequences.
+	static layout planar(unsigned length, unsigned channel_count, unsigned sample_bytes) {
+		return layout(sample_bytes, sample_bytes * length);
 	}
 
-	//! @return buffer_layout for interleaved sample buffer with specified configuration
-	static buffer_layout interleaved(unsigned channel_count, unsigned length, unsigned sample_bytes) {
-		return buffer_layout(sample_bytes * channel_count, sample_bytes);
+	//! @return layout for interleaved sample buffer with specified configuration. Interleaved buffer is the one
+	//!         in which samples belonging to a single frame form continuous sequences.
+	static layout interleaved(unsigned length, unsigned channel_count, unsigned sample_bytes) {
+		return layout(sample_bytes * channel_count, sample_bytes);
 	}
 };
 
-namespace simple_buffer_layout { enum selector {
-	planar,
-	interleaved
-}; } // namespace simple_buffer_layout
-
-struct buffer_info: public buffer_layout 
+//! @brief Extends @p layout memory-spatial information with information about number of channels
+//! and length in frames.
+struct info: public layout
 {
 	unsigned channel_count;		//!< Number of channels stored in buffer
 	unsigned length;			//!< Buffer length in frames (number of samples in each channel)
-	
-	//! @brief Construct buffer_info object using simple_buffer_layout selector for buffer_layout.
-	//! @param[in] cc channel count
+
+	//! @brief Type of @p layout "constructor" function.
+	//! @see layout::interleaved()
+	typedef layout (*selector)(unsigned length, unsigned channel_count, unsigned sample_bytes);
+
+	//! @brief Construct info object using simple_layout selector for layout.
 	//! @param[in] len buffer length in frames
+	//! @param[in] cc channel count
 	//! @param[in] sb sample container size in bytes
-	//! @param[in] sel simple_buffer_layout selector
-	buffer_info(unsigned cc, unsigned len, unsigned sb, simple_buffer_layout::selector sel = simple_buffer_layout::interleaved)
-	 :	buffer_layout(simple_buffer_layout::interleaved == sel ? interleaved(cc, len, sb) : planar(cc, len, sb))
+	//! @param[in] sel selector or @p layout "constructor" function
+	info(unsigned len, unsigned cc, unsigned sb, selector sel = layout::interleaved)
+	 :	layout(sel(cc, len, sb))
 	 ,	channel_count(cc), length(len)
 	{}
 
-	//! @brief Construct buffer_info object using buffer_layout parameters
-	//! @param[in] cc channel count
+	//! @brief Construct info object using layout parameters
 	//! @param[in] len buffer length in frames
-	//! @param[in] ss sample stride 
+	//! @param[in] cc channel count
+	//! @param[in] ss sample stride
 	//! @param[in] cs channel stride
-	buffer_info(unsigned cc, unsigned len, unsigned ss, unsigned cs)
-	 :	buffer_layout(ss, cs)
+	info(unsigned len, unsigned cc, unsigned ss, unsigned cs)
+	 :	layout(ss, cs)
 	 ,	channel_count(cc), length(len)
 	{}
 
-	//! @brief Construct buffer_info object using buffer_layout object
-	//! @param[in] cc channel count
+	//! @brief Construct info object using layout object
 	//! @param[in] len buffer length in frames
+	//! @param[in] cc channel count
 	//! @param[in] bl buffer layout
-	buffer_info(unsigned cc, unsigned len, const buffer_layout& bl)
-	 :	buffer_layout(bl)
+	info(unsigned len, unsigned cc, const layout& bl)
+	 :	layout(bl)
 	 ,	channel_count(cc), length(len)
 	{}
 
@@ -86,32 +91,68 @@ struct buffer_info: public buffer_layout
 
 // TODO rewrite functions below using stride_iterator for consistency
 
+//! @brief Copy samples from interleaved buffer @p input into planar buffer @p output, assuming @p channel_count
+//! channels in the pack and @p frame_count of frames.
+//!
+//! @tparam InputIterator with value type convertible to @p OutputIterator's value type.
+//! @tparam OutputIterator
+//!
+//! @param[in] input iterator used for reading interleaved sample data.
+//! @param[out] output iterator to which output planar data will be written.
+//! @param[in] channel_count number of samples in a single frame.
+//! @param[in] frame_count number of frames to deinterleave.
 template<class InputIterator, class OutputIterator>
-#ifndef DSP_BOOST_CONCEPT_CHECKS_DISABLED
-	BOOST_CONCEPT_REQUIRES(
-		((boost::InputIterator<InputIterator>))
-		((boost::OutputIterator<OutputIterator>)),
-		(void))
-#else // DSP_BOOST_CONCEPT_CHECKS_DISABLED
-	void
-#endif // DSP_BOOST_CONCEPT_CHECKS_DISABLED
-buffer_deinterleave(InputIterator input, OutputIterator output, const unsigned channel_count, const unsigned frame_count) 
+DSP_CONCEPT_REQUIRES(
+	((boost::InputIterator<InputIterator>))
+	((boost::OutputIterator<OutputIterator, typename std::iterator_traits<InputIterator>::value_type>)),
+(void))
+deinterleave(InputIterator input,
+             const unsigned frame_count,
+             OutputIterator output,
+             const unsigned channel_count)
 {
-	for (unsigned c = 0; c < channel_count; ++c)
-		output = std::copy(dsp::make_stride(input, channel_count, c), dsp::make_stride(input, channel_count, c, frame_count), output);
+	for (unsigned c = 0; c < channel_count; ++c) {
+		output = dsp::copy_n(dsp::make_stride(input, channel_count, c),
+		                     frame_count,
+		                     output);
+	}
 }
 
-template<class Sample>
-void buffer_interleave(const Sample* input, Sample* output, const unsigned channel_count, const unsigned frame_count) {
+template<class InputIterator, class OutputIterator>
+DSP_CONCEPT_REQUIRES(
+	((boost::InputIterator<InputIterator>))
+	((boost::OutputIterator<OutputIterator, typename std::iterator_traits<InputIterator>::value_type>)),
+(void))
+interleave(InputIterator input,
+           const unsigned frame_count,
+           OutputIterator output,
+           const unsigned channel_count)
+{
+	for(unsigned c = 0; c < channel_count; ++c) {
+		dsp::copy_n(input,
+		            frame_count,
+		            dsp::make_stride(output, channel_count, c));
+	}
+}
+
+template<class ISample, class OSample>
+DSP_CONCEPT_REQUIRES(
+	((boost::Convertible<ISample, OSample>)),
+(void))
+interleave(const ISample* input, const unsigned frame_count, OSample* output, const unsigned channel_count) {
 	for (unsigned i = 0; i < frame_count; ++i) {
-		const Sample* in = input + i;
-		for (unsigned c = 0; c < channel_count; ++c, in += frame_count, ++output) 
+		const ISample* in = input + i;
+		for (unsigned c = 0; c < channel_count; ++c, in += frame_count, ++output)
 			*output = *in;
 	}
 }
 
-template<class Sample>
-void mixdown_interleaved(const Sample* input, Sample* output, const unsigned channel_count, const unsigned frame_count) {
+template<class ISample, class OSample>
+DSP_CONCEPT_REQUIRES(
+	((boost::Convertible<ISample, OSample>)),
+(void))
+mixdown_interleaved(const ISample* input, const unsigned frame_count, OSample* output, const unsigned channel_count)
+{
 	for (unsigned i = 0; i < frame_count; ++i, ++output) {
 		*output = *input;
 		++input;
@@ -121,30 +162,26 @@ void mixdown_interleaved(const Sample* input, Sample* output, const unsigned cha
 	}
 }
 
-template<class InputIterator, class OutputIterator> 
-#ifndef DSP_BOOST_CONCEPT_CHECKS_DISABLED
-BOOST_CONCEPT_REQUIRES(
+template<class InputIterator, class OutputIterator>
+DSP_CONCEPT_REQUIRES(
 	((boost::InputIterator<InputIterator>))
-	((boost::OutputIterator<OutputIterator>)),
-	(void))
-#else // DSP_BOOST_CONCEPT_CHECKS_DISABLED
-void
-#endif // DSP_BOOST_CONCEPT_CHECKS_DISABLED
+	((boost::OutputIterator<OutputIterator, typename std::iterator_traits<InputIterator>::value_type>)),
+(void))
 mixdown_interleaved(InputIterator begin, InputIterator end, OutputIterator dest, const unsigned channel_count)
 {
-	if (1 == channel_count) 
+	if (1 == channel_count)
 		std::copy(begin, end, dest);
 	else {
 		for (; begin != end; ++dest) {
 			*dest = *begin;
 			++begin;
-			for (unsigned c = 1; c < channel_count; ++c, ++begin) 
+			for (unsigned c = 1; c < channel_count; ++c, ++begin)
 				*dest += *begin;
 			*dest /= channel_count;
 		}
 	}
 }
 
-}}
+}}}
 
 #endif /* DSP_SND_BUFFER_H_INCLUDED */

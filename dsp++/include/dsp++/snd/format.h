@@ -8,6 +8,7 @@
 #define DSP_SND_FORMAT_H_INCLUDED
 
 #include <dsp++/export.h>
+#include <dsp++/concept_checks.h>
 
 #include <cstddef>
 #include <string>
@@ -18,8 +19,9 @@ namespace dsp { namespace snd {
 //! Constants, functions, etc. related to labeling channels in a multichannel sound file formats.
 namespace channel {
 
-//! @brief Channel type indexes (related to the speaker location). 
-//! This is ordered according to USB Audio class definition, which is a native representation both in WAVE files and in CoreAudio.
+//! @brief Channel type indexes (related to the speaker location).
+//! This is ordered according to USB Audio class definition, which is a native representation both in WAVE files
+//! and in CoreAudio.
 //! @see http://www.usb.org/developers/devclass_docs/audio10.pdf
 //! @see http://msdn.microsoft.com/en-us/windows/hardware/gg463006
 //! @see https://developer.apple.com/library/mac/#qa/qa1638/_index.html
@@ -90,10 +92,10 @@ namespace config { enum label {
 	s6_0_side =		s5_0_side | mask::back_center,
 	s7_0 =			s5_0 | mask::side_left | mask::side_right,
 	s7_1 =			s7_0 | mask::lfe,
-}; 
+};
 
 //! @param[in] channel_count number of channels.
-//! @return "default" (most typical) speaker configuration mask for given channel count.
+//! @return "default" (most typical) speaker configuration mask for given channel count, a combination of @p mask labels
 DSPXX_API unsigned default_for(unsigned channel_count);
 
 } // namespace config
@@ -104,11 +106,13 @@ typedef std::bitset<location::count_> layout;
 //! @brief Used to denote that given channel type is missing in the layout.
 //! @see dsp::snd::format::channel_index()
 const unsigned not_present = unsigned(-1);
-}
+
+} // namespace channel
 
 namespace sample {
 
-//! @brief Labels of audio sample formats (these are used primarily for interfacing with @p dsp::snd::reader and @p dsp::snd::writer, or hardware I/O).
+//! @brief Labels of audio sample formats (these are used primarily for interfacing with @p dsp::snd::reader
+//! and @p dsp::snd::writer, or hardware I/O).
 namespace label {
 const char* const u8 =	"U8";	//!< Unsigned 8-bit integer with offset of 128 linear PCM.
 const char* const s8 =	"S8"; 	//!< Signed 8-bit integer, linear PCM.
@@ -117,7 +121,7 @@ const char* const s24 = "S24";	//!< Signed 24-bit integer (packed) linear PCM.
 const char* const s32 = "S32";	//!< Signed 32-bit integer linear PCM.
 const char* const f32 = "F32";	//!< Floating-point 32-bit (with a non-overdriving range of [-1.0, 1.0]).
 const char* const f64 = "F64";	//!< Floating-point 64-bit (with a non-overdriving range of [-1.0, 1.0]).
-}
+} // namespace label
 
 //! @brief Used to denote that bit size of sample is unknown in the given format.
 //! @see dsp::snd::sample::bit_size_of()
@@ -138,8 +142,10 @@ namespace type { enum label {
 //! @param[in] format_label format label to parse for sample type.
 //! @return sample type of given format.
 DSPXX_API type::label type_of(const char* format_label);
-}
 
+} // namespace sample
+
+/// @brief Audio file type labels, MIME type and file extension mapping.
 namespace file_type {
 
 namespace label {
@@ -153,18 +159,21 @@ const char* const matlab5 =		"mat5";
 const char* const flac =		"flac";
 const char* const core_audio =	"caf";
 const char* const ogg =			"ogg";
+const char* const htk = 		"htk";
+const char* const rf64 = 		"rf64";
 }
 
-/// @return file type id (@p file_type::label constant) for specified file extension, or NULL if unknown.
+/// @return file type label (@p file_type::label constant) for specified file extension, or NULL if unknown.
 DSPXX_API const char* const for_extension(const char* ext);
-/// @return file extension which should be used with specified file type id (@p file_type::label), or NULL if unknown.
+/// @return file extension which should be used with specified file type label (@p file_type::label), or NULL if unknown.
 DSPXX_API const char* const extension_for(const char* cnt);
-/// @return file type id (@p file_type::label constant) for specified MIME subtype (assuming MIME type is audio/<i>subtype</i>), or NULL if unknown.
+/// @return file type label (@p file_type::label constant) for specified MIME subtype (assuming MIME type is
+/// audio/<i>subtype</i>), or NULL if unknown.
 DSPXX_API const char* const for_mime_subtype(const char* st);
-/// @return MIME subtype which should be used with specified file type id (@p file_type::label), or NULL if unknown.
+/// @return MIME subtype which should be used with specified file type label (@p file_type::label), or NULL if unknown.
 DSPXX_API const char* const mime_subtype_for(const char* cnt);
 
-}
+} // namespace file_type
 
 const unsigned sampling_rate_audio_cd = 44100;
 const unsigned sampling_rate_phone_narrow = 8000;
@@ -176,9 +185,11 @@ enum format_tag_ {
 	format_channel_mask
 };
 
-/// @brief Describes audio stream settings, namely: number (and optionally layout) of channels, sampling rate and sample format.
-/// Note that the sample format adheres primarily to the format which is used internally by I/O classes, i.e. the hardware or I/O format,
-/// not the sample abstraction used by @p dsp::snd APIs (which tend to use float or double types, mapping to @p sample::label::f32 &amp; @p sample::label::f64).
+/// @brief Describes audio stream settings, namely: number (and optionally layout) of channels, sampling rate and
+/// sample format.
+/// Note that the sample format adheres primarily to the format which is used internally by I/O classes, i.e. the
+/// hardware or I/O format, not the sample abstraction used by @p dsp::snd APIs (which tend to use float or double
+/// types, mapping to @p sample::label::f32 &amp; @p sample::label::f64).
 class DSPXX_API format
 {
 public:
@@ -189,20 +200,21 @@ public:
 	/// @param [in] cl bitset with appropriate @p channel::location flags set.
 	void set_channel_layout(const channel::layout& cl)
 	{
-		channel_layout_ = cl; 
+		channel_layout_ = cl;
 		channel_count_ = static_cast<unsigned>(channel_layout_.count());
 	}
 
-	/// @brief Set channel layout based on channel masks (a combination of @p channel::mask flags); overwrites overwrites channel count, which is inferred from the layout.
+	/// @brief Set channel layout based on channel masks (a combination of @p channel::mask flags); overwrites
+	/// channel count, which is inferred from the layout.
 	/// @param [in] channel_mask channel layout mask.
-	void set_channel_config(unsigned channel_mask)
+	void set_channel_mask(unsigned channel_mask)
 	{
 #if defined(_MSC_VER) && (_MSC_VER <= 1600)
 		// MS Visual C++ has nonstandard-compliant bitset constructor with int param instead of long long, cast is needed
-		channel_layout_ = channel::layout(static_cast<int>(channel_mask)); 
+		channel_layout_ = channel::layout(static_cast<int>(channel_mask));
 #else
-		channel_layout_ = channel::layout(channel_mask); 
-#endif 
+		channel_layout_ = channel::layout(channel_mask);
+#endif
 		channel_count_ = static_cast<unsigned>(channel_layout_.count());
 	}
 
@@ -211,12 +223,12 @@ public:
 
 	void set_channel_present(channel::location::label ch, bool present = true)
 	{
-		channel_layout_.set(ch, present); 
+		channel_layout_.set(ch, present);
 		channel_count_ = static_cast<unsigned>(channel_layout_.count());
 	}
 
 	/// @return Current channel layout mask as a combination of @p channel::mask flags.
-	unsigned channel_config() const {return static_cast<unsigned>(channel_layout_.to_ulong());}
+	unsigned channel_mask() const {return static_cast<unsigned>(channel_layout_.to_ulong());}
 
 	/// @return Index of specified channel in current layout or @p channel::not_present if missing.
 	unsigned channel_index(channel::location::label ch) const;
@@ -224,14 +236,14 @@ public:
 	/// @return Number of channels defined by this format's layout.
 	unsigned channel_count() const {return channel_count_;}
 
-	/// @brief Set channel count; if channel count is changed, 
+	/// @brief Set channel count; if channel count is changed,
 	/// channel layout is reset to unknown (no channel location is set).
 	/// @param [in] cc number of channels to set.
-	void set_channel_count(unsigned cc) 
+	void set_channel_count(unsigned cc)
 	{
-		if (channel_count_ == cc) 
+		if (channel_count_ == cc)
 			return;
-		channel_count_ = cc; 
+		channel_count_ = cc;
 		channel_layout_.reset();
 	}
 
@@ -253,20 +265,59 @@ public:
 
 	static const format format_audio_cd;
 
-	format(unsigned sample_rate, unsigned channel_count, const char* sample_format = NULL);
-	format(unsigned sample_rate, unsigned channel_count, const std::string& sample_format);
+	format(unsigned sample_rate, unsigned channel_count)
+#if defined(_MSC_VER) && (_MSC_VER <= 1600)
+	 :	channel_layout_(static_cast<int>(channel::mask::unknown))
+#else
+	 :	channel_layout_(channel::mask::unknown)
+#endif
+	 ,	sample_rate_(sample_rate)
+	 ,	channel_count_(channel_count)
+	{
+	}
 
-	format(unsigned sample_rate, unsigned channel_mask, format_tag_, const char* sample_format = NULL);
-	format(unsigned sample_rate, unsigned channel_mask, format_tag_, const std::string& sample_format);
+	template<class String>
+	format(unsigned sample_rate, unsigned channel_count, const String& sample_format)
+	 :	sample_format_(String() != sample_format ? std::string(sample_format) : std::string())
+#if defined(_MSC_VER) && (_MSC_VER <= 1600)
+	 ,	channel_layout_(static_cast<int>(channel::mask::unknown))
+#else
+	 ,	channel_layout_(channel::mask::unknown)
+#endif
+	 ,	sample_rate_(sample_rate)
+	 ,	channel_count_(channel_count)
+	{
+		DSP_CONCEPT_ASSERT((boost::Convertible<String, std::string>));
+	}
 
-	format();
+	template<class String>
+	format(unsigned sample_rate, unsigned channel_mask, format_tag_, const String& sample_format)
+	 :	sample_format_(String() != sample_format ? std::string(sample_format) : std::string())
+#if defined(_MSC_VER) && (_MSC_VER <= 1600)
+	 ,	channel_layout_(static_cast<int>(channel_mask))
+#else
+	 ,	channel_layout_(channel_mask)
+#endif
+	 ,	sample_rate_(sample_rate)
+	 ,	channel_count_(static_cast<unsigned>(channel_layout_.count()))
+	{
+		DSP_CONCEPT_ASSERT((boost::Convertible<String, std::string>));
+	}
 
-	template<class TimeMs> 
-	unsigned time_ms_to_samples(TimeMs ms) const 
+	format()
+	 :	channel_layout_(channel::mask::unknown)
+	 ,	sample_rate_(0)
+	 ,	channel_count_(0)
+	{
+	}
+
+
+	template<class TimeMs>
+	unsigned time_ms_to_samples(TimeMs ms) const
 	{return static_cast<unsigned>(sample_rate_ * ms / static_cast<TimeMs>(1000.) + static_cast<TimeMs>(.5));}
 
-	template<class TimeS> 
-	unsigned time_to_samples(TimeS s) const 
+	template<class TimeS>
+	unsigned time_to_samples(TimeS s) const
 	{return static_cast<unsigned>(sample_rate_ * s + static_cast<TimeS>(.5));}
 
 #ifdef _WIN32
@@ -289,13 +340,30 @@ public:
 	void set_type(const char* type) {type_ = type;}
 	const char* const extension() const {return file_type::extension_for(type_.c_str());}
 
-	file_format();
+	file_format()
+	{}
 
-	file_format(unsigned sample_rate, unsigned channel_count, const char* sample_format = NULL, const char* type = NULL);
-	file_format(unsigned sample_rate, unsigned channel_count, const std::string& sample_format, const std::string& type);
+	file_format(unsigned sample_rate,
+	            unsigned channel_count,
+	            const char* sample_format = NULL,
+	            const char* type = NULL);
 
-	file_format(unsigned sample_rate, unsigned channel_mask, format_tag_, const char* sample_format = NULL, const char* type = NULL);
-	file_format(unsigned sample_rate, unsigned channel_mask, format_tag_, const std::string& sample_format, const std::string& type);
+	file_format(unsigned sample_rate,
+	            unsigned channel_count,
+	            const std::string& sample_format,
+	            const std::string& type);
+
+	file_format(unsigned sample_rate,
+	            unsigned channel_mask,
+	            format_tag_,
+	            const char* sample_format = NULL,
+	            const char* type = NULL);
+
+	file_format(unsigned sample_rate,
+	            unsigned channel_mask,
+	            format_tag_,
+	            const std::string& sample_format,
+	            const std::string& type);
 
 private:
 	std::string type_;

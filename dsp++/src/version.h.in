@@ -28,7 +28,7 @@ DSPXX_API const char* cstr();
 DSPXX_API unsigned major();
 DSPXX_API unsigned minor();
 DSPXX_API unsigned patch();
-
+DSPXX_API unsigned number();
 }}
 
 #endif /* DSP_VERSION_H_INCLUDED */
