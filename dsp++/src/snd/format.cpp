@@ -217,7 +217,7 @@ void format::render_waveformatex(void* wfx) const {
 	return;
 	noformat:
 	throw std::runtime_error("dsp::snd::format::render_waveformatex(): no direct WAVEFORMATEX::wFormtTag value "
-								 "for dsp::snd::format::sample_type()");
+	                         "for dsp::snd::format::sample_type()");
 }
 
 void format::render_waveformatextensible(void* wfx) const {
@@ -234,7 +234,7 @@ void format::render_waveformatextensible(void* wfx) const {
 			break;
 	}
 	w->Format.cbSize = 22;
-	w->dwChannelMask = channel_config();
+	w->dwChannelMask = channel_mask();
 	w->Samples.wValidBitsPerSample = w->Format.wBitsPerSample;
 }
 
