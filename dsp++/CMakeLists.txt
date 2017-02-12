@@ -152,26 +152,40 @@ endif()
 
 configure_file(src/version.h.in include/dsp++/version.h @ONLY)
 
+if(DSPXX_LIBSNDFILE_ENABLED)
+	if(MSVC)
+		list(APPEND dsp++_LIBS ${SndFile_LIBRARY})
+		list(APPEND dsp++_INC ${SndFile_INCLUDE_DIR})
+	else()
+		list(APPEND dsp++_LIBS sndfile)
+	endif()
+else()
+	list(APPEND dsp++_DEFS DSPXX_LIBSNDFILE_DISABLED)
+endif()
+
+if(DSPXX_FFTW3_ENABLED)
+	if(MSVC)
+		list(APPEND dsp++_LIBS ${FFTW3D_LIBRARY} ${FFTW3F_LIBRARY} ${FFTW3L_LIBRARY})
+		list(APPEND dsp++_INC ${FFTW3_INCLUDE_DIR})
+	else()
+		list(APPEND dsp++_LIBS fftw3 fftw3f fftw3l)
+	endif()
+else()
+	list(APPEND dsp++_DEFS PRIVATE DSPXX_FFTW3_DISABLED)
+endif()
+
+
 if(DSPXX_BUILD_SHARED)
 	add_library(dsp++ SHARED ${SOURCES})
 	target_compile_definitions(dsp++ PRIVATE DSPXX_EXPORTS)
-	target_include_directories(dsp++ PRIVATE src PUBLIC
+	target_include_directories(dsp++ PRIVATE src ${dsp++_INC} PUBLIC
 		$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
 		$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
 		$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>)
 	target_link_libraries(dsp++ PUBLIC Boost::boost)
 
-	if(DSPXX_LIBSNDFILE_ENABLED)
-		target_link_libraries(dsp++ PRIVATE sndfile)
-	else()
-		target_compile_definitions(dsp++ PRIVATE DSPXX_LIBSNDFILE_DISABLED)
-	endif()
-
-	if(DSPXX_FFTW3_ENABLED)
-		target_link_libraries(dsp++ PRIVATE fftw3 fftw3f fftw3l)
-	else()
-		target_compile_definitions(dsp++ PRIVATE DSPXX_FFTW3_DISABLED)
-	endif()
+	target_link_libraries(dsp++ PRIVATE ${dsp++_LIBS})
+	target_compile_definitions(dsp++ PRIVATE ${dsp++_DEFS})
 
 	set_target_properties(dsp++ PROPERTIES
 		VERSION ${DSPXX_VERSION}
@@ -183,7 +197,9 @@ if(DSPXX_BUILD_SHARED)
 		install(FILES $<TARGET_PDB_FILE:dsp++> DESTINATION lib OPTIONAL)
 		include(CopyDlls)
 		# TODO: modify copy_dlls to work on targets not only files
-		# copy_dlls(dsp++ ${LIBS})
+		if(dsp++_LIBS)
+			copy_dlls(dsp++ ${dsp++_LIBS})
+		endif()
 	endif()
 
 	install(TARGETS dsp++ EXPORT dsp++ DESTINATION lib)
@@ -195,23 +211,14 @@ endif()
 if(DSPXX_BUILD_STATIC)
  	add_library(dsp++-static STATIC ${SOURCES})
 	target_compile_definitions(dsp++-static PRIVATE DSPXX_STATIC)
-	target_include_directories(dsp++-static PRIVATE src PUBLIC
+	target_include_directories(dsp++-static PRIVATE src ${dsp++_INC} PUBLIC
 		$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
 		$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
 		$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>)
 	target_link_libraries(dsp++-static PUBLIC Boost::boost)
 
-	if(DSPXX_LIBSNDFILE_ENABLED)
-		target_link_libraries(dsp++-static PUBLIC sndfile)
-	else()
-		target_compile_definitions(dsp++-static PRIVATE DSPXX_LIBSNDFILE_DISABLED)
-	endif()
-
-	if(DSPXX_FFTW3_ENABLED)
-		target_link_libraries(dsp++-static PUBLIC fftw3 fftw3f fftw3l)
-	else()
-		target_compile_definitions(dsp++-static PRIVATE DSPXX_FFTW3_DISABLED)
-	endif()
+	target_link_libraries(dsp++ PUBLIC ${dsp++_LIBS})
+	target_compile_definitions(dsp++ PRIVATE ${dsp++_DEFS})
 
 	# TODO currently build static variant as PIC to be able to link JNI lib, consider changing this later
 	set_target_properties(dsp++-static PROPERTIES
@@ -219,8 +226,9 @@ if(DSPXX_BUILD_STATIC)
 
 	export(TARGETS dsp++-static FILE dsp++-static-exports.cmake)
 
-	if(MSVC)
-		# copy_dlls(dsp++-static ${LIBS})
+	if(MSVC AND dsp++_LIBS)
+		include(CopyDlls)
+		copy_dlls(dsp++-static ${dsp++_LIBS})
 	endif()
 
 	install(TARGETS dsp++-static EXPORT dsp++-static DESTINATION lib)
