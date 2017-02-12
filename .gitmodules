@@ -3,9 +3,3 @@
 	url = git@github.com:andrzejc/build-scripts.git
 	branch = master
 	fetchRecurseSubmodules = yes
-[submodule "external/cmake-precompiled-header"]
-	path = external/cmake-precompiled-header
-	url = git@github.com:andrzejc/cmake-precompiled-header.git
-	branch = master
-	fetchRecurseSubmodules = yes
-

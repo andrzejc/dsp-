@@ -152,11 +152,6 @@ endif()
 
 configure_file(src/version.h.in include/dsp++/version.h @ONLY)
 
-option(DSPXX_USE_PRECOMPILED_HEADERS "Use precompiled headers during dsp++ build (if compiler supports)" OFF)
-if(DSPXX_USE_PRECOMPILED_HEADERS)
-	include(PrecompiledHeader)
-endif()
-
 if(DSPXX_BUILD_SHARED)
 	add_library(dsp++ SHARED ${SOURCES})
 	target_compile_definitions(dsp++ PRIVATE DSPXX_EXPORTS)
@@ -165,9 +160,6 @@ if(DSPXX_BUILD_SHARED)
 		$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
 		$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>)
 	target_link_libraries(dsp++ PUBLIC Boost::boost)
-	if(DSPXX_USE_PRECOMPILED_HEADERS)
-		add_precompiled_header(dsp++ src/pch.h FORCEINCLUDE SOURCE_CXX src/pch.cpp)
-	endif()
 
 	if(DSPXX_LIBSNDFILE_ENABLED)
 		target_link_libraries(dsp++ PRIVATE sndfile)
@@ -208,9 +200,6 @@ if(DSPXX_BUILD_STATIC)
 		$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
 		$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>)
 	target_link_libraries(dsp++-static PUBLIC Boost::boost)
-	if(DSPXX_USE_PRECOMPILED_HEADERS)
-		add_precompiled_header(dsp++-static src/pch.h FORCEINCLUDE SOURCE_CXX src/pch.cpp)
-	endif()
 
 	if(DSPXX_LIBSNDFILE_ENABLED)
 		target_link_libraries(dsp++-static PUBLIC sndfile)
