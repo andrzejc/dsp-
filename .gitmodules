@@ -1,6 +1,6 @@
-[submodule "build-scripts"]
-	path = build-scripts
-	url = https://github.com/andrzejc/build-scripts.git
+[submodule "external/build-scripts"]
+	path = external/build-scripts
+	url = git@github.com:andrzejc/build-scripts.git
 	branch = master
 	fetchRecurseSubmodules = yes
 [submodule "external/cmake-precompiled-header"]
