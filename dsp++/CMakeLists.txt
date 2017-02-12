@@ -183,7 +183,7 @@ if(DSPXX_BUILD_SHARED)
 		install(FILES $<TARGET_PDB_FILE:dsp++> DESTINATION lib OPTIONAL)
 		include(CopyDlls)
 		# TODO: modify copy_dlls to work on targets not only files
-		copy_dlls(dsp++ ${LIBS})
+		# copy_dlls(dsp++ ${LIBS})
 	endif()
 
 	install(TARGETS dsp++ EXPORT dsp++ DESTINATION lib)
@@ -220,7 +220,7 @@ if(DSPXX_BUILD_STATIC)
 	export(TARGETS dsp++-static FILE dsp++-static-exports.cmake)
 
 	if(MSVC)
-		copy_dlls(dsp++-static ${LIBS})
+		# copy_dlls(dsp++-static ${LIBS})
 	endif()
 
 	install(TARGETS dsp++-static EXPORT dsp++-static DESTINATION lib)
