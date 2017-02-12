@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.2)
 project(dsp++)
 
 list(APPEND CMAKE_MODULE_PATH
-	${CMAKE_CURRENT_LIST_DIR}/build-scripts/cmake
+	${CMAKE_CURRENT_LIST_DIR}/external/build-scripts/cmake
 	${CMAKE_CURRENT_LIST_DIR}/external/cmake-precompiled-header)
 include(CMakeCompatibility NO_POLICY_SCOPE)
 

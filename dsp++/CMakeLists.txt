@@ -231,7 +231,6 @@ if(DSPXX_BUILD_STATIC)
 	export(TARGETS dsp++-static FILE dsp++-static-exports.cmake)
 
 	if(MSVC)
-		# install(FILES $<TARGET_PDB_FILE:dsp++-static> DESTINATION lib OPTIONAL)
 		copy_dlls(dsp++-static ${LIBS})
 	endif()
 
