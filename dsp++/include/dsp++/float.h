@@ -17,33 +17,46 @@
 #if defined(_MSC_VER) && !(__cplusplus >= 201103L)
 # if !DSP_BOOST_DISABLED
 # include <boost/math/special_functions/fpclassify.hpp>
-namespace std { 
+namespace std {
 using boost::math::isnan;
 using boost::math::isinf;
 }
 # else // DSP_BOOST_DISABLED
-namespace std { 
-template<class Real> bool isnan(Real x) {return _isnan(x) != 0;} 
+namespace std {
+template<class Real> bool isnan(Real x) {return _isnan(x) != 0;}
 template<class Real> bool isinf(Real x) {return _finite(x) == 0;}
 }
 # endif // DSP_BOOST_DISABLED
-#endif 
+#endif
 
 namespace dsp {
 
 namespace detail {
 
-	template<class T> struct next_float {typedef void type;};
-	template<> struct next_float<float> {typedef double type;};
-	template<> struct next_float<double> {typedef long double type;};
+	template<class T> struct next_float
+	{
+		typedef void type;
+	};
+	template<> struct next_float<float> {
+		typedef double type;
+	};
+	template<> struct next_float<double> {
+		typedef long double type;
+	};
 
 	template<int size, class T, bool is_same_size = (size == 8*sizeof(T))> struct select_sized_float;
-	template<int size, class T> struct select_sized_float<size, T, true> {typedef T type;};
-	template<int size, class T> struct select_sized_float<size, T, false> {typedef typename select_sized_float<size, typename next_float<T>::type>::type type;};
+	template<int size, class T> struct select_sized_float<size, T, true> {
+		typedef T type;
+	};
+	template<int size, class T> struct select_sized_float<size, T, false> {
+		typedef typename select_sized_float<size, typename next_float<T>::type>::type type;
+	};
 
 }
 
-template<int size> struct select_float {typedef typename detail::select_sized_float<size, float>::type type;};
+template<int size> struct select_float {
+	typedef typename detail::select_sized_float<size, float>::type type;
+};
 
 typedef select_float<32>::type float32_t;
 typedef select_float<64>::type float64_t;
@@ -62,9 +75,10 @@ struct within_range: public std::binary_function<Real, Real, bool>
 
 	static bool value(Real lhs, Real rhs, Real epsilon)
 	{
-		return !isnan(lhs) && !isnan(rhs) &&
-				(rhs >= (lhs - epsilon)) &&
-				(rhs <= (lhs + epsilon));
+		return !std::isnan(lhs) &&
+		       !std::isnan(rhs) &&
+		       (rhs >= (lhs - epsilon)) &&
+		       (rhs <= (lhs + epsilon));
 	}
 
 	bool operator()(Real lhs, Real rhs) const {return value(lhs, rhs, margin);}
@@ -80,7 +94,7 @@ struct within_range<std::complex<Real> >: public std::binary_function<std::compl
 	bool operator()(const std::complex<Real>& lhs, const std::complex<Real>& rhs) const
 	{
 		return within_range<Real>::value(lhs.real(), rhs.real(), margin) &&
-				within_range<Real>::value(lhs.imag(), rhs.imag(), margin);
+		       within_range<Real>::value(lhs.imag(), rhs.imag(), margin);
 	}
 };
 
@@ -92,9 +106,9 @@ struct differs_by: public std::binary_function<Real, Real, bool>
 
 	static bool value(Real lhs, Real rhs, Real factor)
 	{
-		return !isnan(lhs) && !isnan(rhs) &&
-				(rhs >= (lhs * (Real(1) - factor))) &&
-				(rhs <= (lhs * (Real(1) + factor)));
+		return !std::isnan(lhs) && !std::isnan(rhs) &&
+		       (rhs >= (lhs * (Real(1) - factor))) &&
+		       (rhs <= (lhs * (Real(1) + factor)));
 	}
 
 	bool operator()(Real lhs, Real rhs) const {return value(lhs, rhs, factor);}
@@ -109,7 +123,7 @@ struct differs_by<std::complex<Real> >: public std::binary_function<std::complex
 	bool operator()(const std::complex<Real>& lhs, const std::complex<Real>& rhs) const
 	{
 		return differs_by<Real>::value(lhs.real(), rhs.real(), factor) &&
-				differs_by<Real>::value(lhs.imag(), rhs.imag(), factor);
+		       differs_by<Real>::value(lhs.imag(), rhs.imag(), factor);
 	}
 };
 
