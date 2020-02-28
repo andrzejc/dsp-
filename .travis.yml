@@ -12,7 +12,6 @@ script:
 - cmake ${TARGET_PLATFORM:+-A ${TARGET_PLATFORM}} ..
 - cmake --build . --config RelWithDebInfo
 - ctest --output-on-failure -C RelWithDebInfo
-# On Windows cpack is Chocolatey Pack, precedes CMake in PATH
 - cmake --build . --config RelWithDebInfo --target package
 
 addons:
