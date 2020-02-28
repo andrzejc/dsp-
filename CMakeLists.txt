@@ -1,8 +1,16 @@
 cmake_minimum_required(VERSION 3.2)
+
+set(DSPXX_PROJECT_VARS)
+if(NOT CMAKE_VERSION VERSION_LESS 3.9)
+    set(DSPXX_PROJECT_VARS
+        DESCRIPTION "Digital Signal Processing library written in modern C++"
+        HOMEPAGE_URL https://github.com/andrzejc/dspxx
+    )
+endif()
+
 project(dsp++
     VERSION 0.1.0
-    DESCRIPTION "Digital Signal Processing library written in modern C++"
-    HOMEPAGE_URL https://github.com/andrzejc/dspxx
+    ${DSPXX_PROJECT_VARS}
     LANGUAGES CXX
 )
 
