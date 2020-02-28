@@ -68,4 +68,7 @@ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt")
 set(CPACK_PACKAGE_VENDOR "Andrzej Ciarkowski")
 set(CPACK_PACKAGE_CONTACT "andrzej.ciarkowski@gmail.com")
 
+if(WIN32)
+    set(CPACK_GENERATOR ZIP)
+endif()
 include(CPack)
