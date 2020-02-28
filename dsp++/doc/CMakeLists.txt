@@ -51,12 +51,7 @@ doxygen_add_docs(dsp++-docs
     ${DOXYGEN_STRIP_FROM_PATH}
     COMMENT "Generating API documentation with Doxygen"
 )
-add_custom_command(OUTPUT dsp++-docs.stamp
-    COMMAND "${CMAKE_COMMAND}" -E touch docs.stamp
-    DEPENDS dsp++ dsp++-docs "${DOXYGEN_INPUT}"
-    VERBATIM
-)
-add_custom_target(docs ALL DEPENDS dsp++-docs.stamp)
+add_custom_target(docs DEPENDS dsp++-docs)
 
 install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/"
     DESTINATION "${DSPXX_DOC_PREFIX}"

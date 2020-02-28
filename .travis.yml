@@ -3,24 +3,28 @@ language: c
 git:
   depth: 3
 
-install:
+addons:
+  apt:
+    sources:
+    - sourceline: 'deb https://apt.kitware.com/ubuntu/ ${TRAVIS_DIST} main'
+      key_url: 'https://apt.kitware.com/keys/kitware-archive-latest.asc'
+
+before_install:
 - export PATH="${PATH}:${PWD}/deps/build-scripts/bin"
+- uname -a
+- set -e -o pipefail
+
+install:
 - source ci/install-test-deps.${TRAVIS_OS_NAME}.sh
-- uname -a || true
 - cmake --version
 
 script:
 - mkdir build && cd build
 - cmake ${TARGET_PLATFORM:+-A ${TARGET_PLATFORM}} ..
 - cmake --build . --config RelWithDebInfo
-- ctest --output-on-failure -C RelWithDebInfo -VV
+- ctest --output-on-failure -C RelWithDebInfo
+- cmake --build . --config RelWithDebInfo --target docs
 - cmake --build . --config RelWithDebInfo --target package
-
-addons:
-  apt:
-    sources:
-    - sourceline: 'deb https://apt.kitware.com/ubuntu/ ${TRAVIS_DIST} main'
-      key_url: 'https://apt.kitware.com/keys/kitware-archive-latest.asc'
 
 matrix:
   include:
