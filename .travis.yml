@@ -19,7 +19,8 @@ install:
 - cmake --version
 
 script:
-- mkdir build && cd build
+- mkdir -p build
+- cd build
 - cmake ${TARGET_PLATFORM:+-A ${TARGET_PLATFORM}} ..
 - cmake --build . --config RelWithDebInfo
 - ctest --output-on-failure -C RelWithDebInfo
