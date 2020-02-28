@@ -53,7 +53,7 @@ doxygen_add_docs(dsp++-docs
 )
 add_custom_command(OUTPUT dsp++-docs.stamp
     COMMAND "${CMAKE_COMMAND}" -E touch docs.stamp
-    DEPENDS dsp++ "${DOXYGEN_INPUT}"
+    DEPENDS dsp++ dsp++-docs "${DOXYGEN_INPUT}"
     VERBATIM
 )
 add_custom_target(docs ALL DEPENDS dsp++-docs.stamp)

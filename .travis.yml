@@ -6,6 +6,7 @@ git:
 install:
 - export PATH="${PATH}:${PWD}/deps/build-scripts/bin"
 - source ci/install-test-deps.${TRAVIS_OS_NAME}.sh
+- uname -a || true
 - cmake --version
 
 script:
