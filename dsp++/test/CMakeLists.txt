@@ -35,7 +35,7 @@ target_link_libraries(dsp++-test
         dsp++
         Boost::unit_test_framework
 )
-target_compile_definitions(dsp++test
+target_compile_definitions(dsp++-test
     PRIVATE
         BOOST_TEST_DYN_LINK
 )

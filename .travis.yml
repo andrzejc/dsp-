@@ -14,6 +14,14 @@ script:
 - ctest --output-on-failure -C RelWithDebInfo
 - cpack
 
+addons:
+  apt:
+    sources:
+    - sourceline: 'deb https://apt.kitware.com/ubuntu/ xenial main'
+      key_url: 'https://apt.kitware.com/keys/kitware-archive-latest.asc'
+    - sourceline: 'deb https://apt.kitware.com/ubuntu/ bionic main'
+      key_url: 'https://apt.kitware.com/keys/kitware-archive-latest.asc'
+
 matrix:
   include:
   - os: osx
