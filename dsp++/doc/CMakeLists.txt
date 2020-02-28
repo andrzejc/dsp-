@@ -50,6 +50,7 @@ set(DOXYGEN_USE_MATHJAX YES)
 if(ENV{CI})
     # Silence hundreds of warnings on CI
     set(DOXYGEN_QUIET YES)
+    set(DOXYGEN_WARNINGS NO)
 endif()
 
 doxygen_add_docs(dsp++-doc
