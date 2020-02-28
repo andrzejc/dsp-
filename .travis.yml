@@ -13,7 +13,7 @@ script:
 - cmake --build . --config RelWithDebInfo
 - ctest --output-on-failure -C RelWithDebInfo
 # On Windows cpack is Chocolatey Pack, precedes CMake in PATH
-- $( dirname $( which cmake ))/cpack
+- cmake --build . --config RelWithDebInfo --target package
 
 addons:
   apt:
