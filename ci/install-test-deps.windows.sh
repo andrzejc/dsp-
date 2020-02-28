@@ -2,7 +2,7 @@ set -e
 set -o pipefail
 
 # Required for safe-download script
-choco install openssl.light doxygen.install
+choco install openssl.light doxygen.install boost-msvc-14.1
 
 case "${TARGET_PLATFORM}" in
 *64)
