@@ -19,8 +19,9 @@ install:
 - cmake --version
 
 script:
+- mkdir -p build
 # cd build for some reason retuns non-0 on macOS
-- mkdir -p build && cd build || true
+- cd build || true
 - cmake ${TARGET_PLATFORM:+-A ${TARGET_PLATFORM}} ..
 - cmake --build . --config RelWithDebInfo
 - ctest --output-on-failure -C RelWithDebInfo
