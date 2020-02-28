@@ -47,7 +47,8 @@ set(DOXYGEN_EXPAND_AS_DEFINED
 set(DOXYGEN_GENERATE_TREEVIEW YES)
 set(DOXYGEN_USE_MATHJAX YES)
 
-if(ENV{CI})
+if(ENV{CONTINUOUS_INTEGRATION})
+    message(STATUS "Attempting to silence Doxygen on CI build...")
     # Silence hundreds of warnings on CI
     set(DOXYGEN_QUIET YES)
     set(DOXYGEN_WARNINGS NO)
