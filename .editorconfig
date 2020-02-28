@@ -2,7 +2,7 @@ root = true
 
 [**]
 end_of_line = lf
-indent_style = tab
+indent_style = space
 indent_size = 4
 charset = utf-8
 insert_final_newline = false
@@ -10,6 +10,7 @@ insert_final_newline = false
 [**.{c,cpp,cxx,h,hpp,hxx,java}]
 trim_trailing_whitespace = true
 max_line_length = 120
+insert_final_newline = true
 
 [**.py]
 trim_trailing_whitespace = true
@@ -20,3 +21,4 @@ max_line_length = 120
 [**{CMakeLists.txt,.cmake}]
 trim_trailing_whitespace = true
 max_line_length = 120
+insert_final_newline = true

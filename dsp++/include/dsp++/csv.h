@@ -1,5 +1,5 @@
 /*!
- * @file dsp++/csv::read.h
+ * @file dsp++/csv.h
  * @brief Utilities for reading data from CSV files.
  * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
  */

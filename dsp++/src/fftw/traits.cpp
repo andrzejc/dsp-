@@ -1,6 +1,6 @@
 /*!
  * @file traits.cpp
- * 
+ *
  * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
  */
 
@@ -18,22 +18,7 @@ dsp::dft::fftw::plan_unavailable::~plan_unavailable() throw() {}
 #include <dsp++/fftw/dft.h>
 #include <boost/static_assert.hpp>
 
-#include <fftw3.h> // Visual Studio build: place fftw3 distribution in directory pointed by %FFTW3_ROOT% environment variable and x64 version of thereof in %FFTW3_ROOT%\x64
-
-#if defined(_MSC_VER) && !defined(DSPXX_STATIC)
-#if DSP_FFTW_HAVE_FLOAT
-#pragma comment(lib, "libfftw3f-3.lib")
-#endif // DSP_FFTW_HAVE_FLOAT
-#if DSP_FFTW_HAVE_DOUBLE
-#pragma comment(lib, "libfftw3-3.lib")
-#endif // DSP_FFTW_HAVE_DOUBLE
-#if DSP_FFTW_HAVE_LONG_DOUBLE
-#pragma comment(lib, "libfftw3l-3.lib")
-#endif // DSP_FFTW_HAVE_LONG_DOUBLE
-#if DSP_FFTW_HAVE_QUAD
-#pragma comment(lib, "libfftw3q-3.lib")
-#endif // DSP_FFTW_HAVE_QUAD
-#endif // _MSC_VER && !DSPXX_STATIC
+#include <fftw3.h>
 
 using namespace dsp::dft::fftw;
 
@@ -395,7 +380,7 @@ template class DSPXX_API dsp::dft::fftw::dft<type, type>; \
 template class DSPXX_API dsp::dft::fftw::dft<type, std::complex<type> >; \
 template class DSPXX_API dsp::dft::fftw::dft<std::complex<type>, type>; \
 template class DSPXX_API dsp::dft::fftw::dft<std::complex<type>, std::complex<type> >;
-    
+
 #if DSP_FFTW_HAVE_FLOAT
 DEFINE_TRAITS(fftwf_, float)
 #endif // DSP_FFTW_HAVE_FLOAT
@@ -445,8 +430,5 @@ void allocator_base::deallocate(void* p)
 			free(p);
 #endif
 }
-    
-
 
 #endif // !DSP_FFTW3_DISABLED
-

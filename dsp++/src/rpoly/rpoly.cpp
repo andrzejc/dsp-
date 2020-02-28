@@ -23,7 +23,7 @@
 *
 *      RETURN:
 *      returnval:   -1 if leading coefficient is zero, otherwise
-*                  number of roots found. 
+*                  number of roots found.
 */
 
 #include <cstdio>
@@ -60,7 +60,7 @@ struct rpoly_solver
 	int n, nn, nmi, zerok;
 	int itercnt;
 
-	int rpoly(const double *op, int degree, double* zeror, double* zeroi, int info[] ) 
+	int rpoly(const double *op, int degree, double* zeror, double* zeroi, int info[] )
 	{
 		double t, aa, bb, cc, factor, rot;
 		boost::scoped_array<double> pt, temp;
@@ -75,13 +75,13 @@ struct rpoly_solver
         base = std::numeric_limits<double>::radix;
         eta = std::numeric_limits<double>::epsilon();
 
-		infin = 3.4e38; 
+		infin = 3.4e38;
 		smalno = 1.2e-38;
 
 		are = eta;
 		mre = eta;
 		lo = smalno / eta;
-		/*  Initialization of constants for shift rotation. */        
+		/*  Initialization of constants for shift rotation. */
 		xx = sqrt(0.5);
 		yy = -xx;
 		rot = 94.0;
@@ -90,7 +90,7 @@ struct rpoly_solver
 		sinr = sin(rot);
 		n = degree;
 		/*  Algorithm fails of the leading coefficient is zero. */
-		if (op[0] == 0.0) 
+		if (op[0] == 0.0)
 			return -1;
 
 		/*  Remove the zeros at the origin, if any. */
@@ -101,7 +101,7 @@ struct rpoly_solver
 			n--;
 		}
 
-		if (n < 1) 
+		if (n < 1)
 			return degree;
 
 		/*
@@ -119,7 +119,7 @@ struct rpoly_solver
 		for (i=0; i<=n; i++)
 			p[i] = op[i];
 		/*  Start the algorithm for one zero. */
-_40:        
+_40:
 		itercnt = 0;
 		if (n == 1) {
 			zeror[degree-1] = -p[1]/p[0];
@@ -162,7 +162,7 @@ _40:
 		l = (int)(log(sc)/log(base) + 0.5);
 		factor = pow(base*1.0, l);
 		if (factor != 1.0) {
-			for (i=0; i<=n; i++) 
+			for (i=0; i<=n; i++)
 				p[i] = factor*p[i];     /* Scale polynomial. */
 		}
 _110:
@@ -173,7 +173,7 @@ _110:
 		pt[n] = - pt[n];
 		/*  Compute upper estimate of bound. */
 		x = exp((log(-pt[n])-log(pt[0])) / (double)n);
-		/*  If Newton step at the origin is better, use it. */        
+		/*  If Newton step at the origin is better, use it. */
 		if (pt[n-1] != 0.0) {
 			xm = -pt[n]/pt[n-1];
 			if (xm < x)  x = xm;
@@ -182,19 +182,19 @@ _110:
 		while (1) {
 			xm = x*0.1;
 			ff = pt[0];
-			for (i=1; i<=n; i++) 
+			for (i=1; i<=n; i++)
 				ff = ff*xm + pt[i];
 			if (ff <= 0.0) break;
 			x = xm;
 		}
 		dx = x;
-		/*  Do Newton interation until x converges to two 
-		*  decimal places. 
+		/*  Do Newton interation until x converges to two
+		*  decimal places.
 		*/
 		while (fabs(dx / x) > 0.005) {
 			ff = pt[0];
 			df = ff;
-			for (i=1; i<n; i++) { 
+			for (i=1; i<n; i++) {
 				ff = ff*x + pt[i];
 				df = df*x + ff;
 			}
@@ -218,7 +218,7 @@ _110:
 			itercnt++;
 			cc = k[n-1];
 			if (!zerok) {
-				/*  Use a scaled form of recurrence if value of k at 0 is nonzero. */             
+				/*  Use a scaled form of recurrence if value of k at 0 is nonzero. */
 				t = -aa / cc;
 				for (i=0; i<nm1; i++) {
 					j = n-i-1;
@@ -238,15 +238,15 @@ _110:
 			}
 		}
 		/*  Save k for restarts with new shifts. */
-		for (i=0; i<n; i++) 
+		for (i=0; i<n; i++)
 			temp[i] = k[i];
 		/*  Loop to select the quadratic corresponding to each new shift. */
 		for (cnt = 0; cnt < 20; cnt++) {
-			/*  Quadratic corresponds to a double shift to a            
+			/*  Quadratic corresponds to a double shift to a
 			*  non-real point and its complex conjugate. The point
 			*  has modulus bnd and amplitude rotated by 94 degrees
 			*  from the previous shift.
-			*/ 
+			*/
 			xxx = cosr*xx - sinr*yy;
 			yy = sinr*xx + cosr*yy;
 			xx = xxx;
@@ -283,7 +283,7 @@ _110:
 			for (i=0; i<n; i++) {
 				k[i] = temp[i];
 			}
-		} 
+		}
 		/*  Return with failure if no convergence after 20 shifts. */
 _99:
 		info[ 0 ] = static_cast<int>(static_cast<long>(clock()) - sec);
@@ -353,7 +353,7 @@ _99:
 			vtry = 0;
 			stry = 0;
 			if ((spass && (!vpass)) || tss < tvv) goto _40;
-_20:        
+_20:
 			quadit(&ui,&vi, nz);
 			if (*nz > 0) return;
 			/*  Quadratic iteration has failed. Flag that it has
@@ -424,7 +424,7 @@ _70:
 		v = *vv;
 		j = 0;
 		/*  Main loop. */
-_10:    
+_10:
 		itercnt++;
 		quad(1.0, u, v,&szr,&szi,&lzr,&lzi);
 		/*  Return if roots of the quadratic are real and not
@@ -446,7 +446,7 @@ _10:
 		}
 		ee = ee*zm + fabs(a+t);
 		ee *= (5.0 *mre + 4.0*are);
-		ee = ee - (5.0*mre+2.0*are)*(fabs(a+t)+fabs(b)*zm);   
+		ee = ee - (5.0*mre+2.0*are)*(fabs(a+t)+fabs(b)*zm);
 		ee = ee + 2.0*are*fabs(t);
 		/*  Iteration has converged sufficiently if the
 		*  polynomial value is less than 20 times this bound.
@@ -585,7 +585,7 @@ _50:
 	*/
 	void calcsc(int *type)
 	{
-		/*  Synthetic division of k by the quadratic 1, u, v */    
+		/*  Synthetic division of k by the quadratic 1, u, v */
 		quadsd(n-1,&u,&v, k.get(), qk.get(),&c,&d);
 		if (fabs(c) > fabs(k[n-1]*100.0*eta)) goto _10;
 		if (fabs(d) > fabs(k[n-2]*100.0*eta)) goto _10;
@@ -595,7 +595,7 @@ _50:
 _10:
 		if (fabs(d) < fabs(c)) {
 			*type = 1;
-			/*  Type=1 indicates that all formulas are divided by c. */   
+			/*  Type=1 indicates that all formulas are divided by c. */
 			e = a / c;
 			f = d / c;
 			g = u*e;
@@ -615,7 +615,7 @@ _10:
 		a1 = b*f-a;
 		a7 = (f+u)*a + h;
 	}
-	/*  Computes the next k polynomials using scalars 
+	/*  Computes the next k polynomials using scalars
 	*  computed in calcsc.
 	*/
 	void nextk(int *type)
@@ -711,12 +711,12 @@ _10:
 			q[i] = c;
 			*b = *a;
 			*a = c;
-		}	
+		}
 	}
 	/*  Calculate the zeros of the quadratic a*z^2 + b1*z + c.
-	*  The quadratic formula, modified to avoid overflow, is used 
+	*  The quadratic formula, modified to avoid overflow, is used
 	*  to find the larger zero if the zeros are real and both
-	*  are complex. The smaller real zero is found directly from 
+	*  are complex. The smaller real zero is found directly from
 	*  the product of the zeros c / a.
 	*/
 	void quad(double a, double b1, double c, double *sr, double *si,
@@ -741,7 +741,7 @@ _10:
 		}
 		/* Compute discriminant avoiding overflow. */
 		b = b1 / 2.0;
-		if (fabs(b) < fabs(c)) { 
+		if (fabs(b) < fabs(c)) {
 			if (c < 0.0) e = -a;
 			else e = a;
 			e = b*(b / fabs(c)) - e;
@@ -781,7 +781,7 @@ namespace {
 
 }
 
-unsigned dsp::roots(unsigned degree, const double* poly, std::complex<double>* roots)
+unsigned dsp::roots(unsigned degree, const double poly[], std::complex<double> roots[])
 {
 	boost::scoped_array<double> zeror, zeroi;
 	boost::scoped_array<int> info(new int[degree + 1]);

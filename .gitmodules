@@ -1,5 +1,4 @@
-[submodule "external/build-scripts"]
-	path = external/build-scripts
-	url = git@github.com:andrzejc/build-scripts.git
-	branch = master
-	fetchRecurseSubmodules = yes
+[submodule "deps/build-scripts"]
+	path = deps/build-scripts
+	url = ../build-scripts.git
+	branch = develop
