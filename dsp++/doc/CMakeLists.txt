@@ -46,6 +46,12 @@ set(DOXYGEN_EXPAND_AS_DEFINED
 )
 set(DOXYGEN_GENERATE_TREEVIEW YES)
 set(DOXYGEN_USE_MATHJAX YES)
+
+if(ENV{CI})
+    # Silence hundreds of warnings on CI
+    set(DOXYGEN_WARN_LOGFILE doxygen.log)
+endif()
+
 doxygen_add_docs(dsp++-doc
     ${DOXYGEN_STRIP_FROM_PATH}
     COMMENT "Generating API documentation with Doxygen"

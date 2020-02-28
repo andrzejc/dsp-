@@ -30,10 +30,14 @@ set(SOURCES
 )
 
 add_executable(dsp++-test ${SOURCES})
-target_link_libraries(dsp++-test PRIVATE
-    dsp++
-    Boost::unit_test_framework
-    Boost::dynamic_linking
+target_link_libraries(dsp++-test
+    PRIVATE
+        dsp++
+        Boost::unit_test_framework
+)
+target_compile_definitions(dsp++test
+    PRIVATE
+        BOOST_TEST_DYN_LINK
 )
 
 install(TARGETS dsp++-test DESTINATION bin)
