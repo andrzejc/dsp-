@@ -123,7 +123,6 @@ endif()
 
 if(DSPXX_BUILD_DOCS)
     add_subdirectory(doc)
-    add_custom_target(doc ALL DEPENDS dsp++-doc)
 endif()
 
 if(BUILD_TESTING)

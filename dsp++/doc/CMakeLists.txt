@@ -47,10 +47,16 @@ set(DOXYGEN_EXPAND_AS_DEFINED
 set(DOXYGEN_GENERATE_TREEVIEW YES)
 set(DOXYGEN_USE_MATHJAX YES)
 
-doxygen_add_docs(dsp++-doc
+doxygen_add_docs(dsp++-docs
     ${DOXYGEN_STRIP_FROM_PATH}
     COMMENT "Generating API documentation with Doxygen"
 )
+add_custom_command(OUTPUT dsp++-docs.stamp
+    COMMAND "${CMAKE_COMMAND}" -E touch docs.stamp
+    DEPENDS dsp++ "${DOXYGEN_INPUT}"
+    VERBATIM
+)
+add_custom_target(docs ALL DEPENDS dsp++-docs.stamp)
 
 install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/"
     DESTINATION "${DSPXX_DOC_PREFIX}"
