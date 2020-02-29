@@ -51,7 +51,11 @@ macro(dsp_test name)
     if(WIN32)
         string(REPLACE ";" "\\;" escaped_path "$ENV{PATH}")
         set_tests_properties("${name}" PROPERTIES
-            ENVIRONMENT "PATH=${escaped_path}\\;$<SHELL_PATH:$<TARGET_PROPERTY:Sndfile::libsndfile,DLL_DIRECTORY>>\\;$<SHELL_PATH:$<TARGET_PROPERTY:FFTW3::libfftw3,DLL_DIRECTORY>>\\;$<SHELL_PATH:${Boost_LIBRARY_DIR_RELEASE}>"
+            ENVIRONMENT "PATH=${escaped_path}\\;\
+$<SHELL_PATH:$<TARGET_LINKER_FILE_DIR:dsp++>>\\;\
+$<SHELL_PATH:$<TARGET_PROPERTY:Sndfile::libsndfile,DLL_DIRECTORY>>\\;\
+$<SHELL_PATH:$<TARGET_PROPERTY:FFTW3::libfftw3,DLL_DIRECTORY>>\\;\
+$<SHELL_PATH:${Boost_LIBRARY_DIR_RELEASE}>"
         )
     endif()
 endmacro()
