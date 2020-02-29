@@ -4,15 +4,15 @@
  * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
  */
 
-#include <boost/test/auto_unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp> 
-
 #include <dsp++/snd/loudness.h>
 #include <dsp++/snd/reader.h>
 #include <dsp++/float.h>
+
+#include <gtest/gtest.h>
+
 #include <fstream>
 
-static void test_loudness_file(const char* path, float exp_level, float peak) 
+static void test_loudness_file(const char* path, float exp_level, float peak)
 {
 	using namespace dsp::snd;
 	reader r;
@@ -50,13 +50,11 @@ static void test_loudness_file(const char* path, float exp_level, float peak)
 
 	vi = met.value_i();
 	vp = metp.value_db();
-	BOOST_CHECK(dsp::within_range<float>(.1f)(vi,exp_level));
-	BOOST_CHECK(dsp::within_range<float>(.1f)(vp,peak));
+	EXPECT_TRUE(dsp::within_range<float>(.1f)(vi,exp_level));
+	EXPECT_TRUE(dsp::within_range<float>(.1f)(vp,peak));
 }
 
-BOOST_AUTO_TEST_SUITE(loudness)
-
-BOOST_AUTO_TEST_CASE(ebu1)
+TEST(loudness, ebu1)
 {
 	test_loudness_file("data/coil.wav", -11.6f, -.3f);
 	test_loudness_file("data/ebu_testcase1_-23dBFS.wav", -23.f, -22.8f);
@@ -64,8 +62,6 @@ BOOST_AUTO_TEST_CASE(ebu1)
 	test_loudness_file("data/ebu_testcase5_-23dBFS.wav", -23.f, -19.8f);
 }
 
-BOOST_AUTO_TEST_CASE(peak)
+TEST(loudness, peak)
 {
 }
-
-BOOST_AUTO_TEST_SUITE_END()

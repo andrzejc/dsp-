@@ -4,18 +4,15 @@
  * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
  */
 
-#include <boost/test/auto_unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp> 
-
 #include <dsp++/resample.h>
 #include <dsp++/snd/reader.h>
 #include <dsp++/snd/writer.h>
 #include <dsp++/snd/format.h>
 #include <dsp++/float.h>
 
-BOOST_AUTO_TEST_SUITE(resample)
+#include <gtest/gtest.h>
 
-BOOST_AUTO_TEST_CASE(interpolator)
+TEST(resample, interpolator)
 {
 	using namespace dsp::snd;
 
@@ -41,5 +38,3 @@ BOOST_AUTO_TEST_CASE(interpolator)
 			break;
 	}
 }
-
-BOOST_AUTO_TEST_SUITE_END()

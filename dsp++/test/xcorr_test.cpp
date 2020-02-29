@@ -4,11 +4,10 @@
  * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
  */
 
-#include <boost/test/auto_unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp> 
-
 #include <dsp++/xcorr.h>
 #include <dsp++/float.h>
+
+#include <gtest/gtest.h>
 
 const double x[] = {0.5376671552658081,1.833885073661804,-2.258846759796143,0.862173318862915,0.318765252828598,-1.307688355445862,-0.4335920214653015};
 const double a[] = {-0.233128182363105,	-1.49825893784674,	-1.24734239711250,	3.62817718923044,	-1.61909088509753,	-4.67897467218546,	11.4976141757680,	-4.67897467218546,	-1.61909088509753,	3.62817718923044,	-1.24734239711250,	-1.49825893784674,	-0.233128182363105};
@@ -30,99 +29,97 @@ const std::complex<double> cy[] = {C(-1.20748692268504, - 0.726885133383238),	C(
 const std::complex<double> cxa[] = {C(-1.11022302462516e-16, 8.88178419700125e-16),	C(4.44089209850063e-16, - 1.11022302462516e-15),	C(-0.280463333034500, 1.04392556588348),	C(4.61484501563575, 3.04664626455637),	C(4.91241210191168, 0.680374124902906),	C(4.89255277614245, - 0.772756698901497),	C(8.52373141420494, 4.70981583397090),	C(-2.77700994034861, 4.36137022536625),	C(1.57216738417938, 7.59051407354066),	C(4.41539308962119, 0.211156355648813),	C(-4.03864262273866, 2.37716617069569),	C(-1.74751789274146, - 0.683198631824812),	C(-0.411963348741099, - 0.856657657361172)};
 
 
-BOOST_AUTO_TEST_SUITE(xcorr)
-
-BOOST_AUTO_TEST_CASE(acorr_none)
+TEST(xcorr, acorr_none)
 {
 	const size_t L = 7;
 	const size_t A = 2 * L - 1;
 	dsp::xcorr<double> xcorr(L);
 	float aa[A];
 	xcorr(x, aa, dsp::xcorr_base::scaling_none);
-	BOOST_CHECK(std::equal(aa, aa + A, a, dsp::within_range<float>(0.00001f)));
+	EXPECT_TRUE(std::equal(aa, aa + A, a, dsp::within_range<float>(0.00001f)));
 }
 
-BOOST_AUTO_TEST_CASE(acorr_biased)
+TEST(xcorr, acorr_biased)
 {
 	const size_t L = 7;
 	const size_t A = 2 * L - 1;
 	dsp::xcorr<double> xcorr(L);
 	float aa[A];
 	xcorr(x, aa, dsp::xcorr_base::scaling_biased);
-	BOOST_CHECK(std::equal(aa, aa + A, a_b, dsp::within_range<float>(0.00001f)));
+	EXPECT_TRUE(std::equal(aa, aa + A, a_b, dsp::within_range<float>(0.00001f)));
 }
 
-BOOST_AUTO_TEST_CASE(acorr_unbiased)
+TEST(xcorr, acorr_unbiased)
 {
 	const size_t L = 7;
 	const size_t A = 2 * L - 1;
 	dsp::xcorr<double> xcorr(L);
 	float aa[A];
 	xcorr(x, aa, dsp::xcorr_base::scaling_unbiased);
-	BOOST_CHECK(std::equal(aa, aa + A, a_u, dsp::within_range<float>(0.00001f)));
+	EXPECT_TRUE(std::equal(aa, aa + A, a_u, dsp::within_range<float>(0.00001f)));
 }
 
-BOOST_AUTO_TEST_CASE(acorr_coeff)
+TEST(xcorr, acorr_coeff)
 {
 	const size_t L = 7;
 	const size_t A = 2 * L - 1;
 	dsp::xcorr<double> xcorr(L);
 	float aa[A];
 	xcorr(x, aa, dsp::xcorr_base::scaling_coeff);
-	BOOST_CHECK(std::equal(aa, aa + A, a_c, dsp::within_range<float>(0.00001f)));
+	EXPECT_TRUE(std::equal(aa, aa + A, a_c, dsp::within_range<float>(0.00001f)));
 }
 
-BOOST_AUTO_TEST_CASE(xcorr_none)
+TEST(xcorr, xcorr_none)
 {
 	const size_t L = 7;
 	const size_t A = 2 * L - 1;
 	dsp::xcorr<double> xcorr(L, L);
 	float aa[A];
 	xcorr(x, y, aa, dsp::xcorr_base::scaling_none);
-	BOOST_CHECK(std::equal(aa, aa + A, xa, dsp::within_range<float>(0.00001f)));
+	EXPECT_TRUE(std::equal(aa, aa + A, xa, dsp::within_range<float>(0.00001f)));
 }
 
-BOOST_AUTO_TEST_CASE(xcorr_biased)
+TEST(xcorr, xcorr_biased)
 {
 	const size_t L = 7;
 	const size_t A = 2 * L - 1;
 	dsp::xcorr<double> xcorr(L, L);
 	float aa[A];
 	xcorr(x, y, aa, dsp::xcorr_base::scaling_biased);
-	BOOST_CHECK(std::equal(aa, aa + A, xa_b, dsp::within_range<float>(0.00001f)));
+	EXPECT_TRUE(std::equal(aa, aa + A, xa_b, dsp::within_range<float>(0.00001f)));
 }
 
-BOOST_AUTO_TEST_CASE(xcorr_unbiased)
+TEST(xcorr, xcorr_unbiased)
 {
 	const size_t L = 7;
 	const size_t A = 2 * L - 1;
 	dsp::xcorr<double> xcorr(L, L);
 	float aa[A];
 	xcorr(x, y, aa, dsp::xcorr_base::scaling_unbiased);
-	BOOST_CHECK(std::equal(aa, aa + A, xa_u, dsp::within_range<float>(0.00001f)));
+	EXPECT_TRUE(std::equal(aa, aa + A, xa_u, dsp::within_range<float>(0.00001f)));
 }
 
-BOOST_AUTO_TEST_CASE(xcorr_coeff)
+TEST(xcorr, xcorr_coeff)
 {
 	const size_t L = 7;
 	const size_t A = 2 * L - 1;
 	dsp::xcorr<double> xcorr(L, L);
 	float aa[A];
 	xcorr(x, y, aa, dsp::xcorr_base::scaling_coeff);
-	BOOST_CHECK(std::equal(aa, aa + A, xa_c, dsp::within_range<float>(0.00001f)));
+	EXPECT_TRUE(std::equal(aa, aa + A, xa_c, dsp::within_range<float>(0.00001f)));
 }
 
-BOOST_AUTO_TEST_CASE(acorr_complex_none)
+TEST(xcorr, acorr_complex_none)
 {
 	const size_t L = 7;
 	const size_t A = 2 * L - 1;
 	dsp::xcorr<std::complex<double> > xcorr(L);
 	std::complex<double> aa[A];
 	xcorr(cx, aa, dsp::xcorr_base::scaling_none);
-	BOOST_CHECK(std::equal(aa, aa + A, ca, dsp::within_range<std::complex<double> >(0.0001f)));
+	EXPECT_TRUE(std::equal(aa, aa + A, ca, dsp::within_range<std::complex<double> >(0.0001f)));
 }
 
-//BOOST_AUTO_TEST_CASE(acorr_biased()
+//TEST(xcorr, acorr_biased()
 //{
 //	const size_t L = 7;
 //	const size_t A = 2 * L - 1;
@@ -131,10 +128,10 @@ BOOST_AUTO_TEST_CASE(acorr_complex_none)
 //	const double* x = ::x;
 //	float* out = aa;
 //	xcorr(&x, &out, dsp::xcorr<double>::scaling_biased);
-//	BOOST_CHECK(std::equal(aa, aa + A, a_b, dsp::within_range<float>(0.00001f)));
+//	EXPECT_TRUE(std::equal(aa, aa + A, a_b, dsp::within_range<float>(0.00001f)));
 //}
 //
-//BOOST_AUTO_TEST_CASE(acorr_unbiased()
+//TEST(xcorr, acorr_unbiased()
 //{
 //	const size_t L = 7;
 //	const size_t A = 2 * L - 1;
@@ -143,10 +140,10 @@ BOOST_AUTO_TEST_CASE(acorr_complex_none)
 //	const double* x = ::x;
 //	float* out = aa;
 //	xcorr(&x, &out, dsp::xcorr<double>::scaling_unbiased);
-//	BOOST_CHECK(std::equal(aa, aa + A, a_u, dsp::within_range<float>(0.00001f)));
+//	EXPECT_TRUE(std::equal(aa, aa + A, a_u, dsp::within_range<float>(0.00001f)));
 //}
 //
-//BOOST_AUTO_TEST_CASE(acorr_coeff()
+//TEST(xcorr, acorr_coeff()
 //{
 //	const size_t L = 7;
 //	const size_t A = 2 * L - 1;
@@ -155,10 +152,10 @@ BOOST_AUTO_TEST_CASE(acorr_complex_none)
 //	const double* x = ::x;
 //	float* out = aa;
 //	xcorr(&x, &out, dsp::xcorr<double>::scaling_coeff);
-//	BOOST_CHECK(std::equal(aa, aa + A, a_c, dsp::within_range<float>(0.00001f)));
+//	EXPECT_TRUE(std::equal(aa, aa + A, a_c, dsp::within_range<float>(0.00001f)));
 //}
 
-BOOST_AUTO_TEST_CASE(xcorr_complex_none)
+TEST(xcorr, xcorr_complex_none)
 {
 	const size_t Lx = 7;
 	const size_t Ly = 5;
@@ -166,8 +163,5 @@ BOOST_AUTO_TEST_CASE(xcorr_complex_none)
 	dsp::xcorr<std::complex<double> > xcorr(Lx, Ly);
 	std::complex<double> aa[A];
 	xcorr(cx, cy, aa, dsp::xcorr_base::scaling_none);
-	BOOST_CHECK(std::equal(aa, aa + A, cxa, dsp::within_range<std::complex<double> >(0.0001f)));
+	EXPECT_TRUE(std::equal(aa, aa + A, cxa, dsp::within_range<std::complex<double> >(0.0001f)));
 }
-
-BOOST_AUTO_TEST_SUITE_END()
-

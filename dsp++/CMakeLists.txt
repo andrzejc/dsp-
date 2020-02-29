@@ -4,6 +4,7 @@ project(libdsp++
     LANGUAGES CXX
 )
 
+find_package(Boost REQUIRED)
 find_package(Doxygen)
 find_package(FFTW3 COMPONENTS libfftw3 libfftw3f libfftw3l)
 find_package(Sndfile)

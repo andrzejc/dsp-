@@ -3,13 +3,12 @@
  *
  * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
  */
-#include <boost/test/auto_unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp> 
-
 #include <dsp++/float.h>
 #include <dsp++/filter_design.h>
-#include <stdexcept>
 
+#include <gtest/gtest.h>
+
+#include <stdexcept>
 
 double f[] = {0, .15, .2, .3, .35, .5};
 const double a[] = {0, 0, 1, 1, 0, 0};
@@ -28,36 +27,34 @@ double df[] = {0, 0.25, 0.275, 0.5 };
 const double da[] = {0, 1, 0, 0};
 const double dw[] =	{1, 1};
 
-BOOST_AUTO_TEST_SUITE(filter_design)
-
-BOOST_AUTO_TEST_CASE(test_bp)
+TEST(filter_design, test_bp)
 {
 	const unsigned N = 30;
 	double h[N + 1];
 	bool res = dsp::fir::pm::design(N, 3, f, a, w, h);
-	BOOST_CHECK(std::equal(h, h + N + 1, b, dsp::within_range<double >(0.000001)));
-	BOOST_CHECK(res);
+	EXPECT_TRUE(std::equal(h, h + N + 1, b, dsp::within_range<double >(0.000001)));
+	EXPECT_TRUE(res);
 }
 
-BOOST_AUTO_TEST_CASE(test_hilbert)
+TEST(filter_design, test_hilbert)
 {
 	const unsigned N = 30;
 	double h[N + 1];
 	bool res = dsp::fir::pm::design(N, 1, hf, ha, hw, h, dsp::fir::pm::type::hilbert);
-	BOOST_CHECK(std::equal(h, h + N + 1, hb, dsp::within_range<double >(0.003)));
-	BOOST_CHECK(res);
+	EXPECT_TRUE(std::equal(h, h + N + 1, hb, dsp::within_range<double >(0.003)));
+	EXPECT_TRUE(res);
 }
 
-BOOST_AUTO_TEST_CASE(test_differentiator)
+TEST(filter_design, test_differentiator)
 {
 	const unsigned N = 60;
 	double h[N + 1];
 	bool res = dsp::fir::pm::design(N, 2, df, da, dw, h, dsp::fir::pm::type::differentiator);
-//	BOOST_CHECK(std::equal(h, h + N + 1, hb, dsp::within_range<double >(0.003)));
-	BOOST_CHECK(res);
+//	EXPECT_TRUE(std::equal(h, h + N + 1, hb, dsp::within_range<double >(0.003)));
+	EXPECT_TRUE(res);
 }
 
-BOOST_AUTO_TEST_CASE(test_butter_bp)
+TEST(filter_design, test_butter_bp)
 {
 	const size_t N = 6;
 	double b[2 * N + 1], a[2 * N + 1];
@@ -69,8 +66,6 @@ BOOST_AUTO_TEST_CASE(test_butter_bp)
 
 	dsp::iir::design(N, dsp::iir::resp::bandpass, fc, b, a);
 
-	BOOST_CHECK(std::equal(b, b + 2 * N + 1, b_ref, dsp::within_range<double >(0.000000001)));
-	BOOST_CHECK(std::equal(a, a + 2 * N + 1, a_ref, dsp::within_range<double >(0.000000001)));
+	EXPECT_TRUE(std::equal(b, b + 2 * N + 1, b_ref, dsp::within_range<double >(0.000000001)));
+	EXPECT_TRUE(std::equal(a, a + 2 * N + 1, a_ref, dsp::within_range<double >(0.000000001)));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

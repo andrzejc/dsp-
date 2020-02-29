@@ -1,13 +1,11 @@
 project(dsp++-test)
 
-if(NOT Boost_UNIT_TEST_FRAMEWORK_FOUND)
-    message(FATAL_ERROR "Boost Unit Test Framework is required for testing code")
-endif()
+message(STATUS "Building embedded GTest dependency")
+set(INSTALL_GTEST OFF CACHE BOOL "We don't want to install GTest as a part of dsp++ installation")
+add_subdirectory(../../deps/googletest "${CMAKE_CURRENT_BINARY_DIR}/googletest")
 
 set(SOURCES
-    execution_timer.h
     execution_timer.cpp
-    utils.h
 
     adaptfilt_test.cpp
     fft_test.cpp
@@ -25,19 +23,14 @@ set(SOURCES
     simd_test.cpp
     window_test.cpp
     xcorr_test.cpp
-
-    main.cpp
 )
 
 add_executable(dsp++-test ${SOURCES})
 target_link_libraries(dsp++-test
     PRIVATE
         dsp++
-        Boost::unit_test_framework
-)
-target_compile_definitions(dsp++-test
-    PRIVATE
-        BOOST_TEST_DYN_LINK
+        gtest
+        gtest_main
 )
 
 install(TARGETS dsp++-test DESTINATION bin)
@@ -47,7 +40,7 @@ endif()
 
 
 macro(dsp_test name)
-    add_test(NAME "${name}" COMMAND dsp++-test "--run_test=${name}")
+    add_test(NAME "${name}" COMMAND dsp++-test "--gtest_filter=${name}.*")
     if(WIN32)
         string(REPLACE ";" "\\;" escaped_path "$ENV{PATH}")
         set_tests_properties("${name}" PROPERTIES
@@ -55,7 +48,7 @@ macro(dsp_test name)
 $<SHELL_PATH:$<TARGET_LINKER_FILE_DIR:dsp++>>\\;\
 $<SHELL_PATH:$<TARGET_PROPERTY:Sndfile::libsndfile,DLL_DIRECTORY>>\\;\
 $<SHELL_PATH:$<TARGET_PROPERTY:FFTW3::libfftw3,DLL_DIRECTORY>>\\;\
-$<SHELL_PATH:${Boost_LIBRARY_DIR_RELEASE}>"
+$<SHELL_PATH:$<TARGET_LINKER_FILE_DIR:gtest>>"
         )
     endif()
 endmacro()
