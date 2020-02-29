@@ -9,6 +9,10 @@ addons:
     - sourceline: 'deb https://apt.kitware.com/ubuntu/ ${TRAVIS_DIST} main'
       key_url: 'https://apt.kitware.com/keys/kitware-archive-latest.asc'
 
+cache:
+  directories:
+    - $HOME/Library/Caches/Homebrew
+
 before_install:
 - export PATH="${PATH}:${PWD}/deps/build-scripts/bin"
 - uname -a
@@ -57,3 +61,7 @@ matrix:
   - os: windows
     name: Win64
     env: TARGET_PLATFORM=x64
+
+before_cache:
+  - |
+    [[ "${TRAVIS_OS_NAME}" != osx ]] || brew cleanup
