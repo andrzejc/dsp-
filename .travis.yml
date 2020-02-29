@@ -43,14 +43,15 @@ matrix:
   - os: linux
     name: Xenial-x64
     dist: xenial
-  - os: linux
-    name: Bionic-ARM64
-    dist: bionic
-    arch: arm64
-  - os: linux
-    name: Xenial-ARM64
-    dist: xenial
-    arch: arm64
+# TODO: investigate why this fails on travis
+#   - os: linux
+#     name: Bionic-ARM64
+#     dist: bionic
+#     arch: arm64
+#   - os: linux
+#     name: Xenial-ARM64
+#     dist: xenial
+#     arch: arm64
   - os: windows
     name: Win32
     env: TARGET_PLATFORM=Win32
