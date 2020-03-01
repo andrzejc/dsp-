@@ -17,15 +17,15 @@ addons:
     - doxygen
     - graphviz
   homebrew:
-    update: true
+    update: false
     packages:
+    - ccache
     - cmake
     - libsndfile
     - fftw
     - boost
     - doxygen
     - graphviz
-    - ccache
 
 cache:
   ccache: true
