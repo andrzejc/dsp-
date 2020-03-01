@@ -40,7 +40,9 @@ endif()
 
 
 macro(dsp_test name)
-    add_test(NAME "${name}" COMMAND dsp++-test "--gtest_filter=${name}.*")
+    add_test(NAME "${name}"
+        COMMAND dsp++-test "--gtest_filter=${name}.*" --gtest_color=yes
+    )
     if(WIN32)
         string(REPLACE ";" "\\;" escaped_path "$ENV{PATH}")
         set_tests_properties("${name}" PROPERTIES
