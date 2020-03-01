@@ -2,6 +2,7 @@ project(dsp++-test)
 
 message(STATUS "Building embedded GTest dependency")
 set(INSTALL_GTEST OFF CACHE BOOL "We don't want to install GTest as a part of dsp++ installation")
+set(gtest_force_shared_crt ON CACHE BOOL "Use of static crt causes multiply-defined symbols on MSVC")
 set(BUILD_SHARED_LIBS OFF)
 add_subdirectory(../../deps/googletest "${CMAKE_CURRENT_BINARY_DIR}/googletest")
 
