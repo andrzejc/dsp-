@@ -2,6 +2,7 @@ project(dsp++-test)
 
 message(STATUS "Building embedded GTest dependency")
 set(INSTALL_GTEST OFF CACHE BOOL "We don't want to install GTest as a part of dsp++ installation")
+set(BUILD_SHARED_LIBS OFF)
 add_subdirectory(../../deps/googletest "${CMAKE_CURRENT_BINARY_DIR}/googletest")
 
 set(SOURCES
@@ -49,8 +50,7 @@ macro(dsp_test name)
             ENVIRONMENT "PATH=${escaped_path}\\;\
 $<SHELL_PATH:$<TARGET_LINKER_FILE_DIR:dsp++>>\\;\
 $<SHELL_PATH:$<TARGET_PROPERTY:Sndfile::libsndfile,DLL_DIRECTORY>>\\;\
-$<SHELL_PATH:$<TARGET_PROPERTY:FFTW3::libfftw3,DLL_DIRECTORY>>\\;\
-$<SHELL_PATH:$<TARGET_LINKER_FILE_DIR:gtest>>"
+$<SHELL_PATH:$<TARGET_PROPERTY:FFTW3::libfftw3,DLL_DIRECTORY>>"
         )
     endif()
 endmacro()
