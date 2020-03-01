@@ -8,6 +8,27 @@ addons:
     sources:
     - sourceline: 'deb https://apt.kitware.com/ubuntu/ ${TRAVIS_DIST} main'
       key_url: 'https://apt.kitware.com/keys/kitware-archive-latest.asc'
+    update: true
+    packages:
+    - cmake
+    - libsndfile1-dev
+    - libfftw3-dev
+    - libboost-dev
+    - doxygen
+    - graphviz
+  homebrew:
+    update: true
+    packages:
+    - cmake
+    - libsndfile
+    - fftw
+    - boost
+    - doxygen
+    - graphviz
+    - ccache
+
+cache:
+  ccache: true
 
 before_install:
 - export PATH="${PATH}:${PWD}/deps/build-scripts/bin"
