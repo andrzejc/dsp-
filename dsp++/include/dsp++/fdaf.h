@@ -106,28 +106,29 @@ public:
 	}
 
 	//! @brief Process single buffer of data through adaptive algoritm, taking [x_begin(), x_end()) as x input and [d_begin(), d_end()) as the expected filter output.
-	//! The results are stored in [y_begin(), y_end()) (filter output) and [e_begin(), e_end()) (output error w/ regard to d). 
+	//! The results are stored in [y_begin(), y_end()) (filter output) and [e_begin(), e_end()) (output error w/ regard to d).
 	//! The FFT of filter weights (coefficients) may be read from [W_begin(), W_end()).
-	void operator()() 
+	void operator()()
 	{
+		using std::placeholders::_1;
 		dft_(x_, X_);															// X = FFT{x()}
 		std::transform(X_, X_ + 2*N_, W_, E_, std::multiplies<complex_type>());	// y() = IFFT{X * W}, using E_ as temporary variable
-		idft_(E_, y_);						
-		std::transform(y_ + N_, y_ + 2*N_, y_ + N_, std::bind2nd(std::divides<value_type>(), 2*N_)); // scale IFFT (only applied to 2nd half of y_, 1st one is irrelevant)
+		idft_(E_, y_);
+		std::transform(y_ + N_, y_ + 2*N_, y_ + N_, std::bind(std::divides<value_type>(), _1, 2*N_)); // scale IFFT (only applied to 2nd half of y_, 1st one is irrelevant)
 		std::transform(d_, d_ + N_, y_ + N_, e_, std::minus<value_type>());		// e() = d() - y(), e_ is now ready
-		std::transform(e_, e_ + N_, w_ + N_, std::bind2nd(std::multiplies<value_type>(), mu_));	// apply step_size e() = e() * mu, put result in 2nd half of w_
+		std::transform(e_, e_ + N_, w_ + N_, std::bind(std::multiplies<value_type>(), _1, mu_));	// apply step_size e() = e() * mu, put result in 2nd half of w_
 		std::fill_n(w_, N_, value_type());								// zero first half of w_
 		dft_(w_, E_);													// put FFT of zero-prepended e() into E
 
 		value_type ombet = value_type(1) - beta_;
 		complex_iterator E = E_, N = norm_, X = X_;
-		for (size_t i = 0; i < 2*N_; ++i, ++E, ++N, ++X) {			
+		for (size_t i = 0; i < 2*N_; ++i, ++E, ++N, ++X) {
 			complex_type cX = std::conj(*X);
-			(*N *= beta_) += ombet * std::real(*X * cX);	// update signal power 
+			(*N *= beta_) += ombet * std::real(*X * cX);	// update signal power
 			(*E) *= (cX / (*N + offset_));					// multiply E with conjugate of X and normalize
 		}
 		idft_(E_, w_);													// perform IFFT on multiplication result, calculate gradient constraint
-		std::transform(w_, w_ + N_, w_, std::bind2nd(std::divides<value_type>(), 2*N_));	// scale IFFT output, but only for the useful half
+		std::transform(w_, w_ + N_, w_, std::bind(std::divides<value_type>(), _1, 2*N_));	// scale IFFT output, but only for the useful half
 		std::fill_n(w_ + N_, N_, value_type());							// discard and zero-fill 2nd half of w_
 		dft_(w_, E_);													// FFT w_ back to DFT domain
 		complex_iterator W = W_; E = E_;
@@ -149,8 +150,8 @@ private:
 	transform_type dft_;			//!< DFT functor
 	inverse_transform_type idft_;	//!< IDFT functor
 
-	value_type* const x_;	//!< (2N) input vector, x[0..N) is old (saved) input frame frame, x[N..2N) is the new input frame upon input 
-	value_type* const y_;	//!< (2N) output vector 
+	value_type* const x_;	//!< (2N) input vector, x[0..N) is old (saved) input frame frame, x[N..2N) is the new input frame upon input
+	value_type* const y_;	//!< (2N) output vector
 	value_type* const w_;	//!< (2N) real-valued work area
 	value_type* const e_;	//!< (N) error output vector, e() = d() - y()
 	value_type* const d_;	//!< (N) desired response input vector
@@ -160,7 +161,7 @@ private:
 	complex_type* const norm_;	//!< (2N) signal power for normalization
 
 	value_type mu_;				//!< step size mu
-	value_type lambda_;			//!< leakage factor 
+	value_type lambda_;			//!< leakage factor
 	value_type offset_;			//!< normalization offset to avoid divide by zero
 	value_type beta_;			//!< averaging factor for exponential averaning of input power
 

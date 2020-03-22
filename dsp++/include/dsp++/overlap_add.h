@@ -256,11 +256,12 @@ overlap_add<Real, DFT>::overlap_add(size_t frame_length, const Sample* ir, size_
 template<class Real, template<class, class> class DFT> inline
 void overlap_add<Real, DFT>::operator ()()
 {
+	using std::placeholders::_1;
 	std::fill_n(rbuf_ + L_, N_ - L_, value_type()); 	// fill the input vector with 0's starting from L up to N
 	dft_(rbuf_, cbuf_);									// obtain DFT of the current (zero-padded) frame
 	std::transform(cbuf_, cbuf_ + N_, cbuf_ + N_, cbuf_, std::multiplies<complex_type>()); // multiply the transforms
 	idft_(cbuf_, rbuf_);								// perform IDFT
-	std::transform(rbuf_, rbuf_ + N_, rbuf_, std::bind2nd(std::divides<value_type>(), static_cast<value_type>(N_)));
+	std::transform(rbuf_, rbuf_ + N_, rbuf_, std::bind(std::divides<value_type>(), _1, static_cast<value_type>(N_)));
 														// normalize the IDFT by a factor of 1/N
 	std::transform(rbuf_, rbuf_ + M_, rbuf_ + N_, rbuf_, std::plus<value_type>());	// add the "tail" M samples
 														// left from previous step

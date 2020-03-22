@@ -267,12 +267,13 @@ overlap_save<Real, DFT>::overlap_save(size_t frame_length, const Sample* ir, siz
 template<class Real, template<class, class> class DFT> inline
 void overlap_save<Real, DFT>::operator ()()
 {
+	using std::placeholders::_1;
 	std::copy_n(z_, N_ - L_, rbuf_);				// fill DFT input vector with N - L samples from previous frames
-	std::copy_n(rbuf_ + L_, N_ - L_, z_);		// save last N - L samples (including input frame) to "save" buffer 
+	std::copy_n(rbuf_ + L_, N_ - L_, z_);		// save last N - L samples (including input frame) to "save" buffer
 	dft_(rbuf_, cbuf_);									// obtain DFT of the joint previous and current frame
 	std::transform(cbuf_, h_, h_, cbuf_, std::multiplies<complex_type>()); // multiply the transforms
 	idft_(cbuf_, rbuf_);								// perform IDFT
-	std::transform(rbuf_, rbuf_ + N_, rbuf_, std::bind2nd(std::divides<value_type>(), static_cast<value_type>(N_)));
+	std::transform(rbuf_, rbuf_ + N_, rbuf_, std::bind(std::divides<value_type>(), _1, static_cast<value_type>(N_)));
 														// normalize the IDFT by a factor of 1/N
 	// output values are now in x_
 }

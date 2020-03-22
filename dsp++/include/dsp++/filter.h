@@ -131,8 +131,9 @@ class df2_filter_base
 		if (0 == N_ || Sample(1) == *a_)
 			return;
 
-		std::transform(b_, b_ + M_, b_, std::bind2nd(std::divides<Sample>(), *a_));
-		std::transform(a_, a_ + N_, a_, std::bind2nd(std::divides<Sample>(), *a_));
+		using std::placeholders::_1;
+		std::transform(b_, b_ + M_, b_, std::bind(std::divides<Sample>(), _1, *a_));
+		std::transform(a_, a_ + N_, a_, std::bind(std::divides<Sample>(), _1, *a_));
 		*a_ = Sample();
 	}
 
@@ -552,11 +553,12 @@ void sos_filter_base<Sample, BufferTraits>::set(const CoeffSample (*num)[section
 	Sample* b = b_;
 	Sample* a = a_;
 	for (size_t i = 0; i < N_; ++i, b += step_, a += step_, ++num, ++numl, ++den, ++denl) {
-        std::transform(*num, *num + *numl, b, static_caster<Sample>());
-        std::transform(*den, *den + *denl, a, static_caster<Sample>());
+		std::transform(*num, *num + *numl, b, static_caster<Sample>());
+		std::transform(*den, *den + *denl, a, static_caster<Sample>());
 		if (*denl > 0 && Sample(1) != *a) {
-			std::transform(b, b + *numl, b, std::bind2nd(std::divides<Sample>(), *a));
-			std::transform(a, a + *denl, a, std::bind2nd(std::divides<Sample>(), *a));
+			using std::placeholders::_1;
+			std::transform(b, b + *numl, b, std::bind(std::divides<Sample>(), _1, *a));
+			std::transform(a, a + *denl, a, std::bind(std::divides<Sample>(), _1, *a));
 		}
 		*a = Sample(); // set a[0] to 0 as an optimization for dot product calculation
 		scale_only_[i] = (*numl == 1) && (*denl <= 1);
@@ -590,8 +592,9 @@ void sos_filter_base<Sample, BufferTraits>::set(const CoeffSample* num, const Co
 		std::transform(num, num + section_length, b, static_caster<Sample>());
 		std::transform(den, den + section_length, a, static_caster<Sample>());
 		if (Sample(1) != *a) {
-			std::transform(b, b + section_length, b, std::bind2nd(std::divides<Sample>(), *a));
-			std::transform(a, a + section_length, a, std::bind2nd(std::divides<Sample>(), *a));
+		    using std::placeholders::_1;
+			std::transform(b, b + section_length, b, std::bind(std::divides<Sample>(), _1, *a));
+			std::transform(a, a + section_length, a, std::bind(std::divides<Sample>(), _1, *a));
 		}
 		*a = Sample(); // set a[0] to 0 as an optimization for dot product calculation
 		scale_only_[i] = false;

@@ -16,6 +16,8 @@
 #include <dsp++/fftw/dft.h>
 #endif // !DSPXX_FFTW3_DISABLED
 
+#include <functional>
+
 namespace {
 
 static inline unsigned fir_fs_length(unsigned order, const double amps[]) {
@@ -113,7 +115,8 @@ unsigned fir_fs_impl(
 	}
 #endif // !DSPXX_FFTW3_DISABLED
 
-	std::transform(h, h + n, h, std::bind2nd(std::multiplies<double>(), 1./n));
+	using std::placeholders::_1;
+	std::transform(h, h + n, h, std::bind(std::multiplies<double>(), _1, 1./n));
 	std::fill(h + n, h + order + 1, 0.);
 	if (NULL != win)
 		std::transform(h, h + n, win, h, std::multiplies<double>());

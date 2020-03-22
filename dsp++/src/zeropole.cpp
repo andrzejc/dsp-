@@ -4,6 +4,7 @@
 #include <cassert>
 #include <vector>
 #include <limits>
+#include <functional>
 
 double dsp::tf2zp(unsigned bn, const double b[], unsigned an, const double a[], unsigned& zn, std::complex<double> z[], unsigned& pn, std::complex<double> p[])
 {
@@ -18,7 +19,7 @@ double dsp::tf2zp(unsigned bn, const double b[], unsigned an, const double a[], 
 		++b;
 		--bn;
 	}
-	if (0 == bn) 
+	if (0 == bn)
 		throw std::invalid_argument("dsp::tf2zp(): numerator vector must not be empty");
 
 	double k = *b / *a;
@@ -57,9 +58,9 @@ static bool next_zp(unsigned& i, const unsigned n, const std::complex<double> v[
 	++i;
 
 	bool cplx = is_complex(*v1);
-	for (unsigned j = i; j != n; ++j) 
+	for (unsigned j = i; j != n; ++j)
 	{
-		if (used[j]) 
+		if (used[j])
 		{
 			if (j == i)
 				++i;
@@ -84,8 +85,8 @@ static bool next_zp(unsigned& i, const unsigned n, const std::complex<double> v[
 
 static void render_sos(const std::complex<double>* v1, const std::complex<double>* v2, double v[])
 {
-	v[0] = 1; 
-	if (NULL == v2) 
+	v[0] = 1;
+	if (NULL == v2)
 	{
 		assert(!is_complex(*v1));
 		v[1] = -real(*v1);
@@ -100,9 +101,10 @@ static void render_sos(const std::complex<double>* v1, const std::complex<double
 
 }
 
-unsigned dsp::zp2sos(unsigned zn, const std::complex<double> z[], unsigned pn, const std::complex<double> p[], 
+unsigned dsp::zp2sos(unsigned zn, const std::complex<double> z[], unsigned pn, const std::complex<double> p[],
 	double k, double num[],	double den[])
 {
+	using std::placeholders::_1;
 	const unsigned N = (std::max(zn, pn) + 1) / 2;
 	if (NULL == num || NULL == den)
 		return N;
@@ -128,7 +130,7 @@ unsigned dsp::zp2sos(unsigned zn, const std::complex<double> z[], unsigned pn, c
 	}
 	assert(N == sos);
 	double g = pow(k, 1. / sos);
-	std::transform(num, num + sos * sos_length, num, std::bind2nd(std::multiplies<double>(), g));
+	std::transform(num, num + sos * sos_length, num, std::bind(std::multiplies<double>(), _1, g));
 	return N;
 }
 
@@ -164,4 +166,4 @@ static bool test_zeropoly2() {
 
 static const bool test2 = test_zeropoly2();
 }
-#endif 
+#endif

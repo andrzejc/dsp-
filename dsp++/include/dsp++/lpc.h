@@ -16,6 +16,7 @@
 #include <dsp++/algorithm.h>
 
 #include <stdexcept>
+#include <functional>
 
 #if !DSP_BOOST_CONCEPT_CHECKS_DISABLED
 #include <boost/concept/requires.hpp>
@@ -113,7 +114,7 @@ private:
 	{
 		const Sample zero = Sample();
 		Sample* x = in_out_.get();
-		if (NULL != x_begin) 
+		if (NULL != x_begin)
 			std::copy_n(*x_begin, L_, x);
 
 		std::fill_n(x + L_, N_ - L_, zero);
@@ -121,11 +122,12 @@ private:
 
 		dft_();
 		complex_t* c = interm_.get();
-		for (size_t i = 0; i < N_; ++i, ++c) 
+		for (size_t i = 0; i < N_; ++i, ++c)
 			*c = pow(abs(*c), 2);
 		idft_();
 
-		std::transform(x, x + N_, x, std::bind2nd(std::divides<Sample>(), static_cast<Sample>(L_ * N_)));
+		using std::placeholders::_1;
+		std::transform(x, x + N_, x, std::bind(std::divides<Sample>(), _1, static_cast<Sample>(L_ * N_)));
 		if (NULL != k_begin)
 			return lev_(x, a_begin, *k_begin);
 		else

@@ -88,7 +88,8 @@ TEST(fft, test_fft_two_way)
  	dsp::dft::fft<std::complex<float>, float> ifft(N, &out[0], &res[0]);
 	ifft();
 
-	std::transform(res.begin(), res.end(), res.begin(), std::bind2nd(std::divides<float>(), (float)N));
+	using std::placeholders::_1;
+	std::transform(res.begin(), res.end(), res.begin(), std::bind(std::divides<float>(), _1, static_cast<float>(N)));
 
 	EXPECT_TRUE(std::equal(in.begin(), in.end(), res.begin(),
 			dsp::within_range<std::complex<float> >(std::numeric_limits<float>::epsilon() * 10)));
