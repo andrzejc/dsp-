@@ -11,6 +11,7 @@
 
 #define C(r,i) std::complex<double>(r,i)
 
+#include "warn_push.h"
 const float x[] = {0.5376671552658081,1.833885073661804,-2.258846759796143,0.862173318862915,0.318765252828598,-1.307688355445862,-0.4335920214653015};
 const float a[] = {1,	0.532430375671096,	0.250609258485180,	-0.186377797109935,	0.0145011350307570,	0.192908951389234,	0.256205216566800};
 const float e = 1.07965299964618;
@@ -26,13 +27,14 @@ const std::complex<double> ca[] = {C(1.00000000000000, 0.00000000000000),	C(-0.1
        C(0.0352739459789746, 0.207142520125894)};
 
 const std::complex<double> ce = 4.00753693110963;
+#include "warn_pop.h"
 
 TEST(lpc, lpc_real)
 {
 	const size_t L = 7;
 	dsp::lpc<double> lpc(L);
 	float aa[L];
-	float e = lpc(x, aa);
+	float e = static_cast<float>(lpc(x, aa));
 	EXPECT_TRUE(std::equal(aa, aa + L - 1, a, dsp::within_range<float>(0.00001f)));
 	EXPECT_TRUE(dsp::within_range<float>(0.00001f)(e, ::e));
 }

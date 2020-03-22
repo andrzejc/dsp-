@@ -279,6 +279,6 @@ TEST(filter, test_sos)
 	float out[1024];
 	dsp::filter_sos<float> sos(MWSPT_NSEC, NUM, NL, DEN, DL);
 	for (size_t i = 0; i < 1024; ++i)
-		out[i] = sos(x[i]);
+		out[i] = sos(static_cast<float>(x[i]));
 	EXPECT_TRUE(std::equal(out, out + 1024, y, dsp::within_range<float>(0.00001)));
 }
