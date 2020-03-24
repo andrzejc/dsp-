@@ -42,7 +42,7 @@ install:
 - cmake --version
 
 script:
-- mkdir -p build && pushd build
+- set +e && mkdir -p build && cd build && set -e
 - cmake ${TARGET_PLATFORM:+-A ${TARGET_PLATFORM}} "-DCMAKE_PREFIX_PATH=${PWD}/deps/install" ..
 - cmake --build . --config RelWithDebInfo -- -j3
 - ctest --output-on-failure -C RelWithDebInfo -T test -j3
