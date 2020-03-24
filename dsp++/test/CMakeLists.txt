@@ -5,24 +5,24 @@ find_package(GTest REQUIRED CONFIG)
 set(SOURCES
     execution_timer.cpp
 
-    adaptfilt_test.cpp
-    fft_test.cpp
-    filter_design_test.cpp
-    filter_test.cpp
-    intmath_test.cpp
-    lattice_test.cpp
-    levinson_test.cpp
-    lpc_test.cpp
-    mean_test.cpp
-    overlap_add_test.cpp
-    pow2_test.cpp
-    simd_test.cpp
-    window_test.cpp
-    xcorr_test.cpp
-
+    test_adaptfilt.cpp
+    test_fft.cpp
+    test_filter_design.cpp
+    test_filter.cpp
+    test_intmath.cpp
+    test_lattice.cpp
+    test_levinson.cpp
+    test_lpc.cpp
+    test_mean.cpp
+    test_overlap_add.cpp
+    test_pow2.cpp
     test_resample.cpp
+    test_simd.cpp
     test_snd_loudness.cpp
     test_snd_channel.cpp
+    test_sndfile_api.cpp
+    test_window.cpp
+    test_xcorr.cpp
 )
 
 add_executable(dsp++-test ${SOURCES})
@@ -71,3 +71,4 @@ dsp_test(pow2)
 dsp_test(window)
 dsp_test(xcorr)
 dsp_test(snd_channel_layout)
+dsp_test(sndfile_api)

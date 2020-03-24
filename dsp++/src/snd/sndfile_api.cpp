@@ -14,6 +14,7 @@
 
 #include <dsp++/snd/sndfile/reader.h>
 #include <dsp++/snd/sndfile/writer.h>
+#include <dsp++/snd/sndfile/file.h>
 #include <dsp++/snd/format.h>
 #include <dsp++/snd/property.h>
 

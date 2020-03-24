@@ -14,7 +14,7 @@ namespace dsp { namespace snd { namespace sndfile {
 
 //! @brief Simple interface for writing sound files (uses libsndfile as a back-end).
 // TODO make detail::iobase private
-class DSPXX_API writer: public snd::writer, public detail::iobase {
+class DSPXX_API writer: public snd::writer, protected virtual detail::iobase {
 public:
     /*!
      * @brief Constructor.
@@ -23,6 +23,17 @@ public:
     writer():
         detail::iobase{mode::write}
     {}
+
+    using detail::iobase::open;
+    using detail::iobase::close;
+    using detail::iobase::is_open;
+    using detail::iobase::sample_rate;
+    using detail::iobase::channel_count;
+    using detail::iobase::seekable;
+    using detail::iobase::seek;
+    using detail::iobase::supports_properties;
+    using detail::iobase::property;
+
     /*!
      * @name Frame-based output.
      */
