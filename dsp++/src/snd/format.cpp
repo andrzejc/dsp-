@@ -2,9 +2,12 @@
  * @file format.cpp
  *
  */
+#define NOMINMAX
 #include <dsp++/snd/format.h>
 
 #include "../utility.h"
+
+#include <boost/format.hpp>
 
 #include <cstdlib>
 #include <cstring>
@@ -113,10 +116,6 @@ unsigned sample::bit_size_of(const char* sf) {
 const format format::audio_cd{sample_rate::audio_cd, channel::layout::stereo, sample::format::s16};
 
 #ifdef _WIN32
-#define NOMINMAX
-
-#include <boost/format.hpp>
-
 #include <windows.h>
 #include <mmreg.h>
 

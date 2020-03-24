@@ -10,6 +10,8 @@
 #include <dsp++/snd/io.h>
 #include <dsp++/snd/sndfile/iobase.h>
 
+#include <optional>
+
 namespace dsp { namespace snd { namespace sndfile {
 
 //! @brief Simple interface for reading sound files (uses libsndfile as a back-end).
@@ -56,6 +58,9 @@ public:
 	size_t read_samples(int* buf, size_t count);
 	size_t read_samples(double* buf, size_t count);
 	///@}
+
+    bool supports_metadata() const override { return iobase::supports_metadata(); }
+    std::optional<string> get_string(const char* metadata_str) override { return iobase::get_string(metadata_str); }
 };
 
 }}}

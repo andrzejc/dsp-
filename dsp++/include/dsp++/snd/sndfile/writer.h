@@ -58,6 +58,9 @@ public:
 	size_t write_samples(const int* buf, size_t count);
 	size_t write_samples(const double* buf, size_t count);
 	///@}
+
+    bool supports_metadata() const override { return iobase::supports_metadata(); }
+    void set_string(const char* metadata_str, const char* val, size_t val_length) override { iobase::set_string(metadata_str, val, val_length); }
 };
 
 }}}

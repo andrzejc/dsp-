@@ -506,6 +506,20 @@ int iobase::command(int cmd, void* data, int datasize) {
 bool iobase::is_open() const {
     return (nullptr != impl_->sf_);
 }
+
+bool iobase::supports_metadata() const {
+    return (impl_->info_.format & (SF_FORMAT_AIFF | SF_FORMAT_CAF | SF_FORMAT_FLAC | SF_FORMAT_OGG | SF_FORMAT_WAV | SF_FORMAT_WAVEX | SF_FORMAT_RF64 | SF_FORMAT_XI)) != 0;
+}
+
+std::optional<string> iobase::get_string(const char* metadata_str) {
+    // TODO implement me
+    return {};
+}
+
+void iobase::set_string(const char* metadata_str, const char* val, size_t val_length) {
+
+}
+
 }  // namespace detail
 
 #define READ_ITEMS(items, type, name) \

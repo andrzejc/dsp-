@@ -7,9 +7,11 @@
 
 #if !DSPXX_LIBSNDFILE_DISABLED
 #include <dsp++/export.h>
+#include <dsp++/types.h>
 
 #include <cstdio> // for FILE
 #include <memory>
+#include <optional>
 
 typedef struct SNDFILE_tag SNDFILE; //!< Forward declaration from libsndfile.
 
@@ -171,6 +173,10 @@ public:
      */
     int command(int cmd, void* data, int datasize);
     ///@}
+
+    bool supports_metadata() const;
+    std::optional<string> get_string(const char* metadata_str);
+    void set_string(const char* metadata_str, const char* val, size_t val_length);
 };
 }
 
