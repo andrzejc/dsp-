@@ -23,7 +23,7 @@ public:
 	 * To open the actual stream use one of the open() methods.
 	 */
 	reader():
-		iobase{mode::read}
+		detail::iobase{mode::read}
 	{}
 	/*!
 	 * @name Frame-based input.
@@ -59,8 +59,8 @@ public:
 	size_t read_samples(double* buf, size_t count);
 	///@}
 
-    bool supports_metadata() const override { return iobase::supports_metadata(); }
-    absl::optional<string> get_string(const char* metadata_str) override { return iobase::get_string(metadata_str); }
+    bool supports_properties() const override { return detail::iobase::supports_properties(); }
+    absl::optional<string> property(string_view metadata) override { return detail::iobase::property(metadata); }
 };
 
 }}}

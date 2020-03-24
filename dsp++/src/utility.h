@@ -1,7 +1,6 @@
-/*!
- * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
- */
 #pragma once
+#include <dsp++/types.h>
+
 #include <cstddef>
 #include <cstring>
 #include <functional>

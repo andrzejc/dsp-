@@ -8,6 +8,7 @@
 #if !DSPXX_LIBSNDFILE_DISABLED
 #include <dsp++/export.h>
 #include <dsp++/types.h>
+#include <dsp++/snd/io.h>
 
 #include <absl/types/optional.h>
 
@@ -30,7 +31,7 @@ namespace detail {
  * @brief Base class for reader and writer, encapsulating most of
  * the shared code interfacing with libsndfile.
  */
-class DSPXX_API iobase {
+class DSPXX_API iobase: virtual snd::iobase {
     struct impl;
     std::unique_ptr<impl> impl_;
     friend impl;
@@ -146,13 +147,11 @@ public:
     size_t frame_count() const;
     ///@}
 
-    //! @name Lower-level API.
-    ///@{
     /*!
      * @brief Query whether the underlying I/O model and file format support seek() function.
      * @return true if seeking is supported.
      */
-    bool is_seekable() const;
+    bool seekable() const override;
     /*!
      * @brief Seek the stream to the specified position (expressed in frames).
      * @param frames_offset position in frames to seek to.
@@ -160,7 +159,10 @@ public:
      * @return new position in stream.
      * @throw sndfile::error on fail.
      */
-    size_t seek(ssize_t frames_offset, int whence);
+    size_t seek(ssize_t frames_offset, int whence) override;
+
+    //! @name Lower-level API.
+    ///@{
     /*!
      * @brief Access to raw libsndfile implementation.
      * @return SNDFILE struct pointer, NULL if file is not open.
@@ -175,9 +177,12 @@ public:
     int command(int cmd, void* data, int datasize);
     ///@}
 
-    bool supports_metadata() const;
-    absl::optional<string> get_string(const char* metadata_str);
-    void set_string(const char* metadata_str, const char* val, size_t val_length);
+    bool supports_properties() const override;
+    absl::optional<string> property(string_view metadata) override;
+
+    void set_property(string_view metadata, string_view value);
+
+    void commit();
 };
 }
 
@@ -224,6 +229,9 @@ public:
      * @throw on I/O error.
      */
     virtual size_t position() = 0;
+
+    virtual void flush() = 0;
+
     /*!
      * @brief This is interface class.
      */
@@ -255,6 +263,7 @@ public:
     size_t read(void* buf, size_t size) override;
     size_t write(const void* buf, size_t size) override;
     size_t position() override;
+    void flush() override;
     /*!
      * @brief Closes the associated FILE stream with a call to fclose()
      * if it is owned by this stdio object.

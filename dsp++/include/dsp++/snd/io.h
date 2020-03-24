@@ -6,8 +6,17 @@
 
 namespace dsp { namespace snd {
 
-struct DSPXX_API reader {
-    virtual ~reader() = default;
+struct DSPXX_API iobase {
+    virtual ~iobase() = default;
+
+    virtual bool supports_properties() const = 0;
+    virtual absl::optional<string> property(string_view prop) = 0;
+
+    virtual bool seekable() const = 0;
+    virtual size_t seek(ssize_t frames, int whence) = 0;
+};
+
+struct DSPXX_API reader: virtual iobase {
 	/*!
 	 * @name Frame-based input.
 	 */
@@ -24,13 +33,9 @@ struct DSPXX_API reader {
     virtual size_t read_frames(int* buf, size_t count) = 0;
     virtual size_t read_frames(double* buf, size_t count) = 0;
     ///@}
-
-    virtual bool supports_metadata() const = 0;
-    virtual absl::optional<string> get_string(const char* metadata_str) = 0;
 };
 
-struct DSPXX_API writer {
-    virtual ~writer() = default;
+struct DSPXX_API writer: virtual iobase {
     /*!
      * @name Frame-based output.
      */
@@ -48,17 +53,12 @@ struct DSPXX_API writer {
     virtual size_t write_frames(const int* buf, size_t count) = 0;
     virtual size_t write_frames(const double* buf, size_t count) = 0;
     ///@}
+    virtual void commit() = 0;
 
-    virtual bool supports_metadata() const = 0;
-    virtual void set_string(const char* metadata_str, const char* val, size_t val_length) = 0;
-    void set_string(const char* metadata_str, const string& val) {
-        set_string(metadata_str, val.data(), val.length());
-    }
+    virtual void set_property(string_view metadata, string_view value) = 0;
 };
 
 struct DSPXX_API file: public reader, public writer {
-
-
 };
 
 }}

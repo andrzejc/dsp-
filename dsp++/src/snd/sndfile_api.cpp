@@ -15,6 +15,7 @@
 #include <dsp++/snd/sndfile/reader.h>
 #include <dsp++/snd/sndfile/writer.h>
 #include <dsp++/snd/format.h>
+#include <dsp++/snd/property.h>
 
 #include "../utility.h"
 
@@ -108,6 +109,13 @@ size_t stdio::position() {
         throw std::system_error{errno, std::generic_category()};
     }
     return static_cast<size_t>(res);
+}
+
+void stdio::flush() {
+    if (0 != std::fflush(file_) && std::ferror(file_)) {
+        assert(errno != 0);
+        throw std::system_error{errno, std::generic_category()};
+    }
 }
 
 stdio::~stdio() {
@@ -471,7 +479,7 @@ unsigned iobase::sample_rate() const {
     return impl_->info_.samplerate;
 }
 
-bool iobase::is_seekable() const {
+bool iobase::seekable() const {
     return (0 != impl_->info_.seekable);
 }
 
@@ -507,17 +515,58 @@ bool iobase::is_open() const {
     return (nullptr != impl_->sf_);
 }
 
-bool iobase::supports_metadata() const {
+bool iobase::supports_properties() const {
     return (impl_->info_.format & (SF_FORMAT_AIFF | SF_FORMAT_CAF | SF_FORMAT_FLAC | SF_FORMAT_OGG | SF_FORMAT_WAV | SF_FORMAT_WAVEX | SF_FORMAT_RF64 | SF_FORMAT_XI)) != 0;
 }
 
-absl::optional<string> iobase::get_string(const char* metadata_str) {
-    // TODO implement me
-    return {};
+namespace {
+struct property_entry {
+    const char* property;
+    int id;
+};
+
+const property_entry property_map[] = {
+    { property::title, SF_STR_TITLE },
+    { property::artist, SF_STR_ARTIST },
+    { property::album, SF_STR_ALBUM },
+    { property::track_number, SF_STR_TRACKNUMBER },
+    { property::comment, SF_STR_COMMENT },
+    { property::genre, SF_STR_GENRE },
+    { property::software, SF_STR_SOFTWARE },
+};
 }
 
-void iobase::set_string(const char* metadata_str, const char* val, size_t val_length) {
+absl::optional<string> iobase::property(string_view prop) {
+    auto e = dsp::detail::match_member(property_map, &property_entry::property, prop);
+    if (e == nullptr) {
+        return {};
+    }
+    auto res = sf_get_string(handle(), e->id);
+    if (nullptr == res) {
+        return {};
+    }
+    return {res};
+}
 
+void iobase::set_property(string_view prop, string_view value) {
+    auto e = dsp::detail::match_member(property_map, &property_entry::property, prop);
+    if (e == nullptr) {
+        throw io_error{boost::str(boost::format("property \"%1%\" not supported by libsndfile backend") % prop)};
+    }
+    int err = sf_set_string(handle(), e->id, string{value}.c_str());
+    if (0 != err) {
+        throw sndfile::error{err, sf_error_number(err)};
+    }
+}
+
+void iobase::commit() {
+    if (mode::read == impl_->mode_) {
+        return;
+    }
+    sf_write_sync(handle());
+    if (nullptr != impl_->io_) {
+        impl_->io_->flush();
+    }
 }
 
 }  // namespace detail

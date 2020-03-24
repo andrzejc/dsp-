@@ -92,6 +92,7 @@ target_link_libraries(dsp++
     PUBLIC
         Boost::boost
         absl::optional
+        absl::strings
     PRIVATE
         $<$<BOOL:${DSPXX_LIBSNDFILE_ENABLED}>:Sndfile::libsndfile>
         $<$<BOOL:${DSPXX_FFTW3_ENABLED}>:FFTW3::libfftw3>
