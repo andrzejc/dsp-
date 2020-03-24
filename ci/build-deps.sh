@@ -19,6 +19,7 @@ fi
 mkdir -p build/deps/googletest
 pushd build/deps/googletest
 cmake ${TARGET_PLATFORM:+-A ${TARGET_PLATFORM}} \
+    ${CMAKE_GENERATOR:+"-DCMAKE_GENERATOR=${CMAKE_GENERATOR}"} \
     "-DCMAKE_INSTALL_PREFIX=${DEPS_INSTALL_DIR}" \
     -Dgtest_force_shared_crt=ON \
     -DBUILD_SHARED_LIBS=OFF \
@@ -29,6 +30,7 @@ popd
 mkdir -p build/deps/abseil-cpp
 pushd build/deps/abseil-cpp
 cmake ${TARGET_PLATFORM:+-A ${TARGET_PLATFORM}} \
+    ${CMAKE_GENERATOR:+"-DCMAKE_GENERATOR=${CMAKE_GENERATOR}"} \
     "-DCMAKE_INSTALL_PREFIX=${DEPS_INSTALL_DIR}" \
     -DBUILD_SHARED_LIBS=OFF \
     "${DEPS_DIR}/abseil-cpp"

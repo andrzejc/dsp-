@@ -3,6 +3,7 @@ HOMEBREW_NO_INSTALL_CLEANUP=1 \
     brew install \
         ccache \
         cmake \
+        ninja \
         libsndfile \
         fftw \
         boost \

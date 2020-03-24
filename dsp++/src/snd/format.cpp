@@ -2,7 +2,6 @@
  * @file format.cpp
  *
  */
-#define NOMINMAX
 #include <dsp++/snd/format.h>
 
 #include "../utility.h"
@@ -116,9 +115,12 @@ unsigned sample::bit_size_of(const char* sf) {
 const format format::audio_cd{sample_rate::audio_cd, channel::layout::stereo, sample::format::s16};
 
 #ifdef _WIN32
+}}
+
 #include <windows.h>
 #include <mmreg.h>
 
+namespace dsp { namespace snd {
 void format::to_WAVEFORMATEX(void* wfx) const {
     WAVEFORMATEX* w = static_cast<WAVEFORMATEX*>(wfx);
     switch (sample_type()) {
