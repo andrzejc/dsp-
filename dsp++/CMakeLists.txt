@@ -24,7 +24,6 @@ set(SOURCES
     src/flt_iir.cpp
     src/flt_pm.cpp
     src/resample.cpp
-    src/sample.cpp
     src/simd.cpp
     src/vectmath.cpp
     src/zeropole.cpp
@@ -33,9 +32,11 @@ set(SOURCES
     src/mkfilter/mkfilter.cpp
     src/remez/remez.cpp
     src/rpoly/rpoly.cpp
+    src/snd/channel.cpp
     src/snd/format.cpp
-    src/snd/io.cpp
     src/snd/loudness.cpp
+    src/snd/sample.cpp
+    src/snd/sndfile_api.cpp
 )
 
 

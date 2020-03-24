@@ -1,15 +1,13 @@
 /*!
  * @file dsp++/fftw/dft.h
  * Interface to FFTW3 library designed to be compatible with internal dsp::dft::fft implementation.
- * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
  */
 #ifndef DSP_FFTW_DFT_H_INCLUDED
 #define DSP_FFTW_DFT_H_INCLUDED
 
 #include <dsp++/config.h>
-#include <dsp++/compat.h>
 
-#if !DSP_FFTW_DISABLED
+#if !DSPXX_FFTW3_DISABLED
 
 #include <dsp++/export.h>
 #include <dsp++/fftw/traits.h>
@@ -362,6 +360,6 @@ namespace dsp { namespace dft { namespace fftw {
 
 } } }
 
-#endif // !DSP_FFTW_DISABLED
+#endif // !DSPXX_FFTW3_DISABLED
 
 #endif /* DSP_FFTW_DFT_H_INCLUDED */

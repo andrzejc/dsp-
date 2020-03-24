@@ -8,7 +8,7 @@
 
 #include <dsp++/config.h>
 
-#if !DSP_FFTW_DISABLED
+#if !DSPXX_FFTW3_DISABLED
 
 #include <dsp++/export.h>
 #include <dsp++/dft.h>
@@ -37,10 +37,10 @@ typedef struct fftw_iodim_do_not_use_me fftw_iodim;
 typedef void (*fftw_write_char_func)(char c, void* );
 typedef int (*fftw_read_char_func)(void* );
 
-namespace dsp { 
+namespace dsp {
 
 using std::complex;
-	
+
 namespace dft { namespace fftw {
 
 	//! @brief Implementation details. Do not use.
@@ -1182,6 +1182,6 @@ namespace dft { namespace fftw {
 
 } } }
 
-#endif // !DSP_FFTW_DISABLED
+#endif // !DSPXX_FFTW3_DISABLED
 
 #endif /* DSP_FFTW_TRAITS_H_INCLUDED */

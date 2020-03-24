@@ -1,7 +1,6 @@
 /*!
  * @file dsp++/rt/multiband_compressor.h
  * @brief Multiband compressor component.
- * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
  */
 #ifndef DSP_RT_MULTIBAND_COMPRESSOR_H_INCLUDED
 #define DSP_RT_MULTIBAND_COMPRESSOR_H_INCLUDED
@@ -21,9 +20,9 @@ public:
 	typedef float sample_type; //!< This component uses float type as its sample representation
 
 	//! @brief Parameters of a single band.
-	struct band_params 
+	struct band_params
 	{
-		float envelope_period_ms;	//!< Averaging period for envelope calculations. This is set per-band, as high-frequency 
+		float envelope_period_ms;	//!< Averaging period for envelope calculations. This is set per-band, as high-frequency
 									//!< bands may use much shorter period. Once set for any band, this can't be changed.
 		float threshold_dB;			//!< Compression threshold in dB.
 		float gain_dB;				//!< Gain applied to this band in dB.
@@ -34,7 +33,7 @@ public:
 		bool mute;					//!< If set, this band is entirely muted.
 
 		bool operator==(const band_params& other) const {
-			return	envelope_period_ms == other.envelope_period_ms 
+			return	envelope_period_ms == other.envelope_period_ms
 				&&	threshold_dB == other.threshold_dB
 				&&	gain_dB == other.gain_dB
 				&&	ratio == other.ratio
@@ -48,7 +47,7 @@ public:
 	};
 
 	//! @brief Parameters of the whole component.
-	struct params 
+	struct params
 	{
 		unsigned sample_rate;	//!< The sampling frequency this component uses for designing filters & other calculations.
 		unsigned channel_count; //!< Number of channels in a sample frame. Samples in a processing block are assumed to be interleaved (channel-first order).
@@ -70,7 +69,7 @@ public:
 	unsigned sample_rate() const;
 	unsigned block_size() const;
 	unsigned channel_count() const;
-	
+
 	void fill_format(dsp::snd::format& f) const;
 
 	void set_crossover_frequency(unsigned index, float frequency);

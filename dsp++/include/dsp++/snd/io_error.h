@@ -1,12 +1,8 @@
-/*!
- * @file dsp++/snd/io_error.h
- * @brief Definition of @c io_error exception class.
- * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
- */
-#ifndef DSP_IO_ERROR_H_INCLUDED
-#define DSP_IO_ERROR_H_INCLUDED
-
+/// @file dsp++/snd/io_error.h
+/// @brief Definition of @c io_error exception class.
+#pragma once
 #include <dsp++/export.h>
+#include <dsp++/types.h>
 #include <stdexcept>
 
 namespace dsp { namespace snd {
@@ -16,13 +12,9 @@ namespace dsp { namespace snd {
  */
 class DSPXX_API io_error: public std::runtime_error {
 public:
-	io_error(const std::string& msg)
-	 :	runtime_error(msg)
-	{
-	}
-private:
+    explicit io_error(const string& msg):
+        runtime_error(msg)
+    {}
 };
 
-} }
-
-#endif /* DSP_IO_ERROR_H_INCLUDED */
+}}

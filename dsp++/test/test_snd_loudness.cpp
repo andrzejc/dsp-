@@ -5,17 +5,17 @@
  */
 
 #include <dsp++/snd/loudness.h>
-#include <dsp++/snd/reader.h>
+#include <dsp++/snd/sndfile/reader.h>
 #include <dsp++/float.h>
 
 #include <gtest/gtest.h>
 
 #include <fstream>
 
-static void test_loudness_file(const char* path, float exp_level, float peak)
-{
-	using namespace dsp::snd;
-	reader r;
+namespace dsp { namespace snd {
+
+static void test_loudness_file(const char* path, float exp_level, float peak) {
+	sndfile::reader r;
 	r.open(path);
 
 	std::string dump(path);
@@ -50,8 +50,8 @@ static void test_loudness_file(const char* path, float exp_level, float peak)
 
 	vi = met.value_i();
 	vp = metp.value_db();
-	EXPECT_TRUE(dsp::within_range<float>(.1f)(vi,exp_level));
-	EXPECT_TRUE(dsp::within_range<float>(.1f)(vp,peak));
+	EXPECT_TRUE(within_range<float>(.1f)(vi,exp_level));
+	EXPECT_TRUE(within_range<float>(.1f)(vp,peak));
 }
 
 TEST(loudness, ebu1)
@@ -65,3 +65,5 @@ TEST(loudness, ebu1)
 TEST(loudness, peak)
 {
 }
+
+}}

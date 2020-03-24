@@ -1,6 +1,5 @@
 /// @file dsp++/adaptfilt.h
 /// @brief Implementation of time-domain adaptive filtering.
-/// @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
 #ifndef DSP_ADAPTFILT_H_INCLUDED
 #define DSP_ADAPTFILT_H_INCLUDED
 #pragma once

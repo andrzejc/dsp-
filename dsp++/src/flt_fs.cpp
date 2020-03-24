@@ -10,13 +10,13 @@
 #include <dsp++/window.h>
 #include <dsp++/trivial_array.h>
 #include <dsp++/debug.h>
-#include <dsp++/compat.h>
 
 #if !DSPXX_FFTW3_DISABLED
 #include <dsp++/fftw/dft.h>
 #endif // !DSPXX_FFTW3_DISABLED
 
 #include <functional>
+#include <algorithm>
 
 namespace {
 
@@ -35,7 +35,7 @@ static inline void fir_fs_check_preconditions(size_t point_count, const double f
 		msg = "freqs[0] != 0.";
 	else if (freqs[point_count - 1] != .5)
 		msg = "freqs[point_count - 1] != .5";
-	else if (!dsp::is_sorted(freqs, freqs + point_count))
+	else if (!std::is_sorted(freqs, freqs + point_count))
 		msg = "freqs not monotonically increasing";
 	if (NULL != msg)
 		throw std::invalid_argument(msg);

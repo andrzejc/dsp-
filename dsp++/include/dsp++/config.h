@@ -1,42 +1,34 @@
 /*!
- * @file config.h
+ * @file dsp++/config.h
  * @brief Configuration macros to adjust availability of some features.
- * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
  */
-
-#ifndef DSP_CONFIG_H_INCLUDED
-#define DSP_CONFIG_H_INCLUDED
 #pragma once
 
-#ifndef DSP_USE_CUSTOM_CONFIG
+#ifndef DSPXX_USE_CUSTOM_CONFIG
 /*!
  * @brief Controls the inclusion of project-specific dsp_custom_config.h file which allows to refine
  * configuration options for a particular usage environment.
  */
-#define DSP_USE_CUSTOM_CONFIG 0
-#endif // DSP_USE_CUSTOM_CONFIG
+#define DSPXX_USE_CUSTOM_CONFIG 0
+#endif // DSPXX_USE_CUSTOM_CONFIG
 
-#if DSP_USE_CUSTOM_CONFIG
-#include "dsp_custom_config.h"
-#endif // DSP_USE_CUSTOM_CONFIG
+#if DSPXX_USE_CUSTOM_CONFIG
+#include "dsp++_config.h"
+#endif // DSPXX_USE_CUSTOM_CONFIG
 
-#define DSP_CXX_CONFORM_CXX98 (__cplusplus >= 199711L)
-#define DSP_CXX_CONFORM_CXX11 (__cplusplus >= 201103L)
-#define DSP_CXX_CONFORM_CXX14 (__cplusplus >= 201402L)
-
-#if defined(__GNUC__) 
-#define DSP_GCC_VERSION (__GNUC__ * 100 + __GNUC_MINOR__)
+#if defined(__GNUC__)
+#define DSPXX_GCC_VERSION (__GNUC__ * 100 + __GNUC_MINOR__)
 #endif // __GNUC__
 
-#ifndef DSP_SNDFILE_DISABLED
+#ifndef DSPXX_LIBSNDFILE_DISABLED
 //! @brief Set to 1 to disable audio reading/writing through libsndfile.
-#define DSP_SNDFILE_DISABLED 	0
-#endif // DSP_SNDFILE_DISABLED
+#define DSPXX_LIBSNDFILE_DISABLED 	0
+#endif // DSPXX_LIBSNDFILE_DISABLED
 
-#ifndef DSP_FFTW_DISABLED
+#ifndef DSPXX_FFTW3_DISABLED
 //! @brief Set to 1 to disable DFT support through libfftw3.
-#define DSP_FFTW_DISABLED 		0
-#endif // DSP_FFTW_DISABLED
+#define DSPXX_FFTW3_DISABLED 		0
+#endif // DSPXX_FFTW3_DISABLED
 
 #ifndef DSP_BOOST_DISABLED
 //! @brief Set to 1 to disable use of boost libraries entirely.
@@ -67,5 +59,3 @@
 //! @brief Set to 1 if libfftwq is available
 #define DSP_FFTW_HAVE_QUAD 	0
 #endif // DSP_FFTW_HAVE_QUAD
-
-#endif /* DSP_CONFIG_H_INCLUDED */

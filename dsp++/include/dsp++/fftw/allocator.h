@@ -8,7 +8,7 @@
 
 #include <dsp++/config.h>
 
-#if !DSP_FFTW_DISABLED
+#if !DSPXX_FFTW3_DISABLED
 
 #include <cstddef>
 #include <limits>
@@ -84,6 +84,6 @@ public :
 
 } } }
 
-#endif // !DSP_FFTW_DISABLED
+#endif // !DSPXX_FFTW3_DISABLED
 
 #endif /* DSP_FFTW_ALLOCATOR_H_INCLUDED */

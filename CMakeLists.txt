@@ -20,7 +20,7 @@ option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 option(BUILD_TESTING "Build testing code" ON)
 option(DSPXX_BUILD_DEMOS "Build example/demo code" OFF)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(MSVC)
@@ -47,18 +47,10 @@ endif()
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_COMPILER_IS_GNUCXX)
     # Disable some warnings for Clang, for some things that are too awkward
     # to change just for the sake of having no warnings.
-    add_definitions(-Wno-unused-local-typedefs)
+    add_compile_options(-Wall -Wno-unknown-pragmas -Wno-unused-local-typedefs)
 endif()
 
 if(BUILD_TESTING)
-    # find_package(GTest)
-    # if(NOT GTest_FOUND)
-    #     message(STATUS "Building embedded GTest dependency")
-    #     set(INSTALL_GTEST OFF CACHE BOOL "We don't want to install GTest as a part of dsp++ installation")
-    #     add_subdirectory(deps/googletest)
-    #     add_library(GTest::GTest ALIAS gtest)
-    #     add_library(GTest::Main ALIAS gtest_main)
-    # endif()
     enable_testing()
 endif()
 

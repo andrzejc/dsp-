@@ -1,7 +1,6 @@
 /*!
  * @file dsp++/buffer.h
  * @brief Class buffer for continuous buffering (partitioning signal into frames).
- * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
  */
 
 #ifndef DSP_BUFFER_H_INCLUDED
@@ -182,7 +181,7 @@ private:
 //OutputIterator crossmix_n(InputIteratorFrom from, InputIteratorTo to, size_t N, OutputIterator out)
 //{
 //	typedef typename std::iterator_traits<OutputIterator>::value_type res;
-//	for (size_t i = 0; i < N; ++i, ++from, ++to, ++out) 
+//	for (size_t i = 0; i < N; ++i, ++from, ++to, ++out)
 //	{
 //		Scaler mix = static_cast<Scaler>(i + 1) / (N + 1);
 //		*out = static_cast<res>((static_cast<Scaler>(1) - mix) * (*from) + mix * (*to));
@@ -195,7 +194,7 @@ private:
 //{
 //	const size_t N = std::distance(from, from_end);
 //	typedef typename std::iterator_traits<OutputIterator>::value_type res;
-//	for (size_t i = 0; from != from_end; ++i, ++from, ++to, ++out) 
+//	for (size_t i = 0; from != from_end; ++i, ++from, ++to, ++out)
 //	{
 //		Scaler mix = static_cast<Scaler>(i + 1) / (N + 1);
 //		*out = static_cast<res>((static_cast<Scaler>(1) - mix) * (*from) + mix * (*to));
@@ -222,7 +221,7 @@ struct crossmix
 };
 
 // TODO this is work in progress and needs to be reworked (as well as dsp::buffer which must not use boost::circular_buffer)
-template<class Elem, class Storage = std::vector<Elem> > 
+template<class Elem, class Storage = std::vector<Elem> >
 class overlap {
 public:
 	typedef Storage storage_type;
@@ -236,7 +235,7 @@ public:
 	// TODO check if overlap < frame_length
 	overlap(size_t frame_length, size_t overlap)
 	 :	frame_(frame_length)
-	 ,	overlap_(overlap) 
+	 ,	overlap_(overlap)
 	{
 		if (overlap >= frame_length)
 			throw std::invalid_argument("dsp::overlap: frame_length must be greater than overlap");
@@ -264,7 +263,7 @@ public:
 	iterator frame_end(size_t n = 0) {return buf_.begin() + (n + 1) * frame_;}
 	const_iterator frame_end(size_t n = 0) const {return buf_.begin() + (n + 1) * frame_;}
 
-	void pop_frames(size_t count) 
+	void pop_frames(size_t count)
 	{
 		size_t num = count * frame_;
 		assert(num <= size());
@@ -274,7 +273,7 @@ public:
 	void pop_frame() {pop_frames(1);}
 
 	template<class InputIterator>
-	void push_frame(InputIterator it) 
+	void push_frame(InputIterator it)
 	{
 		if (buf_.empty()) {
 			buf_.resize(frame_);

@@ -16,15 +16,17 @@ set(SOURCES
     intmath_test.cpp
     lattice_test.cpp
     levinson_test.cpp
-    loudness_test.cpp
     lpc_test.cpp
     mean_test.cpp
     overlap_add_test.cpp
     pow2_test.cpp
-    resample_test.cpp
     simd_test.cpp
     window_test.cpp
     xcorr_test.cpp
+
+    test_resample.cpp
+    test_snd_loudness.cpp
+    test_snd_channel.cpp
 )
 
 add_executable(dsp++-test ${SOURCES})
@@ -72,3 +74,4 @@ dsp_test(pow2)
 # dsp_test(simd)
 dsp_test(window)
 dsp_test(xcorr)
+dsp_test(snd_channel_layout)

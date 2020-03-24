@@ -1,6 +1,5 @@
 /// @file dsp++/algorithm.h
 /// @brief Various unassorted algorithms loosely complementing these found in &lt;algorithm&gt;.
-/// @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
 #ifndef DSP_ALGORITHM_H_INCLUDED
 #define DSP_ALGORITHM_H_INCLUDED
 

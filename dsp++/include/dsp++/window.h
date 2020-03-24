@@ -1,7 +1,6 @@
 /*!
  * @file dsp++/window.h
  * @brief Window function generators.
- * @author Andrzej Ciarkowski <mailto:andrzej.ciarkowski@gmail.com>
  */
 
 #ifndef DSP_WINDOW_H_INCLUDED
@@ -390,12 +389,9 @@ window<Result>* create_hann(size_t length, window_type type = symmetric)
  * @see http://www.mathworks.com/help/toolbox/signal/ref/blackman.html
  */
 template<class Result>
-struct blackman: public window_function<Result>
-{
-#if DSP_CXX_CONFORM_CXX11
+struct blackman: public window_function<Result> {
 	//! Default value of alpha parameter.
 	static constexpr  Result alpha_default = DSP_WND_BLACKMAN_ALPHA_DEFAULT;
-#endif // DSP_CONFORM_CPP0X
 	/*!
 	 * @copydoc window_function::window_function()
 	 * @param alpha \f$\alpha\f$ parameter in the equation above.
@@ -570,12 +566,10 @@ window<Result>* create_triang(size_t length, window_type type = symmetric)
  * \f]
  */
 template<class Result>
-struct gausswin: public window_function<Result>
-{
-#if DSP_CXX_CONFORM_CXX11
+struct gausswin: public window_function<Result> {
 	//! @brief Default value of @f$\sigma@f$ parameter.
 	static constexpr Result sigma_default = Result(DSP_WND_GAUSSWIN_SIGMA_DEFAULT);
-#endif 
+
 	//! @copydoc window_function::window_function()
 	//! @param sigma \f$\sigma\f$ parameter in the equation above.
 	explicit gausswin(size_t length, window_type type = symmetric, Result sigma = Result(DSP_WND_GAUSSWIN_SIGMA_DEFAULT))
@@ -626,12 +620,10 @@ window<Result>* create_gausswin(size_t length, window_type type = symmetric,
  * where @f$I_0(x)@f$ is the modified Bessel function of order zero and @f$\alpha@f$ is the window parameter.
  */
 template<class Result>
-struct kaiser: public window_function<Result>
-{
-#if DSP_CXX_CONFORM_CXX11
+struct kaiser: public window_function<Result> {
 	//! Default value of @f$\alpha@f$ parameter.
 	static constexpr Result alpha_default = Result(DSP_WND_KAISER_ALPHA_DEFAULT);
-#endif
+
 	//! @copydoc window_function::window_function()
 	//! @param alpha @f$\alpha@f$ parameter in the equation above.
 	explicit kaiser(size_t length, window_type type = symmetric, Result alpha = DSP_WND_KAISER_ALPHA_DEFAULT)
