@@ -4,6 +4,7 @@ project(libdsp++
     LANGUAGES CXX
 )
 
+find_package(absl REQUIRED CONFIG)
 find_package(Boost REQUIRED)
 find_package(Doxygen)
 find_package(FFTW3 COMPONENTS libfftw3 libfftw3f libfftw3l)
@@ -87,10 +88,10 @@ target_include_directories(dsp++
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>
     )
-set(DSPXX_ABSEIL_LIBS absl::optional)
 target_link_libraries(dsp++
     PUBLIC
         Boost::boost
+        absl::optional
     PRIVATE
         $<$<BOOL:${DSPXX_LIBSNDFILE_ENABLED}>:Sndfile::libsndfile>
         $<$<BOOL:${DSPXX_FFTW3_ENABLED}>:FFTW3::libfftw3>

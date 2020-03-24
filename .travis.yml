@@ -37,16 +37,17 @@ before_install:
 - set -e -o pipefail
 
 install:
-- source ci/install-test-deps.${TRAVIS_OS_NAME}.sh
+- source ci/install-deps.${TRAVIS_OS_NAME}.sh
+- source ci/build-deps.sh
 - cmake --version
 
 script:
-- set +e +o pipefail && mkdir -p build && cd build && set -e -o pipefail
-- cmake ${TARGET_PLATFORM:+-A ${TARGET_PLATFORM}} ..
-- cmake --build . --config RelWithDebInfo
-- ctest --output-on-failure -C RelWithDebInfo
-- cmake --build . --config RelWithDebInfo --target docs
-- cmake --build . --config RelWithDebInfo --target package
+- mkdir -p build && pushd build
+- cmake ${TARGET_PLATFORM:+-A ${TARGET_PLATFORM}} "-DCMAKE_PREFIX_PATH=${PWD}/deps/install" ..
+- cmake --build . --config RelWithDebInfo -- -j3
+- ctest --output-on-failure -C RelWithDebInfo -T test -j3
+- cmake --build . --config RelWithDebInfo --target docs -- -j3
+- cmake --build . --config RelWithDebInfo --target package -- -j3
 
 matrix:
   include:

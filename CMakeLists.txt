@@ -23,12 +23,6 @@ option(DSPXX_BUILD_DEMOS "Build example/demo code" OFF)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Note: targets introduced by find_package() call in deps subdir will have their visibility
-# limited to this dir only and won't be available in dsp++ subdir.
-find_package(absl)
-
-add_subdirectory(deps)
-
 if(MSVC)
     add_definitions(
         -D_CRT_SECURE_NO_WARNINGS

@@ -1,5 +1,7 @@
 project(dsp++-test)
 
+find_package(GTest REQUIRED CONFIG)
+
 set(SOURCES
     execution_timer.cpp
 
@@ -27,9 +29,8 @@ add_executable(dsp++-test ${SOURCES})
 target_link_libraries(dsp++-test
     PRIVATE
         dsp++
-        gtest
-        gtest_main
-        ${DSPXX_ABSEIL_LIBS}
+        GTest::gtest
+        GTest::gtest_main
 )
 
 install(TARGETS dsp++-test DESTINATION bin)
