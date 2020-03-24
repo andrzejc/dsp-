@@ -4,6 +4,18 @@ DEPS_DIR=$( cd deps && pwd )
 mkdir -p build/deps/install
 DEPS_INSTALL_DIR=$( cd build/deps/install && pwd )
 
+if [[ "${TRAVIS_OS_NAME:-}" == osx ]]; then
+    function cd {
+        set +e && builtin cd "$@" && set -e
+    }
+    function pushd {
+        set +e && builtin pushd "$@" && set -e
+    }
+    function popd {
+        set +e && builtin popd "$@" && set -e
+    }
+fi
+
 mkdir -p build/deps/googletest
 pushd build/deps/googletest
 cmake ${TARGET_PLATFORM:+-A ${TARGET_PLATFORM}} \
