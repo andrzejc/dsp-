@@ -7,12 +7,14 @@
 
 #if !DSPXX_LIBSNDFILE_DISABLED
 
+#include <dsp++/snd/io.h>
 #include <dsp++/snd/sndfile/iobase.h>
 
 namespace dsp { namespace snd { namespace sndfile {
 
 //! @brief Simple interface for reading sound files (uses libsndfile as a back-end).
-class DSPXX_API reader: public detail::iobase {
+// TODO make detail::iobase private
+class DSPXX_API reader: public snd::reader, public detail::iobase {
 public:
 	/*!
 	 * @brief Constructor.
@@ -32,10 +34,10 @@ public:
 	 * @return number of frames read (0 if EOF is reached).
 	 * @throw sndfile::error or is thrown if error is reported by underlying libsndfile.
 	 */
-	size_t read_frames(float* buf, size_t count);
-	size_t read_frames(short* buf, size_t count);
-	size_t read_frames(int* buf, size_t count);
-	size_t read_frames(double* buf, size_t count);
+	size_t read_frames(float* buf, size_t count) override;
+	size_t read_frames(short* buf, size_t count) override;
+	size_t read_frames(int* buf, size_t count) override;
+	size_t read_frames(double* buf, size_t count) override;
 	///@}
 
 	/*!

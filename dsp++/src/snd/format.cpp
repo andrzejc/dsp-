@@ -3,13 +3,14 @@
  *
  */
 #include <dsp++/snd/format.h>
+
+#include "../utility.h"
+
 #include <cstdlib>
 #include <cstring>
 #include <cerrno>
 #include <cctype>
 #include <algorithm>
-
-#include "../utility.h"
 
 namespace dsp { namespace snd {
 namespace {
@@ -115,6 +116,8 @@ const format format::audio_cd{sample_rate::audio_cd, channel::layout::stereo, sa
 
 #include <windows.h>
 #include <mmreg.h>
+
+#include <boost/format.hpp>
 
 void format::to_WAVEFORMATEX(void* wfx) const {
     WAVEFORMATEX* w = static_cast<WAVEFORMATEX*>(wfx);

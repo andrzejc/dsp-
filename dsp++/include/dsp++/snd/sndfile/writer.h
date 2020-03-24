@@ -7,12 +7,14 @@
 
 #if !DSPXX_LIBSNDFILE_DISABLED
 
+#include <dsp++/snd/io.h>
 #include <dsp++/snd/sndfile/iobase.h>
 
 namespace dsp { namespace snd { namespace sndfile {
 
 //! @brief Simple interface for writing sound files (uses libsndfile as a back-end).
-class DSPXX_API writer: public detail::iobase {
+// TODO make detail::iobase private
+class DSPXX_API writer: public snd::writer, public detail::iobase {
 public:
 	/*!
 	 * @brief Constructor.
@@ -33,10 +35,10 @@ public:
 	 * @ingroup Frame
 	 * @throw sndfile::error is thrown if error is reported by underlying libsndfile.
 	 */
-	size_t write_frames(const float* buf, size_t count);
-	size_t write_frames(const short* buf, size_t count);
-	size_t write_frames(const int* buf, size_t count);
-	size_t write_frames(const double* buf, size_t count);
+	size_t write_frames(const float* buf, size_t count) override;
+	size_t write_frames(const short* buf, size_t count) override;
+	size_t write_frames(const int* buf, size_t count) override;
+	size_t write_frames(const double* buf, size_t count) override;
 	///@}
 
 	/*!

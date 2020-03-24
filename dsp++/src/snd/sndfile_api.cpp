@@ -459,7 +459,7 @@ void iobase::open(io* in, bool own_io, file_format* fmt, void* native_info) {
     impl_->open(in, own_io, fmt, native_info);
 }
 
-void iobase::open(FILE* f, bool own_file, file_format* fmt, void* native_info) {
+void iobase::open(std::FILE* f, bool own_file, file_format* fmt, void* native_info) {
     open(new stdio(f, own_file), true, fmt, native_info);
 }
 
