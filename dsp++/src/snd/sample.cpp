@@ -6,6 +6,7 @@
 #include <cassert>
 #include <cstring>
 #include <type_traits>
+#include <algorithm>
 
 namespace dsp { namespace snd {
 

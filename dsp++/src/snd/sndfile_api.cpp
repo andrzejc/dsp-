@@ -393,7 +393,7 @@ struct iobase::impl {
         return static_cast<sf_count_t>(static_cast<io*>(p)->size());
     }
     static sf_count_t io_seek(sf_count_t offset, int whence, void* p) {
-        return static_cast<sf_count_t>(static_cast<io*>(p)->seek(offset, whence));
+        return static_cast<sf_count_t>(static_cast<io*>(p)->seek(static_cast<ssize_t>(offset), whence));
     }
     static sf_count_t io_read(void* buf, sf_count_t count, void* p) {
         return static_cast<sf_count_t>(static_cast<io*>(p)->read(buf, static_cast<size_t>(count)));
@@ -476,7 +476,7 @@ bool iobase::is_seekable() const {
 }
 
 size_t iobase::frame_count() const {
-    return impl_->info_.frames;
+    return static_cast<size_t>(impl_->info_.frames);
 }
 
 SNDFILE* iobase::handle() {
