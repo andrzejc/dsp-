@@ -511,7 +511,7 @@ bool iobase::supports_metadata() const {
     return (impl_->info_.format & (SF_FORMAT_AIFF | SF_FORMAT_CAF | SF_FORMAT_FLAC | SF_FORMAT_OGG | SF_FORMAT_WAV | SF_FORMAT_WAVEX | SF_FORMAT_RF64 | SF_FORMAT_XI)) != 0;
 }
 
-std::optional<string> iobase::get_string(const char* metadata_str) {
+absl::optional<string> iobase::get_string(const char* metadata_str) {
     // TODO implement me
     return {};
 }

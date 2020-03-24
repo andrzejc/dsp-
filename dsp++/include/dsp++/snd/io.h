@@ -2,7 +2,7 @@
 #include <dsp++/export.h>
 #include <dsp++/types.h>
 
-#include <optional>
+#include <absl/types/optional.h>
 
 namespace dsp { namespace snd {
 
@@ -26,7 +26,7 @@ struct DSPXX_API reader {
     ///@}
 
     virtual bool supports_metadata() const = 0;
-    virtual std::optional<string> get_string(const char* metadata_str) = 0;
+    virtual absl::optional<string> get_string(const char* metadata_str) = 0;
 };
 
 struct DSPXX_API writer {

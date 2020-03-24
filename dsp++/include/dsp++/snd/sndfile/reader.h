@@ -10,7 +10,7 @@
 #include <dsp++/snd/io.h>
 #include <dsp++/snd/sndfile/iobase.h>
 
-#include <optional>
+#include <absl/types/optional.h>
 
 namespace dsp { namespace snd { namespace sndfile {
 
@@ -60,7 +60,7 @@ public:
 	///@}
 
     bool supports_metadata() const override { return iobase::supports_metadata(); }
-    std::optional<string> get_string(const char* metadata_str) override { return iobase::get_string(metadata_str); }
+    absl::optional<string> get_string(const char* metadata_str) override { return iobase::get_string(metadata_str); }
 };
 
 }}}

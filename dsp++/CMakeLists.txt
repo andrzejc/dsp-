@@ -87,6 +87,7 @@ target_include_directories(dsp++
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>
     )
+set(DSPXX_ABSEIL_LIBS absl::optional)
 target_link_libraries(dsp++
     PUBLIC
         Boost::boost
@@ -95,10 +96,13 @@ target_link_libraries(dsp++
         $<$<BOOL:${DSPXX_FFTW3_ENABLED}>:FFTW3::libfftw3>
         $<$<BOOL:${DSPXX_FFTW3_ENABLED}>:FFTW3::libfftw3f>
         $<$<BOOL:${DSPXX_FFTW3_ENABLED}>:FFTW3::libfftw3l>
+        ${DSPXX_ABSEIL_LIBS}
 )
 target_compile_definitions(dsp++
     PRIVATE
         $<$<BOOL:${BUILD_SHARED_LIBS}>:DSPXX_EXPORTS>
+        # Turn off min/max macros defined in windows.h
+        $<$<BOOL:${WIN32}>:NOMINMAX>
     PUBLIC
         $<$<NOT:$<BOOL:${BUILD_SHARED_LIBS}>>:DSPXX_STATIC>
         $<$<NOT:$<BOOL:${DSPXX_LIBSNDFILE_ENABLED}>>:DSPXX_LIBSNDFILE_DISABLED>

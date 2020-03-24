@@ -9,9 +9,10 @@
 #include <dsp++/export.h>
 #include <dsp++/types.h>
 
+#include <absl/types/optional.h>
+
 #include <cstdio> // for FILE
 #include <memory>
-#include <optional>
 
 typedef struct SNDFILE_tag SNDFILE; //!< Forward declaration from libsndfile.
 
@@ -175,7 +176,7 @@ public:
     ///@}
 
     bool supports_metadata() const;
-    std::optional<string> get_string(const char* metadata_str);
+    absl::optional<string> get_string(const char* metadata_str);
     void set_string(const char* metadata_str, const char* val, size_t val_length);
 };
 }
