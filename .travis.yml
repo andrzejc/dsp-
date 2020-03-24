@@ -42,30 +42,34 @@ install:
 - cmake --version
 
 script:
-- set +o pipefail && mkdir -p build && cd build && set -o pipefail
+- set +e +o pipefail && mkdir -p build && cd build && set -e -o pipefail
 - cmake ${TARGET_PLATFORM:+-A ${TARGET_PLATFORM}} "-DCMAKE_PREFIX_PATH=${PWD}/deps/install" ..
-- cmake --build . --config RelWithDebInfo -- -j3
+- cmake --build . --config RelWithDebInfo
 - ctest --output-on-failure -C RelWithDebInfo -T test -j3
-- cmake --build . --config RelWithDebInfo --target docs -- -j3
-- cmake --build . --config RelWithDebInfo --target package -- -j3
+- cmake --build . --config RelWithDebInfo --target docs
+- cmake --build . --config RelWithDebInfo --target package
 
 matrix:
   include:
   - os: osx
     name: macOS 10.14 (10.15 SDK)
     osx_image: xcode11.2
+    env: CMAKE_GENERATOR=Ninja
   - os: osx
     name: macOS 10.13 (10.14 SDK)
     osx_image: xcode10.1
+    env: CMAKE_GENERATOR=Ninja
   - os: osx
     name: macOS 10.12 (10.13 SDK)
     osx_image: xcode9.2
   - os: linux
     name: Bionic-x64
     dist: bionic
+    env: CMAKE_GENERATOR=Ninja
   - os: linux
     name: Xenial-x64
     dist: xenial
+    env: CMAKE_GENERATOR=Ninja
 # TODO: investigate why this fails on travis
 #   - os: linux
 #     name: Bionic-ARM64
