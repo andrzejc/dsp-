@@ -104,7 +104,7 @@ struct layout {
             throw std::invalid_argument("dsp::snd::sample::layout::read_pcm() requires compatible "
                                         "sample::type::pcm_(un)signed");
         }
-        out = static_cast<Int>(read_bits<typename unsigned_of<Int>::type>(data));
+        out = static_cast<Int>(read_bits<unsigned_of_t<Int>>(data));
     }
 
     template<class Int>
@@ -142,7 +142,7 @@ struct layout {
         {
             throw std::invalid_argument("dsp::snd::sample::layout::write_pcm() requires compatible sample::type::pcm_(un)signed");
         }
-        write_bits(static_cast<typename unsigned_of<Int>::type>(in), data);
+        write_bits(static_cast<unsigned_of_t<Int>>(in), data);
     }
 
     template<class Int>
@@ -241,7 +241,7 @@ struct sample_cast_impl<In, Out, true, true, false, true> {
 template<class In, class Out> // unsigned int -> float
 struct sample_cast_impl<In, Out, false, true, false, true> {
     static Out cast(In in) {
-        return in / (static_cast<Out>(std::numeric_limits<In>::max()) + Out{1.}) - Out{.5};
+        return Out{2} * in / (static_cast<Out>(std::numeric_limits<In>::max()) + Out{1}) - Out{1};
     }
 };
 
@@ -255,7 +255,7 @@ struct sample_cast_impl<In, Out, true, true, true, false> {
 template<class In, class Out> // float -> unsigned int
 struct sample_cast_impl<In, Out, true, false, true, false> {
     static Out cast(In in) {
-        return rint<Out, rounding::nearest,	overflow::saturate>((in + In{.5}) * (static_cast<In>(std::numeric_limits<Out>::max()) + In{1.}));
+        return rint<Out, rounding::nearest,	overflow::saturate>((in + In{1}) * (static_cast<In>(std::numeric_limits<Out>::max()) + In{1.}) / In{2});
     }
 };
 
