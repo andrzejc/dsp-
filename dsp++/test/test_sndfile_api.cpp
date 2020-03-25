@@ -23,6 +23,18 @@ inline string test_data(const char* file) {
     return res;
 }
 
+struct temp_file {
+    char name[L_tmpnam] = {};
+
+    temp_file() {
+        std::tmpnam(name);
+    }
+
+    ~temp_file() {
+        std::remove(name);
+    }
+};
+
 TEST(sndfile_api, file_usable) {
     sndfile::file f;
     file_format fmt;
@@ -76,10 +88,9 @@ TEST(sndfile_api, channel_layout_preserved_on_rewrite) {
     wf.set_type(file_type::label::aiff);
     wf.set_channel_layout(channel::layout::s5_0);
 
-    char temp_aiff_file[L_tmpnam];
-    std::tmpnam(temp_aiff_file);
+    temp_file tmp;
     sndfile::writer w;
-    w.open(temp_aiff_file, &wf);
+    w.open(tmp.name, &wf);
     ASSERT_TRUE(w.is_open());
     float buf[5 * 480];
     for (int i = 0; i < 10; ++i) {
@@ -89,11 +100,9 @@ TEST(sndfile_api, channel_layout_preserved_on_rewrite) {
     w.close();
     r.close();
 
-    r.open(temp_aiff_file, &rf);
+    r.open(tmp.name, &rf);
     EXPECT_EQ(rf.type(), file_type::label::aiff);
     EXPECT_EQ(rf.channel_layout(), channel::layout::s5_0);
-    r.close();
-    std::remove(temp_aiff_file);
 }
 
 TEST(sndfile_api, properties_preserved_on_rewrite) {
@@ -102,14 +111,14 @@ TEST(sndfile_api, properties_preserved_on_rewrite) {
     r.open(test_data("s16_48k.wav").c_str(), &rf);
     ASSERT_EQ(rf.channel_layout(), channel::layout::undefined);
     ASSERT_EQ(r.frame_count(), 4800);
+
     file_format wf = rf;
-    wf.set_type(file_type::label::aiff);
+    wf.set_type(file_type::label::wav);
     wf.set_channel_layout(channel::layout::stereo);
 
-    char temp_aiff_file[L_tmpnam];
-    std::tmpnam(temp_aiff_file);
+    temp_file tmp;
     sndfile::writer w;
-    w.open(temp_aiff_file, &wf);
+    w.open(tmp.name, &wf);
     w.set_property(property::title, "s16_48k");
     ASSERT_TRUE(w.is_open());
     float buf[5 * 480];
@@ -120,12 +129,10 @@ TEST(sndfile_api, properties_preserved_on_rewrite) {
     w.close();
     r.close();
 
-    r.open(temp_aiff_file, &rf);
-    EXPECT_EQ(rf.type(), file_type::label::aiff);
+    r.open(tmp.name, &rf);
+    EXPECT_EQ(rf.type(), file_type::label::wav);
     EXPECT_TRUE(r.property(property::title));
     EXPECT_EQ(*r.property(property::title), "s16_48k");
-    r.close();
-    std::remove(temp_aiff_file);
 }
 
 }}}
