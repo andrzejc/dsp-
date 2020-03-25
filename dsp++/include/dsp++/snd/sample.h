@@ -63,7 +63,7 @@ struct shift_right8_impl<uint8_t> {
 
 /// @brief Describes memory organization of a single sample.
 struct layout {
-    type type = type::unknown;                                  ///< Type of sample data.
+    sample::type type = sample::type::unknown;                                  ///< Type of sample data.
     unsigned container_bytes = 0;                               ///< Number of bytes the sample is stored in.
     unsigned significant_bits = 0;                              ///< Number of bits carrying significant data.
     unsigned lsb_padding = 0;                                   ///< Number of padding bits to the right of LSB

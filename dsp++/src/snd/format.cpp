@@ -55,22 +55,22 @@ const file_format_entry file_mime_types[] = {
 
 }
 
-const char* const file_type::extension_for(const char* label) {
+const char* const file_type::extension_for(string_view label) {
     auto e = detail::match_member(file_extensions, &file_format_entry::label, label);
     return (nullptr == e ? nullptr : e->data);
 }
 
-const char* const file_type::for_extension(const char* ext) {
+const char* const file_type::for_extension(string_view ext) {
     auto e = detail::match_member(file_extensions, &file_format_entry::data, ext);
     return (nullptr == e ? nullptr : e->label);
 }
 
-const char* const file_type::mime_subtype_for(const char* label) {
+const char* const file_type::mime_subtype_for(string_view label) {
     auto e = detail::match_member(file_mime_types, &file_format_entry::label, label);
     return (nullptr == e ? nullptr : e->data);
 }
 
-const char* const file_type::for_mime_subtype(const char* ext) {
+const char* const file_type::for_mime_subtype(string_view ext) {
     auto e = detail::match_member(file_mime_types, &file_format_entry::data, ext);
     return (nullptr == e ? nullptr : e->label);
 }
@@ -133,7 +133,6 @@ void format::to_WAVEFORMATEXTENSIBLE(void* wfx) const {
     w->dwChannelMask = static_cast<DWORD>(channel_layout_.mask());
     w->Samples.wValidBitsPerSample = w->Format.wBitsPerSample;
 }
-
 #endif // _WIN32
 
 }}  // namespace dsp::snd

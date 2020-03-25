@@ -8,9 +8,6 @@
 #include <dsp++/snd/channel.h>
 #include <dsp++/snd/sample.h>
 
-#include <cstddef>
-#include <string>
-
 namespace dsp { namespace snd {
 
 /// @brief Audio file type labels, MIME type and file extension mapping.
@@ -32,21 +29,21 @@ constexpr char rf64[] =       "rf64";
 }
 
 /// @return file type label (a @c file_type::label constant) for specified file extension, or @c nullptr if unknown.
-DSPXX_API const char* const for_extension(const char* file_type_spec);
+DSPXX_API const char* const for_extension(string_view file_type_spec);
 /// @return file extension which should be used with specified file type label (a @c file_type::label constant),
 /// or @c nullptr if unknown.
-DSPXX_API const char* const extension_for(const char* file_type_spec);
+DSPXX_API const char* const extension_for(string_view file_type_spec);
 /// @return file type label (a @c file_type::label constant) for specified MIME subtype (assuming MIME type is
 /// audio/<i>subtype</i>), or @c nullptr if unknown.
-DSPXX_API const char* const for_mime_subtype(const char* file_type_spec);
+DSPXX_API const char* const for_mime_subtype(string_view file_type_spec);
 /// @return MIME subtype which should be used with specified file type label (a @c file_type::label ),
 /// or @c nullptr if unknown.
-DSPXX_API const char* const mime_subtype_for(const char* file_type_spec);
+DSPXX_API const char* const mime_subtype_for(string_view file_type_spec);
 
 constexpr char mime_type[] = "audio";
 
 /// @return full MIME type "audio/<subtype>" for given @p file_type_spec.
-DSPXX_API string mime_type_for(const char* file_type_spec);
+DSPXX_API string mime_type_for(string_view file_type_spec);
 
 } // namespace file_type
 
@@ -86,7 +83,9 @@ public:
     }
 
     /// @return @p true if specified @p channel::location identifier is present in this format's channel layout.
-    bool has_channel(channel::location ch) const {return channel_layout_.has(ch);}
+    bool has_channel(channel::location ch) const {
+        return channel_layout_.has(ch);
+    }
 
     void set_channel_present(channel::location ch, bool present = true) {
         channel_layout_.set(ch, present);
@@ -145,12 +144,14 @@ public:
     }
 
     template<class TimeMs>
-    unsigned time_ms_to_samples(TimeMs ms) const
-    {return static_cast<unsigned>(sample_rate_ * ms / static_cast<TimeMs>(1000.) + static_cast<TimeMs>(.5));}
+    unsigned time_ms_to_samples(TimeMs ms) const {
+        return static_cast<unsigned>(sample_rate_ * ms / static_cast<TimeMs>(1000.) + static_cast<TimeMs>(.5));
+    }
 
     template<class TimeS>
-    unsigned time_to_samples(TimeS s) const
-    {return static_cast<unsigned>(sample_rate_ * s + static_cast<TimeS>(.5));}
+    unsigned time_to_samples(TimeS s) const {
+        return static_cast<unsigned>(sample_rate_ * s + static_cast<TimeS>(.5));
+    }
 
 #ifdef _WIN32
     void to_WAVEFORMATEX(void* wfx) const;
@@ -169,10 +170,10 @@ public:
         type_ = std::move(type);
     }
     const char* const extension() const {
-        return file_type::extension_for(type_.c_str());
+        return file_type::extension_for(type_);
     }
     const char* const mime_subtype() const {
-        return file_type::mime_subtype_for(type_.c_str());
+        return file_type::mime_subtype_for(type_);
     }
 
     file_format() {}
