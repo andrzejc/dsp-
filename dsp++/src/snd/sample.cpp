@@ -9,6 +9,7 @@
 #include <cstring>
 #include <type_traits>
 #include <algorithm>
+#include <cctype>
 
 namespace dsp { namespace snd { namespace sample {
 
