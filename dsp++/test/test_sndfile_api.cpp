@@ -2,43 +2,18 @@
 #include <dsp++/snd/format.h>
 #include <dsp++/snd/property.h>
 
+#include "test_utility.h"
+
 #include <gtest/gtest.h>
 
 #include <cstdio>
 
 namespace dsp { namespace snd { namespace sndifle {
 
-constexpr char PATH_SEPARATOR =
-#if defined _WIN32 || defined __CYGWIN__
-    '\\';
-#else
-    '/';
-#endif
-
-inline string test_data(const char* file) {
-    auto env = std::getenv("DSPXX_TEST_DATA");
-    string res = env ? env : "data";
-    res += PATH_SEPARATOR;
-    res += file;
-    return res;
-}
-
-struct temp_file {
-    char name[L_tmpnam] = {};
-
-    temp_file() {
-        std::tmpnam(name);
-    }
-
-    ~temp_file() {
-        std::remove(name);
-    }
-};
-
 TEST(sndfile_api, file_usable) {
     sndfile::file f;
     file_format fmt;
-    f.open(test_data("f32_48k.wav").c_str(), &fmt);
+    f.open(test::data_file("f32_48k.wav").c_str(), &fmt);
     EXPECT_TRUE(f.is_open());
     EXPECT_EQ(f.sample_rate(), 48000);
     EXPECT_EQ(f.frame_count(), 4800);
@@ -59,7 +34,7 @@ TEST(sndfile_api, file_usable) {
 TEST(sndfile_api, reader_usable) {
     sndfile::file f;
     file_format fmt;
-    f.open(test_data("s24_48k_5ch.wav").c_str(), &fmt);
+    f.open(test::data_file("s24_48k_5ch.wav").c_str(), &fmt);
     EXPECT_TRUE(f.is_open());
     EXPECT_EQ(f.sample_rate(), 48000);
     EXPECT_EQ(f.frame_count(), 4800);
@@ -80,7 +55,7 @@ TEST(sndfile_api, reader_usable) {
 TEST(sndfile_api, channel_layout_preserved_on_rewrite) {
     sndfile::reader r;
     file_format rf;
-    r.open(test_data("s24_48k_5ch.wav").c_str(), &rf);
+    r.open(test::data_file("s24_48k_5ch.wav").c_str(), &rf);
     ASSERT_EQ(rf.channel_layout(), channel::layout::undefined);
     ASSERT_EQ(r.frame_count(), 4800);
     ASSERT_EQ(r.channel_count(), 5);
@@ -88,7 +63,7 @@ TEST(sndfile_api, channel_layout_preserved_on_rewrite) {
     wf.set_type(file_type::label::aiff);
     wf.set_channel_layout(channel::layout::s5_0);
 
-    temp_file tmp;
+    test::temp_file tmp;
     sndfile::writer w;
     w.open(tmp.name, &wf);
     ASSERT_TRUE(w.is_open());
@@ -108,7 +83,7 @@ TEST(sndfile_api, channel_layout_preserved_on_rewrite) {
 TEST(sndfile_api, properties_preserved_on_rewrite) {
     sndfile::reader r;
     file_format rf;
-    r.open(test_data("s16_48k.wav").c_str(), &rf);
+    r.open(test::data_file("s16_48k.wav").c_str(), &rf);
     ASSERT_EQ(rf.channel_layout(), channel::layout::undefined);
     ASSERT_EQ(r.frame_count(), 4800);
 
@@ -116,7 +91,7 @@ TEST(sndfile_api, properties_preserved_on_rewrite) {
     wf.set_type(file_type::label::wav);
     wf.set_channel_layout(channel::layout::stereo);
 
-    temp_file tmp;
+    test::temp_file tmp;
     sndfile::writer w;
     w.open(tmp.name, &wf);
     w.set_property(property::title, "s16_48k");
@@ -131,8 +106,9 @@ TEST(sndfile_api, properties_preserved_on_rewrite) {
 
     r.open(tmp.name, &rf);
     EXPECT_EQ(rf.type(), file_type::label::wav);
-    EXPECT_TRUE(r.property(property::title));
+    ASSERT_TRUE(r.property(property::title));
     EXPECT_EQ(*r.property(property::title), "s16_48k");
+    EXPECT_FALSE(r.property(property::artist));
 }
 
 }}}
