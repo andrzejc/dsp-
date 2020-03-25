@@ -16,20 +16,20 @@ namespace sample {
 
 /// @brief Labels of audio sample formats.
 namespace format {
-constexpr char u8[] =  "U8";   ///< Unsigned 8-bit integer with offset of 128 linear PCM.
-constexpr char s8[] =  "S8";   ///< Signed 8-bit integer, linear PCM.
-constexpr char s16[] = "S16";  ///< Signed 16-bit integer linear PCM.
-constexpr char s24[] = "S24";  ///< Signed 24-bit integer (packed) linear PCM.
-constexpr char s32[] = "S32";  ///< Signed 32-bit integer linear PCM.
-constexpr char f32[] = "F32";  ///< Floating-point 32-bit (with a non-overdriving range of [-1.0, 1.0]).
-constexpr char f64[] = "F64";  ///< Floating-point 64-bit (with a non-overdriving range of [-1.0, 1.0]).
+constexpr char U8[] =  "U8";   ///< Unsigned 8-bit integer with offset of 128 linear PCM.
+constexpr char S8[] =  "S8";   ///< Signed 8-bit integer, linear PCM.
+constexpr char S16[] = "S16";  ///< Signed 16-bit integer linear PCM.
+constexpr char S24[] = "S24";  ///< Signed 24-bit integer (packed) linear PCM.
+constexpr char S32[] = "S32";  ///< Signed 32-bit integer linear PCM.
+constexpr char F32[] = "F32";  ///< Floating-point 32-bit (with a non-overdriving range of [-1.0, 1.0]).
+constexpr char F64[] = "F64";  ///< Floating-point 64-bit (with a non-overdriving range of [-1.0, 1.0]).
 } // namespace format
 
 constexpr unsigned bit_size_unknown = 0;
 
 /// @param[in] format_spec format label to parse for sample bit size
 /// @return bit size of sample in given format.
-DSPXX_API unsigned bit_size_of(const char* format_spec);
+DSPXX_API unsigned bit_size_of(string_view format_spec);
 
 /// @brief Sample type labels as returned by dsp::snd::sample::type_of().
 enum class type {
@@ -41,7 +41,7 @@ enum class type {
 
 /// @param[in] format_spec format description to parse for sample type.
 /// @return sample type of given format.
-DSPXX_API type type_of(const char* format_spec);
+DSPXX_API type type_of(string_view format_spec);
 
 } // namespace sample
 
@@ -97,9 +97,9 @@ constexpr unsigned unknown = 0;
 /// sample format.
 /// Note that the sample format adheres primarily to the format which is used internally by I/O classes, i.e. the
 /// hardware or I/O format, not the sample abstraction used by @p dsp::snd APIs (which tend to use float or double
-/// types, mapping to @c sample::format::f32 &amp; @p sample::label::f64).
+/// types, mapping to @c sample::format::F32 &amp; @p sample::label::F64).
 class DSPXX_API format {
-    std::string sample_format_;
+    string sample_format_;
     channel::layout channel_layout_;
     unsigned sample_rate_ = sample_rate::unknown;
     unsigned channel_count_ = 0;
@@ -145,31 +145,31 @@ public:
     }
 
     /// @return Sample format as used by I/O functions or hardware interface.
-    const std::string& sample_format() const {
+    const string& sample_format() const {
         return sample_format_;
     }
-    void set_sample_format(std::string sf) {
+    void set_sample_format(string sf) {
         sample_format_ = std::move(sf);
     }
     unsigned sample_bits() const {
-        return sample::bit_size_of(sample_format_.c_str());
+        return sample::bit_size_of(sample_format_);
     }
     sample::type sample_type() const {
-        return sample::type_of(sample_format_.c_str());
+        return sample::type_of(sample_format_);
     }
 
     static const format audio_cd;
 
     format() {}
 
-    format(unsigned sample_rate, unsigned channel_count, std::string sample_format = std::string{}):
+    format(unsigned sample_rate, unsigned channel_count, string sample_format = {}):
         sample_format_(std::move(sample_format)),
         sample_rate_(sample_rate)
     {
         set_channel_count(channel_count);
     }
 
-    format(unsigned sample_rate, const channel::layout& channel_layout, std::string sample_format = std::string{}):
+    format(unsigned sample_rate, const channel::layout& channel_layout, string sample_format = {}):
         sample_format_(std::move(sample_format)),
         sample_rate_(sample_rate)
     {
@@ -191,13 +191,13 @@ public:
 };
 
 class DSPXX_API file_format: public format {
-    std::string type_;
+    string type_;
 
 public:
-    const std::string& type() const {
+    const string& type() const {
         return type_;
     }
-    void set_type(std::string type) {
+    void set_type(string type) {
         type_ = std::move(type);
     }
     const char* const extension() const {
@@ -211,8 +211,8 @@ public:
 
     file_format(unsigned sample_rate,
                 unsigned channel_count,
-                std::string type,
-                std::string sample_format = std::string{}
+                string type,
+                string sample_format = {}
     ):
         format{sample_rate, channel_count, std::move(sample_format)},
         type_{std::move(type)}
@@ -220,8 +220,8 @@ public:
 
     file_format(unsigned sample_rate,
                 const channel::layout& channel_layout,
-                std::string type,
-                std::string sample_format = std::string{}
+                string type,
+                string sample_format = {}
     ):
         format{sample_rate, channel_layout, std::move(sample_format)},
         type_{std::move(type)}

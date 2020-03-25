@@ -6,6 +6,7 @@
 
 #include "../utility.h"
 
+#include <absl/strings/numbers.h>
 #include <boost/format.hpp>
 
 #include <cstdlib>
@@ -75,12 +76,11 @@ const char* const file_type::for_mime_subtype(const char* ext) {
     return (nullptr == e ? nullptr : e->label);
 }
 
-sample::type sample::type_of(const char* sf) {
-    size_t len;
-    if (nullptr == sf || 0 == (len = std::strlen(sf))) {
+sample::type sample::type_of(string_view sf) {
+    if (sf.empty()) {
         return type::unknown;
     }
-    switch (std::tolower(*sf)) {
+    switch (std::tolower(sf.front())) {
     case 's':
         return type::pcm_signed;
     case 'u':
@@ -92,27 +92,29 @@ sample::type sample::type_of(const char* sf) {
     }
 }
 
-unsigned sample::bit_size_of(const char* sf) {
-    size_t len;
-    if (nullptr == sf || 0 == (len = std::strlen(sf))) {
+unsigned sample::bit_size_of(string_view sf) {
+    if (sf.empty()) {
         return 0;
     }
-    int type = std::tolower(*sf++);
-    --len;
-    if ('s' != type && 'u' != type && 'f' != type) {
+    int type = std::tolower(sf.front());
+    if ('s' != type && 'u' != type && 'f' != type && '_' != type) {
         return 0;
     }
-    char* end;
-    int rerr = errno;
-    unsigned long sz = std::strtoul(sf, &end, 10);
-    int err = errno; errno = rerr;
-    if (0 != err) {
+    sf.remove_prefix(1);
+    // drop part of format after first dot .
+    auto dot = sf.find('.');
+    if (dot != sf.npos) {
+        sf.remove_suffix(sf.length() - dot);
+    }
+    unsigned res;
+    if (absl::SimpleAtoi(sf, &res)) {
+        return res;
+    } else {
         return 0;
     }
-    return static_cast<unsigned>(sz);
 }
 
-const format format::audio_cd{sample_rate::audio_cd, channel::layout::stereo, sample::format::s16};
+const format format::audio_cd{sample_rate::audio_cd, channel::layout::stereo, sample::format::S16};
 
 #ifdef _WIN32
 }}

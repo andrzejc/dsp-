@@ -171,13 +171,13 @@ const channel_map_entry channel_map[] = {
     {channel::location::top_back_right, SF_CHANNEL_MAP_TOP_REAR_RIGHT},
 };
 
-int to_sf_format(const file_format& f) {
+int to_sf_format(const file_format& f, bool write_mode) {
     int res = 0;
     auto& ft = f.type();
     auto e = dsp::detail::match_member(file_types, &file_type_entry::label, ft);
     if (nullptr != e) {
         res |= e->type;
-    } else {
+    } else if (write_mode) {
         throw std::runtime_error{boost::str(boost::format("can't map file type \"%1%\" to libsndfile format") %
             ft
         )};
@@ -231,25 +231,25 @@ void from_sf_format(int format, file_format& f) {
 
     switch (format & SF_FORMAT_SUBMASK) {
     case SF_FORMAT_PCM_S8:
-        f.set_sample_format(sample::format::s8);
+        f.set_sample_format(sample::format::S8);
         break;
     case SF_FORMAT_PCM_U8:
-        f.set_sample_format(sample::format::u8);
+        f.set_sample_format(sample::format::U8);
         break;
     case SF_FORMAT_PCM_16:
-        f.set_sample_format(sample::format::s16);
+        f.set_sample_format(sample::format::S16);
         break;
     case SF_FORMAT_PCM_24:
-        f.set_sample_format(sample::format::s24);
+        f.set_sample_format(sample::format::S24);
         break;
     case SF_FORMAT_PCM_32:
-        f.set_sample_format(sample::format::s32);
+        f.set_sample_format(sample::format::S32);
         break;
     case SF_FORMAT_FLOAT:
-        f.set_sample_format(sample::format::f32);
+        f.set_sample_format(sample::format::F32);
         break;
     case SF_FORMAT_DOUBLE:
-        f.set_sample_format(sample::format::f64);
+        f.set_sample_format(sample::format::F64);
         break;
     }
 }
@@ -294,7 +294,7 @@ struct iobase::impl {
             std::memset(&info_, 0, sizeof(info_));
             info_.samplerate = f->sample_rate();
             info_.channels = f->channel_count();
-            info_.format = to_sf_format(*f);
+            info_.format = to_sf_format(*f, mode_ == detail::iobase::mode::write);
         }
         else if (info != nullptr) {
             info_ = *info;
@@ -306,12 +306,16 @@ struct iobase::impl {
     void read_channel_map(file_format& f) {
         std::unique_ptr<int[]> arr{new int[info_.channels]};
         int res = sf_command(sf_, SFC_GET_CHANNEL_MAP_INFO, &arr[0], sizeof(int) * info_.channels);
-        if (0 != res) {
+        if (SF_TRUE != res) {
+            f.set_channel_count(info_.channels);
             return;
         }
 
         channel::layout layout;
         for (int i = 0; i < info_.channels; ++i) {
+            if (arr[i] == SF_CHANNEL_MAP_INVALID) {
+                continue;
+            }
             auto e = dsp::detail::match_member(channel_map, &channel_map_entry::their, arr[i]);
             if (e == nullptr) {
                 throw std::runtime_error{boost::str(boost::format("can't match libsndfile channel id %1% to channel::location") %
@@ -320,10 +324,14 @@ struct iobase::impl {
             }
             layout.set(e->our);
         }
-        f.set_channel_layout(layout);
+        if (layout.count() == info_.channels) {
+            f.set_channel_layout(layout);
+        } else {
+            f.set_channel_count(info_.channels);
+        }
     }
 
-    void write_channel_map(const file_format& f) {
+    bool write_channel_map(const file_format& f) {
         std::unique_ptr<int[]> arr{new int[f.channel_count()]};
         unsigned cc = 0;
         for (int i = 0; i < static_cast<int>(channel::location::COUNT); ++i) {
@@ -339,13 +347,13 @@ struct iobase::impl {
             }
             arr[cc++] = e->their;
         }
-        sf_command(sf_, SFC_SET_CHANNEL_MAP_INFO, &arr[0], sizeof(int) * cc);
+        int res = sf_command(sf_, SFC_SET_CHANNEL_MAP_INFO, &arr[0], sizeof(int) * cc);
+        return res == SF_TRUE;
     }
 
     void fill_info(file_format* f, SF_INFO* info) {
         if (f != nullptr) {
             f->set_sample_rate(static_cast<unsigned>(info_.samplerate));
-            f->set_channel_count(static_cast<unsigned>(info_.channels));
             from_sf_format(info_.format, *f);
             if (mode::write != mode_) {
                 read_channel_map(*f);

@@ -58,7 +58,7 @@ struct DSPXX_API writer: virtual iobase {
     virtual void set_property(string_view metadata, string_view value) = 0;
 };
 
-struct DSPXX_API file: public reader, public writer {
+struct DSPXX_API file: public virtual reader, public virtual writer {
 };
 
 }}

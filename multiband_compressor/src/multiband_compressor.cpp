@@ -24,7 +24,7 @@ namespace dsp { namespace rt { namespace detail {
 	typedef r::multiband_compressor::sample_type s_t;
 } } }
 
-struct det::mbc_impl 
+struct det::mbc_impl
 {
 	static const size_t ir_length_max = 256;
 
@@ -40,7 +40,7 @@ struct det::mbc_impl
 		d::overlap_add<s_t> filter_;
 		d::compressor<s_t> compressor_;
 
-		//band_channel(size_t 
+		//band_channel(size_t
 	};
 
 	typedef boost::shared_ptr<band_channel> band_channel_ptr;
@@ -125,7 +125,7 @@ unsigned r::multiband_compressor::sample_rate() const {
 void r::multiband_compressor::fill_format(s::format& f) const {
 	f.set_channel_mask(0);
 	f.set_channel_count(impl_->channel_count_);
-	f.set_sample_format(s::sample::label::f32);
+	f.set_sample_format(s::sample::label::F32);
 	f.set_sample_rate(impl_->sample_rate_);
 }
 
@@ -269,7 +269,7 @@ void r::multiband_compressor::set_params(const r::multiband_compressor::params& 
 	bool xover_changed = false;
 	if (p.crossover_frequencies != impl_->xover_)
 		xover_changed = changed = true;
-	else if (p.bands.size() != impl_->bands_.size()) 
+	else if (p.bands.size() != impl_->bands_.size())
 		bands_changed = changed = true;
 	else {
 		for (size_t i = 0; i < p.bands.size(); ++i)
@@ -300,7 +300,7 @@ void r::multiband_compressor::set_params(const r::multiband_compressor::params& 
 		// add missing band entries
 		impl_->bands_.resize(p.bands.size());
 
-		//for (size_t i = start; i < p.bands.size(); ++i) 
+		//for (size_t i = start; i < p.bands.size(); ++i)
 		//	impl_->add_band_direct(p.bands[i]);
 		// TODO implement add_band_direct
 	}

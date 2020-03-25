@@ -16,7 +16,7 @@ namespace dsp { namespace snd { namespace sndfile {
 
 //! @brief Simple interface for reading sound files (uses libsndfile as a back-end).
 // TODO make detail::iobase private
-class DSPXX_API reader: public snd::reader, protected virtual detail::iobase {
+class DSPXX_API reader: public virtual snd::reader, protected virtual detail::iobase {
 public:
     /*!
      * @brief Constructor.
@@ -30,6 +30,7 @@ public:
     using detail::iobase::close;
     using detail::iobase::is_open;
     using detail::iobase::sample_rate;
+    using detail::iobase::frame_count;
     using detail::iobase::channel_count;
     using detail::iobase::seekable;
     using detail::iobase::seek;
