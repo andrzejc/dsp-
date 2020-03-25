@@ -1,6 +1,6 @@
 #include <dsp++/platform.h>
 
-#ifdef DSP_ARCH_FAMILY_X86
+#ifdef DSPXX_ARCH_FAMILY_X86
 
 #include <dsp++/simd.h>
 #include "../../simd.h"
@@ -130,7 +130,7 @@ DSPXX_API size_t dsp::simd::alignment() {
 }
 
 DSPXX_API unsigned dsp::simd::architecture() {
-#ifdef DSP_ARCH_X86_64
+#ifdef DSPXX_ARCH_X86_64
 	return dsp::simd::arch::x86_64;
 #else
 	return dsp::simd::arch::x86;
@@ -166,5 +166,5 @@ DSPXX_API void dsp::simd::aligned_free(void* ptr)
 #endif
 }
 
-#endif // DSP_ARCH_FAMILY_X86
+#endif // DSPXX_ARCH_FAMILY_X86
 

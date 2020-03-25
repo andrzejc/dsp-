@@ -6,7 +6,6 @@
 
 #include "../utility.h"
 
-#include <absl/strings/numbers.h>
 #include <boost/format.hpp>
 
 #include <cstdlib>
@@ -74,44 +73,6 @@ const char* const file_type::mime_subtype_for(const char* label) {
 const char* const file_type::for_mime_subtype(const char* ext) {
     auto e = detail::match_member(file_mime_types, &file_format_entry::data, ext);
     return (nullptr == e ? nullptr : e->label);
-}
-
-sample::type sample::type_of(string_view sf) {
-    if (sf.empty()) {
-        return type::unknown;
-    }
-    switch (std::tolower(sf.front())) {
-    case 's':
-        return type::pcm_signed;
-    case 'u':
-        return type::pcm_unsigned;
-    case 'f':
-        return type::ieee_float;
-    default:
-        return type::unknown;
-    }
-}
-
-unsigned sample::bit_size_of(string_view sf) {
-    if (sf.empty()) {
-        return 0;
-    }
-    int type = std::tolower(sf.front());
-    if ('s' != type && 'u' != type && 'f' != type && '_' != type) {
-        return 0;
-    }
-    sf.remove_prefix(1);
-    // drop part of format after first dot .
-    auto dot = sf.find('.');
-    if (dot != sf.npos) {
-        sf.remove_suffix(sf.length() - dot);
-    }
-    unsigned res;
-    if (absl::SimpleAtoi(sf, &res)) {
-        return res;
-    } else {
-        return 0;
-    }
 }
 
 const format format::audio_cd{sample_rate::audio_cd, channel::layout::stereo, sample::format::S16};

@@ -4,9 +4,9 @@
 #include <cstdlib> // for posix_memalign()/aligned_alloc()/malloc()/free()
 #include <cassert>
 
-#if defined(DSP_OS_ANDROID)
+#if defined(DSPXX_OS_ANDROID)
 #include <malloc.h>
-#endif // DSP_OS_ANDROID
+#endif // DSPXX_OS_ANDROID
 
 #include "simd.h"
 
@@ -18,7 +18,7 @@ void* dsp::simd::detail::generic_aligned_alloc(size_t size)
 	void* ptr;
 	while (true)
 	{
-#if defined(DSP_OS_ANDROID)
+#if defined(DSPXX_OS_ANDROID)
 		ptr = ::memalign(alignment_, size);
 #elif (_POSIX_C_SOURCE >= 200112L) || (_XOPEN_SOURCE >= 600)
 		if (0 != ::posix_memalign(&ptr, size, alignment_))
@@ -43,7 +43,7 @@ void* dsp::simd::detail::generic_aligned_alloc(size_t size)
 
 void dsp::simd::detail::generic_aligned_free(void* ptr)
 {
-#if (_POSIX_C_SOURCE >= 200112L) || (_XOPEN_SOURCE >= 600) || (_ISOC11_SOURCE) || defined(DSP_OS_ANDROID)
+#if (_POSIX_C_SOURCE >= 200112L) || (_XOPEN_SOURCE >= 600) || (_ISOC11_SOURCE) || defined(DSPXX_OS_ANDROID)
 	std::free(ptr);
 #else
     if (NULL == ptr)

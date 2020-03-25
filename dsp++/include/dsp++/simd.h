@@ -15,7 +15,7 @@
 
 namespace dsp { namespace simd {
 
-	//! @brief Processor architecture flags, not really useful in runtime - use DSP_ARCH_XXX macros in {@link dsp++/platform.h} instead.
+	//! @brief Processor architecture flags, not really useful in runtime - use DSPXX_ARCH_XXX macros in {@link dsp++/platform.h} instead.
 	namespace arch { enum spec {
 		unknown = 			0x0000,		//!<
 		x86 = 				0x0001,   	//!< 32-bit x86 (IA32)

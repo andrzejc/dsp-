@@ -1,6 +1,6 @@
 #include <dsp++/platform.h>
 
-#ifdef DSP_ARCH_FAMILY_X86
+#ifdef DSPXX_ARCH_FAMILY_X86
 
 #include <algorithm>
 #include <dsp++/simd.h>
@@ -22,10 +22,10 @@ void dsp::simd::detail::x86_sse_free(void *p) {
 // testing inline assembly :)
 void dsp::simd::detail::x86_sse_mulf(float* res, const float* x, const float* b, size_t N) {
 __asm {
-	mov		eax, dword ptr [N]		
-	mov		edi, dword ptr [res]	
-	mov		esi, dword ptr [x]		
-	mov		edx, dword ptr [b]		
+	mov		eax, dword ptr [N]
+	mov		edi, dword ptr [res]
+	mov		esi, dword ptr [x]
+	mov		edx, dword ptr [b]
 
 	mov		ecx, eax
 	shr		ecx, 5
@@ -306,4 +306,4 @@ float dsp::simd::detail::x86_sse_accf(const float* x, size_t N)
 	return _mm_cvtss_f32(r);
 }
 
-#endif // DSP_ARCH_FAMILY_X86
+#endif // DSPXX_ARCH_FAMILY_X86

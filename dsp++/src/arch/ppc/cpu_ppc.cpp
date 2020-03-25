@@ -1,10 +1,10 @@
 #include <dsp++/platform.h>
 
-#ifdef DSP_ARCH_FAMILY_PPC
+#ifdef DSPXX_ARCH_FAMILY_PPC
 
-#if defined(DSP_OS_MACOSX)
+#if defined(DSPXX_OS_MACOSX)
 # include <sys/sysctl.h>
-#elif defined(DSP_OS_FAMILY_BSD)
+#elif defined(DSPXX_OS_FAMILY_BSD)
 # include <sys/param.h>
 # include <sys/sysctl.h>
 # include <machine/cpu.h>
@@ -13,11 +13,11 @@
 
 static const size_t alignment_ = 16;
 
-unsigned dsp::simd::features() 
+unsigned dsp::simd::features()
 {
-#if defined(DSP_OS_FAMILY_BSD)
+#if defined(DSPXX_OS_FAMILY_BSD)
     int sels[2] = {CTL_MACHDEP, CPU_ALTIVEC};
-#elif defined(DSP_OS_MACOSX)
+#elif defined(DSPXX_OS_MACOSX)
     int sels[2] = {CTL_HW, HW_VECTORUNIT};
 #endif
     int altivec = 0;
@@ -30,7 +30,7 @@ unsigned dsp::simd::features()
 
 DSPXX_API unsigned dsp::simd::architecture()
 {
-#ifdef DSP_ARCH_PPC64
+#ifdef DSPXX_ARCH_PPC64
 	return arch::ppc64;
 #else
 	return arch::ppc;

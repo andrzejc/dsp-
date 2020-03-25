@@ -1,6 +1,6 @@
 #include <dsp++/platform.h>
 
-#ifdef DSP_ARCH_FAMILY_ARM
+#ifdef DSPXX_ARCH_FAMILY_ARM
 
 #include <dsp++/simd.h>
 #include "../../simd.h"
@@ -23,20 +23,20 @@ DSPXX_API unsigned dsp::simd::features() {
 
 DSPXX_API size_t dsp::simd::alignment() {
 	// XXX 8 byte alignment is used by ARM-EABI
-	return 8; 
+	return 8;
 }
 
 DSPXX_API unsigned dsp::simd::architecture() {
 	unsigned arch = 0;
-#ifdef DSP_ARCH_ARM
+#ifdef DSPXX_ARCH_ARM
 	arch |= dsp::simd::arch::arm;
 #endif
-#ifdef DSP_ARCH_ARM
+#ifdef DSPXX_ARCH_ARM
 	//arch |= dsp::simd::arch::thumb;
 #endif
-#ifdef DSP_ARCH_ARM
+#ifdef DSPXX_ARCH_ARM
 	arch |= dsp::simd::arch::arm64;
-#endif 
+#endif
 	return arch;
 }
 
@@ -63,5 +63,5 @@ DSPXX_API void dsp::simd::aligned_free(void* ptr)
 #endif
 }
 
-#endif // DSP_ARCH_FAMILY_ARM
+#endif // DSPXX_ARCH_FAMILY_ARM
 

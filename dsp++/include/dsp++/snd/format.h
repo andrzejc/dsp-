@@ -6,44 +6,12 @@
 #include <dsp++/export.h>
 #include <dsp++/types.h>
 #include <dsp++/snd/channel.h>
+#include <dsp++/snd/sample.h>
 
 #include <cstddef>
 #include <string>
 
 namespace dsp { namespace snd {
-
-namespace sample {
-
-/// @brief Labels of audio sample formats.
-namespace format {
-constexpr char U8[] =  "U8";   ///< Unsigned 8-bit integer with offset of 128 linear PCM.
-constexpr char S8[] =  "S8";   ///< Signed 8-bit integer, linear PCM.
-constexpr char S16[] = "S16";  ///< Signed 16-bit integer linear PCM.
-constexpr char S24[] = "S24";  ///< Signed 24-bit integer (packed) linear PCM.
-constexpr char S32[] = "S32";  ///< Signed 32-bit integer linear PCM.
-constexpr char F32[] = "F32";  ///< Floating-point 32-bit (with a non-overdriving range of [-1.0, 1.0]).
-constexpr char F64[] = "F64";  ///< Floating-point 64-bit (with a non-overdriving range of [-1.0, 1.0]).
-} // namespace format
-
-constexpr unsigned bit_size_unknown = 0;
-
-/// @param[in] format_spec format label to parse for sample bit size
-/// @return bit size of sample in given format.
-DSPXX_API unsigned bit_size_of(string_view format_spec);
-
-/// @brief Sample type labels as returned by dsp::snd::sample::type_of().
-enum class type {
-    unknown,
-    pcm_unsigned,
-    pcm_signed,
-    ieee_float,
-};
-
-/// @param[in] format_spec format description to parse for sample type.
-/// @return sample type of given format.
-DSPXX_API type type_of(string_view format_spec);
-
-} // namespace sample
 
 /// @brief Audio file type labels, MIME type and file extension mapping.
 namespace file_type {

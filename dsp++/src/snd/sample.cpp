@@ -2,30 +2,70 @@
 #include <dsp++/snd/convert.h>
 #include <dsp++/snd/buffer.h>
 
+#include <absl/strings/numbers.h>
+
 #include <limits>
 #include <cassert>
 #include <cstring>
 #include <type_traits>
 #include <algorithm>
 
-namespace dsp { namespace snd {
+namespace dsp { namespace snd { namespace sample {
+
+type type_of(string_view sf) {
+    if (sf.empty()) {
+        return type::unknown;
+    }
+    switch (std::tolower(sf.front())) {
+    case 's':
+        return type::pcm_signed;
+    case 'u':
+        return type::pcm_unsigned;
+    case 'f':
+        return type::ieee_float;
+    default:
+        return type::unknown;
+    }
+}
+
+unsigned bit_size_of(string_view sf) {
+    if (sf.empty()) {
+        return 0;
+    }
+    int type = std::tolower(sf.front());
+    if ('s' != type && 'u' != type && 'f' != type && '_' != type) {
+        return 0;
+    }
+    sf.remove_prefix(1);
+    // drop part of format after first dot .
+    auto dot = sf.find('.');
+    if (dot != sf.npos) {
+        sf.remove_suffix(sf.length() - dot);
+    }
+    unsigned res;
+    if (absl::SimpleAtoi(sf, &res)) {
+        return res;
+    } else {
+        return 0;
+    }
+}
 
 namespace {
 template<class Int, class Res>
-inline void read_pcm_as_float_(const sample_layout& sl, const void* data, Res& res) {
+inline void read_pcm_as_float_(const layout& sl, const void* data, Res& res) {
     Int i;
     sl.read_pcm(data, i);
-    res = sample_cast<Res>(i);
+    res = sample::cast<Res>(i);
 }
 
 template<class Int, class Float>
-inline void write_float_as_pcm_(const sample_layout& sl, Float in, void* out) {
-    Int i = sample_cast<Int>(in);
+inline void write_float_as_pcm_(const layout& sl, Float in, void* out) {
+    Int i = sample::cast<Int>(in);
     sl.write_pcm(i, out);
 }
 
 template<class Res>
-inline void read_pcm_signed_as_float(const sample_layout& sl, const void* data, Res& res) {
+inline void read_pcm_signed_as_float(const layout& sl, const void* data, Res& res) {
     if (sl.container_bytes > 4) {
         read_pcm_as_float_<int64_t>(sl, data, res);
     } else if (sl.container_bytes > 2) {
@@ -38,7 +78,7 @@ inline void read_pcm_signed_as_float(const sample_layout& sl, const void* data, 
 }
 
 template<class Float>
-inline void write_float_as_pcm_signed(const sample_layout& sl, Float f, void* data) {
+inline void write_float_as_pcm_signed(const layout& sl, Float f, void* data) {
     if (sl.container_bytes > 4) {
         write_float_as_pcm_<int64_t>(sl, f, data);
     } else if (sl.container_bytes> 2) {
@@ -51,7 +91,7 @@ inline void write_float_as_pcm_signed(const sample_layout& sl, Float f, void* da
 }
 
 template<class Res>
-inline void read_pcm_unsigned_as_float(const sample_layout& sl, const void* data, Res& res) {
+inline void read_pcm_unsigned_as_float(const layout& sl, const void* data, Res& res) {
     if (sl.container_bytes > 4) {
         read_pcm_as_float_<uint64_t>(sl, data, res);
     } else if (sl.container_bytes > 2) {
@@ -64,7 +104,7 @@ inline void read_pcm_unsigned_as_float(const sample_layout& sl, const void* data
 }
 
 template<class Float>
-inline void write_float_as_pcm_unsigned(const sample_layout& sl, Float f, void* data) {
+inline void write_float_as_pcm_unsigned(const layout& sl, Float f, void* data) {
     if (sl.container_bytes > 4) {
         write_float_as_pcm_<uint64_t>(sl, f, data);
     } else if (sl.container_bytes > 2) {
@@ -77,7 +117,7 @@ inline void write_float_as_pcm_unsigned(const sample_layout& sl, Float f, void* 
 }
 
 template<class Float>
-inline void read_ieee_as_float(const sample_layout& sl, const void* data, Float& res) {
+inline void read_ieee_as_float(const layout& sl, const void* data, Float& res) {
     if (4 == sl.container_bytes) {
         float32_t f;
         sl.read_ieee_float(data, f);
@@ -88,61 +128,61 @@ inline void read_ieee_as_float(const sample_layout& sl, const void* data, Float&
         res = static_cast<Float>(f);
     }
     else {
-        throw std::runtime_error("dsp::snd::sample_layout::read_float() IEEE 754 supports only 32 and 64-bit containers");
+        throw std::runtime_error("dsp::snd::layout::read_float() IEEE 754 supports only 32 and 64-bit containers");
     }
 }
 
 template<class Float>
-inline void write_float_as_ieee(const sample_layout& sl, Float in, void* data) {
+inline void write_float_as_ieee(const layout& sl, Float in, void* data) {
     if (4 == sl.container_bytes) {
-        float32_t f = sample_cast<float32_t>(in);
+        float32_t f = sample::cast<float32_t>(in);
         sl.write_ieee_float(f, data);
     } else if (8 == sl.container_bytes) {
-        float64_t f = sample_cast<float64_t>(in);
+        float64_t f = sample::cast<float64_t>(in);
         sl.write_ieee_float(f, data);
     }
     else {
-        throw std::runtime_error("dsp::snd::sample_layout::write_float() IEEE 754 supports only 32 and 64-bit containers");
+        throw std::runtime_error("dsp::snd::layout::write_float() IEEE 754 supports only 32 and 64-bit containers");
     }
 }
 
 template<class Float>
-inline void read_sample_as_float(const sample_layout& sl, const void* data, Float& res) {
+inline void read_sample_as_float(const layout& sl, const void* data, Float& res) {
     switch (sl.type) {
-    case sample::type::ieee_float:
+    case type::ieee_float:
         read_ieee_as_float(sl, data, res);
         break;
-    case sample::type::pcm_signed:
+    case type::pcm_signed:
         read_pcm_signed_as_float(sl, data, res);
         break;
-    case sample::type::pcm_unsigned:
+    case type::pcm_unsigned:
         read_pcm_unsigned_as_float(sl, data, res);
         break;
     default:
-        throw std::runtime_error("dsp::snd::sample_layout::read_float() unknown sample format");
+        throw std::runtime_error("dsp::snd::layout::read_float() unknown sample format");
     }
 }
 
 template<class Float>
-inline void write_sample_as_float(const dsp::snd::sample_layout& sl, Float in, void* data) {
+inline void write_sample_as_float(const layout& sl, Float in, void* data) {
     switch (sl.type) {
-    case sample::type::ieee_float:
+    case type::ieee_float:
         write_float_as_ieee(sl, in, data);
         break;
-    case sample::type::pcm_signed:
+    case type::pcm_signed:
         write_float_as_pcm_signed(sl, in, data);
         break;
-    case sample::type::pcm_unsigned:
+    case type::pcm_unsigned:
         write_float_as_pcm_unsigned(sl, in, data);
         break;
     default:
-        throw std::runtime_error("dsp::snd::sample_layout::write_float() unknown sample format");
+        throw std::runtime_error("dsp::snd::layout::write_float() unknown sample format");
     }
 }
 
 }
 
-#if !defined(DSP_ENDIAN_LITTLE) && !defined(DSP_ENDIAN_BIG)
+#if !defined(DSPXX_ENDIAN_LITTLE) && !defined(DSPXX_ENDIAN_BIG)
 
 namespace {
 static byte_order::label platform_test() {
@@ -159,19 +199,19 @@ const byte_order::label byte_order::platform = platform_test();
 
 #endif
 
-void sample_layout::read_float(const void* data, float& out) const {
+void layout::read_float(const void* data, float& out) const {
     read_sample_as_float(*this, data, out);
 }
 
-void sample_layout::read_float(const void* data, double& out) const {
+void layout::read_float(const void* data, double& out) const {
     read_sample_as_float(*this, data, out);
 }
 
-void sample_layout::write_float(float in, void* data) const {
+void layout::write_float(float in, void* data) const {
     write_sample_as_float(*this, in, data);
 }
 
-void sample_layout::write_float(double in, void* data) const {
+void layout::write_float(double in, void* data) const {
     write_sample_as_float(*this, in, data);
 }
 
@@ -180,20 +220,20 @@ void sample_layout::write_float(double in, void* data) const {
 static const char data[] = "\0\1\2\3\4\5\6\7";
 
 static bool test() {
-    dsp::snd::sample_layout s8_le(dsp::snd::sample::type::pcm_signed, 1, dsp::snd::byte_order::little_endian);
+    dsp::snd::layout s8_le(dsp::snd::sample::type::pcm_signed, 1, dsp::snd::byte_order::little_endian);
     long long res;
     s8_le.read_pcm_int_unnormalized(res, &data[0]);
     assert(res == 0);
     s8_le.read_pcm_int_unnormalized(res, &data[1]);
     assert(res == 1);
 
-    dsp::snd::sample_layout s16_le(dsp::snd::sample::type::pcm_signed, 2, dsp::snd::byte_order::little_endian);
+    dsp::snd::layout s16_le(dsp::snd::sample::type::pcm_signed, 2, dsp::snd::byte_order::little_endian);
     s16_le.read_pcm_int_unnormalized(res, &data[0]);
     assert(res = 256);
     s16_le.read_pcm_int_unnormalized(res, &data[2]);
     assert(res = 3 * 256 + 2);
 
-    dsp::snd::sample_layout s24_le(dsp::snd::sample::type::pcm_signed, 3, dsp::snd::byte_order::little_endian);
+    dsp::snd::layout s24_le(dsp::snd::sample::type::pcm_signed, 3, dsp::snd::byte_order::little_endian);
     s24_le.read_pcm_int_unnormalized(res, &data[0]);
     assert(res = 1 * 256 + 2 * 65536);
     s24_le.read_pcm_int_unnormalized(res, &data[3]);
@@ -207,11 +247,11 @@ static const bool t = test();
 
 #endif
 
-void convert_samples(
-    const sample_layout& sl_in,
+void convert(
+    const layout& sl_in,
     unsigned sample_stride_in,
     const void* in,
-    const sample_layout& sl_out,
+    const layout& sl_out,
     unsigned sample_stride_out,
     void* out,
     unsigned length)
@@ -233,11 +273,11 @@ void convert_samples(
     }
 }
 
-void convert_samples(
-    const sample_layout& sl_in,
+void convert(
+    const layout& sl_in,
     const buf::layout& bl_in,
     const void* in,
-    const sample_layout& sl_out,
+    const layout& sl_out,
     const buf::layout& bl_out,
     void* out,
     unsigned length,
@@ -247,8 +287,8 @@ void convert_samples(
     uint8_t* bo = static_cast<uint8_t*>(out);
 
     for (unsigned c = 0; c < channels; ++c, bi += bl_in.channel_stride, bo += bl_out.channel_stride) {
-        convert_samples(sl_in, bl_in.sample_stride, bi, sl_out, bl_out.sample_stride, bo, length);
+        convert(sl_in, bl_in.sample_stride, bi, sl_out, bl_out.sample_stride, bo, length);
     }
 }
 
-}}
+}}}

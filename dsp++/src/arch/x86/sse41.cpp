@@ -1,6 +1,6 @@
 #include <dsp++/platform.h>
 
-#ifdef DSP_ARCH_FAMILY_X86
+#ifdef DSPXX_ARCH_FAMILY_X86
 
 #include <algorithm>
 #include <dsp++/simd.h>
@@ -109,4 +109,4 @@ float dsp::simd::detail::x86_sse41_filter_df2(float* w, const float* b, const si
 	return madot;
 }
 
-#endif // DSP_ARCH_FAMILY_X86
+#endif // DSPXX_ARCH_FAMILY_X86
