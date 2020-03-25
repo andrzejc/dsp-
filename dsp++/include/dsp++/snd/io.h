@@ -6,8 +6,12 @@
 
 namespace dsp { namespace snd {
 
+class file_format;
+
 struct DSPXX_API iobase {
     virtual ~iobase() = default;
+
+    virtual const file_format& format() const = 0;
 
     virtual bool supports_properties() const = 0;
     virtual absl::optional<string> property(string_view prop) = 0;

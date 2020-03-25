@@ -173,7 +173,7 @@ const channel_map_entry channel_map[] = {
 
 int to_sf_format(const file_format& f, bool write_mode) {
     int res = 0;
-    auto& ft = f.type();
+    auto& ft = f.file_type();
     auto e = dsp::detail::match_member(file_types, &file_type_entry::label, ft);
     if (nullptr != e) {
         res |= e->type;
@@ -224,9 +224,9 @@ int to_sf_format(const file_format& f, bool write_mode) {
 void from_sf_format(int format, file_format& f) {
     auto e = dsp::detail::match_member(file_types, &file_type_entry::type, format & SF_FORMAT_TYPEMASK);
     if (nullptr != e) {
-        f.set_type(e->label);
+        f.set_file_type(e->label);
     } else if (format & SF_FORMAT_WAVEX) {
-        f.set_type(file_type::label::wav);
+        f.set_file_type(file_type::label::wav);
     }
 
     switch (format & SF_FORMAT_SUBMASK) {
@@ -259,6 +259,7 @@ namespace detail {
 struct iobase::impl {
     SNDFILE* sf_ = nullptr;
     SF_INFO info_;
+    snd::file_format format_;
     io* io_ = nullptr;
     bool own_io_ = false;
     const iobase::mode mode_;
@@ -336,7 +337,7 @@ struct iobase::impl {
         unsigned cc = 0;
         for (int i = 0; i < static_cast<int>(channel::location::COUNT); ++i) {
             channel::location loc = static_cast<channel::location>(i);
-            if (!f.has_channel(loc)) {
+            if (!f.channel_layout()[loc]) {
                 continue;
             }
             auto e = dsp::detail::match_member(channel_map, &channel_map_entry::our, loc);
@@ -351,15 +352,19 @@ struct iobase::impl {
         return res == SF_TRUE;
     }
 
-    void fill_info(file_format* f, SF_INFO* info) {
+    void fill_format(file_format* f, SF_INFO* info) {
         if (f != nullptr) {
-            f->set_sample_rate(static_cast<unsigned>(info_.samplerate));
-            from_sf_format(info_.format, *f);
-            if (mode::write != mode_) {
-                read_channel_map(*f);
-            } else {
-                write_channel_map(*f);
-            }
+            format_ = *f;
+        }
+        format_.set_sample_rate(static_cast<unsigned>(info_.samplerate));
+        from_sf_format(info_.format, format_);
+        if (mode::write != mode_) {
+            read_channel_map(format_);
+        } else {
+            write_channel_map(format_);
+        }
+        if (f != nullptr) {
+            *f = format_;
         }
         if (info != nullptr) {
             *info = info_;
@@ -383,7 +388,7 @@ struct iobase::impl {
         if (nullptr == (sf_ =  sf_open(path, map_mode(mode_), &info_))) {
             throw_error();
         }
-        fill_info(fmt, static_cast<SF_INFO*>(native_info));
+        fill_format(fmt, static_cast<SF_INFO*>(native_info));
     }
 
     void open(int fd, bool own_fd, file_format* fmt, void* native_info) {
@@ -392,7 +397,7 @@ struct iobase::impl {
         if (nullptr == (sf_ = sf_open_fd(fd, map_mode(mode_), &info_, own_fd ? 1 : 0))) {
             throw_error();
         }
-        fill_info(fmt, static_cast<SF_INFO*>(native_info));
+        fill_format(fmt, static_cast<SF_INFO*>(native_info));
     }
 
 #ifdef _WIN32
@@ -402,7 +407,7 @@ struct iobase::impl {
         if (nullptr == (sf_ =  sf_wchar_open(path, map_mode(mode_), &info_))) {
             throw_error();
         }
-        fill_info(fmt, static_cast<SF_INFO*>(native_info));
+        fill_format(fmt, static_cast<SF_INFO*>(native_info));
     }
 #endif // _WIN32
 
@@ -439,7 +444,7 @@ struct iobase::impl {
         }
         io_ = in;
         own_io_ = own_io;
-        fill_info(fmt, static_cast<SF_INFO*>(native_info));
+        fill_format(fmt, static_cast<SF_INFO*>(native_info));
     }
 };
 
@@ -522,6 +527,10 @@ int iobase::command(int cmd, void* data, int datasize) {
 
 bool iobase::is_open() const {
     return (nullptr != impl_->sf_);
+}
+
+const file_format& iobase::format() const {
+    return impl_->format_;
 }
 
 bool iobase::supports_properties() const {

@@ -177,6 +177,8 @@ public:
     int command(int cmd, void* data, int datasize);
     ///@}
 
+    const file_format& format() const override;
+
     bool supports_properties() const override;
     absl::optional<string> property(string_view metadata) override;
 

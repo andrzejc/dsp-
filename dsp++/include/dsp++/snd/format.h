@@ -8,6 +8,8 @@
 #include <dsp++/snd/channel.h>
 #include <dsp++/snd/sample.h>
 
+#include <chrono>
+
 namespace dsp { namespace snd {
 
 /// @brief Audio file type labels, MIME type and file extension mapping.
@@ -63,13 +65,31 @@ constexpr unsigned unknown = 0;
 /// Note that the sample format adheres primarily to the format which is used internally by I/O classes, i.e. the
 /// hardware or I/O format, not the sample abstraction used by @p dsp::snd APIs (which tend to use float or double
 /// types, mapping to @c sample::format::F32 &amp; @p sample::label::F64).
-class DSPXX_API format {
+class DSPXX_API stream_format {
     string sample_format_;
     channel::layout channel_layout_;
     unsigned sample_rate_ = sample_rate::unknown;
     unsigned channel_count_ = 0;
 
 public:
+    static const stream_format audio_cd;
+
+    stream_format() {}
+
+    stream_format(unsigned sample_rate, unsigned channel_count, string sample_format = {}):
+        sample_format_(std::move(sample_format)),
+        sample_rate_(sample_rate)
+    {
+        set_channel_count(channel_count);
+    }
+
+    stream_format(unsigned sample_rate, const channel::layout& channel_layout, string sample_format = {}):
+        sample_format_(std::move(sample_format)),
+        sample_rate_(sample_rate)
+    {
+        set_channel_layout(channel_layout);
+    }
+
     /// @return Channel layout.
     const channel::layout& channel_layout() const {
         return channel_layout_;
@@ -125,32 +145,25 @@ public:
         return sample::type_of(sample_format_);
     }
 
-    static const format audio_cd;
-
-    format() {}
-
-    format(unsigned sample_rate, unsigned channel_count, string sample_format = {}):
-        sample_format_(std::move(sample_format)),
-        sample_rate_(sample_rate)
-    {
-        set_channel_count(channel_count);
+    template<typename Time>
+    Time to_samples(Time time) const {
+        return static_cast<Time>(time * sample_rate_ + Time{.5});
     }
 
-    format(unsigned sample_rate, const channel::layout& channel_layout, string sample_format = {}):
-        sample_format_(std::move(sample_format)),
-        sample_rate_(sample_rate)
-    {
-        set_channel_layout(channel_layout);
+    template<class Rep, class Period>
+    Rep to_samples(std::chrono::duration<Rep, Period> time) const {
+        return static_cast<Rep>(sample_rate_ * time / std::chrono::duration<Rep, std::ratio<1>>{1});
     }
 
-    template<class TimeMs>
-    unsigned time_ms_to_samples(TimeMs ms) const {
-        return static_cast<unsigned>(sample_rate_ * ms / static_cast<TimeMs>(1000.) + static_cast<TimeMs>(.5));
+    bool operator==(const stream_format& rhs) const noexcept {
+        return sample_rate_ == rhs.sample_rate_
+            && channel_layout_ == rhs.channel_layout_
+            && channel_count_ == rhs.channel_count_
+            && sample_format_ == rhs.sample_format_;
     }
 
-    template<class TimeS>
-    unsigned time_to_samples(TimeS s) const {
-        return static_cast<unsigned>(sample_rate_ * s + static_cast<TimeS>(.5));
+    bool operator!=(const stream_format& rhs) const noexcept {
+        return !(*this == rhs);
     }
 
 #ifdef _WIN32
@@ -159,42 +172,51 @@ public:
 #endif // _WIN32
 };
 
-class DSPXX_API file_format: public format {
-    string type_;
+class DSPXX_API file_format: public stream_format {
+    string file_type_;
 
 public:
-    const string& type() const {
-        return type_;
-    }
-    void set_type(string type) {
-        type_ = std::move(type);
-    }
-    const char* const extension() const {
-        return file_type::extension_for(type_);
-    }
-    const char* const mime_subtype() const {
-        return file_type::mime_subtype_for(type_);
-    }
-
     file_format() {}
 
     file_format(unsigned sample_rate,
                 unsigned channel_count,
-                string type,
+                string file_type,
                 string sample_format = {}
     ):
-        format{sample_rate, channel_count, std::move(sample_format)},
-        type_{std::move(type)}
+        stream_format{sample_rate, channel_count, std::move(sample_format)},
+        file_type_{std::move(file_type)}
     {}
 
     file_format(unsigned sample_rate,
                 const channel::layout& channel_layout,
-                string type,
+                string file_type,
                 string sample_format = {}
     ):
-        format{sample_rate, channel_layout, std::move(sample_format)},
-        type_{std::move(type)}
+        stream_format{sample_rate, channel_layout, std::move(sample_format)},
+        file_type_{std::move(file_type)}
     {}
+
+    const string& file_type() const {
+        return file_type_;
+    }
+    void set_file_type(string file_type) {
+        file_type_ = std::move(file_type);
+    }
+    const char* const extension() const {
+        return file_type::extension_for(file_type_);
+    }
+    const char* const mime_subtype() const {
+        return file_type::mime_subtype_for(file_type_);
+    }
+
+    bool operator==(const file_format& rhs) const noexcept {
+        return stream_format::operator==(rhs)
+            && file_type_ == rhs.file_type_;
+    }
+
+    bool operator!=(const file_format& rhs) const noexcept {
+        return !(*this == rhs);
+    }
 };
 
 }}

@@ -28,7 +28,7 @@ TEST(sndfile_api, file_usable) {
     EXPECT_EQ(fmt.sample_format(), sample::format::F32);
     EXPECT_EQ(fmt.sample_type(), sample::type::ieee_float);
     EXPECT_EQ(fmt.sample_bits(), 32);
-    EXPECT_EQ(fmt.type(), file_type::label::wav);
+    EXPECT_EQ(fmt.file_type(), file_type::label::wav);
 }
 
 TEST(sndfile_api, reader_usable) {
@@ -49,7 +49,7 @@ TEST(sndfile_api, reader_usable) {
     EXPECT_EQ(fmt.sample_format(), sample::format::S24);
     EXPECT_EQ(fmt.sample_type(), sample::type::pcm_signed);
     EXPECT_EQ(fmt.sample_bits(), 24);
-    EXPECT_EQ(fmt.type(), file_type::label::wav);
+    EXPECT_EQ(fmt.file_type(), file_type::label::wav);
 }
 
 TEST(sndfile_api, channel_layout_preserved_on_rewrite) {
@@ -60,7 +60,7 @@ TEST(sndfile_api, channel_layout_preserved_on_rewrite) {
     ASSERT_EQ(r.frame_count(), 4800);
     ASSERT_EQ(r.channel_count(), 5);
     file_format wf = rf;
-    wf.set_type(file_type::label::aiff);
+    wf.set_file_type(file_type::label::aiff);
     wf.set_channel_layout(channel::layout::s5_0);
 
     test::temp_file tmp;
@@ -76,7 +76,7 @@ TEST(sndfile_api, channel_layout_preserved_on_rewrite) {
     r.close();
 
     r.open(tmp.name, &rf);
-    EXPECT_EQ(rf.type(), file_type::label::aiff);
+    EXPECT_EQ(rf.file_type(), file_type::label::aiff);
     EXPECT_EQ(rf.channel_layout(), channel::layout::s5_0);
 }
 
@@ -88,7 +88,7 @@ TEST(sndfile_api, properties_preserved_on_rewrite) {
     ASSERT_EQ(r.frame_count(), 4800);
 
     file_format wf = rf;
-    wf.set_type(file_type::label::wav);
+    wf.set_file_type(file_type::label::wav);
     wf.set_channel_layout(channel::layout::stereo);
 
     test::temp_file tmp;
@@ -105,10 +105,23 @@ TEST(sndfile_api, properties_preserved_on_rewrite) {
     r.close();
 
     r.open(tmp.name, &rf);
-    EXPECT_EQ(rf.type(), file_type::label::wav);
+    EXPECT_EQ(rf.file_type(), file_type::label::wav);
     ASSERT_TRUE(r.property(property::title));
     EXPECT_EQ(*r.property(property::title), "s16_48k");
     EXPECT_FALSE(r.property(property::artist));
+}
+
+TEST(sndfile_api, reader_format_updated_on_open) {
+    sndfile::reader r;
+    auto format_pre = r.format();
+    r.open(test::data_file("s24_48k_5ch.wav").c_str());
+    EXPECT_TRUE(r.is_open());
+    EXPECT_NE(format_pre, r.format());
+    EXPECT_EQ(r.format().sample_rate(), 48000);
+    EXPECT_EQ(r.format().channel_count(), 5);
+    EXPECT_EQ(r.format().sample_bits(), 24);
+    EXPECT_EQ(r.format().sample_type(), sample::type::pcm_signed);
+    EXPECT_EQ(r.format().file_type(), file_type::label::wav);
 }
 
 }}}

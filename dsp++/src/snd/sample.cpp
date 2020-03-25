@@ -1,5 +1,4 @@
 #include <dsp++/snd/sample.h>
-#include <dsp++/snd/convert.h>
 #include <dsp++/snd/buffer.h>
 
 #include <absl/strings/numbers.h>
@@ -55,14 +54,14 @@ namespace {
 template<class Int, class Res>
 inline void read_pcm_as_float_(const layout& sl, const void* data, Res& res) {
     Int i;
-    sl.read_pcm(data, i);
+    sl.read_raw_pcm(data, i);
     res = sample::cast<Res>(i);
 }
 
 template<class Int, class Float>
 inline void write_float_as_pcm_(const layout& sl, Float in, void* out) {
     Int i = sample::cast<Int>(in);
-    sl.write_pcm(i, out);
+    sl.write_raw_pcm(i, out);
 }
 
 template<class Res>
@@ -121,11 +120,11 @@ template<class Float>
 inline void read_ieee_as_float(const layout& sl, const void* data, Float& res) {
     if (4 == sl.container_bytes) {
         float32_t f;
-        sl.read_ieee_float(data, f);
+        sl.read_raw_ieee_float(data, f);
         res = static_cast<Float>(f);
     } else if (8 == sl.container_bytes) {
         float64_t f;
-        sl.read_ieee_float(data, f);
+        sl.read_raw_ieee_float(data, f);
         res = static_cast<Float>(f);
     }
     else {
@@ -137,10 +136,10 @@ template<class Float>
 inline void write_float_as_ieee(const layout& sl, Float in, void* data) {
     if (4 == sl.container_bytes) {
         float32_t f = sample::cast<float32_t>(in);
-        sl.write_ieee_float(f, data);
+        sl.write_raw_ieee_float(f, data);
     } else if (8 == sl.container_bytes) {
         float64_t f = sample::cast<float64_t>(in);
-        sl.write_ieee_float(f, data);
+        sl.write_raw_ieee_float(f, data);
     }
     else {
         throw std::runtime_error("dsp::snd::layout::write_float() IEEE 754 supports only 32 and 64-bit containers");
@@ -216,6 +215,14 @@ void layout::write_float(double in, void* data) const {
     write_sample_as_float(*this, in, data);
 }
 
+const layout layout::S8{type::pcm_signed, 1};
+const layout layout::S16{type::pcm_signed, 2};
+const layout layout::S24{type::pcm_signed, 3};
+const layout layout::S32{type::pcm_signed, 4};
+const layout layout::U8{type::pcm_unsigned, 1};
+const layout layout::F32{type::ieee_float, 4};
+const layout layout::F64{type::ieee_float, 8};
+
 #if 0
 
 static const char data[] = "\0\1\2\3\4\5\6\7";
@@ -276,10 +283,10 @@ void convert(
 
 void convert(
     const layout& sl_in,
-    const buf::layout& bl_in,
+    const buffer::layout& bl_in,
     const void* in,
     const layout& sl_out,
-    const buf::layout& bl_out,
+    const buffer::layout& bl_out,
     void* out,
     unsigned length,
     unsigned channels)

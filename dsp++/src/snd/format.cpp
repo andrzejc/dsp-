@@ -75,7 +75,7 @@ const char* const file_type::for_mime_subtype(string_view ext) {
     return (nullptr == e ? nullptr : e->label);
 }
 
-const format format::audio_cd{sample_rate::audio_cd, channel::layout::stereo, sample::format::S16};
+const stream_format stream_format::audio_cd{sample_rate::audio_cd, channel::layout::stereo, sample::format::S16};
 
 #ifdef _WIN32
 }}
@@ -84,7 +84,7 @@ const format format::audio_cd{sample_rate::audio_cd, channel::layout::stereo, sa
 #include <mmreg.h>
 
 namespace dsp { namespace snd {
-void format::to_WAVEFORMATEX(void* wfx) const {
+void stream_format::to_WAVEFORMATEX(void* wfx) const {
     WAVEFORMATEX* w = static_cast<WAVEFORMATEX*>(wfx);
     switch (sample_type()) {
     case sample::type::ieee_float:
@@ -116,7 +116,7 @@ noformat:
     )};
 }
 
-void format::to_WAVEFORMATEXTENSIBLE(void* wfx) const {
+void stream_format::to_WAVEFORMATEXTENSIBLE(void* wfx) const {
     WAVEFORMATEXTENSIBLE* w = static_cast<WAVEFORMATEXTENSIBLE*>(wfx);
     to_WAVEFORMATEX(&w->Format);
     switch (w->Format.wFormatTag) {

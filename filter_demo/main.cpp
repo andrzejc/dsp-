@@ -41,7 +41,7 @@ int main(int argc, const char* argv[]) {
     if (std::string::npos != pos) {
         std::string ext(outname, pos + 1);
         if (const char* ft = dsp::snd::file_type::for_extension(ext.c_str()))
-            of.set_type(ft);
+            of.set_file_type(ft);
     }
     dsp::snd::sndfile::writer w;
     try {w.open(argv[2], &of);} catch (std::exception& ex) {

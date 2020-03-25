@@ -1,6 +1,7 @@
 #include <dsp++/snd/format.h>
+#include <dsp++/snd/buffer.h>
 
-#include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 #include <climits>
 
@@ -129,6 +130,25 @@ TEST(snd_sample, cast_signed_to_float) {
     EXPECT_EQ(cast<double>((int16_t)0), 0.);
     EXPECT_EQ(cast<double>((int16_t)0x4000), .5);
     EXPECT_EQ(cast<double>((int16_t)0xC000), -.5);
+}
+
+TEST(snd_sample, convert_signed_to_float) {
+    int16_t in16[] = {0x7fff, 0, (int16_t)0x8000, 0, 0, 0, 0x4000, 0, (int16_t)0xc000, 0};
+    float out[10], out_planar[10];
+    convert(layout{type::pcm_signed, 2}, sizeof(*in16), in16, layout{type::ieee_float, 4}, sizeof(*out), out, 10);
+    EXPECT_THAT(out, ::testing::ElementsAreArray({0.999969482421875f, 0.f, -1.f, 0.f, 0.f, 0.f, .5f, 0.f, -.5f, 0.f}));
+
+    convert(
+        layout::S16, buffer::layout::interleaved(2, sizeof(*in16)), in16,
+        layout::F32, buffer::layout::planar(5, sizeof(*out_planar)), out_planar,
+        5, 2
+    );
+    EXPECT_THAT(out_planar, ::testing::ElementsAreArray({0.999969482421875f, -1.f, 0.f, .5f, -.5f, 0.f, 0.f, 0.f, 0.f, 0.f}));
+
+    int32_t in32[] = {0x7fffffff, (int32_t)0x80000000, 0, 0x40000000, (int32_t)0xc0000000};
+    double dout[5];
+    convert(layout{type::pcm_signed, 4}, sizeof(*in32), in32, layout{type::ieee_float, 8}, sizeof(*dout), dout, 5);
+    EXPECT_THAT(dout, ::testing::ElementsAreArray({0.9999999995343387, -1., 0., .5, -.5,}));
 }
 
 }}}

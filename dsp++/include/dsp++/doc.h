@@ -17,7 +17,7 @@ namespace dsp {
 	 */
 	namespace snd {
 		//! @brief Properties, layouts of sample buffers.
-		namespace buf {}
+		namespace buffer {}
 	}
 
 	/*!

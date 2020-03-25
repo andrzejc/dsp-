@@ -30,7 +30,7 @@ int main(int argc, const char* argv[]) {
     if (std::string::npos != pos) {
         std::string ext(outname, pos + 1);
         if (const char* ft = dsp::snd::file_type::for_extension(ext.c_str()))
-            of.set_type(ft);
+            of.set_file_type(ft);
     }
     dsp::snd::sndfile::writer w;
     try {w.open(argv[2], &of);} catch (std::exception& ex) {
@@ -48,9 +48,10 @@ int main(int argc, const char* argv[]) {
     const float gain_dB = 10.f;
     const float ratio = 3.f;
 
-    dsp::compressor<float> comp(inf.time_ms_to_samples(rms_period_ms));
-    comp.set_attack(inf.time_ms_to_samples(attack_ms));
-    comp.set_release(inf.time_ms_to_samples(release_ms));
+    using ms_t = std::chrono::duration<float, std::milli>;
+    dsp::compressor<float> comp(inf.to_samples(ms_t{rms_period_ms}));
+    comp.set_attack(inf.to_samples(ms_t{attack_ms}));
+    comp.set_release(inf.to_samples(ms_t{release_ms}));
     comp.set_threshold_dB(threshold_dB);
     comp.set_gain_dB(gain_dB);
     comp.set_ratio(ratio);

@@ -29,6 +29,7 @@ public:
     using detail::iobase::open;
     using detail::iobase::close;
     using detail::iobase::is_open;
+    using detail::iobase::format;
     using detail::iobase::sample_rate;
     using detail::iobase::frame_count;
     using detail::iobase::channel_count;

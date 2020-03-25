@@ -44,7 +44,7 @@ install:
 
 script:
 - mkdir -p build && cd build
-- cmake ${TARGET_PLATFORM:+-A ${TARGET_PLATFORM}} ${CMAKE_GENERATOR:+"-DCMAKE_GENERATOR=${CMAKE_GENERATOR}"} "-DCMAKE_PREFIX_PATH=${PWD}/deps/install" ..
+- cmake ${TARGET_PLATFORM:+-A ${TARGET_PLATFORM}} ${CMAKE_GENERATOR:+"-DCMAKE_GENERATOR=${CMAKE_GENERATOR}"} -DDSPXX_BUILD_DEMOS=ON "-DCMAKE_PREFIX_PATH=${PWD}/deps/install" ..
 - cmake --build . --config RelWithDebInfo
 - ctest --output-on-failure -C RelWithDebInfo -T test -j3
 - cmake --build . --config RelWithDebInfo --target docs

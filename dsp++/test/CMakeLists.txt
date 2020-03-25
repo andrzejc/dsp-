@@ -18,6 +18,7 @@ set(SOURCES
     test_pow2.cpp
     test_resample.cpp
     test_simd.cpp
+    test_snd_format.cpp
     test_snd_loudness.cpp
     test_snd_channel.cpp
     test_snd_sample.cpp
@@ -30,8 +31,8 @@ add_executable(dsp++-test ${SOURCES})
 target_link_libraries(dsp++-test
     PRIVATE
         dsp++
-        GTest::gtest
-        GTest::gtest_main
+        GTest::gmock
+        GTest::gmock_main
 )
 
 install(TARGETS dsp++-test DESTINATION bin)
@@ -74,6 +75,7 @@ dsp_test(pow2)
 # dsp_test(simd)
 dsp_test(window)
 dsp_test(xcorr)
+dsp_test(snd_format)
 dsp_test(snd_channel_layout)
 dsp_test(snd_sample)
 dsp_test(sndfile_api)
