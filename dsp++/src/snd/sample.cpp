@@ -215,13 +215,13 @@ void layout::write_float(double in, void* data) const {
     write_sample_as_float(*this, in, data);
 }
 
-const layout layout::S8{type::pcm_signed, 1};
-const layout layout::S16{type::pcm_signed, 2};
-const layout layout::S24{type::pcm_signed, 3};
-const layout layout::S32{type::pcm_signed, 4};
-const layout layout::U8{type::pcm_unsigned, 1};
-const layout layout::F32{type::ieee_float, 4};
-const layout layout::F64{type::ieee_float, 8};
+const layout layout::S8{sample::type::pcm_signed, 1};
+const layout layout::S16{sample::type::pcm_signed, 2};
+const layout layout::S24{sample::type::pcm_signed, 3};
+const layout layout::S32{sample::type::pcm_signed, 4};
+const layout layout::U8{sample::type::pcm_unsigned, 1};
+const layout layout::F32{sample::type::ieee_float, 4};
+const layout layout::F64{sample::type::ieee_float, 8};
 
 #if 0
 

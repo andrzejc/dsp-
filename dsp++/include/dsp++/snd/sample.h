@@ -221,7 +221,7 @@ struct DSPXX_API layout {
     void write_float(float in, void* out) const;
     void write_float(double in, void* out) const;
 
-    static const layout S8; // {type::pcm_signed, 1};
+    static const layout S8;
     static const layout S16;
     static const layout S24;
     static const layout S32;
