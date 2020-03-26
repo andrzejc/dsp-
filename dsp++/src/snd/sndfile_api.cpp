@@ -141,8 +141,11 @@ const file_type_entry file_types[] = {
     {file_type::label::matlab5, 	SF_FORMAT_MAT5},
     {file_type::label::ogg,	 		SF_FORMAT_OGG},
     {file_type::label::raw, 		SF_FORMAT_RAW},
+    // use the more featureful WAVEX format for wav when writing new files
+    {file_type::label::wav, 		SF_FORMAT_WAVEX},
     {file_type::label::wav, 		SF_FORMAT_WAV},
     {file_type::label::wav64, 		SF_FORMAT_W64},
+    {file_type::label::rf64,        SF_FORMAT_RF64},
 };
 
 struct channel_map_entry {
@@ -225,8 +228,6 @@ void from_sf_format(int format, file_format& f) {
     auto e = dsp::detail::match_member(file_types, &file_type_entry::type, format & SF_FORMAT_TYPEMASK);
     if (nullptr != e) {
         f.set_file_type(e->label);
-    } else if (format & SF_FORMAT_WAVEX) {
-        f.set_file_type(file_type::label::wav);
     }
 
     switch (format & SF_FORMAT_SUBMASK) {

@@ -101,7 +101,9 @@ INSTANTIATE_TEST_SUITE_P(sndfile_api,
                          channel_layout,
                          testing::Values(
                             file_type::label::aiff,
-                            file_type::label::core_audio
+                            file_type::label::core_audio,
+                            file_type::label::rf64,
+                            file_type::label::wav
                         ));
 
 struct properties: ::testing::TestWithParam<const char*> {};
@@ -138,13 +140,14 @@ TEST_P(properties, properties_preserved_on_rewrite) {
 INSTANTIATE_TEST_SUITE_P(sndfile_api,
                          properties,
                          testing::Values(
-                            file_type::label::wav,
                             file_type::label::aiff,
 // XXX old libsndfile on Xenial doesn't support caf properties
                             // file_type::label::core_audio,
 // XXX prebuilt libsndfile on Travis crashes here with access violation on Win32
                             // file_type::label::flac,
-                            file_type::label::ogg
+                            file_type::label::ogg,
+                            file_type::label::rf64,
+                            file_type::label::wav
                         ));
 
 TEST(sndfile_api, reader_format_updated_on_open) {
