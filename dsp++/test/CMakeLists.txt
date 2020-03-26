@@ -43,7 +43,7 @@ endif()
 
 macro(dsp_test name)
     add_test(NAME "${name}"
-        COMMAND dsp++-test "--gtest_filter=${name}.*" --gtest_color=yes
+        COMMAND dsp++-test "--gtest_filter=${name}*" --gtest_color=yes
     )
     set_tests_properties("${name}" PROPERTIES
         ENVIRONMENT "DSPXX_TEST_DATA=$<SHELL_PATH:${CMAKE_CURRENT_SOURCE_DIR}/data>"

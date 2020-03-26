@@ -31,6 +31,7 @@ if(MSVC)
     )
     # Disable some warnings which make little sense
     add_compile_options(
+        /wd4250
         /wd4251
         /wd4275
     )

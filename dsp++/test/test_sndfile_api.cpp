@@ -66,7 +66,9 @@ TEST(sndfile_api, reader_usable) {
     EXPECT_EQ(fmt.file_type(), file_type::label::wav);
 }
 
-TEST(sndfile_api, channel_layout_preserved_on_rewrite) {
+struct channel_layout: ::testing::TestWithParam<const char*> {};
+
+TEST_P(channel_layout, channel_layout_preserved_on_rewrite) {
     sndfile::reader r;
     file_format rf;
     r.open(test::data_file("s24_48k_5ch.wav").c_str(), &rf);
@@ -74,8 +76,11 @@ TEST(sndfile_api, channel_layout_preserved_on_rewrite) {
     ASSERT_EQ(r.frame_count(), 4800);
     ASSERT_EQ(r.channel_count(), 5);
     file_format wf = rf;
-    wf.set_file_type(file_type::label::aiff);
+    wf.set_file_type(GetParam());
     wf.set_channel_layout(channel::layout::s5_0);
+    if (file_type::label::ogg == wf.file_type()) {
+        wf.set_sample_format({});
+    }
 
     test::temp_file tmp;
     sndfile::writer w;
@@ -86,11 +91,20 @@ TEST(sndfile_api, channel_layout_preserved_on_rewrite) {
     r.close();
 
     r.open(tmp.name, &rf);
-    EXPECT_EQ(rf.file_type(), file_type::label::aiff);
+    EXPECT_EQ(rf.file_type(), GetParam());
     EXPECT_EQ(rf.channel_layout(), channel::layout::s5_0);
 }
 
-TEST(sndfile_api, wav_properties_preserved_on_rewrite) {
+INSTANTIATE_TEST_SUITE_P(sndfile_api,
+                         channel_layout,
+                         testing::Values(
+                            file_type::label::aiff,
+                            file_type::label::core_audio
+                        ));
+
+struct properties: ::testing::TestWithParam<const char*> {};
+
+TEST_P(properties, properties_preserved_on_rewrite) {
     sndfile::reader r;
     file_format rf;
     r.open(test::data_file("s16_48k.wav").c_str(), &rf);
@@ -98,7 +112,10 @@ TEST(sndfile_api, wav_properties_preserved_on_rewrite) {
     ASSERT_EQ(r.frame_count(), 4800);
 
     file_format wf = rf;
-    wf.set_file_type(file_type::label::wav);
+    wf.set_file_type(GetParam());
+    if (file_type::label::ogg == wf.file_type()) {
+        wf.set_sample_format({});
+    }
 
     test::temp_file tmp;
     sndfile::writer w;
@@ -110,116 +127,24 @@ TEST(sndfile_api, wav_properties_preserved_on_rewrite) {
     r.close();
 
     r.open(tmp.name, &rf);
-    EXPECT_EQ(rf.file_type(), file_type::label::wav);
+    EXPECT_EQ(rf.file_type(), GetParam());
     ASSERT_TRUE(r.property(property::title));
     EXPECT_EQ(*r.property(property::title), "s16_48k");
     EXPECT_FALSE(r.property(property::artist));
 }
 
-TEST(sndfile_api, aiff_properties_preserved_on_rewrite) {
-    sndfile::reader r;
-    file_format rf;
-    r.open(test::data_file("s16_48k.wav").c_str(), &rf);
-    ASSERT_EQ(rf.channel_layout(), channel::layout::undefined);
-    ASSERT_EQ(r.frame_count(), 4800);
-
-    file_format wf = rf;
-    wf.set_file_type(file_type::label::aiff);
-
-    test::temp_file tmp;
-    sndfile::writer w;
-    w.open(tmp.name, &wf);
-    w.set_property(property::title, "s16_48k");
-    ASSERT_TRUE(w.is_open());
-    EXPECT_EQ(copy_file(r, w), 4800);
-    w.close();
-    r.close();
-
-    r.open(tmp.name, &rf);
-    EXPECT_EQ(rf.file_type(), file_type::label::aiff);
-    ASSERT_TRUE(r.property(property::title));
-    EXPECT_EQ(*r.property(property::title), "s16_48k");
-    EXPECT_FALSE(r.property(property::artist));
-}
-
-TEST(sndfile_api, caf_properties_preserved_on_rewrite) {
-    sndfile::reader r;
-    file_format rf;
-    r.open(test::data_file("s16_48k.wav").c_str(), &rf);
-    ASSERT_EQ(rf.channel_layout(), channel::layout::undefined);
-    ASSERT_EQ(r.frame_count(), 4800);
-
-    file_format wf = rf;
-    wf.set_file_type(file_type::label::core_audio);
-
-    test::temp_file tmp;
-    sndfile::writer w;
-    w.open(tmp.name, &wf);
-    w.set_property(property::title, "s16_48k");
-    ASSERT_TRUE(w.is_open());
-    EXPECT_EQ(copy_file(r, w), 4800);
-    w.close();
-    r.close();
-
-    r.open(tmp.name, &rf);
-    EXPECT_EQ(rf.file_type(), file_type::label::core_audio);
-    ASSERT_TRUE(r.property(property::title));
-    EXPECT_EQ(*r.property(property::title), "s16_48k");
-    EXPECT_FALSE(r.property(property::artist));
-}
-
-TEST(sndfile_api, flac_properties_preserved_on_rewrite) {
-    sndfile::reader r;
-    file_format rf;
-    r.open(test::data_file("s16_48k.wav").c_str(), &rf);
-    ASSERT_EQ(rf.channel_layout(), channel::layout::undefined);
-    ASSERT_EQ(r.frame_count(), 4800);
-
-    file_format wf = rf;
-    wf.set_file_type(file_type::label::flac);
-
-    test::temp_file tmp;
-    sndfile::writer w;
-    w.open(tmp.name, &wf);
-    w.set_property(property::title, "s16_48k");
-    ASSERT_TRUE(w.is_open());
-    EXPECT_EQ(copy_file(r, w), 4800);
-    w.close();
-    r.close();
-
-    r.open(tmp.name, &rf);
-    EXPECT_EQ(rf.file_type(), file_type::label::flac);
-    ASSERT_TRUE(r.property(property::title));
-    EXPECT_EQ(*r.property(property::title), "s16_48k");
-    EXPECT_FALSE(r.property(property::artist));
-}
-
-TEST(sndfile_api, ogg_properties_preserved_on_rewrite) {
-    sndfile::reader r;
-    file_format rf;
-    r.open(test::data_file("s16_48k.wav").c_str(), &rf);
-    ASSERT_EQ(rf.channel_layout(), channel::layout::undefined);
-    ASSERT_EQ(r.frame_count(), 4800);
-
-    file_format wf = rf;
-    wf.set_file_type(file_type::label::ogg);
-    wf.set_sample_format({});
-
-    test::temp_file tmp;
-    sndfile::writer w;
-    w.open(tmp.name, &wf);
-    w.set_property(property::title, "s16_48k");
-    ASSERT_TRUE(w.is_open());
-    EXPECT_EQ(copy_file(r, w), 4800);
-    w.close();
-    r.close();
-
-    r.open(tmp.name, &rf);
-    EXPECT_EQ(rf.file_type(), file_type::label::ogg);
-    ASSERT_TRUE(r.property(property::title));
-    EXPECT_EQ(*r.property(property::title), "s16_48k");
-    EXPECT_FALSE(r.property(property::artist));
-}
+INSTANTIATE_TEST_SUITE_P(sndfile_api,
+                         properties,
+                         testing::Values(
+                            file_type::label::wav,
+                            file_type::label::aiff,
+                            file_type::label::core_audio,
+// XXX prebuilt libsndfile on Travis crashes here with access violation on Win32
+#ifndef _MSC_VER
+                            file_type::label::flac,
+#endif
+                            file_type::label::ogg
+                        ));
 
 TEST(sndfile_api, reader_format_updated_on_open) {
     sndfile::reader r;
