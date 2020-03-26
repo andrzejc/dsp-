@@ -1,18 +1,13 @@
-/*!
- * @file dsp++/snd/sndfile/error.h
- * @brief Definition of @c dsp::snd::sndfile::error exception class.
- */
 #pragma once
 #include <dsp++/types.h>
 #include <dsp++/snd/io_error.h>
 
-namespace dsp { namespace snd { namespace sndfile {
+namespace dsp { namespace snd { namespace mpg123 {
 
 /*!
- * @brief Wrapper for libsndfile error codes (@c SF_ERR_* constants from <sndfile.h>).
- * @see http://www.mega-nerd.com/libsndfile/
- * @see sf_error()
- * @see sf_error_number()
+ * @brief Wrapper for mpg123 error codes (@c mpg123_errors constants from <mpg123.h>).
+ * @see mpg123_errcode()
+ * @see mpg123_strerror()
  */
 class DSPXX_API error: public io_error {
     const int code_;

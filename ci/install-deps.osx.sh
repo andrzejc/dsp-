@@ -4,6 +4,7 @@ HOMEBREW_NO_INSTALL_CLEANUP=1 \
         ccache \
         cmake \
         ninja \
+        mpg123 \
         libsndfile \
         fftw \
         boost \

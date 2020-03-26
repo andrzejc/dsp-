@@ -144,7 +144,7 @@ public:
      * @brief Query number of frames stored within the audio file.
      * @return number of frames (file length expressed in sampling periods).
      */
-    size_t frame_count() const;
+    size_t frame_count() const override;
     ///@}
 
     /*!

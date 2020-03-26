@@ -14,6 +14,7 @@ addons:
     - libsndfile1-dev
     - libfftw3-dev
     - libboost-dev
+    - libmpg123-dev
     - doxygen
     - graphviz
     - ninja-build

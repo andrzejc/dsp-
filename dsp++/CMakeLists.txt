@@ -36,6 +36,7 @@ set(SOURCES
     src/snd/channel.cpp
     src/snd/format.cpp
     src/snd/loudness.cpp
+    src/snd/mpg123_api.cpp
     src/snd/sample.cpp
     src/snd/sndfile_api.cpp
 )
@@ -79,6 +80,8 @@ endif()
 
 configure_file(src/version.h.in include/dsp++/version.h @ONLY)
 
+find_library(MPG123_LIBRARY NAMES mpg123)
+
 add_library(dsp++ ${SOURCES})
 target_include_directories(dsp++
     PRIVATE
@@ -98,7 +101,7 @@ target_link_libraries(dsp++
         $<$<BOOL:${DSPXX_FFTW3_ENABLED}>:FFTW3::libfftw3>
         $<$<BOOL:${DSPXX_FFTW3_ENABLED}>:FFTW3::libfftw3f>
         $<$<BOOL:${DSPXX_FFTW3_ENABLED}>:FFTW3::libfftw3l>
-        ${DSPXX_ABSEIL_LIBS}
+        $<$<BOOL:${MPG123_LIBRARY}>:${MPG123_LIBRARY}>
 )
 target_compile_definitions(dsp++
     PRIVATE
@@ -109,6 +112,7 @@ target_compile_definitions(dsp++
         $<$<NOT:$<BOOL:${BUILD_SHARED_LIBS}>>:DSPXX_STATIC>
         $<$<NOT:$<BOOL:${DSPXX_LIBSNDFILE_ENABLED}>>:DSPXX_LIBSNDFILE_DISABLED>
         $<$<NOT:$<BOOL:${DSPXX_FFTW3_ENABLED}>>:DSPXX_FFTW3_DISABLED>
+        $<$<NOT:$<BOOL:${MPG123_LIBRARY}>>:DSPXX_MPG123_DISABLED>
 )
 set_target_properties(dsp++ PROPERTIES
     VERSION "${PROJECT_VERSION}"

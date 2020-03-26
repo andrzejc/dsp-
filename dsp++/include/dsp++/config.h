@@ -25,6 +25,12 @@
 #define DSPXX_LIBSNDFILE_DISABLED 	0
 #endif // DSPXX_LIBSNDFILE_DISABLED
 
+#ifndef DSPXX_MPG123_DISABLED
+//! @brief Set to 1 to disable audio reading/writing through libmpg123.
+#define DSPXX_MPG123_DISABLED 	0
+#endif // DSPXX_MPG123_DISABLED
+
+
 #ifndef DSPXX_FFTW3_DISABLED
 //! @brief Set to 1 to disable DFT support through libfftw3.
 #define DSPXX_FFTW3_DISABLED 		0

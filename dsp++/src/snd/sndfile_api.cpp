@@ -278,6 +278,7 @@ struct iobase::impl {
         }
         own_io_ = false;
         io_ = nullptr;
+        format_ = {};
     }
 
     ~impl() {

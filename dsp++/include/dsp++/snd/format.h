@@ -28,6 +28,9 @@ constexpr char core_audio[] = "caf";
 constexpr char ogg[] =        "ogg";
 constexpr char htk[] =        "htk";
 constexpr char rf64[] =       "rf64";
+
+// Decoding support with mpg123
+constexpr char mp3[] = "mp3";
 }
 
 /// @return file type label (a @c file_type::label constant) for specified file extension, or @c nullptr if unknown.

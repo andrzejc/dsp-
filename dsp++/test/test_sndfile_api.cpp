@@ -24,6 +24,8 @@ size_t copy_file(snd::reader& r, snd::writer& w) {
     return total;
 }
 
+#if !DSPXX_LIBSNDFILE_DISABLED
+
 TEST(sndfile_api, file_usable) {
     sndfile::file f;
     file_format fmt;
@@ -46,7 +48,7 @@ TEST(sndfile_api, file_usable) {
 }
 
 TEST(sndfile_api, reader_usable) {
-    sndfile::file f;
+    sndfile::reader f;
     file_format fmt;
     f.open(test::data_file("s24_48k_5ch.wav").c_str(), &fmt);
     EXPECT_TRUE(f.is_open());
@@ -54,7 +56,7 @@ TEST(sndfile_api, reader_usable) {
     EXPECT_EQ(f.frame_count(), 4800);
     EXPECT_EQ(f.channel_count(), 5);
     EXPECT_TRUE(f.seekable());
-    EXPECT_EQ(f.seek(0, SEEK_CUR), 4800);
+    EXPECT_EQ(f.seek(0, SEEK_CUR), 0);
     EXPECT_EQ(f.seek(100, SEEK_SET), 100);
     EXPECT_TRUE(f.supports_properties());
     EXPECT_EQ(fmt.sample_rate(), 48000);
@@ -157,6 +159,8 @@ TEST(sndfile_api, reader_format_updated_on_open) {
     EXPECT_EQ(r.format().sample_type(), sample::type::pcm_signed);
     EXPECT_EQ(r.format().file_type(), file_type::label::wav);
 }
+
+#endif  // !DSPXX_LIBSNDFILE_DISABLED
 
 }}}
 

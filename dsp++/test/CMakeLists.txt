@@ -14,6 +14,7 @@ set(SOURCES
     test_levinson.cpp
     test_lpc.cpp
     test_mean.cpp
+    test_mpg123_api.cpp
     test_overlap_add.cpp
     test_pow2.cpp
     test_resample.cpp
@@ -69,6 +70,7 @@ dsp_test(levinson)
 # dsp_test(loudness)
 dsp_test(lpc)
 dsp_test(mean)
+dsp_test(mpg123_api)
 # dsp_test(overlap)
 dsp_test(pow2)
 # dsp_test(resample)
