@@ -9,10 +9,12 @@ find_package(Boost REQUIRED)
 find_package(Doxygen)
 find_package(FFTW3 COMPONENTS libfftw3 libfftw3f libfftw3l)
 find_package(Sndfile)
+find_package(Mpg123)
 
 # options
 option(DSPXX_FFTW3_ENABLED "Enable the use and support for FFTW3 library" ${FFTW3_FOUND})
 option(DSPXX_LIBSNDFILE_ENABLED "Enable the use and support for libsndfile library" ${Sndfile_FOUND})
+option(DSPXX_MPG123_ENABLED "Enable the use and support for libmpg123 mp3 decoding?" ${Mpg123_FOUND})
 option(DSPXX_BUILD_DOCS "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
 
 set(SOURCES
@@ -101,7 +103,7 @@ target_link_libraries(dsp++
         $<$<BOOL:${DSPXX_FFTW3_ENABLED}>:FFTW3::libfftw3>
         $<$<BOOL:${DSPXX_FFTW3_ENABLED}>:FFTW3::libfftw3f>
         $<$<BOOL:${DSPXX_FFTW3_ENABLED}>:FFTW3::libfftw3l>
-        $<$<BOOL:${MPG123_LIBRARY}>:${MPG123_LIBRARY}>
+        $<$<BOOL:${DSPXX_MPG123_ENABLED}>:Mpg123::libmpg123>
 )
 target_compile_definitions(dsp++
     PRIVATE
@@ -112,7 +114,7 @@ target_compile_definitions(dsp++
         $<$<NOT:$<BOOL:${BUILD_SHARED_LIBS}>>:DSPXX_STATIC>
         $<$<NOT:$<BOOL:${DSPXX_LIBSNDFILE_ENABLED}>>:DSPXX_LIBSNDFILE_DISABLED>
         $<$<NOT:$<BOOL:${DSPXX_FFTW3_ENABLED}>>:DSPXX_FFTW3_DISABLED>
-        $<$<NOT:$<BOOL:${MPG123_LIBRARY}>>:DSPXX_MPG123_DISABLED>
+        $<$<NOT:$<BOOL:${DSPXX_MPG123_ENABLED}>>:DSPXX_MPG123_DISABLED>
 )
 set_target_properties(dsp++ PROPERTIES
     VERSION "${PROJECT_VERSION}"
