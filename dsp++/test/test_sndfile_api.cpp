@@ -146,7 +146,8 @@ INSTANTIATE_TEST_SUITE_P(sndfile_api,
 // XXX prebuilt libsndfile on Travis crashes here with access violation on Win32
                             // file_type::label::flac,
                             file_type::label::ogg,
-                            file_type::label::rf64,
+// XXX old libsndfile on Xenial doesn't support rf64 properties
+                            // file_type::label::rf64,
                             file_type::label::wav
                         ));
 

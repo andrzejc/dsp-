@@ -42,13 +42,13 @@ struct mpg123_encoding_entry {
 
 const mpg123_encoding_entry mpg123_encoding_map[] = {
     { MPG123_ENC_SIGNED_16, sample::format::S16 },
-    { MPG123_ENC_UNSIGNED_16, "U16" },
+    { MPG123_ENC_UNSIGNED_16, sample::format::U16 },
     { MPG123_ENC_UNSIGNED_8, sample::format::U8 },
     { MPG123_ENC_SIGNED_8, sample::format::S8 },
     { MPG123_ENC_SIGNED_32, sample::format::S32 },
-    { MPG123_ENC_UNSIGNED_32, "U32" },
+    { MPG123_ENC_UNSIGNED_32, sample::format::U32 },
     { MPG123_ENC_SIGNED_24, sample::format::S24 },
-    { MPG123_ENC_UNSIGNED_24, "U24" },
+    { MPG123_ENC_UNSIGNED_24, sample::format::U24 },
     { MPG123_ENC_FLOAT_32, sample::format::F32 },
     { MPG123_ENC_FLOAT_64, sample::format::F64 }
 };
@@ -80,8 +80,6 @@ struct mpg123::reader::impl {
     buffer::layout buffer_layout{0, 0};
     size_t frame_byte_size;
     mpg123_frameinfo frame_info;
-    mpg123_id3v1 id3v1;
-    mpg123_id3v2 id3v2;
 
     void close() {
         handle = nullptr;
