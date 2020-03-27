@@ -133,6 +133,9 @@ struct file_type_entry {
 };
 
 const file_type_entry file_types[] = {
+    // use the more featureful WAVEX format for wav when writing new files
+    {file_type::label::wav, 		SF_FORMAT_WAVEX},
+    {file_type::label::wav, 		SF_FORMAT_WAV},
     {file_type::label::aiff, 		SF_FORMAT_AIFF},
     {file_type::label::au, 			SF_FORMAT_AU},
     {file_type::label::core_audio, 	SF_FORMAT_CAF},
@@ -141,10 +144,7 @@ const file_type_entry file_types[] = {
     {file_type::label::matlab5, 	SF_FORMAT_MAT5},
     {file_type::label::ogg,	 		SF_FORMAT_OGG},
     {file_type::label::raw, 		SF_FORMAT_RAW},
-    // use the more featureful WAVEX format for wav when writing new files
-    {file_type::label::wav, 		SF_FORMAT_WAVEX},
-    {file_type::label::wav, 		SF_FORMAT_WAV},
-    {file_type::label::wav64, 		SF_FORMAT_W64},
+    {file_type::label::w64, 		SF_FORMAT_W64},
     {file_type::label::rf64,        SF_FORMAT_RF64},
 };
 
@@ -556,7 +556,7 @@ const property_entry property_map[] = {
 };
 }
 
-absl::optional<string> iobase::property(string_view prop) {
+optional<string> iobase::property(string_view prop) {
     auto e = dsp::detail::match_member(property_map, &property_entry::property, prop);
     if (e == nullptr) {
         return {};

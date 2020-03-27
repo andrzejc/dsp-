@@ -28,7 +28,7 @@ const file_format_entry file_extensions[] = {
     { file_type::label::au, "au" },
     { file_type::label::au, "snd" },
     { file_type::label::raw, "raw" },
-    { file_type::label::wav64, "w64" },
+    { file_type::label::w64, "w64" },
     { file_type::label::matlab5, "mat" },
     { file_type::label::matlab4, "mat" },
     { file_type::label::flac, "flac" },
@@ -36,7 +36,10 @@ const file_format_entry file_extensions[] = {
     { file_type::label::ogg, "oga" },
     { file_type::label::ogg, "ogg" },
     { file_type::label::htk, "htk" },
-    { file_type::label::rf64, "wav"}
+    { file_type::label::rf64, "wav" },
+    { file_type::label::mpeg, "mpa"},
+    { file_type::label::mpeg, "mp2"},
+    { file_type::label::mpeg, "mp3"},
 };
 
 const file_format_entry file_mime_types[] = {
@@ -50,7 +53,8 @@ const file_format_entry file_mime_types[] = {
     { file_type::label::flac, "x-flac" },
     { file_type::label::core_audio, "x-caf" },
     { file_type::label::ogg, "ogg" },
-    { file_type::label::rf64, "vnd.wave" }
+    { file_type::label::rf64, "vnd.wave" },
+    { file_type::label::mpeg, "mpeg" },
 };
 
 }

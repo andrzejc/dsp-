@@ -180,7 +180,7 @@ public:
     const file_format& format() const override;
 
     bool supports_properties() const override;
-    absl::optional<string> property(string_view metadata) override;
+    optional<string> property(string_view metadata) override;
 
     void set_property(string_view metadata, string_view value);
 

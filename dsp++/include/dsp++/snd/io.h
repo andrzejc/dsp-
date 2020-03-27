@@ -15,7 +15,7 @@ struct DSPXX_API iobase {
     virtual size_t frame_count() const = 0;
 
     virtual bool supports_properties() const = 0;
-    virtual absl::optional<string> property(string_view prop) = 0;
+    virtual optional<string> property(string_view prop) = 0;
 
     virtual bool seekable() const = 0;
     virtual size_t seek(ssize_t frames, int whence) = 0;

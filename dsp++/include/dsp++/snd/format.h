@@ -20,7 +20,7 @@ constexpr char wav[] =        "wav";
 constexpr char aiff[] =       "aiff";
 constexpr char au[] =         "au";
 constexpr char raw[] =        "raw";
-constexpr char wav64[] =      "wav64";
+constexpr char w64[] =        "w64";
 constexpr char matlab4[] =    "mat4";
 constexpr char matlab5[] =    "mat5";
 constexpr char flac[] =       "flac";
@@ -30,7 +30,7 @@ constexpr char htk[] =        "htk";
 constexpr char rf64[] =       "rf64";
 
 // Decoding support with mpg123
-constexpr char mp3[] = "mp3";
+constexpr char mpeg[] = "mpeg";
 }
 
 /// @return file type label (a @c file_type::label constant) for specified file extension, or @c nullptr if unknown.

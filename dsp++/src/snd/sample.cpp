@@ -220,6 +220,9 @@ const layout layout::S16{sample::type::pcm_signed, 2};
 const layout layout::S24{sample::type::pcm_signed, 3};
 const layout layout::S32{sample::type::pcm_signed, 4};
 const layout layout::U8{sample::type::pcm_unsigned, 1};
+const layout layout::U16{sample::type::pcm_unsigned, 2};
+const layout layout::U24{sample::type::pcm_unsigned, 3};
+const layout layout::U32{sample::type::pcm_unsigned, 4};
 const layout layout::F32{sample::type::ieee_float, 4};
 const layout layout::F64{sample::type::ieee_float, 8};
 

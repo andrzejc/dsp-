@@ -99,6 +99,7 @@ target_link_libraries(dsp++
         absl::optional
         absl::strings
     PRIVATE
+        absl::hash
         $<$<BOOL:${DSPXX_LIBSNDFILE_ENABLED}>:Sndfile::libsndfile>
         $<$<BOOL:${DSPXX_FFTW3_ENABLED}>:FFTW3::libfftw3>
         $<$<BOOL:${DSPXX_FFTW3_ENABLED}>:FFTW3::libfftw3f>

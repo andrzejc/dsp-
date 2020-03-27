@@ -43,7 +43,7 @@ public:
     bool seekable() const override { return true; }
     size_t seek(ssize_t offset, int whence) override;
     bool supports_properties() const override { return true; }
-    absl::optional<string> property(string_view prop) override;
+    optional<string> property(string_view prop) override;
 
     /*!
      * @name Frame-based input.

@@ -19,6 +19,9 @@ namespace dsp { namespace snd { namespace sample {
 /// @brief Labels of audio sample formats.
 namespace format {
 constexpr char U8[] =  "U8";   ///< Unsigned 8-bit integer with offset of 128 linear PCM.
+constexpr char U16[] = "U16";  ///< Unsigned 16-bit integer PCM.
+constexpr char U24[] = "U24";  ///< Unsigned 24-bit integer PCM.
+constexpr char U32[] = "U32";  ///< Unsigned 32-bit integer PCM.
 constexpr char S8[] =  "S8";   ///< Signed 8-bit integer, linear PCM.
 constexpr char S16[] = "S16";  ///< Signed 16-bit integer linear PCM.
 constexpr char S24[] = "S24";  ///< Signed 24-bit integer (packed) linear PCM.
@@ -226,8 +229,24 @@ struct DSPXX_API layout {
     static const layout S24;
     static const layout S32;
     static const layout U8;
+    static const layout U16;
+    static const layout U24;
+    static const layout U32;
     static const layout F32;
     static const layout F64;
+
+    template<typename Sample>
+    static constexpr layout of() {
+        static_assert(std::is_floating_point<Sample>::value || std::is_integral<Sample>::value, "of works only for numeric types");
+        return layout{
+            std::is_floating_point<Sample>::value
+                ? sample::type::ieee_float
+                : std::is_signed<Sample>::value
+                    ? sample::type::pcm_signed
+                    : sample::type::pcm_unsigned,
+            sizeof(Sample)
+        };
+    }
 
 private:
     template<class UInt>
@@ -274,6 +293,26 @@ private:
     }
 };
 
+template<typename Sample> struct format_of;
+template<>
+struct format_of<float32_t> { constexpr static auto value = format::F32; };
+template<>
+struct format_of<float64_t> { constexpr static auto value = format::F64; };
+template<>
+struct format_of<int8_t> { constexpr static auto value = format::S8; };
+template<>
+struct format_of<int16_t> { constexpr static auto value = format::S16; };
+template<>
+struct format_of<int32_t> { constexpr static auto value = format::S32; };
+template<>
+struct format_of<uint8_t> { constexpr static auto value = format::U8; };
+template<>
+struct format_of<uint16_t> { constexpr static auto value = format::U16; };
+template<>
+struct format_of<uint32_t> { constexpr static auto value = format::U32; };
+
+template<typename Sample>
+constexpr auto format_of_v = format_of<Sample>::value;
 }  // namespace sample
 
 namespace buffer {
