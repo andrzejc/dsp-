@@ -78,8 +78,8 @@ struct mpg123::reader::impl {
     std::unique_ptr<uint8_t[]> buffer;
     sample::layout sample_layout{sample::type::unknown, 0};
     buffer::layout buffer_layout{0, 0};
-    size_t frame_byte_size;
-    mpg123_frameinfo frame_info;
+    size_t frame_byte_size = 0;
+    mpg123_frameinfo frame_info = {};
 
     void close() {
         handle = nullptr;
@@ -87,10 +87,9 @@ struct mpg123::reader::impl {
             ::close(own_fd);
             own_fd = -1;
         }
-        buffer = nullptr;
-        frame_byte_size = 0;  // don't reuse buffer after it's free
         format = {};
         frame_count = 0;
+        frame_info = {};
     }
 
     ~impl() {
@@ -168,16 +167,38 @@ struct mpg123::reader::impl {
         }
     }
 
-    void open(const char* path, file_format* f = nullptr) {
-        close();
+    void new_handle() {
+        assert(handle == nullptr);
         int err = MPG123_OK;
         handle.reset(mpg123_new(nullptr, &err));
         if (!handle) {
             assert(MPG123_OK != err);
             throw error{err, mpg123_plain_strerror(err)};
         }
+    }
+
+    void open(const char* path, file_format* f = nullptr) {
+        close();
         try {
+            new_handle();
             if (MPG123_OK != mpg123_open(handle.get(), path)) {
+                throw_last_error();
+            }
+            open_handle(f);
+        } catch (...) {
+            close();
+            throw;
+        }
+    }
+
+    void open(int fd, bool own_fd, file_format* f = nullptr) {
+        close();
+        try {
+            if (own_fd) {
+                this->own_fd = fd;
+            }
+            new_handle();
+            if (MPG123_OK != mpg123_open_fd(handle.get(), fd)) {
                 throw_last_error();
             }
             open_handle(f);
@@ -230,25 +251,28 @@ struct mpg123::reader::impl {
         }
     }
 
+    static string string_from_mpg123(const mpg123_string& s) {
+        string res{s.p, s.fill};
+        if (!res.empty() && res.back() == '\0') {
+            res.resize(res.size() - 1);
+        }
+        return res;
+    }
+
     template<size_t N>
-    optional<string> prop_from_id(mpg123_string *(mpg123_id3v2::* v2), char (mpg123_id3v1::* v1)[N]) {
+    optional<string> prop_from_fields(mpg123_string *(mpg123_id3v2::* v2_field), char (mpg123_id3v1::* v1_field)[N]) {
         mpg123_id3v1* v1p;
         mpg123_id3v2* v2p;
         if (MPG123_OK != mpg123_id3(handle.get(), &v1p, &v2p)) {
             return {};
         }
-        if (v2p != nullptr && v2 != nullptr) {
-            auto str = (v2p->*v2);
-            if (str != nullptr && str->fill != 0) {
-                auto res = string{str->p, str->fill};
-                if (res.back() == '\0') {
-                    res.resize(res.size() - 1);
-                }
-                return res;
+        if (v2p != nullptr && v2_field != nullptr) {
+            if (auto str = (v2p->*v2_field)) {
+                return string_from_mpg123(*str);
             }
         }
-        if (v1p != nullptr && v1 != nullptr) {
-            auto str = (v1p->*v1);
+        if (v1p != nullptr && v1_field != nullptr) {
+            auto str = (v1p->*v1_field);
             size_t len = 0;
             for (; str[len] != '\0' && len != N; ++len) ;
             if (len != 0) {
@@ -259,27 +283,76 @@ struct mpg123::reader::impl {
     }
 
     template<uint32_t tag>
+    static constexpr bool match_tag(const mpg123_text& text) {
+        return (text.id[0] == static_cast<uint8_t>(tag >> 24))
+                && (text.id[1] == static_cast<uint8_t>(tag >> 16))
+                && (text.id[2] == static_cast<uint8_t>(tag >> 8))
+                && (text.id[3] == static_cast<uint8_t>(tag));
+    }
+
+    template<uint32_t tag>
+    static constexpr const mpg123_text* id3v2_find_text(const mpg123_id3v2& v2) {
+        for (size_t i = 0; i != v2.texts; ++i) {
+            auto& text = v2.text[i];
+            if (match_tag<tag>(text)) {
+                return &text;
+            }
+        }
+        return nullptr;
+    }
+
+    template<uint32_t tag>
     static optional<string> id3v2_text(impl& i) {
         mpg123_id3v1* v1p;
         mpg123_id3v2* v2p;
         if (MPG123_OK != mpg123_id3(i.handle.get(), &v1p, &v2p) || v2p == nullptr) {
             return {};
         }
-        for (size_t i = 0; i != v2p->texts; ++i) {
-            auto& text = v2p->text[i];
-            if ((text.id[0] == static_cast<uint8_t>(tag >> 24))
-                && (text.id[1] == static_cast<uint8_t>(tag >> 16))
-                && (text.id[2] == static_cast<uint8_t>(tag >> 8))
-                && (text.id[3] == static_cast<uint8_t>(tag))
-            ) {
-                if (text.text.fill != 0) {
-                    auto res = string{text.text.p, text.text.fill};
-                    if (res.back() == '\0') {
-                        res.resize(res.size() - 1);
-                    }
-                    return res;
-                }
+        if (auto text = id3v2_find_text<tag>(*v2p)) {
+            return string_from_mpg123(text->text);
+        }
+        return {};
+    }
+
+    template<optional<string>(* Func)(impl& i)>
+    static optional<string> till_slash(impl& i) {
+        if (auto res = Func(i)) {
+            auto& str = *res;
+            auto slash_pos = str.find('/');
+            if (slash_pos != str.npos) {
+                str.resize(slash_pos);
             }
+            return res;
+        }
+        return {};
+    }
+
+    template<optional<string>(* Func)(impl& i)>
+    static optional<string> after_slash(impl& i) {
+        if (auto res = Func(i)) {
+            auto& str = *res;
+            auto slash_pos = str.find('/');
+            if (slash_pos != str.npos) {
+                str.erase(0, slash_pos + 1);
+            }
+            return res;
+        }
+        return {};
+    }
+
+    static optional<string> get_track_number(impl& i) {
+        mpg123_id3v1* v1p;
+        mpg123_id3v2* v2p;
+        if (MPG123_OK != mpg123_id3(i.handle.get(), &v1p, &v2p)) {
+            return {};
+        }
+        if (v2p != nullptr) {
+            if (auto text = id3v2_find_text<'TRCK'>(*v2p)) {
+                return string_from_mpg123(text->text);
+            }
+        }
+        if (v1p != nullptr && v1p->comment[28] == '\0' && v1p->comment[29] != '\0') {
+            return boost::str(boost::format("%1%") % static_cast<int>(static_cast<uint8_t>(v1p->comment[29])));
         }
         return {};
     }
@@ -328,22 +401,31 @@ struct mpg123::reader::impl {
                 return boost::str(boost::format("%1%k") % i.frame_info.bitrate);
             }},
             { property::title, [](impl& i) {
-                return i.prop_from_id(&mpg123_id3v2::title, &mpg123_id3v1::title);
+                return i.prop_from_fields(&mpg123_id3v2::title, &mpg123_id3v1::title);
             }},
             { property::artist, [](impl& i) {
-                return i.prop_from_id(&mpg123_id3v2::artist, &mpg123_id3v1::artist);
+                return i.prop_from_fields(&mpg123_id3v2::artist, &mpg123_id3v1::artist);
             }},
             { property::album, [](impl& i) {
-                return i.prop_from_id(&mpg123_id3v2::album, &mpg123_id3v1::album);
+                return i.prop_from_fields(&mpg123_id3v2::album, &mpg123_id3v1::album);
             }},
             { property::date, [](impl& i) {
-                return i.prop_from_id(&mpg123_id3v2::year, &mpg123_id3v1::year);
+                if (auto res = id3v2_text<'TDAT'>(i)) {
+                    return res;
+                }
+                return i.prop_from_fields(&mpg123_id3v2::year, &mpg123_id3v1::year);
             }},
             { property::comment, [](impl& i) {
-                return i.prop_from_id(&mpg123_id3v2::comment, &mpg123_id3v1::comment);
+                return i.prop_from_fields(&mpg123_id3v2::comment, &mpg123_id3v1::comment);
             }},
             { property::bpm, &id3v2_text<'TBPM'> },
-            { property::track_number, &id3v2_text<'TRCK'> },
+            { property::track_number, &till_slash<&get_track_number> },
+            { property::track_count, &after_slash<&get_track_number> },
+            { property::disk_number, &till_slash<&id3v2_text<'TPOS'>> },
+            { property::disk_count, &after_slash<&id3v2_text<'TPOS'>> },
+            { property::key, &id3v2_text<'TKEY'> },
+            { property::album_artist, &id3v2_text<'TPE2'> },
+            { property::software, &id3v2_text<'TENC'> },
         };
         auto it = property_map.find(property);
         if (it != property_map.end()) {
@@ -365,6 +447,7 @@ void reader::open(const char* path, file_format* format) {
 }
 
 void reader::open(int fd, bool own_fd, file_format* format) {
+    impl_->open(fd, own_fd, format);
 }
 
 void reader::close() {

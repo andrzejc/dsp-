@@ -15,6 +15,7 @@ addons:
     - libfftw3-dev
     - libboost-dev
     - libmpg123-dev
+    - libmp3lame-dev
     - doxygen
     - graphviz
     - ninja-build

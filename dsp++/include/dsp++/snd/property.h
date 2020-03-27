@@ -16,5 +16,6 @@ constexpr char genre[] = "genre";
 constexpr char comment[] = "comment";
 constexpr char software[] = "software";
 constexpr char bitrate[] = "bitrate";
+constexpr char key[] = "key";
 
 }}}
