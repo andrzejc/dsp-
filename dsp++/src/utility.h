@@ -46,4 +46,12 @@ const Element* const match_member(const Element (& array)[N], Member Element::* 
         ? nullptr
         : res;
 }
+
+template<class LString, class RString>
+inline bool istrequal(const LString& ls, const RString& rs) {
+    return std::equal(std::begin(ls), std::end(ls), std::begin(rs), std::end(rs), [](char a, char b) {
+                    return std::tolower(a) == std::tolower(b);
+            });
+}
+
 }}  // namespace dsp::detail

@@ -571,10 +571,11 @@ optional<string> iobase::property(string_view prop) {
 void iobase::set_property(string_view prop, string_view value) {
     auto e = dsp::detail::match_member(property_map, &property_entry::property, prop);
     if (e == nullptr) {
-        throw io_error{boost::str(boost::format("property \"%1%\" not supported by libsndfile backend") % prop)};
+        throw property::error::unsupported{string{prop}, impl_->format_.file_type()};
     }
     int err = sf_set_string(handle(), e->id, string{value}.c_str());
     if (0 != err) {
+        // TODO translate to unsupported?
         throw sndfile::error{err, sf_error_number(err)};
     }
 }

@@ -260,6 +260,13 @@ public:
      */
     stdio(std::FILE* file, bool own_file);
 
+    explicit operator bool() const noexcept {
+        return file_ != nullptr;
+    }
+    std::FILE* file() const noexcept {
+        return file_;
+    }
+
     size_t size() override;
     size_t seek(ssize_t offset, int whence) override;
     size_t read(void* buf, size_t size) override;

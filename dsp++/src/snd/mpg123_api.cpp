@@ -8,6 +8,7 @@
 
 #if !DSPXX_MPG123_DISABLED
 
+#include <dsp++/snd/mpeg/property.h>
 #include <dsp++/snd/mpg123/reader.h>
 #include <dsp++/snd/format.h>
 #include <dsp++/snd/sample.h>
@@ -75,10 +76,9 @@ struct mpg123::reader::impl {
     file_format format;
     size_t frame_count = 0;
     const size_t buffer_length = 512;
-    std::unique_ptr<uint8_t[]> buffer;
+    std::vector<uint8_t> buffer;
     sample::layout sample_layout{sample::type::unknown, 0};
     buffer::layout buffer_layout{0, 0};
-    size_t frame_byte_size = 0;
     mpg123_frameinfo frame_info = {};
 
     void close() {
@@ -115,7 +115,7 @@ struct mpg123::reader::impl {
                                         | MPG123_ENC_SIGNED_24  | MPG123_ENC_UNSIGNED_24
                                         | MPG123_ENC_FLOAT_32   | MPG123_ENC_FLOAT_64    );
         if (encoding != (encoding & supported_encs)) {
-            throw std::runtime_error{boost::str(boost::format("mpg123 encoding %1% is not supported") %
+            throw io_error{boost::str(boost::format("mpg123 encoding %1% is not supported") %
                 encoding
             )};
         }
@@ -124,24 +124,21 @@ struct mpg123::reader::impl {
         assert(channels < 3);
         auto e = dsp::detail::match_member(mpg123_encoding_map, &mpg123_encoding_entry::enc, encoding);
         if (nullptr == e) {
-            throw std::runtime_error{boost::str(boost::format("can't match mpg123 encoding %1% to sample format") %
+            throw io_error{boost::str(boost::format("can't match mpg123 encoding %1% to sample format") %
                 encoding
             )};
         }
         if (!allow_stream_params_change
             && (sample_rate != format.sample_rate() || channels != format.channel_count())
         ) {
-            throw std::runtime_error{"change of sample rate or channel count mid-stream is not supported"};
+            throw io_error{"change of sample rate or channel count mid-stream is not supported"};
         }
         format.set_sample_format(e->sample_format);
         format.set_sample_rate(static_cast<unsigned>(sample_rate));
         format.set_channel_layout(channels == 2 ? channel::layout::stereo : channel::layout::mono);
         sample_layout = sample::layout{format.sample_type(), format.sample_bits() / 8};
         buffer_layout = buffer::layout::interleaved(format.channel_count(), sample_layout.container_bytes);
-        if (frame_byte_size != buffer_layout.sample_stride) {
-            frame_byte_size = buffer_layout.sample_stride;
-            buffer.reset(new uint8_t[frame_byte_size * buffer_length]);
-        }
+        buffer.resize(buffer_layout.sample_stride * buffer_length);
     }
 
     void open_handle(file_format* f) {
@@ -228,12 +225,12 @@ struct mpg123::reader::impl {
             }
             size_t read = 0;
             size_t read_frames = std::min(out_size - total, buffer_length);
-            int res = mpg123_read(handle.get(), buffer.get(), read_frames * frame_byte_size, &read);
+            int res = mpg123_read(handle.get(), &buffer[0], read_frames * buffer_layout.sample_stride, &read);
             if (read > 0) {
-                assert((read % frame_byte_size) == 0);
-                size_t frames = read / frame_byte_size;
+                assert((read % buffer_layout.sample_stride) == 0);
+                size_t frames = read / buffer_layout.sample_stride;
                 buffer::layout out_bl = buffer::layout::interleaved(format.channel_count(), out_sl.container_bytes);
-                sample::convert(sample_layout, buffer_layout, buffer.get(), out_sl, out_bl, out_data, frames, format.channel_count());
+                sample::convert(sample_layout, buffer_layout, &buffer[0], out_sl, out_bl, out_data, frames, format.channel_count());
                 total += frames;
                 out_data += frames * out_bl.sample_stride;
             }
@@ -314,6 +311,25 @@ struct mpg123::reader::impl {
         return {};
     }
 
+    optional<string> id3v2_extra_text(string_view prop) {
+        mpg123_id3v1* v1p;
+        mpg123_id3v2* v2p;
+        if (MPG123_OK != mpg123_id3(handle.get(), &v1p, &v2p) || v2p == nullptr) {
+            return {};
+        }
+        for (size_t i = 0; i != v2p->extras; ++i) {
+            auto& desc = v2p->extra[i].description;
+            string_view desc_str{desc.p, desc.fill};
+            if (!desc_str.empty() && desc_str.back() == '\0') {
+                desc_str.remove_suffix(1);
+            }
+            if (detail::istrequal(prop, desc_str)) {
+                return string_from_mpg123(v2p->extra[i].text);
+            }
+        }
+        return {};
+    }
+
     template<optional<string>(* Func)(impl& i)>
     static optional<string> till_slash(impl& i) {
         if (auto res = Func(i)) {
@@ -359,7 +375,7 @@ struct mpg123::reader::impl {
 
     optional<string> property(string_view property) {
         static const std::unordered_map<string_view, optional<string>(*)(impl& i), absl::Hash<string_view>> property_map = {
-            { "mpeg.version", [](impl& i) -> optional<string> {
+            { mpeg::property::version, [](impl& i) -> optional<string> {
                 switch (i.frame_info.version) {
                 case MPG123_1_0:
                     return "1.0";
@@ -370,7 +386,7 @@ struct mpg123::reader::impl {
                 }
                 return {};
             }},
-            { "mpeg.mode", [](impl& i) -> optional<string> {
+            { mpeg::property::mode, [](impl& i) -> optional<string> {
                 switch (i.frame_info.mode) {
                 case MPG123_M_STEREO:
                     return "Standard Stereo";
@@ -383,10 +399,10 @@ struct mpg123::reader::impl {
                 }
                 return {};
             }},
-            { "mpeg.layer", [](impl& i) -> optional<string> {
+            { mpeg::property::layer, [](impl& i) -> optional<string> {
                 return boost::str(boost::format("%1%") % i.frame_info.layer);
             }},
-            { "mpeg.vbr", [](impl& i) -> optional<string> {
+            { mpeg::property::vbr, [](impl& i) -> optional<string> {
                 switch (i.frame_info.vbr) {
                 case MPG123_VBR:
                     return "VBR";
@@ -431,7 +447,7 @@ struct mpg123::reader::impl {
         if (it != property_map.end()) {
             return it->second(*this);
         }
-        return {};
+        return id3v2_extra_text(property);
     }
 };
 

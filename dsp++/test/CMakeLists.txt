@@ -10,6 +10,7 @@ set(SOURCES
     test_filter_design.cpp
     test_filter.cpp
     test_intmath.cpp
+    test_lame_api.cpp
     test_lattice.cpp
     test_levinson.cpp
     test_lpc.cpp
@@ -65,6 +66,7 @@ dsp_test(fft)
 dsp_test(filter_design)
 dsp_test(filter)
 dsp_test(intmath)
+dsp_test(lame_api)
 dsp_test(lattice)
 dsp_test(levinson)
 # dsp_test(loudness)
