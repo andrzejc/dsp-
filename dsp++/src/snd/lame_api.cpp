@@ -44,27 +44,43 @@ constexpr size_t WRITE_SAMPLE_COUNT = 512;
 template<typename Sample> struct lame_encode_func;
 template<>
 struct lame_encode_func<float> {
-    int operator()(lame_t gpf, const float* pcm, const int ns, unsigned char* buf, const int buf_size) const {
-        return lame_encode_buffer_interleaved_ieee_float(gpf, pcm, ns, buf, buf_size);
+    int operator()(lame_t gpf, const float* pcm, const int ns, unsigned char* buf, const int buf_size, unsigned channel_count) const {
+        if (channel_count == 2) {
+            return lame_encode_buffer_interleaved_ieee_float(gpf, pcm, ns, buf, buf_size);
+        } else {
+            return lame_encode_buffer_ieee_float(gpf, pcm, pcm, ns, buf, buf_size);
+        }
     }
 };
 template<>
 struct lame_encode_func<double> {
-    int operator()(lame_t gpf, const double* pcm, const int ns, unsigned char* buf, const int buf_size) const {
-        return lame_encode_buffer_interleaved_ieee_double(gpf, pcm, ns, buf, buf_size);
+    int operator()(lame_t gpf, const double* pcm, const int ns, unsigned char* buf, const int buf_size, unsigned channel_count) const {
+        if (channel_count == 2) {
+            return lame_encode_buffer_interleaved_ieee_double(gpf, pcm, ns, buf, buf_size);
+        } else {
+            return lame_encode_buffer_ieee_double(gpf, pcm, pcm, ns, buf, buf_size);
+        }
     }
 };
 template<>
 struct lame_encode_func<short> {
-    int operator()(lame_t gpf, const short* pcm, const int ns, unsigned char* buf, const int buf_size) const {
-        return lame_encode_buffer_interleaved(gpf, const_cast<short*>(pcm), ns, buf, buf_size);
+    int operator()(lame_t gpf, const short* pcm, const int ns, unsigned char* buf, const int buf_size, unsigned channel_count) const {
+        if (channel_count == 2) {
+            return lame_encode_buffer_interleaved(gpf, const_cast<short*>(pcm), ns, buf, buf_size);
+        } else {
+            return lame_encode_buffer(gpf, pcm, pcm, ns, buf, buf_size);
+        }
     }
 };
 #ifndef DSPXX_LAME_NO_INT_API
 template<>
 struct lame_encode_func<int> {
-    int operator()(lame_t gpf, const int* pcm, const int ns, unsigned char* buf, const int buf_size) const {
-        return lame_encode_buffer_interleaved_int(gpf, pcm, ns, buf, buf_size);
+    int operator()(lame_t gpf, const int* pcm, const int ns, unsigned char* buf, const int buf_size, unsigned channel_count) const {
+        if (channel_count == 2) {
+            return lame_encode_buffer_interleaved_int(gpf, pcm, ns, buf, buf_size);
+        } else {
+            return lame_encode_buffer_int(gpf, pcm, pcm, ns, buf, buf_size);
+        }
     }
 };
 #endif
@@ -469,7 +485,7 @@ struct lame::writer::impl {
         while (true) {
             size_t write_size = std::min(WRITE_SAMPLE_COUNT / format.channel_count(), frames - total);
             buffer.resize(static_cast<size_t>(1.25 * write_size * format.channel_count() + 7200.5));
-            int res = lame_encode_func<Sample>{}(handle.get(), samples, write_size, &buffer[0], buffer.size());
+            int res = lame_encode_func<Sample>{}(handle.get(), samples, write_size, &buffer[0], buffer.size(), format.channel_count());
             if (res < 0) {
                 throw error{res, "lame_encode_buffer_interleaved variant failed"};
             }
