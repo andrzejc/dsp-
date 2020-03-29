@@ -60,12 +60,14 @@ struct lame_encode_func<short> {
         return lame_encode_buffer_interleaved(gpf, const_cast<short*>(pcm), ns, buf, buf_size);
     }
 };
+#ifndef DSPXX_LAME_NO_INT_API
 template<>
 struct lame_encode_func<int> {
     int operator()(lame_t gpf, const int* pcm, const int ns, unsigned char* buf, const int buf_size) const {
         return lame_encode_buffer_interleaved_int(gpf, pcm, ns, buf, buf_size);
     }
 };
+#endif
 
 const std::unordered_map<string_view, uint32_t, absl::Hash<string_view>> PROPERTY_TAGS = {
     { property::album, 'TALB' },
@@ -541,7 +543,11 @@ size_t writer::write_frames(const short* buf, size_t count) {
 }
 
 size_t writer::write_frames(const int* buf, size_t count) {
+#ifndef DSPXX_LAME_NO_INT_API
     return impl_->write_frames(buf, count);
+#else
+    // TODO implement me
+#endif
 }
 
 size_t writer::write_frames(const double* buf, size_t count) {

@@ -116,6 +116,7 @@ target_compile_definitions(dsp++
         $<$<BOOL:${BUILD_SHARED_LIBS}>:DSPXX_EXPORTS>
         # Turn off min/max macros defined in windows.h
         $<$<BOOL:${WIN32}>:NOMINMAX>
+        $<$<VERSION_LESS:${LAME_VERSION},3.100>:DSPXX_LAME_NO_INT_API>
     PUBLIC
         $<$<NOT:$<BOOL:${BUILD_SHARED_LIBS}>>:DSPXX_STATIC>
         $<$<NOT:$<BOOL:${DSPXX_LIBSNDFILE_ENABLED}>>:DSPXX_LIBSNDFILE_DISABLED>
