@@ -414,34 +414,48 @@ struct mpg123::reader::impl {
                 return {};
             }},
             { property::bitrate, [](impl& i) -> optional<string> {
-                return boost::str(boost::format("%1%k") % i.frame_info.bitrate);
+                return boost::str(boost::format("%1%k") %
+                        (i.frame_info.vbr == MPG123_ABR
+                            ? i.frame_info.abr_rate
+                            : i.frame_info.bitrate)
+                    );
             }},
-            { property::title, [](impl& i) {
-                return i.prop_from_fields(&mpg123_id3v2::title, &mpg123_id3v1::title);
-            }},
-            { property::artist, [](impl& i) {
-                return i.prop_from_fields(&mpg123_id3v2::artist, &mpg123_id3v1::artist);
-            }},
+            // ID3 properties
             { property::album, [](impl& i) {
                 return i.prop_from_fields(&mpg123_id3v2::album, &mpg123_id3v1::album);
             }},
+            { property::album_artist, &id3v2_text<'TPE2'> },
+            { property::album_artist_sort_order, &id3v2_text<'TSO2'> },
+            { property::album_sort_order, &id3v2_text<'TSOA'> },
+            { property::artist, [](impl& i) {
+                return i.prop_from_fields(&mpg123_id3v2::artist, &mpg123_id3v1::artist);
+            }},
+            { property::artist_sort_order, &id3v2_text<'TSOP'> },
+            { property::bpm, &id3v2_text<'TBPM'> },
+            { property::comment, [](impl& i) {
+                return i.prop_from_fields(&mpg123_id3v2::comment, &mpg123_id3v1::comment);
+            }},
+            { property::composer, &id3v2_text<'TCOM'> },
+            { property::composer_sort_order, &id3v2_text<'TSOC'> },
+            { property::conductor, &id3v2_text<'TPE3'> },
+            { property::copyright, &id3v2_text<'TCOP'> },
             { property::date, [](impl& i) {
                 if (auto res = id3v2_text<'TDAT'>(i)) {
                     return res;
                 }
                 return i.prop_from_fields(&mpg123_id3v2::year, &mpg123_id3v1::year);
             }},
-            { property::comment, [](impl& i) {
-                return i.prop_from_fields(&mpg123_id3v2::comment, &mpg123_id3v1::comment);
-            }},
-            { property::bpm, &id3v2_text<'TBPM'> },
-            { property::track_number, &till_slash<&get_track_number> },
-            { property::track_count, &after_slash<&get_track_number> },
-            { property::disk_number, &till_slash<&id3v2_text<'TPOS'>> },
             { property::disk_count, &after_slash<&id3v2_text<'TPOS'>> },
+            { property::disk_number, &till_slash<&id3v2_text<'TPOS'>> },
+            // TODO genre
             { property::key, &id3v2_text<'TKEY'> },
-            { property::album_artist, &id3v2_text<'TPE2'> },
             { property::software, &id3v2_text<'TENC'> },
+            { property::title, [](impl& i) {
+                return i.prop_from_fields(&mpg123_id3v2::title, &mpg123_id3v1::title);
+            }},
+            { property::title_sort_order, &id3v2_text<'TSOT'> },
+            { property::track_count, &after_slash<&get_track_number> },
+            { property::track_number, &till_slash<&get_track_number> },
         };
         auto it = property_map.find(property);
         if (it != property_map.end()) {

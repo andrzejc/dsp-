@@ -29,7 +29,7 @@ public:
 
     ~writer();
 
-    void open(const char* path, file_format& format);
+    void open(const char* path, const file_format& format);
     // void open(int fd, bool own_fd, file_format& format);
 
     void close();

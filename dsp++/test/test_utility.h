@@ -1,5 +1,6 @@
 #pragma once
 #include <dsp++/types.h>
+#include <dsp++/snd/io.h>
 
 #include <cstdio>
 #include <cstdlib>
@@ -32,5 +33,19 @@ struct temp_file {
         std::remove(name);
     }
 };
+
+inline size_t copy_file(snd::reader& r, snd::writer& w) {
+    const size_t bufsize = 512;
+    size_t total = 0;
+    std::unique_ptr<float[]> buf{new float[r.format().channel_count() * bufsize]};
+    while (true) {
+        size_t read = r.read_frames(&buf[0], bufsize);
+        total += w.write_frames(&buf[0], read);
+        if (read != bufsize) {
+            break;
+        }
+    }
+    return total;
+}
 
 }}

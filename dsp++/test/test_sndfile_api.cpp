@@ -10,20 +10,6 @@
 
 namespace dsp { namespace snd { namespace sndifle {
 
-size_t copy_file(snd::reader& r, snd::writer& w) {
-    const size_t bufsize = 512;
-    size_t total = 0;
-    std::unique_ptr<float[]> buf{new float[r.format().channel_count() * bufsize]};
-    while (true) {
-        size_t read = r.read_frames(&buf[0], bufsize);
-        total += w.write_frames(&buf[0], read);
-        if (read != bufsize) {
-            break;
-        }
-    }
-    return total;
-}
-
 #if !DSPXX_LIBSNDFILE_DISABLED
 
 TEST(sndfile_api, file_usable) {
@@ -88,7 +74,7 @@ TEST_P(channel_layout, channel_layout_preserved_on_rewrite) {
     sndfile::writer w;
     w.open(tmp.name, &wf);
     ASSERT_TRUE(w.is_open());
-    EXPECT_EQ(copy_file(r, w), 4800);
+    EXPECT_EQ(test::copy_file(r, w), 4800);
     w.close();
     r.close();
 
@@ -126,7 +112,7 @@ TEST_P(properties, properties_preserved_on_rewrite) {
     w.open(tmp.name, &wf);
     w.set_property(property::title, "s16_48k");
     ASSERT_TRUE(w.is_open());
-    EXPECT_EQ(copy_file(r, w), 4800);
+    EXPECT_EQ(test::copy_file(r, w), 4800);
     w.close();
     r.close();
 

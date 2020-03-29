@@ -38,6 +38,58 @@
 namespace dsp { namespace snd { namespace lame {
 
 namespace {
+constexpr size_t WRITE_SAMPLE_COUNT = 512;
+
+template<typename Sample> struct lame_encode_func;
+template<>
+struct lame_encode_func<float> {
+    int operator()(lame_t gpf, const float* pcm, const int ns, unsigned char* buf, const int buf_size) const {
+        return lame_encode_buffer_interleaved_ieee_float(gpf, pcm, ns, buf, buf_size);
+    }
+};
+template<>
+struct lame_encode_func<double> {
+    int operator()(lame_t gpf, const double* pcm, const int ns, unsigned char* buf, const int buf_size) const {
+        return lame_encode_buffer_interleaved_ieee_double(gpf, pcm, ns, buf, buf_size);
+    }
+};
+template<>
+struct lame_encode_func<short> {
+    int operator()(lame_t gpf, const short* pcm, const int ns, unsigned char* buf, const int buf_size) const {
+        return lame_encode_buffer_interleaved(gpf, const_cast<short*>(pcm), ns, buf, buf_size);
+    }
+};
+template<>
+struct lame_encode_func<int> {
+    int operator()(lame_t gpf, const int* pcm, const int ns, unsigned char* buf, const int buf_size) const {
+        return lame_encode_buffer_interleaved_int(gpf, pcm, ns, buf, buf_size);
+    }
+};
+
+const std::unordered_map<string_view, uint32_t, absl::Hash<string_view>> PROPERTY_TAGS = {
+    { property::album, 'TALB' },
+    { property::album_artist, 'TPE2' },
+    { property::album_artist_sort_order, 'TSO2' },
+    { property::album_sort_order, 'TSOA' },
+    { property::artist, 'TPE1' },
+    { property::artist_sort_order, 'TSOP' },
+    { property::bpm, 'TBPM' },
+    { property::comment, 'COMM' },
+    { property::composer, 'TCOM' },
+    { property::composer_sort_order, 'TSOC' },
+    { property::conductor, 'TPE3' },
+    { property::copyright, 'TCOP' },
+    { property::date, 'TYER' },
+    // TODO disc_count/number
+    { property::genre, 'TCON' },
+    { property::key, 'TKEY' },
+    { property::software, 'TENC' },
+    { property::title, 'TIT2' },
+    { property::title_sort_order, 'TSOT' },
+    // TODO track_count
+    { property::track_number, 'TRCK' },
+};
+
 }
 
 struct lame::writer::impl {
@@ -49,7 +101,6 @@ struct lame::writer::impl {
     size_t frame_count = 0;
     bool bitstream_init = false;
     const int lame_quality = 2;
-
 
     void final_flush() {
         if (!bitstream_init) {
@@ -89,14 +140,16 @@ struct lame::writer::impl {
         }
     }
 
-
-
     void new_handle(const file_format& fmt) {
         // Initialize 2 encoders the same way, one is a dry run, 2nd one will be initialized on first write
         // after dryrun passes
         handle.reset(lame_init());
         bitstream_init = false;
         int err;
+        // Disable any resampling done by libmp3lame by setting out_samplerate directly
+        if (LAME_NOERROR != (err = lame_set_out_samplerate(handle.get(), fmt.sample_rate()))) {
+            throw error{err, "lame_set_out_samplerate"};
+        }
         if (LAME_NOERROR != (err = lame_set_in_samplerate(handle.get(), fmt.sample_rate()))) {
             throw error{err, "lame_set_in_samplerate"};
         }
@@ -123,6 +176,8 @@ struct lame::writer::impl {
                 set_property(property::bitrate, bitrate);
             }
         }
+        id3tag_init(handle.get());
+        id3tag_add_v2(handle.get());
     }
 
     void ensure_bitstream_init() {
@@ -147,6 +202,9 @@ struct lame::writer::impl {
     void open(std::unique_ptr<sndfile::stdio> f, const file_format& fmt) {
         close();
 
+        if (fmt.file_type() != file_type::label::mpeg) {
+            throw std::invalid_argument{"file_type is not mpeg"};
+        }
         dryrun_bitstream_init(fmt);
         try {
             new_handle(fmt);
@@ -221,32 +279,6 @@ struct lame::writer::impl {
                 }
                 return {};
             }},
-            // { property::title, [](impl& i) {
-            //     return i.prop_from_fields(&mpg123_id3v2::title, &mpg123_id3v1::title);
-            // }},
-            // { property::artist, [](impl& i) {
-            //     return i.prop_from_fields(&mpg123_id3v2::artist, &mpg123_id3v1::artist);
-            // }},
-            // { property::album, [](impl& i) {
-            //     return i.prop_from_fields(&mpg123_id3v2::album, &mpg123_id3v1::album);
-            // }},
-            // { property::date, [](impl& i) {
-            //     if (auto res = id3v2_text<'TDAT'>(i)) {
-            //         return res;
-            //     }
-            //     return i.prop_from_fields(&mpg123_id3v2::year, &mpg123_id3v1::year);
-            // }},
-            // { property::comment, [](impl& i) {
-            //     return i.prop_from_fields(&mpg123_id3v2::comment, &mpg123_id3v1::comment);
-            // }},
-            // { property::bpm, &id3v2_text<'TBPM'> },
-            // { property::track_number, &till_slash<&get_track_number> },
-            // { property::track_count, &after_slash<&get_track_number> },
-            // { property::disk_number, &till_slash<&id3v2_text<'TPOS'>> },
-            // { property::disk_count, &after_slash<&id3v2_text<'TPOS'>> },
-            // { property::key, &id3v2_text<'TKEY'> },
-            // { property::album_artist, &id3v2_text<'TPE2'> },
-            // { property::software, &id3v2_text<'TENC'> },
         };
         auto it = property_map.find(property);
         if (it != property_map.end()) {
@@ -348,38 +380,50 @@ struct lame::writer::impl {
                     }
                 }
             }},
-            // { property::title, [](impl& i) {
-            //     return i.prop_from_fields(&mpg123_id3v2::title, &mpg123_id3v1::title);
-            // }},
-            // { property::artist, [](impl& i) {
-            //     return i.prop_from_fields(&mpg123_id3v2::artist, &mpg123_id3v1::artist);
-            // }},
-            // { property::album, [](impl& i) {
-            //     return i.prop_from_fields(&mpg123_id3v2::album, &mpg123_id3v1::album);
-            // }},
-            // { property::date, [](impl& i) {
-            //     if (auto res = id3v2_text<'TDAT'>(i)) {
-            //         return res;
-            //     }
-            //     return i.prop_from_fields(&mpg123_id3v2::year, &mpg123_id3v1::year);
-            // }},
-            // { property::comment, [](impl& i) {
-            //     return i.prop_from_fields(&mpg123_id3v2::comment, &mpg123_id3v1::comment);
-            // }},
-            // { property::bpm, &id3v2_text<'TBPM'> },
-            // { property::track_number, &till_slash<&get_track_number> },
+            // TODO track numer
+            { property::track_number, [](impl& i, string_view val) {
+                id3tag_set_track(i.handle.get(), string{val}.c_str());
+            }},
             // { property::track_count, &after_slash<&get_track_number> },
             // { property::disk_number, &till_slash<&id3v2_text<'TPOS'>> },
             // { property::disk_count, &after_slash<&id3v2_text<'TPOS'>> },
-            // { property::key, &id3v2_text<'TKEY'> },
-            // { property::album_artist, &id3v2_text<'TPE2'> },
-            // { property::software, &id3v2_text<'TENC'> },
         };
         auto it = property_map.find(prop);
         if (it != property_map.end()) {
             it->second(*this, val);
+            return;
+        }
+        auto tag_it = PROPERTY_TAGS.find(prop);
+        if (tag_it != PROPERTY_TAGS.end()) {
+            char fid[5] = { (char)(tag_it->second >> 24), (char)(tag_it->second >> 16), (char)(tag_it->second >> 8), (char)tag_it->second, 0 };
+            string formatted = boost::str(boost::format('COMM' == tag_it->second
+                ? "%1%==%2%"
+                : "%1%=%2%"
+            ) % fid % val);
+            int err = id3tag_set_fieldvalue(handle.get(), formatted.c_str());
+            assert(0 == err);
         } else {
             throw property::error::unsupported{string{prop}, format.file_type()};
+        }
+    }
+
+    template<typename Sample>
+    size_t write_frames(const Sample* samples, size_t frames) {
+        ensure_bitstream_init();
+        size_t total = 0;
+        while (true) {
+            size_t write_size = std::min(WRITE_SAMPLE_COUNT / format.channel_count(), frames - total);
+            buffer.resize(static_cast<size_t>(1.25 * write_size * format.channel_count() + 7200.5));
+            int res = lame_encode_func<Sample>{}(handle.get(), samples, write_size, &buffer[0], buffer.size());
+            if (res < 0) {
+                throw error{res, "lame_encode_buffer_interleaved variant failed"};
+            }
+            total += write_size;
+            frame_count += write_size;
+            file->write(&buffer[0], res);
+            if (total == frames) {
+                return total;
+            }
         }
     }
 };
@@ -391,8 +435,8 @@ writer::writer():
 writer::~writer() {
 }
 
-void writer::open(const char* path, file_format& format) {
-    impl_->open(std::make_unique<sndfile::stdio>(std::fopen(path, "wb"), true), format);
+void writer::open(const char* path, const file_format& format) {
+    impl_->open(std::make_unique<sndfile::stdio>(std::fopen(path, "w+b"), true), format);
 }
 
 // void writer::open(int fd, bool own_fd, file_format& format) {
@@ -436,19 +480,19 @@ void writer::set_property(string_view prop, string_view val) {
 }
 
 size_t writer::write_frames(const float* buf, size_t count) {
-    return 0;
+    return impl_->write_frames(buf, count);
 }
 
 size_t writer::write_frames(const short* buf, size_t count) {
-    return 0;
+    return impl_->write_frames(buf, count);
 }
 
 size_t writer::write_frames(const int* buf, size_t count) {
-    return 0;
+    return impl_->write_frames(buf, count);
 }
 
 size_t writer::write_frames(const double* buf, size_t count) {
-    return 0;
+    return impl_->write_frames(buf, count);
 }
 
 void writer::commit() {
