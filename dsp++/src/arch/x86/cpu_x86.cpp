@@ -12,7 +12,16 @@
 #endif // _MSC_VER
 
 #ifdef __GNUC__
-# if (defined(__pic__) || defined(__APPLE__))
+# if defined(DSPXX_ARCH_X86_64)
+static __inline void __cpuid(int cpu_info[4], int info_type) {
+  asm volatile (
+    "xchgq  %%rbx,%q1                          \n"
+    "cpuid                                     \n"
+    "xchgq  %%rbx,%q1                         \n"
+    : "=a"(cpu_info[0]), "=r"(cpu_info[1]), "=c"(cpu_info[2]), "=d"(cpu_info[3])
+    : "0"(info_type));
+}
+# elif (defined(__pic__) || defined(__APPLE__))
 static __inline void __cpuid(int cpu_info[4], int info_type) {
   asm volatile (
     "mov %%ebx, %%edi                          \n"
