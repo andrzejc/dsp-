@@ -553,6 +553,8 @@ const property_entry property_map[] = {
     { property::comment, SF_STR_COMMENT },
     { property::genre, SF_STR_GENRE },
     { property::software, SF_STR_SOFTWARE },
+    { property::copyright, SF_STR_COPYRIGHT },
+    { property::date, SF_STR_DATE },
 };
 }
 
