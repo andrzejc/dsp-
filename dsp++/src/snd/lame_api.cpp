@@ -34,6 +34,7 @@
 #include <cerrno>
 #include <system_error>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace dsp { namespace snd { namespace lame {
 
@@ -80,14 +81,15 @@ const std::unordered_map<string_view, uint32_t, absl::Hash<string_view>> PROPERT
     { property::conductor, 'TPE3' },
     { property::copyright, 'TCOP' },
     { property::date, 'TYER' },
-    // TODO disc_count/number
+    // { property::disk_count, 'TPOS' },
+    // { property::disk_number, 'TPOS' },
     { property::genre, 'TCON' },
     { property::key, 'TKEY' },
-    { property::software, 'TENC' },
+    { property::software, 'TSSE' },
     { property::title, 'TIT2' },
     { property::title_sort_order, 'TSOT' },
-    // TODO track_count
-    { property::track_number, 'TRCK' },
+    // { property::track_count, 'TRCK' },
+    // { property::track_number, 'TRCK' },
 };
 
 }
@@ -101,6 +103,7 @@ struct lame::writer::impl {
     size_t frame_count = 0;
     bool bitstream_init = false;
     const int lame_quality = 2;
+    std::unordered_map<string, string> properties;
 
     void final_flush() {
         if (!bitstream_init) {
@@ -125,10 +128,12 @@ struct lame::writer::impl {
             file = {};
             format = {};
             frame_count = 0;
+            properties = {};
         } catch (std::exception&) {
             file = {};
             format = {};
             frame_count = 0;
+            properties = {};
             throw;
         }
     }
@@ -284,6 +289,10 @@ struct lame::writer::impl {
         if (it != property_map.end()) {
             return it->second(*this);
         }
+        auto tag_it = properties.find(string{property});
+        if (tag_it != properties.end()) {
+            return tag_it->second;
+        }
         return {};
     }
 
@@ -310,6 +319,49 @@ struct lame::writer::impl {
         throw snd::property::error::read_only{property};
     }
 
+    void set_tag(uint32_t tag, string_view desc, string_view text) {
+        char fid[5] = { (char)(tag >> 24), (char)(tag >> 16), (char)(tag >> 8), (char)tag, 0 };
+        string formatted;
+        if (tag == 'TXXX' || tag == 'WXXX' || tag == 'COMM') {
+            formatted = boost::str(boost::format("%1%=%2%=%3%") % fid % desc % text);
+        } else {
+            assert(desc.empty());
+            formatted = boost::str(boost::format("%1%=%2%") % fid % text);
+        }
+        int err = id3tag_set_fieldvalue(handle.get(), formatted.c_str());
+        assert(0 == err);
+    }
+
+    void set_track_disk_num(uint32_t tag, string prop, string track_disk_count_prop, string val) {
+        if (val.find('/') != val.npos) {
+            throw property::error::invalid_value{prop, val};
+        }
+        properties[prop] = val;
+        auto total_it = properties.find(track_disk_count_prop);
+        if (total_it != properties.end() && !total_it->second.empty()) {
+            val = boost::str(boost::format("%1%/%2%") % val % total_it->second);
+        }
+        set_tag(tag, "", val);
+    }
+
+    void set_track_disk_count(uint32_t tag, string prop, string track_disk_number_prop, string val) {
+        if (val.find('/') != val.npos) {
+            throw property::error::invalid_value{prop, val};
+        }
+        properties[prop] = val;
+        string num;
+        auto num_it = properties.find(track_disk_number_prop);
+        if (num_it != properties.end()) {
+            num = num_it->second;
+        }
+        if (val.empty()) {
+            val = boost::str(boost::format("%1%") % num );
+        } else {
+            val = boost::str(boost::format("%1%/%2%") % num % val);
+        }
+        set_tag(tag, "", val);
+    }
+
     void set_property(string_view prop, string_view val) {
         static const std::unordered_map<string_view, void(*)(impl& i, string_view val), absl::Hash<string_view>> property_map = {
             { mpeg::property::version, throw_read_only<mpeg::property::version> },
@@ -320,6 +372,7 @@ struct lame::writer::impl {
                     mode = STEREO;
                 } else if (detail::istrequal(val, string_view{"Joint Stereo"})) {
                     mode = JOINT_STEREO;
+                // LAME doesn't support dual channel
                 // } else if (detail::istrequal(val, string_view{"Dual Channel"})) {
                 //     mode = DUAL_CHANNEL;
                 } else if (detail::istrequal(val, string_view{"Mono"})) {
@@ -380,13 +433,18 @@ struct lame::writer::impl {
                     }
                 }
             }},
-            // TODO track numer
             { property::track_number, [](impl& i, string_view val) {
-                id3tag_set_track(i.handle.get(), string{val}.c_str());
+                i.set_track_disk_num('TRCK', property::track_number, property::track_count, string{val});
             }},
-            // { property::track_count, &after_slash<&get_track_number> },
-            // { property::disk_number, &till_slash<&id3v2_text<'TPOS'>> },
-            // { property::disk_count, &after_slash<&id3v2_text<'TPOS'>> },
+            { property::track_count, [](impl& i, string_view val) {
+                i.set_track_disk_count('TRCK', property::track_count, property::track_number, string{val});
+            }},
+            { property::disk_number, [](impl& i, string_view val) {
+                i.set_track_disk_num('TPOS', property::disk_number, property::disk_count, string{val});
+            }},
+            { property::disk_count, [](impl& i, string_view val) {
+                i.set_track_disk_count('TPOS', property::disk_count, property::disk_number, string{val});
+            }},
         };
         auto it = property_map.find(prop);
         if (it != property_map.end()) {
@@ -395,16 +453,11 @@ struct lame::writer::impl {
         }
         auto tag_it = PROPERTY_TAGS.find(prop);
         if (tag_it != PROPERTY_TAGS.end()) {
-            char fid[5] = { (char)(tag_it->second >> 24), (char)(tag_it->second >> 16), (char)(tag_it->second >> 8), (char)tag_it->second, 0 };
-            string formatted = boost::str(boost::format('COMM' == tag_it->second
-                ? "%1%==%2%"
-                : "%1%=%2%"
-            ) % fid % val);
-            int err = id3tag_set_fieldvalue(handle.get(), formatted.c_str());
-            assert(0 == err);
+            set_tag(tag_it->second, "", val);
         } else {
-            throw property::error::unsupported{string{prop}, format.file_type()};
+            set_tag('TXXX', prop, val);
         }
+        properties[string{prop}] = string{val};
     }
 
     template<typename Sample>

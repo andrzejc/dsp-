@@ -320,7 +320,7 @@ struct mpg123::reader::impl {
         for (size_t i = 0; i != v2p->extras; ++i) {
             auto& desc = v2p->extra[i].description;
             string_view desc_str{desc.p, desc.fill};
-            if (!desc_str.empty() && desc_str.back() == '\0') {
+            while (!desc_str.empty() && desc_str.back() == '\0') {
                 desc_str.remove_suffix(1);
             }
             if (detail::istrequal(prop, desc_str)) {
@@ -338,7 +338,9 @@ struct mpg123::reader::impl {
             if (slash_pos != str.npos) {
                 str.resize(slash_pos);
             }
-            return res;
+            if (!str.empty()) {
+                return res;
+            }
         }
         return {};
     }
@@ -351,7 +353,9 @@ struct mpg123::reader::impl {
             if (slash_pos != str.npos) {
                 str.erase(0, slash_pos + 1);
             }
-            return res;
+            if (!str.empty()) {
+                return res;
+            }
         }
         return {};
     }
@@ -449,7 +453,7 @@ struct mpg123::reader::impl {
             { property::disk_number, &till_slash<&id3v2_text<'TPOS'>> },
             // TODO genre
             { property::key, &id3v2_text<'TKEY'> },
-            { property::software, &id3v2_text<'TENC'> },
+            { property::software, &id3v2_text<'TSSE'> },
             { property::title, [](impl& i) {
                 return i.prop_from_fields(&mpg123_id3v2::title, &mpg123_id3v1::title);
             }},

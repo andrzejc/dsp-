@@ -134,6 +134,10 @@ TEST(lame_api, writer_creates_readable_properties) {
     w.set_property("comment", "foo bar");
     w.set_property("bpm", "100");
     w.set_property("key", "Cm");
+    w.set_property("track_number", "100");
+    w.set_property("track_count", "105");
+    w.set_property("disk_count", "3");
+    w.set_property("DISCOGS_RELEASE_ID", "foo");
     EXPECT_EQ(test::copy_file(source, w), 48000);
     EXPECT_NO_THROW(w.close());
 
@@ -147,6 +151,11 @@ TEST(lame_api, writer_creates_readable_properties) {
     EXPECT_EQ(*r.property("comment"), "foo bar");
     EXPECT_EQ(*r.property("bpm"), "100");
     EXPECT_EQ(*r.property("key"), "Cm");
+    EXPECT_EQ(*r.property("track_number"), "100");
+    EXPECT_EQ(*r.property("track_count"), "105");
+    EXPECT_FALSE(r.property("disk_number"));
+    EXPECT_EQ(*r.property("disk_count"), "3");
+    EXPECT_EQ(*r.property("DISCOGS_RELEASE_ID"), "foo");
 }
 
 }}}
