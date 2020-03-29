@@ -547,6 +547,7 @@ size_t writer::write_frames(const int* buf, size_t count) {
     return impl_->write_frames(buf, count);
 #else
     // TODO implement me
+    return 0;
 #endif
 }
 

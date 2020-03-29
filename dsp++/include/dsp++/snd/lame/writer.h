@@ -57,6 +57,8 @@ public:
      * @ingroup Frame
      * @throw lame::error is thrown if error is reported by underlying libmp3lame.
      */
+    // TODO float overload is known to cause LAME-side buffer overruns leading to crash;
+    // perform sample conversion on our side!
     size_t write_frames(const float* buf, size_t count) override;
     size_t write_frames(const short* buf, size_t count) override;
     size_t write_frames(const int* buf, size_t count) override;
