@@ -336,7 +336,11 @@ struct iobase::impl {
     int open_mode() const {
         return mode_ == mode::read
             ? 0
+#ifdef _WIN32
+            : _S_IREAD | _S_IWRITE;
+#else
             : S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
+#endif
     }
 };
 

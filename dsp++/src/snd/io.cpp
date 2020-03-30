@@ -35,14 +35,14 @@
   #include <io.h>
   // __MSVCRT_VERSION__ is defined by MinGW
   #if defined(_MSC_VER) || (__MSVCRT_VERSION__ >= 0x800)
-    typedef __int64 off_t;
+    #define off_t __int64
     #define ftello _ftelli64
     #define fseeko _fseeki64
     #define lseek _lseeki64
   #else
-    typedef long off_t;
-    #define ftello std::ftell
-    #define fseeko std::fseek
+    #define off_t long
+    #define ftello ftell
+    #define fseeko fseek
   #endif
 #endif // _WIN32
 
@@ -95,16 +95,16 @@ stdio_stream::stdio_stream(int fd, const char* mode):
 {}
 
 size_t stdio_stream::size() {
-    off_t res = -1, pos = ftello(file_);
+    off_t res = -1, pos = ::ftello(file_);
     if (pos < 0) {
         goto finally;
     }
-    if (0 != fseeko(file_, 0, SEEK_END)) {
+    if (0 != ::fseeko(file_, 0, SEEK_END)) {
         goto finally;
     }
-    res = ftello(file_);
+    res = ::ftello(file_);
 finally:
-    if (pos >= 0 && 0 != fseeko(file_, pos, SEEK_SET)) {
+    if (pos >= 0 && 0 != ::fseeko(file_, pos, SEEK_SET)) {
         res = -1;;
     }
     if (res < 0) {
@@ -116,11 +116,16 @@ finally:
 }
 
 size_t stdio_stream::seek(ssize_t offset, int whence) {
-    if (0 != fseeko(file_, offset, whence)) {
+    if (0 != ::fseeko(file_, static_cast<off_t>(offset), whence)) {
         assert(errno != 0);
         throw std::system_error{errno, std::generic_category()};
     }
-    return static_cast<size_t>(ftello(file_));
+    auto res = ::ftello(file_);
+    if (res < 0) {
+        assert(errno != 0);
+        throw std::system_error{errno, std::generic_category()};
+    }
+    return static_cast<size_t>(res);
 }
 
 size_t stdio_stream::read(void* buf, size_t size) {
@@ -235,6 +240,7 @@ size_t fildes_stream::position() {
 }
 
 void fildes_stream::flush() {
+#ifndef _WIN32
     while (true) {
         int res = ::fsync(fd_);
         if (res == 0) {
@@ -245,6 +251,12 @@ void fildes_stream::flush() {
             throw std::system_error{errno, std::generic_category()};
         }
     }
+#else
+    auto handle = _get_osfhandle(fd_);
+    if (decltype(handle)(-1) != handle) {
+        ::FlushFileBuffers((HANDLE)handle);
+    }
+#endif
 }
 
 }}
