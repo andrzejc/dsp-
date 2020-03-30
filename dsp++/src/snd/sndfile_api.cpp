@@ -255,7 +255,7 @@ struct iobase::impl {
             return SFM_WRITE;
         case iobase::mode::rw:
             return SFM_RDWR;
-        case iobase::mode::read:
+        default:
             return SFM_READ;
         }
     }

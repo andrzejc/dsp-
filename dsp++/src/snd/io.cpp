@@ -28,11 +28,12 @@
 #include <sys/types.h>
 
 #ifdef DSPXX_OS_FAMILY_UNIX
-#include <unistd.h>
+  #include <unistd.h>
 #endif
 
 #ifdef _WIN32
   #include <io.h>
+  #include <windows.h>
   // __MSVCRT_VERSION__ is defined by MinGW
   #if defined(_MSC_VER) || (__MSVCRT_VERSION__ >= 0x800)
     #define off_t __int64
