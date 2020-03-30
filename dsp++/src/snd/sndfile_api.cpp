@@ -1,17 +1,13 @@
 /*!
- * @file snd/io.cpp
+ * @file snd/sndfile_api.cpp
  * @brief Implementation of libsndfile C++ wrapper.
  */
-// Force use of 64-bit file APIs on POSIX
-#define _FILE_OFFSET_BITS 64
-#define _LARGEFILE_SOURCE
-#define _LARGEFILE64_SOURCE
-
 #include <dsp++/config.h>
-#include <dsp++/snd/sndfile/error.h>
 
 #if !DSPXX_LIBSNDFILE_DISABLED
 
+#include <dsp++/snd/io.h>
+#include <dsp++/snd/sndfile/error.h>
 #include <dsp++/snd/sndfile/reader.h>
 #include <dsp++/snd/sndfile/writer.h>
 #include <dsp++/snd/sndfile/file.h>
@@ -39,92 +35,10 @@ typedef const wchar_t* LPCWSTR;
 #include <cerrno>
 #include <system_error>
 
+#include <sys/stat.h>
+#include <fcntl.h>
+
 namespace dsp { namespace snd { namespace sndfile {
-
-#ifdef _WIN32
-  // __MSVCRT_VERSION__ is defined by MinGW
-  #if defined(_MSC_VER) || (__MSVCRT_VERSION__ >= 0x800)
-    typedef __int64 off_t;
-    #define ftello _ftelli64
-    #define fseeko _fseeki64
-  #else
-    typedef long off_t;
-    #define ftello std::ftell
-    #define fseeko std::fseek
-  #endif
-#endif
-
-stdio::stdio(std::FILE* file, bool own_file):
-    file_(file),
-    own_file_(own_file)
-{}
-
-size_t stdio::size() {
-    off_t res, pos = ftello(file_);
-    if (pos < 0) {
-        goto fail;
-    }
-    if (0 != fseeko(file_, 0, SEEK_END)) {
-        goto fail;
-    }
-    res = ftello(file_);
-    if (0 != fseeko(file_, pos, SEEK_SET)) {
-        goto fail;
-    }
-    return static_cast<size_t>(res);
-fail:
-    assert(errno != 0);
-    throw std::system_error{errno, std::generic_category()};
-}
-
-size_t stdio::seek(ssize_t offset, int whence) {
-    if (0 != fseeko(file_, offset, whence)) {
-        assert(errno != 0);
-        throw std::system_error{errno, std::generic_category()};
-    }
-    return static_cast<size_t>(ftello(file_));
-}
-
-size_t stdio::read(void* buf, size_t size) {
-    auto res = std::fread(buf, size, 1, file_);
-    if (0 == res && std::ferror(file_)) {
-        assert(errno != 0);
-        throw std::system_error{errno, std::generic_category()};
-    }
-    return res;
-}
-
-size_t stdio::write(const void* buf, size_t size) {
-    auto res = std::fwrite(buf, size, 1, file_);
-    if (0 == res && std::ferror(file_)) {
-        assert(errno != 0);
-        throw std::system_error{errno, std::generic_category()};
-    }
-    return res;
-}
-
-size_t stdio::position() {
-    auto res = ftello(file_);
-    if (-1 == res) {
-        assert(errno != 0);
-        throw std::system_error{errno, std::generic_category()};
-    }
-    return static_cast<size_t>(res);
-}
-
-void stdio::flush() {
-    if (0 != std::fflush(file_) && std::ferror(file_)) {
-        assert(errno != 0);
-        throw std::system_error{errno, std::generic_category()};
-    }
-}
-
-stdio::~stdio() {
-    if (own_file_) {
-        fclose(file_);
-    }
-}
-
 namespace {
 
 struct file_type_entry {
@@ -217,6 +131,7 @@ int to_sf_format(const file_format& f, bool write_mode) {
         }
         break;
     default:
+        // TODO check f.sample_format() for sth like ".vorbis.cbr@256k"
         if (res & SF_FORMAT_OGG) {
             res |= SF_FORMAT_VORBIS;
         }
@@ -252,17 +167,17 @@ void from_sf_format(int format, file_format& f) {
     case SF_FORMAT_DOUBLE:
         f.set_sample_format(sample::format::F64);
         break;
+    // TODO Vorbis support?
     }
 }
 }
 
 namespace detail {
 struct iobase::impl {
-    SNDFILE* sf_ = nullptr;
+    std::unique_ptr<SNDFILE, decltype(&sf_close)> sf_{nullptr, sf_close};
     SF_INFO info_;
     snd::file_format format_;
-    io* io_ = nullptr;
-    bool own_io_ = false;
+    std::unique_ptr<byte_stream> stream_;
     const iobase::mode mode_;
 
     impl(iobase::mode m):
@@ -270,16 +185,10 @@ struct iobase::impl {
     {}
 
     void close() {
-        if (nullptr != sf_) {
-            sf_close(sf_);
-            sf_ = nullptr;
-        }
-        if (own_io_) {
-            delete io_;
-        }
-        own_io_ = false;
-        io_ = nullptr;
+        sf_ = nullptr;
+        stream_ = nullptr;
         format_ = {};
+        info_ = {};
     }
 
     ~impl() {
@@ -287,28 +196,14 @@ struct iobase::impl {
     }
 
     void throw_error() {
-        int code = sf_error(sf_);
+        int code = sf_error(sf_.get());
         assert(SF_ERR_NO_ERROR != code);
-        throw error(code, sf_strerror(sf_));
-    }
-
-    void init_info(file_format* f, SF_INFO* info) {
-        if (f != nullptr) {
-            std::memset(&info_, 0, sizeof(info_));
-            info_.samplerate = f->sample_rate();
-            info_.channels = f->channel_count();
-            info_.format = to_sf_format(*f, mode_ == detail::iobase::mode::write);
-        }
-        else if (info != nullptr) {
-            info_ = *info;
-        } else {
-            std::memset(&info_, 0, sizeof(info_));
-        }
+        throw error(code, sf_strerror(sf_.get()));
     }
 
     void read_channel_map(file_format& f) {
         std::unique_ptr<int[]> arr{new int[info_.channels]};
-        int res = sf_command(sf_, SFC_GET_CHANNEL_MAP_INFO, &arr[0], sizeof(int) * info_.channels);
+        int res = sf_command(sf_.get(), SFC_GET_CHANNEL_MAP_INFO, &arr[0], sizeof(int) * info_.channels);
         if (SF_TRUE != res) {
             f.set_channel_count(info_.channels);
             return;
@@ -350,27 +245,8 @@ struct iobase::impl {
             }
             arr[cc++] = e->their;
         }
-        int res = sf_command(sf_, SFC_SET_CHANNEL_MAP_INFO, &arr[0], sizeof(int) * cc);
+        int res = sf_command(sf_.get(), SFC_SET_CHANNEL_MAP_INFO, &arr[0], sizeof(int) * cc);
         return res == SF_TRUE;
-    }
-
-    void fill_format(file_format* f, SF_INFO* info) {
-        if (f != nullptr) {
-            format_ = *f;
-        }
-        format_.set_sample_rate(static_cast<unsigned>(info_.samplerate));
-        from_sf_format(info_.format, format_);
-        if (mode::write != mode_) {
-            read_channel_map(format_);
-        } else {
-            write_channel_map(format_);
-        }
-        if (f != nullptr) {
-            *f = format_;
-        }
-        if (info != nullptr) {
-            *info = info_;
-        }
     }
 
     static constexpr int map_mode(iobase::mode m) {
@@ -379,83 +255,89 @@ struct iobase::impl {
             return SFM_WRITE;
         case iobase::mode::rw:
             return SFM_RDWR;
-        default:
+        case iobase::mode::read:
             return SFM_READ;
         }
     }
 
-    void open(const char* path, file_format* fmt, void* native_info) {
-        close();
-        init_info(fmt, static_cast<SF_INFO*>(native_info));
-        if (nullptr == (sf_ =  sf_open(path, map_mode(mode_), &info_))) {
-            throw_error();
-        }
-        fill_format(fmt, static_cast<SF_INFO*>(native_info));
-    }
-
-    void open(int fd, bool own_fd, file_format* fmt, void* native_info) {
-        close();
-        init_info(fmt, static_cast<SF_INFO*>(native_info));
-        if (nullptr == (sf_ = sf_open_fd(fd, map_mode(mode_), &info_, own_fd ? 1 : 0))) {
-            throw_error();
-        }
-        fill_format(fmt, static_cast<SF_INFO*>(native_info));
-    }
-
-#ifdef _WIN32
-    void open(const wchar_t* path, file_format* fmt, void* native_info) {
-        close();
-        init_info(fmt, static_cast<SF_INFO*>(native_info));
-        if (nullptr == (sf_ =  sf_wchar_open(path, map_mode(mode_), &info_))) {
-            throw_error();
-        }
-        fill_format(fmt, static_cast<SF_INFO*>(native_info));
-    }
-#endif // _WIN32
-
     static sf_count_t io_size(void* p) {
-        return static_cast<sf_count_t>(static_cast<io*>(p)->size());
+        return static_cast<sf_count_t>(static_cast<impl*>(p)->stream_->size());
     }
     static sf_count_t io_seek(sf_count_t offset, int whence, void* p) {
-        return static_cast<sf_count_t>(static_cast<io*>(p)->seek(static_cast<ssize_t>(offset), whence));
+        return static_cast<sf_count_t>(static_cast<impl*>(p)->stream_->seek(static_cast<ssize_t>(offset), whence));
     }
     static sf_count_t io_read(void* buf, sf_count_t count, void* p) {
-        return static_cast<sf_count_t>(static_cast<io*>(p)->read(buf, static_cast<size_t>(count)));
+        return static_cast<sf_count_t>(static_cast<impl*>(p)->stream_->read(buf, static_cast<size_t>(count)));
     }
     static sf_count_t io_write(const void* buf, sf_count_t count, void* p) {
-        return static_cast<sf_count_t>(static_cast<io*>(p)->write(buf, static_cast<size_t>(count)));
+        return static_cast<sf_count_t>(static_cast<impl*>(p)->stream_->write(buf, static_cast<size_t>(count)));
     }
     static sf_count_t io_tell(void* p) {
-        return static_cast<sf_count_t>(static_cast<io*>(p)->position());
+        return static_cast<sf_count_t>(static_cast<impl*>(p)->stream_->position());
     }
-    static const SF_VIRTUAL_IO sf_vio;
 
-    void open(io* in, bool own_io, file_format* fmt, void* native_info) {
+    void open(std::unique_ptr<byte_stream> in, file_format* fmt, void* native_info) {
         if (in == nullptr) {
-            throw std::invalid_argument("in == nullptr");
+            throw std::invalid_argument{"in == nullptr"};
         }
         close();
-        init_info(fmt, static_cast<SF_INFO*>(native_info));
-        if (nullptr == (sf_ = sf_open_virtual(const_cast<SF_VIRTUAL_IO*>(&sf_vio),
-                map_mode(mode_), &info_, in)))
-        {
-            if (own_io) {
-                delete in;
-            }
-            throw_error();
-        }
-        io_ = in;
-        own_io_ = own_io;
-        fill_format(fmt, static_cast<SF_INFO*>(native_info));
-    }
-};
 
-const SF_VIRTUAL_IO iobase::impl::sf_vio = {
-        &impl::io_size,
-        &impl::io_seek,
-        &impl::io_read,
-        &impl::io_write,
-        &impl::io_tell
+        if (fmt != nullptr) {
+            info_ = {};
+            info_.samplerate = fmt->sample_rate();
+            info_.channels = fmt->channel_count();
+            info_.format = to_sf_format(*fmt, mode_ == detail::iobase::mode::write);
+        }
+        else if (native_info != nullptr) {
+            info_ = *static_cast<SF_INFO*>(native_info);
+        } else {
+            info_ = {};
+        }
+        stream_ = std::move(in);
+        static const SF_VIRTUAL_IO sf_vio = { io_size, io_seek, io_read, io_write, io_tell };
+        try {
+            sf_.reset(sf_open_virtual(const_cast<SF_VIRTUAL_IO*>(&sf_vio), map_mode(mode_), &info_, this));
+            if (nullptr == sf_) {
+                throw_error();
+            }
+            if (fmt != nullptr) {
+                format_ = *fmt;
+            }
+            format_.set_sample_rate(static_cast<unsigned>(info_.samplerate));
+            from_sf_format(info_.format, format_);
+            if (mode::write != mode_) {
+                read_channel_map(format_);
+            } else {
+                write_channel_map(format_);
+            }
+        } catch (...) {
+            close();
+            throw;
+        }
+        if (fmt != nullptr) {
+            *fmt = format_;
+        }
+        if (native_info != nullptr) {
+            *static_cast<SF_INFO*>(native_info) = info_;
+        }
+    }
+
+    constexpr int open_flags() const {
+#ifndef O_BINARY
+#define O_BINARY 0
+#endif
+        return mode_ == mode::read
+            ? O_RDONLY | O_BINARY
+            : mode_ == mode::rw
+                ? O_RDWR | O_CREAT | O_BINARY
+                : O_WRONLY | O_CREAT | O_TRUNC | O_BINARY;
+    }
+
+    constexpr int open_mode() const {
+        return mode_ == mode::read
+            ? 0
+            : S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
+    }
 };
 
 iobase::iobase(mode m):
@@ -466,25 +348,25 @@ iobase::~iobase() {
 }
 
 void iobase::open(const char* path, file_format* fmt, void* native_info) {
-    impl_->open(path, fmt, native_info);
+    impl_->open(std::make_unique<fildes_stream>(path, impl_->open_flags(), impl_->open_mode()), fmt, native_info);
 }
 
 #ifdef _WIN32
 void iobase::open(const wchar_t* path, file_format* fmt, void* native_info) {
-    impl_->open(path, fmt, native_info);
+    impl_->open(std::make_unique<fildes_stream>(path, impl_->open_flags(), impl_->open_mode()), fmt, native_info);
 }
 #endif // _WIN32
 
 void iobase::open(int fd, bool own_fd, file_format* fmt, void* native_info) {
-    impl_->open(fd, own_fd, fmt, native_info);
+    impl_->open(std::make_unique<fildes_stream>(fd, own_fd), fmt, native_info);
 }
 
-void iobase::open(io* in, bool own_io, file_format* fmt, void* native_info) {
-    impl_->open(in, own_io, fmt, native_info);
+void iobase::open(std::unique_ptr<byte_stream> in, file_format* fmt, void* native_info) {
+    impl_->open(std::move(in), fmt, native_info);
 }
 
 void iobase::open(std::FILE* f, bool own_file, file_format* fmt, void* native_info) {
-    open(new stdio(f, own_file), true, fmt, native_info);
+    impl_->open(std::make_unique<stdio_stream>(f, own_file), fmt, native_info);
 }
 
 unsigned iobase::channel_count() const {
@@ -504,12 +386,12 @@ size_t iobase::frame_count() const {
 }
 
 SNDFILE* iobase::handle() {
-    return impl_->sf_;
+    return impl_->sf_.get();
 }
 
 size_t iobase::seek(ssize_t frames, int whence) {
     sf_count_t res;
-    if ((res = sf_seek(impl_->sf_, frames, whence)) < 0) {
+    if ((res = sf_seek(handle(), frames, whence)) < 0) {
         impl_->throw_error();
     }
     return static_cast<size_t>(res);
@@ -524,7 +406,7 @@ void iobase::throw_last_error() {
 }
 
 int iobase::command(int cmd, void* data, int datasize) {
-    return sf_command(impl_->sf_, cmd, data, datasize);
+    return sf_command(handle(), cmd, data, datasize);
 }
 
 bool iobase::is_open() const {
@@ -583,15 +465,11 @@ void iobase::set_property(string_view prop, string_view value) {
 }
 
 void iobase::commit() {
-    if (mode::read == impl_->mode_) {
-        return;
-    }
+    // Function hidden in the reader API
+    assert(impl_->mode_ != mode::read);
     sf_write_sync(handle());
-    if (nullptr != impl_->io_) {
-        impl_->io_->flush();
-    }
+    impl_->stream_->flush();
 }
-
 }  // namespace detail
 
 #define READ_ITEMS(items, type, name) \

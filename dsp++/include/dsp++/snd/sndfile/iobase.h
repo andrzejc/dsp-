@@ -10,8 +10,6 @@
 #include <dsp++/types.h>
 #include <dsp++/snd/io.h>
 
-#include <absl/types/optional.h>
-
 #include <cstdio> // for FILE
 #include <memory>
 
@@ -23,8 +21,6 @@ class file_format;
 
 //! @brief Glue to libsndfile APIs.
 namespace sndfile {
-
-class io;
 
 namespace detail {
 /*!
@@ -120,7 +116,7 @@ public:
      * object to pass file format information.
      * @throw sndfile::error when libsndfile is unable to open the file.
      */
-    void open(io* in, bool own_io, file_format* fmt = nullptr, void* native_info = nullptr);
+    void open(std::unique_ptr<byte_stream> in, file_format* fmt = nullptr, void* native_info = nullptr);
 
     //! @brief Close the audio file, free the resources.
     void close();
@@ -187,98 +183,6 @@ public:
     void commit();
 };
 }
-
-/*!
- * @brief C++ wrapper for libsndfile SF_VIRTUAL_IO abstraction.
- * Closely mimics stdio functions.
- * @see dsp::snd::stdio.
- */
-class DSPXX_API io {
-public:
-    /*!
-     * @brief Query file size.
-     * @return file size.
-     * @throw on I/O error.
-     */
-    virtual size_t size() = 0;
-    /*!
-     * @brief Seek within the abstracted stream.
-     * @param offset seek position.
-     * @param whence seek relative to (using the same constants as fseek()).
-     * @return new position in stream or -1 on error.
-     * @throw on I/O error.
-     */
-    virtual size_t seek(ssize_t offset, int whence) = 0;
-    /*!
-     * @brief Read size bytes from the stream into the buf.
-     * @param buf buffer to read data to.
-     * @param size number of bytes to read.
-     * @return number of bytes read or 0 on EOF.
-     * @throw on I/O error.
-     */
-    virtual size_t read(void* buf, size_t size) = 0;
-    /*!
-     * @brief Write size bytes from buf to the stream.
-     * @param buf buffer holding the data to write.
-     * @param size number of bytes to write.
-     * @return number of bytes written.
-     * @throw on I/O error.
-     */
-    virtual size_t write(const void* buf, size_t size) = 0;
-    /*!
-     * @brief Query actual stream position.
-     * @return stream position or -1 if stream non-seekable or error occured.
-     * @throw on I/O error.
-     */
-    virtual size_t position() = 0;
-
-    virtual void flush() = 0;
-
-    /*!
-     * @brief This is interface class.
-     */
-    virtual ~io() = default;
-};
-
-/*!
- * @brief dsp::snd::io subclass implemented with Standard C Library FILE* interface.
- * Makes it possible to use standard input/output pipes for reading/writing
- * audio files.
- */
-class DSPXX_API stdio: public io {
-    std::FILE* file_;
-    bool own_file_;
-
-public:
-    /*!
-     * @brief Create stdio object with specified FILE pointer.
-     * @param file file open with fopen() or standard input/output
-     * stream.
-     * @param own_file if true, file will be closed with fclose()
-     * in this object's destructor. Standard input/output streams should
-     * be left open.
-     */
-    stdio(std::FILE* file, bool own_file);
-
-    explicit operator bool() const noexcept {
-        return file_ != nullptr;
-    }
-    std::FILE* file() const noexcept {
-        return file_;
-    }
-
-    size_t size() override;
-    size_t seek(ssize_t offset, int whence) override;
-    size_t read(void* buf, size_t size) override;
-    size_t write(const void* buf, size_t size) override;
-    size_t position() override;
-    void flush() override;
-    /*!
-     * @brief Closes the associated FILE stream with a call to fclose()
-     * if it is owned by this stdio object.
-     */
-    ~stdio();
-};
 
 }}}
 

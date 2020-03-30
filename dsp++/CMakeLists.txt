@@ -39,6 +39,7 @@ set(SOURCES
     src/rpoly/rpoly.cpp
     src/snd/channel.cpp
     src/snd/format.cpp
+    src/snd/io.cpp
     src/snd/lame_api.cpp
     src/snd/loudness.cpp
     src/snd/mpg123_api.cpp

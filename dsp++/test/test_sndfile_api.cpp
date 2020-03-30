@@ -15,7 +15,7 @@ namespace dsp { namespace snd { namespace sndifle {
 TEST(sndfile_api, file_usable) {
     sndfile::file f;
     file_format fmt;
-    f.open(test::data_file("f32_48k.wav").c_str(), &fmt);
+    EXPECT_NO_THROW(f.open(test::data_file("f32_48k.wav").c_str(), &fmt));
     EXPECT_TRUE(f.is_open());
     EXPECT_EQ(f.sample_rate(), 48000);
     EXPECT_EQ(f.frame_count(), 4800);
@@ -36,7 +36,7 @@ TEST(sndfile_api, file_usable) {
 TEST(sndfile_api, reader_usable) {
     sndfile::reader f;
     file_format fmt;
-    f.open(test::data_file("s24_48k_5ch.wav").c_str(), &fmt);
+    EXPECT_NO_THROW(f.open(test::data_file("s24_48k_5ch.wav").c_str(), &fmt));
     EXPECT_TRUE(f.is_open());
     EXPECT_EQ(f.sample_rate(), 48000);
     EXPECT_EQ(f.frame_count(), 4800);

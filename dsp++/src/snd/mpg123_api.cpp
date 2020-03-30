@@ -72,7 +72,7 @@ mpg123_initializer init_mpg123;
 
 struct mpg123::reader::impl {
     std::unique_ptr<mpg123_handle, decltype(&mpg123_delete)> handle{nullptr, mpg123_delete};
-    int own_fd = -1;
+    std::unique_ptr<byte_stream> stream;
     file_format format;
     size_t frame_count = 0;
     const size_t buffer_length = 512;
@@ -83,10 +83,7 @@ struct mpg123::reader::impl {
 
     void close() {
         handle = nullptr;
-        if (own_fd != -1) {
-            ::close(own_fd);
-            own_fd = -1;
-        }
+        stream = {};
         format = {};
         frame_count = 0;
         frame_info = {};
@@ -141,7 +138,28 @@ struct mpg123::reader::impl {
         buffer.resize(buffer_layout.sample_stride * buffer_length);
     }
 
+    static ssize_t reader_read(void* self, void* buf, size_t count) {
+        return static_cast<ssize_t>(static_cast<impl*>(self)->stream->read(buf, count));
+    }
+
+    static off_t reader_seek(void* self, off_t off, int whence) {
+        return static_cast<off_t>(static_cast<impl*>(self)->stream->seek(static_cast<ssize_t>(off), whence));
+    }
+
+    static void reader_cleanup(void*) {
+    }
+
     void open_handle(file_format* f) {
+        assert(handle == nullptr);
+        int err = MPG123_OK;
+        handle.reset(mpg123_new(nullptr, &err));
+        if (!handle) {
+            assert(MPG123_OK != err);
+            throw error{err, mpg123_plain_strerror(err)};
+        }
+        err = mpg123_replace_reader_handle(handle.get(), reader_read, reader_seek, reader_cleanup);
+        assert(MPG123_OK == err);
+
         long flags;
         double ignore;
         if (MPG123_OK == mpg123_getparam(handle.get(), MPG123_FLAGS, &flags, &ignore)) {
@@ -149,6 +167,11 @@ struct mpg123::reader::impl {
             flags = flags & ~MPG123_AUTO_RESAMPLE;
             mpg123_param(handle.get(), MPG123_FLAGS, flags, ignore);
         }
+
+        if (MPG123_OK != mpg123_open_handle(handle.get(), this)) {
+            throw_last_error();
+        }
+
         off_t len = mpg123_length(handle.get());
         frame_count = static_cast<size_t>(len >= 0 ? len : 0);
         format.set_file_type(file_type::label::mpeg);
@@ -164,23 +187,10 @@ struct mpg123::reader::impl {
         }
     }
 
-    void new_handle() {
-        assert(handle == nullptr);
-        int err = MPG123_OK;
-        handle.reset(mpg123_new(nullptr, &err));
-        if (!handle) {
-            assert(MPG123_OK != err);
-            throw error{err, mpg123_plain_strerror(err)};
-        }
-    }
-
     void open(const char* path, file_format* f = nullptr) {
         close();
         try {
-            new_handle();
-            if (MPG123_OK != mpg123_open(handle.get(), path)) {
-                throw_last_error();
-            }
+            stream = std::make_unique<stdio_stream>(path, "rb");
             open_handle(f);
         } catch (...) {
             close();
@@ -191,13 +201,7 @@ struct mpg123::reader::impl {
     void open(int fd, bool own_fd, file_format* f = nullptr) {
         close();
         try {
-            if (own_fd) {
-                this->own_fd = fd;
-            }
-            new_handle();
-            if (MPG123_OK != mpg123_open_fd(handle.get(), fd)) {
-                throw_last_error();
-            }
+            stream = std::make_unique<fildes_stream>(fd, own_fd);
             open_handle(f);
         } catch (...) {
             close();
@@ -206,9 +210,6 @@ struct mpg123::reader::impl {
     }
 
     size_t seek(ssize_t off, int whence) {
-        if (!handle) {
-            throw std::logic_error{"mpg123 reader is not open"};
-        }
         off_t res;
         if ((res = mpg123_seek(handle.get(), static_cast<off_t>(off), whence)) < 0) {
             throw_last_error();

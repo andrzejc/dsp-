@@ -28,6 +28,7 @@ if(MSVC)
         -D_CRT_SECURE_NO_WARNINGS
         -D_SCL_SECURE_NO_WARNINGS
         -D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1
+        -D_CRT_NONSTDC_NO_WARNINGS
     )
     # Disable some warnings which make little sense
     add_compile_options(

@@ -9,7 +9,6 @@
 #if !DSPXX_LAME_DISABLED
 
 #include <dsp++/snd/mpeg/property.h>
-#include <dsp++/snd/sndfile/iobase.h>
 #include <dsp++/snd/lame/writer.h>
 #include <dsp++/snd/format.h>
 #include <dsp++/snd/sample.h>
@@ -113,7 +112,7 @@ const std::unordered_map<string_view, uint32_t, absl::Hash<string_view>> PROPERT
 }
 
 struct lame::writer::impl {
-    std::unique_ptr<sndfile::stdio> file;
+    std::unique_ptr<byte_stream> file;
     using lame_ptr = std::unique_ptr<lame_global_flags, decltype(&lame_close)>;
     lame_ptr handle{nullptr, &lame_close};
     std::vector<uint8_t> buffer;
@@ -122,6 +121,25 @@ struct lame::writer::impl {
     bool bitstream_init = false;
     const int lame_quality = 2;
     std::unordered_map<string, string> properties;
+    size_t stream_start_position;
+
+    size_t read_id3v2_header_length() {
+        file->seek(stream_start_position, SEEK_SET);
+        char id3v2Header[10];
+        if (sizeof(id3v2Header) != file->read(id3v2Header, sizeof(id3v2Header))) {
+            return 0;
+        }
+        if (0 == std::strncmp(id3v2Header, "ID3", 3)) {
+            return (((id3v2Header[6] & 0x7f) << 21)
+                  | ((id3v2Header[7] & 0x7f) << 14)
+                  | ((id3v2Header[8] & 0x7f) << 7)
+                  |  (id3v2Header[9] & 0x7f))
+                + sizeof(id3v2Header);
+        }
+        else {
+            return 0;
+        }
+    }
 
     void final_flush() {
         if (!bitstream_init) {
@@ -137,7 +155,17 @@ struct lame::writer::impl {
             file->write(&buffer[0], err);
         }
         file->flush();
-        lame_mp3_tags_fid(handle.get(), file->file());
+        auto lametag_size = lame_get_lametag_frame(handle.get(), nullptr, 0);
+        if (lametag_size > 0) {
+            buffer.resize(std::max<size_t>(buffer.size(), lametag_size));
+            lametag_size = lame_get_lametag_frame(handle.get(), &buffer[0], buffer.size());
+            assert(lametag_size > 0);
+            assert(lametag_size <= buffer.size());
+            byte_stream::position_saver save{*file};
+            file->seek(stream_start_position + read_id3v2_header_length(), SEEK_SET);
+            file->write(&buffer[0], lametag_size);
+            file->flush();
+        }
     }
 
     void close() {
@@ -222,10 +250,10 @@ struct lame::writer::impl {
         dryrun.bitstream_init = false;
     }
 
-    void open(std::unique_ptr<sndfile::stdio> f, const file_format& fmt) {
+    void open(std::unique_ptr<byte_stream> f, const file_format& fmt) {
         close();
 
-        if (fmt.file_type() != file_type::label::mpeg) {
+        if (!fmt.file_type().empty() && fmt.file_type() != file_type::label::mpeg) {
             throw std::invalid_argument{"file_type is not mpeg"};
         }
         dryrun_bitstream_init(fmt);
@@ -233,8 +261,10 @@ struct lame::writer::impl {
             new_handle(fmt);
             format = fmt;
             file = std::move(f);
+            stream_start_position = file->position();
         } catch (std::exception&) {
             handle = {};
+            file = {};
             throw;
         }
     }
@@ -507,7 +537,7 @@ writer::~writer() {
 }
 
 void writer::open(const char* path, const file_format& format) {
-    impl_->open(std::make_unique<sndfile::stdio>(std::fopen(path, "w+b"), true), format);
+    impl_->open(std::make_unique<stdio_stream>(path, "w+b"), format);
 }
 
 // void writer::open(int fd, bool own_fd, file_format& format) {
