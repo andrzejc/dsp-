@@ -322,7 +322,7 @@ struct iobase::impl {
         }
     }
 
-    constexpr int open_flags() const {
+    int open_flags() const {
 #ifndef O_BINARY
 #define O_BINARY 0
 #endif
@@ -333,7 +333,7 @@ struct iobase::impl {
                 : O_WRONLY | O_CREAT | O_TRUNC | O_BINARY;
     }
 
-    constexpr int open_mode() const {
+    int open_mode() const {
         return mode_ == mode::read
             ? 0
             : S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
