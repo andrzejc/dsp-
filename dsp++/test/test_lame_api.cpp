@@ -138,6 +138,9 @@ TEST(lame_api, writer_creates_readable_properties) {
     w.set_property("track_count", "105");
     w.set_property("disk_count", "3");
     w.set_property("DISCOGS_RELEASE_ID", "foo");
+    EXPECT_EQ(*w.property("bpm"), "100");
+    EXPECT_EQ(*w.property("track_number"), "100");
+    EXPECT_EQ(*w.property("DISCOGS_RELEASE_ID"), "foo");
     EXPECT_EQ(test::copy_file(source, w), 48000);
     EXPECT_NO_THROW(w.close());
 

@@ -18,7 +18,7 @@ public:
      * @return file size.
      * @throw on I/O error.
      */
-    virtual size_t size() = 0;
+    virtual size_t size();
     /*!
      * @brief Seek within the abstracted stream.
      * @param offset seek position.
@@ -48,7 +48,7 @@ public:
      * @return stream position in bytes.
      * @throw on I/O error.
      */
-    virtual size_t position() = 0;
+    virtual size_t position();
 
     virtual void flush() = 0;
 
@@ -153,11 +153,9 @@ public:
         return fd_;
     }
 
-    size_t size() override;
     size_t seek(ssize_t offset, int whence) override;
     size_t read(void* buf, size_t size) override;
     size_t write(const void* buf, size_t size) override;
-    size_t position() override;
     void flush() override;
     /*!
      * @brief Closes the associated file descriptor call to close()

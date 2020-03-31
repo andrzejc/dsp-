@@ -81,6 +81,15 @@ byte_stream::position_saver::~position_saver() noexcept(false) {
     }
 }
 
+size_t byte_stream::position() {
+    return seek(0, SEEK_CUR);
+}
+
+size_t byte_stream::size() {
+    position_saver s{*this};
+    return seek(0, SEEK_END);
+}
+
 stdio_stream::stdio_stream(const char* path, const char* mode):
     stdio_stream{throw_on_error(std::fopen(path, mode)), true}
 {}
@@ -193,11 +202,6 @@ fildes_stream::~fildes_stream() {
     }
 }
 
-size_t fildes_stream::size() {
-    position_saver s{*this};
-    return seek(0, SEEK_END);
-}
-
 size_t fildes_stream::seek(ssize_t offset, int whence) {
     auto res = ::lseek(fd_, static_cast<off_t>(offset), whence);
     if (res >= 0) {
@@ -234,10 +238,6 @@ size_t fildes_stream::write(const void* buf, size_t size) {
             return static_cast<size_t>(res);
         }
     }
-}
-
-size_t fildes_stream::position() {
-    return seek(0, SEEK_CUR);
 }
 
 void fildes_stream::flush() {

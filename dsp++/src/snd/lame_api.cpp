@@ -120,7 +120,7 @@ struct lame::writer::impl {
     size_t frame_count = 0;
     bool bitstream_init = false;
     const int lame_quality = 2;
-    std::unordered_map<string, string> properties;
+    std::unordered_map<string, string> tags;
     size_t stream_start_position;
 
     size_t read_id3v2_header_length() {
@@ -174,12 +174,12 @@ struct lame::writer::impl {
             file = {};
             format = {};
             frame_count = 0;
-            properties = {};
+            tags = {};
         } catch (std::exception&) {
             file = {};
             format = {};
             frame_count = 0;
-            properties = {};
+            tags = {};
             throw;
         }
     }
@@ -260,11 +260,13 @@ struct lame::writer::impl {
         try {
             new_handle(fmt);
             format = fmt;
+            format.set_file_type(file_type::label::mpeg);
             file = std::move(f);
             stream_start_position = file->position();
         } catch (std::exception&) {
             handle = {};
             file = {};
+
             throw;
         }
     }
@@ -337,8 +339,8 @@ struct lame::writer::impl {
         if (it != property_map.end()) {
             return it->second(*this);
         }
-        auto tag_it = properties.find(string{property});
-        if (tag_it != properties.end()) {
+        auto tag_it = tags.find(string{property});
+        if (tag_it != tags.end()) {
             return tag_it->second;
         }
         return {};
@@ -384,9 +386,9 @@ struct lame::writer::impl {
         if (val.find('/') != val.npos) {
             throw property::error::invalid_value{prop, val};
         }
-        properties[prop] = val;
-        auto total_it = properties.find(track_disk_count_prop);
-        if (total_it != properties.end() && !total_it->second.empty()) {
+        tags[prop] = val;
+        auto total_it = tags.find(track_disk_count_prop);
+        if (total_it != tags.end() && !total_it->second.empty()) {
             val = boost::str(boost::format("%1%/%2%") % val % total_it->second);
         }
         set_tag(tag, "", val);
@@ -396,10 +398,10 @@ struct lame::writer::impl {
         if (val.find('/') != val.npos) {
             throw property::error::invalid_value{prop, val};
         }
-        properties[prop] = val;
+        tags[prop] = val;
         string num;
-        auto num_it = properties.find(track_disk_number_prop);
-        if (num_it != properties.end()) {
+        auto num_it = tags.find(track_disk_number_prop);
+        if (num_it != tags.end()) {
             num = num_it->second;
         }
         if (val.empty()) {
@@ -505,7 +507,7 @@ struct lame::writer::impl {
         } else {
             set_tag('TXXX', prop, val);
         }
-        properties[string{prop}] = string{val};
+        tags[string{prop}] = string{val};
     }
 
     template<typename Sample>
@@ -540,9 +542,9 @@ void writer::open(const char* path, const file_format& format) {
     impl_->open(std::make_unique<stdio_stream>(path, "w+b"), format);
 }
 
-// void writer::open(int fd, bool own_fd, file_format& format) {
-//     // impl_->open(std::make_fd, own_fd, format);
-// }
+void writer::open(std::unique_ptr<byte_stream> stream, const file_format& format) {
+    impl_->open(std::move(stream), format);
+}
 
 void writer::close() {
     impl_->close();
