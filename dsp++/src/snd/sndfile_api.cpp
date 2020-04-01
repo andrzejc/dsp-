@@ -4,7 +4,7 @@
  */
 #include <dsp++/config.h>
 
-#if !DSPXX_LIBSNDFILE_DISABLED
+#ifndef DSPXX_LIBSNDFILE_DISABLED
 
 #include <dsp++/snd/io.h>
 #include <dsp++/snd/sndfile/error.h>

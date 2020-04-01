@@ -20,22 +20,6 @@
 #define DSPXX_GCC_VERSION (__GNUC__ * 100 + __GNUC_MINOR__)
 #endif // __GNUC__
 
-#ifndef DSPXX_LIBSNDFILE_DISABLED
-//! @brief Set to 1 to disable audio reading/writing through libsndfile.
-#define DSPXX_LIBSNDFILE_DISABLED 	0
-#endif // DSPXX_LIBSNDFILE_DISABLED
-
-#ifndef DSPXX_MPG123_DISABLED
-//! @brief Set to 1 to disable audio reading/writing through libmpg123.
-#define DSPXX_MPG123_DISABLED 	0
-#endif // DSPXX_MPG123_DISABLED
-
-
-#ifndef DSPXX_FFTW3_DISABLED
-//! @brief Set to 1 to disable DFT support through libfftw3.
-#define DSPXX_FFTW3_DISABLED 		0
-#endif // DSPXX_FFTW3_DISABLED
-
 #ifndef DSP_BOOST_DISABLED
 //! @brief Set to 1 to disable use of boost libraries entirely.
 #define DSP_BOOST_DISABLED		0

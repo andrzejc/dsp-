@@ -5,7 +5,7 @@
 #pragma once
 #include <dsp++/config.h>
 
-#if !DSPXX_LAME_DISABLED
+#ifndef DSPXX_LAME_DISABLED
 
 #include <dsp++/types.h>
 #include <dsp++/snd/io.h>

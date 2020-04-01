@@ -6,7 +6,7 @@
 #include <dsp++/config.h>
 #include <dsp++/snd/mpg123/error.h>
 
-#if !DSPXX_MPG123_DISABLED
+#ifndef DSPXX_MPG123_DISABLED
 
 #include <dsp++/snd/mpeg/property.h>
 #include <dsp++/snd/mpg123/reader.h>

@@ -8,7 +8,7 @@
 
 #include <cstdio>
 
-#if !DSPXX_MPG123_DISABLED
+#ifndef DSPXX_MPG123_DISABLED
 
 namespace dsp { namespace snd { namespace mpg123 {
 

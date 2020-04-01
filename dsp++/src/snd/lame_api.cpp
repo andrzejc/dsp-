@@ -6,7 +6,7 @@
 #include <dsp++/config.h>
 #include <dsp++/snd/lame/error.h>
 
-#if !DSPXX_LAME_DISABLED
+#ifndef DSPXX_LAME_DISABLED
 
 #include <dsp++/snd/mpeg/property.h>
 #include <dsp++/snd/lame/writer.h>

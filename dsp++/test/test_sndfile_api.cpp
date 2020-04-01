@@ -10,7 +10,7 @@
 
 namespace dsp { namespace snd { namespace sndifle {
 
-#if !DSPXX_LIBSNDFILE_DISABLED
+#ifndef DSPXX_LIBSNDFILE_DISABLED
 
 TEST(sndfile_api, file_usable) {
     sndfile::file f;

@@ -5,12 +5,11 @@
 #pragma once
 #include <dsp++/config.h>
 
-#if !DSPXX_MPG123_DISABLED
+#ifndef DSPXX_MPG123_DISABLED
 
+#include <dsp++/types.h>
 #include <dsp++/snd/io.h>
 #include <dsp++/snd/format.h>
-
-#include <absl/types/optional.h>
 
 #include <memory>
 

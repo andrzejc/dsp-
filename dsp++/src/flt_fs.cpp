@@ -10,10 +10,7 @@
 #include <dsp++/window.h>
 #include <dsp++/trivial_array.h>
 #include <dsp++/debug.h>
-
-#if !DSPXX_FFTW3_DISABLED
 #include <dsp++/fftw/dft.h>
-#endif // !DSPXX_FFTW3_DISABLED
 
 #include <functional>
 #include <algorithm>
@@ -108,7 +105,7 @@ unsigned fir_fs_impl(
 		dsp::dft::fft<std::complex<double>, double> fft(n, H.begin(), h);
 		fft();
 	}
-#if !DSPXX_FFTW3_DISABLED
+#ifndef DSPXX_FFTW3_DISABLED
 	else {
 		dsp::dft::fftw::dft<std::complex<double>, double> fft(n, H.begin(), h);
 		fft();

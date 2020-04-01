@@ -5,12 +5,10 @@
 #pragma once
 #include <dsp++/config.h>
 
-#if !DSPXX_LIBSNDFILE_DISABLED
-
+#ifndef DSPXX_LIBSNDFILE_DISABLED
+#include <dsp++/types.h>
 #include <dsp++/snd/io.h>
 #include <dsp++/snd/sndfile/iobase.h>
-
-#include <absl/types/optional.h>
 
 namespace dsp { namespace snd { namespace sndfile {
 

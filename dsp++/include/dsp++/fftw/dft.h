@@ -7,7 +7,7 @@
 
 #include <dsp++/config.h>
 
-#if !DSPXX_FFTW3_DISABLED
+#ifndef DSPXX_FFTW3_DISABLED
 
 #include <dsp++/export.h>
 #include <dsp++/fftw/traits.h>

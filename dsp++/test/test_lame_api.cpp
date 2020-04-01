@@ -12,7 +12,7 @@
 
 #include <cstdio>
 
-#if !DSPXX_LAME_DISABLED
+#ifndef DSPXX_LAME_DISABLED
 
 namespace dsp { namespace snd { namespace lame {
 

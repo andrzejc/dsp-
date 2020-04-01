@@ -8,7 +8,7 @@
 
 #include <dsp++/config.h>
 
-#if !DSPXX_FFTW3_DISABLED
+#ifndef DSPXX_FFTW3_DISABLED
 
 #include <cstddef>
 #include <limits>
