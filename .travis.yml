@@ -13,6 +13,7 @@ addons:
     - cmake
     - libsndfile1-dev
     - libfftw3-dev
+    - libfdk-aac-dev
     - libboost-dev
     - libmpg123-dev
     - libmp3lame-dev

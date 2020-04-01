@@ -11,12 +11,14 @@ find_package(FFTW3 COMPONENTS libfftw3 libfftw3f libfftw3l)
 find_package(Sndfile)
 find_package(Mpg123)
 find_package(LAME)
+find_package(FdkAac)
 
 # options
 option(DSPXX_FFTW3_ENABLED "Enable the use and support for FFTW3 library" ${FFTW3_FOUND})
 option(DSPXX_LIBSNDFILE_ENABLED "Enable the use and support for libsndfile library" ${Sndfile_FOUND})
 option(DSPXX_MPG123_ENABLED "Enable the use and support for libmpg123 mp3 decoding?" ${Mpg123_FOUND})
 option(DSPXX_LAME_ENABLED "Enable the use and support for libmp3lame mp3 encoding?" ${LAME_FOUND})
+option(DSPXX_FDK_AAC_ENABLED "Enable the use and support for AAC with libfdk-aac?" ${FdkAac_FOUND})
 option(DSPXX_BUILD_DOCS "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
 
 set(SOURCES
@@ -111,6 +113,7 @@ target_link_libraries(dsp++
         $<$<BOOL:${DSPXX_FFTW3_ENABLED}>:FFTW3::libfftw3l>
         $<$<BOOL:${DSPXX_MPG123_ENABLED}>:Mpg123::libmpg123>
         $<$<BOOL:${DSPXX_LAME_ENABLED}>:LAME::libmp3lame>
+        $<$<BOOL:${DSPXX_FDK_AAC_ENABLED}>:FdkAac::libfdk-aac>
 )
 target_compile_definitions(dsp++
     PRIVATE
@@ -124,6 +127,7 @@ target_compile_definitions(dsp++
         $<$<NOT:$<BOOL:${DSPXX_FFTW3_ENABLED}>>:DSPXX_FFTW3_DISABLED>
         $<$<NOT:$<BOOL:${DSPXX_MPG123_ENABLED}>>:DSPXX_MPG123_DISABLED>
         $<$<NOT:$<BOOL:${DSPXX_LAME_ENABLED}>>:DSPXX_LAME_DISABLED>
+        $<$<NOT:$<BOOL:${DSPXX_FDK_AAC_ENABLED}>>:DSPXX_FDK_AAC_DISABLED>
 )
 set_target_properties(dsp++ PROPERTIES
     VERSION "${PROJECT_VERSION}"

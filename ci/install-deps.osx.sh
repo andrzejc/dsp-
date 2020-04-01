@@ -7,6 +7,7 @@ HOMEBREW_NO_INSTALL_CLEANUP=1 \
         mpg123 \
         lame \
         libsndfile \
+        fdk-aac \
         fftw \
         boost \
         doxygen \
