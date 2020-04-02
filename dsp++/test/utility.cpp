@@ -1,6 +1,6 @@
 #include "test_utility.h"
 
-#if defined(DSPXX_OS_FAMILY_POSIX) || defined(DSPXX_OS_MACOSX)
+#if defined(DSPXX_OS_FAMILY_UNIX) || defined(DSPXX_OS_MACOSX)
 #include <unistd.h>
 #endif
 
