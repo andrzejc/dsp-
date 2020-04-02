@@ -87,7 +87,7 @@ TEST(snd_io, fildes_stream_read_works) {
 TEST(snd_io, fildes_stream_write_works) {
     test::temp_file t;
     {
-        fildes_stream w(t.name, O_WRONLY | O_CREAT);
+        fildes_stream w(t.name, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
         EXPECT_EQ(w.write("foo", 3), 3);
         EXPECT_EQ(w.position(), 3);
     }{

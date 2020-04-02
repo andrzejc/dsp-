@@ -49,7 +49,7 @@ endif()
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_COMPILER_IS_GNUCXX)
     # Disable some warnings for Clang, for some things that are too awkward
     # to change just for the sake of having no warnings.
-    add_compile_options(-Wall -Wno-unknown-pragmas -Wno-unused-local-typedefs)
+    add_compile_options(-Wall -Wno-unknown-pragmas -Wno-unused-local-typedefs -fdiagnostics-color=always)
 
     option(ENABLE_ASAN "Enable AddressSanitizer?" OFF)
     if(ENABLE_ASAN)
