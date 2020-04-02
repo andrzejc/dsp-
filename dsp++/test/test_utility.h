@@ -1,6 +1,7 @@
 #pragma once
 #include <dsp++/types.h>
 #include <dsp++/snd/io.h>
+#include <dsp++/snd/format.h>
 
 #include <cstdio>
 #include <cstdlib>
@@ -23,11 +24,9 @@ inline string data_file(const char* file) {
 }
 
 struct temp_file {
-    char name[L_tmpnam] = {};
+    char name[L_tmpnam + 1] = {};
 
-    temp_file() {
-        std::tmpnam(name);
-    }
+    temp_file();
 
     ~temp_file() {
         std::remove(name);

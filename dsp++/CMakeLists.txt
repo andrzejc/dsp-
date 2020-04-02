@@ -89,8 +89,6 @@ endif()
 
 configure_file(src/version.h.in include/dsp++/version.h @ONLY)
 
-find_library(MPG123_LIBRARY NAMES mpg123)
-
 add_library(dsp++ ${SOURCES})
 target_include_directories(dsp++
     PRIVATE

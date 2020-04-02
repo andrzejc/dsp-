@@ -95,7 +95,7 @@ public:
     /// @brief Equivalent of @c stdio_stream{_wfopen(path, mode), true} with error checking.
     explicit stdio_stream(const wchar_t* path, const wchar_t* mode);
 #endif
-    /// @brief Equivalent of @c stdio_stream{std::freopen(fd, mode), true} with error checking.
+    /// @brief Equivalent of @c stdio_stream{fdopen(fd, mode), true} with error checking.
     explicit stdio_stream(int fd, const char* mode);
 
     explicit operator bool() const noexcept {
