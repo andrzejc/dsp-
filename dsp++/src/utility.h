@@ -5,7 +5,7 @@
 #include <cstring>
 #include <functional>
 #include <algorithm>
-#include <locale>
+#include <cctype>
 
 namespace dsp { namespace detail {
 
