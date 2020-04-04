@@ -276,9 +276,7 @@ struct lame::writer::impl {
     }
 
     optional<string> property(string_view property) {
-        static const std::map<string_view, optional<string>(*)(impl& i)> property_map = {
-        // XXX use of unordered_map causes internal compiler errror with ICE, thx MSFT
-        // static const std::unordered_map<string_view, optional<string>(*)(impl& i), absl::Hash<string_view>> property_map = {
+        static const std::unordered_map<string_view, optional<string>(*)(impl& i), absl::Hash<string_view>> property_map = {
             { mpeg::property::version, [](impl& i) -> optional<string> {
                 switch (lame_get_version(i.handle.get())) {
                 case 0:
@@ -414,10 +412,10 @@ struct lame::writer::impl {
         set_tag(tag, "", val);
     }
 
-    static const std::unordered_map<string_view, void(*)(impl& i, string_view val), absl::Hash<string_view>> PROPERTY_SETTERS;
-
     void set_property(string_view prop, string_view val) {
-        static const std::unordered_map<string_view, void(*)(impl& i, string_view val), absl::Hash<string_view>> property_map = {
+        static const std::map<string_view, void(*)(impl& i, string_view val)> property_map = {
+        // XXX use of unordered_map causes internal compiler errror with ICE, thx MSFT
+        // static const std::unordered_map<string_view, void(*)(impl& i, string_view val), absl::Hash<string_view>> property_map = {
             { mpeg::property::version, throw_read_only<mpeg::property::version> },
             { mpeg::property::layer, throw_read_only<mpeg::property::layer> },
             { mpeg::property::mode, [](impl& i, string_view val) {
