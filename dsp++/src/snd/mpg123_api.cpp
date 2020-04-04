@@ -3,6 +3,10 @@
 #define _LARGEFILE_SOURCE
 #define _LARGEFILE64_SOURCE
 
+#ifdef _WIN32
+  #define LINK_MPG123_DLL
+#endif
+
 #include <dsp++/config.h>
 #include <dsp++/snd/mpg123/error.h>
 
@@ -17,8 +21,6 @@
 
 #include "../utility.h"
 
-#include <mpg123.h>
-
 #include <absl/hash/hash.h>
 #include <boost/format.hpp>
 
@@ -32,6 +34,16 @@
 #include <cerrno>
 #include <system_error>
 #include <unordered_map>
+
+// HACK mpg123 built with MinGW assumes off_t is 64-bit when _FILE_OFFSET_BITS is 64, however windows
+// headers always use off_t == long, so the prototypes in mpg123.h which use off_t are incompatible with
+// their DLL implementation, causing stack corruption; we #define off_t as int64_t here to redefine the
+// prototypes the way they are built
+#ifdef _WIN32
+  #include <stdint.h>
+  #define off_t int64_t
+#endif
+#include <mpg123.h>
 
 namespace dsp { namespace snd { namespace mpg123 {
 
@@ -172,7 +184,7 @@ struct mpg123::reader::impl {
             throw_last_error();
         }
 
-        off_t len = mpg123_length(handle.get());
+        auto len = mpg123_length(handle.get());
         frame_count = static_cast<size_t>(len >= 0 ? len : 0);
         format.set_file_type(file_type::label::mpeg);
 
@@ -210,8 +222,8 @@ struct mpg123::reader::impl {
     }
 
     size_t seek(ssize_t off, int whence) {
-        off_t res;
-        if ((res = mpg123_seek(handle.get(), static_cast<off_t>(off), whence)) < 0) {
+        auto res = mpg123_seek(handle.get(), static_cast<off_t>(off), whence);
+        if (res < 0) {
             throw_last_error();
         }
         return static_cast<size_t>(res);
