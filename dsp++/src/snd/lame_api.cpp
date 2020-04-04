@@ -418,85 +418,85 @@ struct lame::writer::impl {
         // static const std::unordered_map<string_view, void(*)(impl& i, string_view val), absl::Hash<string_view>> property_map = {
             { mpeg::property::version, throw_read_only<mpeg::property::version> },
             { mpeg::property::layer, throw_read_only<mpeg::property::layer> },
-            { mpeg::property::mode, [](impl& i, string_view val) {
-                MPEG_mode mode;
-                if (detail::istrequal(val, string_view{"Standard Stereo"})) {
-                    mode = STEREO;
-                } else if (detail::istrequal(val, string_view{"Joint Stereo"})) {
-                    mode = JOINT_STEREO;
-                // LAME doesn't support dual channel
-                // } else if (detail::istrequal(val, string_view{"Dual Channel"})) {
-                //     mode = DUAL_CHANNEL;
-                } else if (detail::istrequal(val, string_view{"Mono"})) {
-                    mode = MONO;
-                } else {
-                    throw property::error::invalid_value{mpeg::property::mode, string{val}};
-                }
-                int err;
-                if (LAME_NOERROR != (err = lame_set_mode(i.handle.get(), mode))) {
-                    throw error{err, "lame_set_mode failed"};
-                }
-            }},
-            { mpeg::property::vbr, [](impl& i, string_view val) {
-                vbr_mode mode;
-                if (detail::istrequal(val, string_view{"CBR"})) {
-                    mode = vbr_off;
-                } else if (detail::istrequal(val, string_view{"ABR"})) {
-                    mode = vbr_abr;
-                } else if (detail::istrequal(val, string_view{"VBR"})) {
-                    mode = vbr_mtrh;
-                } else {
-                    throw property::error::invalid_value{mpeg::property::vbr, string{val}};
-                }
-                int old_mode = lame_get_VBR(i.handle.get());
-                int err;
-                if (LAME_NOERROR != (err = lame_set_VBR(i.handle.get(), mode))) {
-                    throw error{err, "lame_set_VBR failed"};
-                }
-                if (mode != old_mode) {
-                    if (mode == vbr_abr) {
-                        i.sync_abr_to_bitrate();
-                    } else if (old_mode == vbr_abr) {
-                        i.sync_bitrate_to_abr();
-                    }
-                }
-            }},
-            { property::bitrate, [](impl& i, string_view val) {
-                string_view num = val;
-                if (!num.empty() && std::tolower(num.back()) == 'k') {
-                    num.remove_suffix(1);
-                }
-                int res = 0;
-                if (!absl::SimpleAtoi(num, &res) || res < 0) {
-                    throw property::error::invalid_value{property::bitrate, string{val}};
-                }
-                int err;
-                switch (lame_get_VBR(i.handle.get())) {
-                case vbr_abr:
-                    if (LAME_NOERROR != (err = lame_set_VBR_mean_bitrate_kbps(i.handle.get(), res))) {
-                        throw error{err, "lame_set_VBR_mean_bitrate_kbps failed"};
-                    }
-                    lame_set_VBR_min_bitrate_kbps(i.handle.get(), res / 2);
-                    lame_set_VBR_max_bitrate_kbps(i.handle.get(), res + res / 2);
-                    break;
-                default:
-                    if (LAME_NOERROR != (err = lame_set_brate(i.handle.get(), res))) {
-                        throw error{err, "lame_set_brate failed"};
-                    }
-                }
-            }},
-            { property::track_number, [](impl& i, string_view val) {
-                i.set_track_disk_num('TRCK', property::track_number, property::track_count, string{val});
-            }},
-            { property::track_count, [](impl& i, string_view val) {
-                i.set_track_disk_count('TRCK', property::track_count, property::track_number, string{val});
-            }},
-            { property::disk_number, [](impl& i, string_view val) {
-                i.set_track_disk_num('TPOS', property::disk_number, property::disk_count, string{val});
-            }},
-            { property::disk_count, [](impl& i, string_view val) {
-                i.set_track_disk_count('TPOS', property::disk_count, property::disk_number, string{val});
-            }}
+            // { mpeg::property::mode, [](impl& i, string_view val) {
+            //     MPEG_mode mode;
+            //     if (detail::istrequal(val, string_view{"Standard Stereo"})) {
+            //         mode = STEREO;
+            //     } else if (detail::istrequal(val, string_view{"Joint Stereo"})) {
+            //         mode = JOINT_STEREO;
+            //     // LAME doesn't support dual channel
+            //     // } else if (detail::istrequal(val, string_view{"Dual Channel"})) {
+            //     //     mode = DUAL_CHANNEL;
+            //     } else if (detail::istrequal(val, string_view{"Mono"})) {
+            //         mode = MONO;
+            //     } else {
+            //         throw property::error::invalid_value{mpeg::property::mode, string{val}};
+            //     }
+            //     int err;
+            //     if (LAME_NOERROR != (err = lame_set_mode(i.handle.get(), mode))) {
+            //         throw error{err, "lame_set_mode failed"};
+            //     }
+            // }},
+            // { mpeg::property::vbr, [](impl& i, string_view val) {
+            //     vbr_mode mode;
+            //     if (detail::istrequal(val, string_view{"CBR"})) {
+            //         mode = vbr_off;
+            //     } else if (detail::istrequal(val, string_view{"ABR"})) {
+            //         mode = vbr_abr;
+            //     } else if (detail::istrequal(val, string_view{"VBR"})) {
+            //         mode = vbr_mtrh;
+            //     } else {
+            //         throw property::error::invalid_value{mpeg::property::vbr, string{val}};
+            //     }
+            //     int old_mode = lame_get_VBR(i.handle.get());
+            //     int err;
+            //     if (LAME_NOERROR != (err = lame_set_VBR(i.handle.get(), mode))) {
+            //         throw error{err, "lame_set_VBR failed"};
+            //     }
+            //     if (mode != old_mode) {
+            //         if (mode == vbr_abr) {
+            //             i.sync_abr_to_bitrate();
+            //         } else if (old_mode == vbr_abr) {
+            //             i.sync_bitrate_to_abr();
+            //         }
+            //     }
+            // }},
+            // { property::bitrate, [](impl& i, string_view val) {
+            //     string_view num = val;
+            //     if (!num.empty() && std::tolower(num.back()) == 'k') {
+            //         num.remove_suffix(1);
+            //     }
+            //     int res = 0;
+            //     if (!absl::SimpleAtoi(num, &res) || res < 0) {
+            //         throw property::error::invalid_value{property::bitrate, string{val}};
+            //     }
+            //     int err;
+            //     switch (lame_get_VBR(i.handle.get())) {
+            //     case vbr_abr:
+            //         if (LAME_NOERROR != (err = lame_set_VBR_mean_bitrate_kbps(i.handle.get(), res))) {
+            //             throw error{err, "lame_set_VBR_mean_bitrate_kbps failed"};
+            //         }
+            //         lame_set_VBR_min_bitrate_kbps(i.handle.get(), res / 2);
+            //         lame_set_VBR_max_bitrate_kbps(i.handle.get(), res + res / 2);
+            //         break;
+            //     default:
+            //         if (LAME_NOERROR != (err = lame_set_brate(i.handle.get(), res))) {
+            //             throw error{err, "lame_set_brate failed"};
+            //         }
+            //     }
+            // }},
+            // { property::track_number, [](impl& i, string_view val) {
+            //     i.set_track_disk_num('TRCK', property::track_number, property::track_count, string{val});
+            // }},
+            // { property::track_count, [](impl& i, string_view val) {
+            //     i.set_track_disk_count('TRCK', property::track_count, property::track_number, string{val});
+            // }},
+            // { property::disk_number, [](impl& i, string_view val) {
+            //     i.set_track_disk_num('TPOS', property::disk_number, property::disk_count, string{val});
+            // }},
+            // { property::disk_count, [](impl& i, string_view val) {
+            //     i.set_track_disk_count('TPOS', property::disk_count, property::disk_number, string{val});
+            // }}
         };
         auto it = property_map.find(prop);
         if (it != property_map.end()) {
