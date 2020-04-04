@@ -155,6 +155,7 @@ struct mpg123::reader::impl {
     }
 
     static off_t reader_seek(void* self, off_t off, int whence) {
+        assert(whence == SEEK_SET || whence == SEEK_CUR || whence == SEEK_END);
         return static_cast<off_t>(static_cast<impl*>(self)->stream->seek(static_cast<ssize_t>(off), whence));
     }
 
