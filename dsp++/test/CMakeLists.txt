@@ -59,6 +59,7 @@ ASAN_OPTIONS=detect_container_overflow=0"
             ENVIRONMENT "PATH=${escaped_path}\\;\
 $<SHELL_PATH:$<TARGET_LINKER_FILE_DIR:dsp++>>\\;\
 $<SHELL_PATH:$<TARGET_PROPERTY:Sndfile::libsndfile,DLL_DIRECTORY>>\\;\
+$<SHELL_PATH:$<TARGET_PROPERTY:LAME::libmp3lame,DLL_DIRECTORY>>\\;\
 $<SHELL_PATH:$<TARGET_PROPERTY:FFTW3::libfftw3,DLL_DIRECTORY>>"
         )
     endif()

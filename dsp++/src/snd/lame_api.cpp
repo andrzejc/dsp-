@@ -364,11 +364,6 @@ struct lame::writer::impl {
         }
     }
 
-    template<const char* property>
-    static void throw_read_only(impl& i, string_view) {
-        throw snd::property::error::read_only{property};
-    }
-
     void set_tag(uint32_t tag, string_view desc, string_view text) {
         char fid[5] = { (char)(tag >> 24), (char)(tag >> 16), (char)(tag >> 8), (char)tag, 0 };
         string formatted;
@@ -414,8 +409,12 @@ struct lame::writer::impl {
 
     void set_property(string_view prop, string_view val) {
         static const std::unordered_map<string_view, void(*)(impl& i, string_view val), absl::Hash<string_view>> property_map = {
-            // { mpeg::property::version, throw_read_only<mpeg::property::version> },
-            // { mpeg::property::layer, throw_read_only<mpeg::property::layer> },
+            { mpeg::property::version, [](impl&, string_view) {
+                throw snd::property::error::read_only{mpeg::property::version};
+            }},
+            { mpeg::property::layer, [](impl&, string_view) {
+                throw snd::property::error::read_only{mpeg::property::layer};
+            }},
             { mpeg::property::mode, [](impl& i, string_view val) {
                 MPEG_mode mode;
                 if (detail::istrequal(val, string_view{"Standard Stereo"})) {
