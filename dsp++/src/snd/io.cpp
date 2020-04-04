@@ -36,16 +36,18 @@
   #include <windows.h>
   // __MSVCRT_VERSION__ is defined by MinGW
   #if defined(_MSC_VER) || (__MSVCRT_VERSION__ >= 0x800)
-    #define off_t __int64
+    using doff_t = __int64;
     #define ftello _ftelli64
     #define fseeko _fseeki64
     #define lseek _lseeki64
   #else
-    #define off_t long
+    #define doff_t long
     #define ftello ftell
     #define fseeko fseek
   #endif
-#endif // _WIN32
+#else // !_WIN32
+  using doff_t = off_t;
+#endif
 
 namespace dsp { namespace snd {
 namespace {
@@ -105,7 +107,7 @@ stdio_stream::stdio_stream(int fd, const char* mode):
 {}
 
 size_t stdio_stream::size() {
-    off_t res = -1, pos = ::ftello(file_);
+    doff_t res = -1, pos = ::ftello(file_);
     if (pos < 0) {
         goto finally;
     }
@@ -126,7 +128,7 @@ finally:
 }
 
 size_t stdio_stream::seek(ssize_t offset, int whence) {
-    if (0 != ::fseeko(file_, static_cast<off_t>(offset), whence)) {
+    if (0 != ::fseeko(file_, static_cast<doff_t>(offset), whence)) {
         assert(errno != 0);
         throw std::system_error{errno, std::generic_category()};
     }
@@ -203,7 +205,7 @@ fildes_stream::~fildes_stream() {
 }
 
 size_t fildes_stream::seek(ssize_t offset, int whence) {
-    auto res = ::lseek(fd_, static_cast<off_t>(offset), whence);
+    auto res = ::lseek(fd_, static_cast<doff_t>(offset), whence);
     if (res >= 0) {
         return static_cast<size_t>(res);
     } else {

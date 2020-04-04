@@ -50,13 +50,15 @@ macro(dsp_test name)
         COMMAND dsp++-test "--gtest_filter=${name}*" --gtest_color=yes
     )
     set_tests_properties("${name}" PROPERTIES
-        ENVIRONMENT "DSPXX_TEST_DATA=$<SHELL_PATH:${CMAKE_CURRENT_SOURCE_DIR}/data>;\
+        ENVIRONMENT "\
+DSPXX_TEST_DATA=$<SHELL_PATH:${CMAKE_CURRENT_SOURCE_DIR}/data>;\
 ASAN_OPTIONS=detect_container_overflow=0"
     )
     if(WIN32)
         string(REPLACE ";" "\\;" escaped_path "$ENV{PATH}")
         set_property(TEST "${name}" APPEND PROPERTY
-            ENVIRONMENT "PATH=${escaped_path}\\;\
+            ENVIRONMENT "\
+PATH=${escaped_path}\\;\
 $<SHELL_PATH:$<TARGET_LINKER_FILE_DIR:dsp++>>\\;\
 $<SHELL_PATH:$<TARGET_PROPERTY:Sndfile::libsndfile,DLL_DIRECTORY>>\\;\
 $<SHELL_PATH:$<TARGET_PROPERTY:Mpg123::libmpg123,DLL_DIRECTORY>>\\;\
