@@ -5,6 +5,7 @@
 #endif
 
 #include <system_error>
+#include <cstring>
 
 namespace dsp { namespace test {
 
