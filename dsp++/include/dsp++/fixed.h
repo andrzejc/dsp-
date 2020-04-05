@@ -199,8 +199,10 @@ struct rounds: public std::binary_function<fixed<WordLength, IntBits, IsSigned>,
 
 template<int WordLength, int IntBits, bool IsSigned, int WordLengthR, int IntBitsR, bool IsSignedR,
 		rounding::mode RoundingMode, overflow::mode OverflowMode>
-struct converts: public std::unary_function<fixed<WordLength, IntBits, IsSigned>, fixed<WordLengthR, IntBitsR, IsSignedR> >
+struct converts
 {
+	using result_type = fixed<WordLengthR, IntBitsR, IsSignedR>;
+	using argument_type = fixed<WordLength, IntBits, IsSigned>;
 	fixed<WordLengthR, IntBitsR, IsSignedR> operator()(const fixed<WordLength, IntBits, IsSigned>& lhs) {
 		typedef fixed<WordLengthR, IntBitsR, IsSignedR> Target;
 		typedef fixed<WordLength, IntBits, IsSigned> Source;
@@ -223,9 +225,10 @@ struct converts: public std::unary_function<fixed<WordLength, IntBits, IsSigned>
 };
 
 template<int WordLength, int IntBits, bool IsSigned, rounding::mode RoundingMode, overflow::mode OverflowMode>
-struct converts<WordLength, IntBits, IsSigned, WordLength, IntBits, IsSigned, RoundingMode, OverflowMode>:
-	public std::unary_function<fixed<WordLength, IntBits, IsSigned>, fixed<WordLength, IntBits, IsSigned> >
+struct converts<WordLength, IntBits, IsSigned, WordLength, IntBits, IsSigned, RoundingMode, OverflowMode>
 {
+	using result_type = fixed<WordLength, IntBits, IsSigned>;
+	using argument_type = fixed<WordLength, IntBits, IsSigned>;
 	fixed<WordLength, IntBits, IsSigned> operator()(const fixed<WordLength, IntBits, IsSigned>& lhs) {
 		return lhs;
 	}

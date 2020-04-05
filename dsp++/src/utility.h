@@ -10,7 +10,7 @@
 namespace dsp { namespace detail {
 
 template<class Object, class Member, class Test>
-struct member_equal_t: public std::unary_function<Object, bool> {
+struct member_equal_t {
     Member Object::* member;
     Test test;
 
@@ -22,7 +22,7 @@ struct member_equal_t: public std::unary_function<Object, bool> {
 };
 
 template<class Object>
-struct member_equal_t<Object, const char*, const char*>: public std::unary_function<Object, bool> {
+struct member_equal_t<Object, const char*, const char*> {
     const char* Object::* member;
     const char* test;
 

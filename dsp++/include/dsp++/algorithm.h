@@ -60,7 +60,7 @@ copy_n(InputIterator src, Size n, OutputIterator dest)
 /// @brief Base class for simple, sample-based algorithms which work by transforming input samples into
 /// output samples in one-to-one manner. Such algorithm will have an `sample_type operator()(sample_type in)`
 /// function which takes input sample and returns transformed output sample. This class is a specialization
-/// of @p std::unary_function with input and output types being the same - {@link sample_type}.
+/// of @p std::unary_function stereotype with input and output types being the same - {@link sample_type}.
 /// @tparam Sample type of input and output sample.
 template<class Sample>
 struct sample_based_transform
