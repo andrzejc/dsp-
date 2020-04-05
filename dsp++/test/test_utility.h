@@ -5,6 +5,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <memory>
 
 namespace dsp { namespace test {
 
