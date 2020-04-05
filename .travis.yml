@@ -80,7 +80,7 @@ matrix:
   - os: linux
     name: Xenial-x64
     dist: xenial
-    env: CMAKE_GENERATOR=Ninja CC=gcc-7 CXX=g++7
+    env: CMAKE_GENERATOR=Ninja CC=gcc-7 CXX=g++-7
 # TODO: investigate why this fails on travis
 #   - os: linux
 #     name: Bionic-ARM64
