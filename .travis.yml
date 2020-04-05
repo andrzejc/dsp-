@@ -12,6 +12,7 @@ addons:
     update: true
     packages:
     - gcc-7
+    - g++-7
     - cmake
     - libsndfile1-dev
     - libfftw3-dev
