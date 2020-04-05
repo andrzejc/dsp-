@@ -5,10 +5,10 @@
 #include <dsp++/config.h>
 #include <dsp++/stdint.h>
 
-#include <string_view>
-#include <optional>
-#include <cstddef>
-#include <string>
+#include <string_view>  // IWYU pragma: export
+#include <optional>  // IWYU pragma: export
+#include <cstddef>  // IWYU pragma: export
+#include <string>  // IWYU pragma: export
 
 namespace dsp {
 

@@ -34,6 +34,8 @@ enum window_type
 template<class Result>
 struct window_function: public std::unary_function<size_t, Result>
 {
+	using result_type = Result;
+	using argument_type = size_t;
 	/*!
 	 * @brief Initializes length and type fields of this functor.
 	 * @param length the window length.

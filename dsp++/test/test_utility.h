@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <memory>
+#include <cassert>
 
 namespace dsp { namespace test {
 

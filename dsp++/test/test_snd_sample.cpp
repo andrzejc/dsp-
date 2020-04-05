@@ -14,7 +14,6 @@ TEST(snd_sample, type_from_spec) {
     EXPECT_EQ(type_of(".foo"), type::unknown);
     EXPECT_EQ(type_of(".foo@32k"), type::unknown);
     EXPECT_EQ(type_of(""), type::unknown);
-    EXPECT_EQ(type_of(nullptr), type::unknown);
 }
 
 TEST(snd_sample, bit_size_from_spec) {
@@ -25,7 +24,6 @@ TEST(snd_sample, bit_size_from_spec) {
     EXPECT_EQ(bit_size_of(".foo"), 0);
     EXPECT_EQ(bit_size_of(".foo@32k"), 0);
     EXPECT_EQ(bit_size_of(""), 0);
-    EXPECT_EQ(bit_size_of(nullptr), 0);
 }
 
 TEST(snd_sample, cast_float_to_signed) {
