@@ -32,7 +32,7 @@ enum window_type
  * @brief Base class for window generator functors.
  */
 template<class Result>
-struct window_function: public std::unary_function<size_t, Result>
+struct window_function
 {
 	using result_type = Result;
 	using argument_type = size_t;
