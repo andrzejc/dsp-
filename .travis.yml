@@ -79,9 +79,9 @@ matrix:
     name: macOS 10.13 (10.14 SDK)
     osx_image: xcode10.1
     env: CMAKE_GENERATOR=Ninja
-  - os: osx
-    name: macOS 10.12 (10.13 SDK)
-    osx_image: xcode9.2
+  # - os: osx
+  #   name: macOS 10.12 (10.13 SDK)
+  #   osx_image: xcode9.2
   - os: linux
     name: Bionic-x64
     dist: bionic
