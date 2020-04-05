@@ -6,10 +6,12 @@ git:
 addons:
   apt:
     sources:
+    - ubuntu-toolchain-r-test
     - sourceline: 'deb https://apt.kitware.com/ubuntu/ ${TRAVIS_DIST} main'
       key_url: 'https://apt.kitware.com/keys/kitware-archive-latest.asc'
     update: true
     packages:
+    - gcc-7
     - cmake
     - libsndfile1-dev
     - libfftw3-dev
@@ -21,16 +23,20 @@ addons:
     - graphviz
     - ninja-build
 # This fails "/usr/local/bin/brew tap homebrew/bundle": Error: Unknown command: bundle
-#   homebrew:
-#     update: false
-#     packages:
-#     - ccache
-#     - cmake
-#     - libsndfile
-#     - fftw
-#     - boost
-#     - doxygen
-#     - graphviz
+  homebrew:
+    update: true
+    packages:
+    - ccache
+    - cmake
+    - ninja
+    - mpg123
+    - lame
+    - libsndfile
+    - fdk-aac
+    - fftw
+    - boost
+    - doxygen
+    - graphviz
 
 cache:
   ccache: true
@@ -73,7 +79,7 @@ matrix:
   - os: linux
     name: Xenial-x64
     dist: xenial
-    env: CMAKE_GENERATOR=Ninja
+    env: CMAKE_GENERATOR=Ninja CC=gcc-7 CXX=g++7
 # TODO: investigate why this fails on travis
 #   - os: linux
 #     name: Bionic-ARM64
