@@ -63,8 +63,10 @@ copy_n(InputIterator src, Size n, OutputIterator dest)
 /// of @p std::unary_function with input and output types being the same - {@link sample_type}.
 /// @tparam Sample type of input and output sample.
 template<class Sample>
-struct sample_based_transform: public std::unary_function<Sample, Sample>
+struct sample_based_transform
 {
+	using result_type = Sample;
+	using argument_type = Sample;
 	//! @brief Type of input/output sample.
 	typedef Sample sample_type;
 };
