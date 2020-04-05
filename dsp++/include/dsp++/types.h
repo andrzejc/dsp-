@@ -5,9 +5,8 @@
 #include <dsp++/config.h>
 #include <dsp++/stdint.h>
 
-#include <absl/strings/string_view.h>
-#include <absl/types/optional.h>
-
+#include <string_view>
+#include <optional>
 #include <cstddef>
 #include <string>
 
@@ -19,9 +18,9 @@ using std::string;
 
 /// @brief Contract: @c dsp::string_view is either @c std::string_view or has the same API and
 /// is implicitly convertible to/from it.
-using absl::string_view;
+using std::string_view;
 
-using absl::optional;
+using std::optional;
 
 /// @brief Contract: @c dsp::size_t is alias for @c std::size_t.
 using std::size_t;

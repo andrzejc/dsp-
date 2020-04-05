@@ -21,7 +21,6 @@
 
 #include "../utility.h"
 
-#include <absl/hash/hash.h>
 #include <boost/format.hpp>
 
 #include <cassert>
@@ -392,7 +391,7 @@ struct mpg123::reader::impl {
     }
 
     optional<string> property(string_view property) {
-        static const std::unordered_map<string_view, optional<string>(*)(impl& i), absl::Hash<string_view>> property_map = {
+        static const std::unordered_map<string_view, optional<string>(*)(impl& i)> PROPERTY_GETTERS = {
             { mpeg::property::version, [](impl& i) -> optional<string> {
                 switch (i.frame_info.version) {
                 case MPG123_1_0:
@@ -475,8 +474,8 @@ struct mpg123::reader::impl {
             { property::track_count, &after_slash<&get_track_number> },
             { property::track_number, &till_slash<&get_track_number> },
         };
-        auto it = property_map.find(property);
-        if (it != property_map.end()) {
+        auto it = PROPERTY_GETTERS.find(property);
+        if (it != PROPERTY_GETTERS.end()) {
             return it->second(*this);
         }
         return id3v2_extra_text(property);

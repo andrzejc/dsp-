@@ -27,13 +27,13 @@ cmake ${TARGET_PLATFORM:+-A ${TARGET_PLATFORM}} \
 cmake --build . --config RelWithDebInfo --target install
 popd
 
-mkdir -p build/deps/abseil-cpp
-pushd build/deps/abseil-cpp
-cmake ${TARGET_PLATFORM:+-A ${TARGET_PLATFORM}} \
-    ${CMAKE_GENERATOR:+"-DCMAKE_GENERATOR=${CMAKE_GENERATOR}"} \
-    "-DCMAKE_INSTALL_PREFIX=${DEPS_INSTALL_DIR}" \
-    -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-    -DBUILD_SHARED_LIBS=OFF \
-    "${DEPS_DIR}/abseil-cpp"
-cmake --build . --config RelWithDebInfo --target install
-popd
+# mkdir -p build/deps/abseil-cpp
+# pushd build/deps/abseil-cpp
+# cmake ${TARGET_PLATFORM:+-A ${TARGET_PLATFORM}} \
+#     ${CMAKE_GENERATOR:+"-DCMAKE_GENERATOR=${CMAKE_GENERATOR}"} \
+#     "-DCMAKE_INSTALL_PREFIX=${DEPS_INSTALL_DIR}" \
+#     -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+#     -DBUILD_SHARED_LIBS=OFF \
+#     "${DEPS_DIR}/abseil-cpp"
+# cmake --build . --config RelWithDebInfo --target install
+# popd

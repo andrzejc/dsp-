@@ -2,8 +2,6 @@
 #include <dsp++/export.h>
 #include <dsp++/types.h>
 
-#include <absl/types/optional.h>
-
 namespace dsp { namespace snd {
 
 /*!

@@ -1,7 +1,7 @@
 #include <dsp++/snd/sample.h>
 #include <dsp++/snd/buffer.h>
 
-#include <absl/strings/numbers.h>
+#include <boost/lexical_cast.hpp>
 
 #include <limits>
 #include <cassert>
@@ -42,10 +42,9 @@ unsigned bit_size_of(string_view sf) {
     if (dot != sf.npos) {
         sf.remove_suffix(sf.length() - dot);
     }
-    unsigned res;
-    if (absl::SimpleAtoi(sf, &res)) {
-        return res;
-    } else {
+    try {
+        return boost::lexical_cast<unsigned>(sf);
+    } catch (boost::bad_lexical_cast&) {
         return 0;
     }
 }

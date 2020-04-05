@@ -19,9 +19,8 @@
 
 #include <lame/lame.h>
 
-#include <absl/strings/numbers.h>
-#include <absl/hash/hash.h>
 #include <boost/format.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include <cassert>
 #include <cstring>
@@ -84,7 +83,7 @@ struct lame_encode_func<int> {
 };
 #endif
 
-const std::unordered_map<string_view, uint32_t, absl::Hash<string_view>> PROPERTY_TAGS = {
+const std::unordered_map<string_view, uint32_t> PROPERTY_TAGS = {
     { property::album, 'TALB' },
     { property::album_artist, 'TPE2' },
     { property::album_artist_sort_order, 'TSO2' },
@@ -276,7 +275,7 @@ struct lame::writer::impl {
     }
 
     optional<string> property(string_view property) {
-        static const std::unordered_map<string_view, optional<string>(*)(impl& i), absl::Hash<string_view>> property_map = {
+        static const std::unordered_map<string_view, optional<string>(*)(impl& i)> PROPERTY_GETTERS = {
             { mpeg::property::version, [](impl& i) -> optional<string> {
                 switch (lame_get_version(i.handle.get())) {
                 case 0:
@@ -335,8 +334,8 @@ struct lame::writer::impl {
                 return {};
             }},
         };
-        auto it = property_map.find(property);
-        if (it != property_map.end()) {
+        auto it = PROPERTY_GETTERS.find(property);
+        if (it != PROPERTY_GETTERS.end()) {
             return it->second(*this);
         }
         auto tag_it = tags.find(string{property});
@@ -408,7 +407,7 @@ struct lame::writer::impl {
     }
 
     void set_property(string_view prop, string_view val) {
-        static const std::unordered_map<string_view, void(*)(impl& i, string_view val), absl::Hash<string_view>> property_map = {
+        static const std::unordered_map<string_view, void(*)(impl& i, string_view val)> PROPERTY_SETTERS = {
             { mpeg::property::version, [](impl&, string_view) {
                 throw snd::property::error::read_only{mpeg::property::version};
             }},
@@ -463,8 +462,10 @@ struct lame::writer::impl {
                 if (!num.empty() && std::tolower(num.back()) == 'k') {
                     num.remove_suffix(1);
                 }
-                int res = 0;
-                if (!absl::SimpleAtoi(num, &res) || res < 0) {
+                unsigned res = 0;
+                try {
+                    res = boost::lexical_cast<unsigned>(num);
+                } catch (boost::bad_lexical_cast&) {
                     throw property::error::invalid_value{property::bitrate, string{val}};
                 }
                 int err;
@@ -495,8 +496,8 @@ struct lame::writer::impl {
                 i.set_track_disk_count('TPOS', property::disk_count, property::disk_number, string{val});
             }}
         };
-        auto it = property_map.find(prop);
-        if (it != property_map.end()) {
+        auto it = PROPERTY_SETTERS.find(prop);
+        if (it != PROPERTY_SETTERS.end()) {
             it->second(*this, val);
             return;
         }
