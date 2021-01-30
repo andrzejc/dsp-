@@ -137,7 +137,7 @@ struct mpg123::reader::impl {
             )};
         }
         if (!allow_stream_params_change
-            && (sample_rate != format.sample_rate() || channels != format.channel_count())
+            && (sample_rate != format.sample_rate() || static_cast<unsigned>(channels) != format.channel_count())
         ) {
             throw io_error{"change of sample rate or channel count mid-stream is not supported"};
         }

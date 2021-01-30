@@ -222,7 +222,7 @@ struct iobase::impl {
             }
             layout.set(e->our);
         }
-        if (layout.count() == info_.channels) {
+        if (layout.count() == static_cast<unsigned>(info_.channels)) {
             f.set_channel_layout(layout);
         } else {
             f.set_channel_count(info_.channels);
