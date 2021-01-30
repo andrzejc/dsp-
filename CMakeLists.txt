@@ -9,8 +9,12 @@ project(dsp++
 
 list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_LIST_DIR}/deps/build-scripts/cmake")
 
-option(BUILD_SHARED_LIBS "Build shared libraries" ON)
-option(BUILD_TESTING "Build testing code" ON)
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    # Only if building standalone, otherwise let parent project control this
+    option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+    option(BUILD_TESTING "Build testing code" ON)
+endif()
+
 option(DSPXX_BUILD_DEMOS "Build example/demo code" OFF)
 
 set(CMAKE_CXX_STANDARD 17)
