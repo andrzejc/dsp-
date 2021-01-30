@@ -145,7 +145,7 @@ if(WIN32)
 else()
     install(EXPORT dsp++ DESTINATION "share/dsp++-${PROJECT_VERSION}/cmake" FILE dsp++-config.cmake)
 endif()
-if(MSVC)
+if(MSVC AND BUILD_SHARED_LIBS)
     install(FILES $<TARGET_PDB_FILE:dsp++> DESTINATION lib OPTIONAL)
 endif()
 

@@ -11,20 +11,15 @@
 
 namespace dsp {
 
-#if __cplusplus < 201103L
-namespace detail {template<class T> struct alignof_helper {char c; T member;};}
-# define alignof(type) offsetof(dsp::detail::alignof_helper<type>, member)
-#endif
-
 template<class Elem>
 struct buffer_traits
 {
 	typedef Elem value_type;
 	typedef std::allocator<Elem> allocator_type;
 
-	static size_t alignment() {return alignof(Elem);}
-	static size_t padding_size(size_t count) {return 0;}
-	static size_t aligned_count(size_t count) {return count;}
+	static std::size_t alignment() {return alignof(Elem);}
+	static std::size_t padding_size(size_t count) {return 0;}
+	static std::size_t aligned_count(size_t count) {return count;}
 
 };
 

@@ -184,7 +184,7 @@ inline Float float_cast(const fixed<WordLength, IntBits, IsSigned>& f)
 #define DSP_FI_BIN_TPARAMS 			DSP_FI_TPARAMS(0), DSP_FI_TPARAMS(1)
 
 template<int WordLength, int IntBits, bool IsSigned, rounding::mode RoundMode, overflow::mode OverflowMode>
-struct rounds: public std::binary_function<fixed<WordLength, IntBits, IsSigned>, int, fixed<WordLength, IntBits, IsSigned> >
+struct rounds
 {
 	fixed<WordLength, IntBits, IsSigned> operator()(const fixed<WordLength, IntBits, IsSigned>& f, int fractional_bits) {
 		int at_bit = fixed<WordLength, IntBits, IsSigned>::fractional_bits - fractional_bits;
@@ -297,8 +297,7 @@ struct multiply_result
 };
 
 template<int WordLength0, int IntBits0, bool IsSigned0, int WordLength1, int IntBits1, bool IsSigned1>
-struct multiplies_lossless: public std::binary_function<fixed<DSP_FI_TPARAMS(0)>, fixed<DSP_FI_TPARAMS(1)>,
-	typename multiply_result<DSP_FI_BIN_TPARAMS>::type_lossless>
+struct multiplies_lossless
 {
 	typedef multiply_result<DSP_FI_BIN_TPARAMS> result_traits;
 	typename result_traits::type_lossless operator()(const fixed<DSP_FI_TPARAMS(0)>& l, const fixed<DSP_FI_TPARAMS(1)>& r) {
@@ -319,8 +318,7 @@ template<int WordLength0, int IntBits0, bool IsSigned0, int WordLength1, int Int
 		int IntBitsR,		//!< Integral bits of the result.
 		bool IsSignedR = (IsSigned0 || IsSigned1), //!< Signedness of the result
 		rounding::mode RoundMode = rounding::fastest, overflow::mode OverflowMode = overflow::fastest>
-struct multiplies: public std::binary_function<fixed<WordLength0, IntBits0, IsSigned0>,
-	fixed<WordLength1, IntBits1, IsSigned1>, fixed<WordLengthR, IntBitsR, IsSignedR> >
+struct multiplies
 {
 	fixed<WordLengthR, IntBitsR, IsSignedR> operator()(const fixed<WordLength0, IntBits0, IsSigned0>& lhs, const fixed<WordLength1, IntBits1, IsSigned1>& rhs) {
 		return fixed_cast<fixed<WordLengthR, IntBitsR, IsSignedR>, RoundMode, OverflowMode>(multiply_lossless(lhs, rhs));
@@ -332,8 +330,7 @@ struct multiplies: public std::binary_function<fixed<WordLength0, IntBits0, IsSi
 //		int IntBitsR,		//!< Integral bits of the result.
 //		bool IsSignedR = (IsSigned0 || IsSigned1), //!< Signedness of the result
 //		rounding::mode RoundMode = rounding::fastest, overflow::mode OverflowMode = overflow::fastest>
-//struct multiplies_scaled: public std::binary_function<fixed<WordLength0, IntBits0, IsSigned0>,
-//	fixed<WordLength1, IntBits1, IsSigned1>, fixed<WordLengthR, IntBitsR, IsSignedR> >
+//struct multiplies_scaled
 //{
 //	fixed<WordLengthR, IntBitsR, IsSignedR> operator()(const fixed<WordLength0, IntBits0, IsSigned0>& lhs, const fixed<WordLength1, IntBits1, IsSigned1>& rhs) {
 //		typedef fixed<WordLengthR, IntBitsR, IsSignedR> Res;
@@ -424,8 +421,7 @@ struct addition_result
 };
 
 template<int WordLength0, int IntBits0, bool IsSigned0, int WordLength1, int IntBits1, bool IsSigned1, rounding::mode RoundingMode>
-struct plus_extended: public std::binary_function<fixed<DSP_FI_TPARAMS(0)>, fixed<DSP_FI_TPARAMS(1)>,
-	typename addition_result<DSP_FI_BIN_TPARAMS>::type_extended>
+struct plus_extended
 {
 	typedef addition_result<DSP_FI_BIN_TPARAMS> result_traits;
 	typename result_traits::type_extended operator()(const fixed<DSP_FI_TPARAMS(0)>& l, const fixed<DSP_FI_TPARAMS(1)>& r) {
@@ -438,8 +434,7 @@ struct plus_extended: public std::binary_function<fixed<DSP_FI_TPARAMS(0)>, fixe
 };
 
 template<int WordLength0, int IntBits0, bool IsSigned0, int WordLength1, int IntBits1, bool IsSigned1, rounding::mode RoundingMode>
-struct minus_extended: public std::binary_function<fixed<DSP_FI_TPARAMS(0)>, fixed<DSP_FI_TPARAMS(1)>,
-	typename addition_result<DSP_FI_BIN_TPARAMS>::type_extended>
+struct minus_extended
 {
 	typedef addition_result<DSP_FI_BIN_TPARAMS> result_traits;
 	typename result_traits::type_extended operator()(const fixed<DSP_FI_TPARAMS(0)>& l, const fixed<DSP_FI_TPARAMS(1)>& r) {

@@ -52,7 +52,7 @@ typedef select_float<64>::type float64_t;
  * @return @c true if the numbers are roughly equal, @c false otherwise.
  */
 template<class Real>
-struct within_range: public std::binary_function<Real, Real, bool>
+struct within_range
 {
 	const Real margin;
 	explicit within_range(Real mrg = std::numeric_limits<Real>::epsilon()): margin(mrg) {}
@@ -70,7 +70,7 @@ struct within_range: public std::binary_function<Real, Real, bool>
 };
 
 template<class Real>
-struct within_range<std::complex<Real> >: public std::binary_function<std::complex<Real>, std::complex<Real>, bool>
+struct within_range<std::complex<Real>>
 {
 	const Real margin;
 	explicit within_range(Real mrg = std::numeric_limits<Real>::epsilon()): margin(mrg) {}
@@ -83,7 +83,7 @@ struct within_range<std::complex<Real> >: public std::binary_function<std::compl
 };
 
 template<class Real>
-struct differs_by: public std::binary_function<Real, Real, bool>
+struct differs_by
 {
 	const Real factor;
 	explicit differs_by(Real fctr = std::numeric_limits<Real>::epsilon()): factor(fctr) {}
@@ -99,7 +99,7 @@ struct differs_by: public std::binary_function<Real, Real, bool>
 };
 
 template<class Real>
-struct differs_by<std::complex<Real> >: public std::binary_function<std::complex<Real>, std::complex<Real>, bool>
+struct differs_by<std::complex<Real> >
 {
 	const Real factor;
 	explicit differs_by(Real fctr = std::numeric_limits<Real>::epsilon()): factor(fctr) {}
