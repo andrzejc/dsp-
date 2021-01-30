@@ -25,15 +25,15 @@ static unsigned init_mkfilter(mkfilter::context& ctx, unsigned order, unsigned t
 	unsigned sz = order;
 	const unsigned type_mask = 0x0003;
 	switch (type & type_mask) {
-	case iir::type::bessel: 
-		ctx.options |= mkfilter::opt_be; 
+	case iir::type::bessel:
+		ctx.options |= mkfilter::opt_be;
 		break;
-	case iir::type::chebyshev: 
-		ctx.options |= mkfilter::opt_ch; 
+	case iir::type::chebyshev:
+		ctx.options |= mkfilter::opt_ch;
 		ctx.chebrip = (NULL == cheb_rip ? 3. : *cheb_rip);
 		break;
-	case iir::type::butterworth: 
-		ctx.options |= mkfilter::opt_bu; 
+	case iir::type::butterworth:
+		ctx.options |= mkfilter::opt_bu;
 		break;
 	default:
 		throw std::invalid_argument("dsp::iir::design(): invalid filter type specification");
@@ -41,7 +41,7 @@ static unsigned init_mkfilter(mkfilter::context& ctx, unsigned order, unsigned t
 
 	const unsigned char_mask = 0x01f0;
 	switch (type & char_mask) {
-	case iir::resp::lowpass: 
+	case iir::resp::lowpass:
 		ctx.options |= mkfilter::opt_lp | mkfilter::opt_a;
 		if (NULL != fc)
 			ctx.raw_alpha1 = verify_f(*fc);
@@ -102,12 +102,11 @@ static unsigned init_mkfilter(mkfilter::context& ctx, unsigned order, unsigned t
 }
 
 
-unsigned dsp::iir::design(unsigned order, unsigned type, const double* fc, 
-	double b[], double a[], 
+unsigned dsp::iir::design(unsigned order, unsigned type, const double* fc,
+	double b[], double a[],
 	const double* cheb_rip, const double* zero_freq, unsigned pole_mask)
 {
-	mkfilter::context ctx;
-	memset(&ctx, 0, sizeof(ctx));
+	mkfilter::context ctx = {};
 	unsigned sz = init_mkfilter(ctx, order, type, fc, cheb_rip, zero_freq, pole_mask);
 	if (NULL == b || NULL == a)
 		return sz + 1;
@@ -119,25 +118,24 @@ unsigned dsp::iir::design(unsigned order, unsigned type, const double* fc,
 
 	assert(ctx.splane.numzeros <= (int)sz);
 	assert(ctx.splane.numpoles <= (int)sz);
-	assert(ctx.zplane.numzeros == sz);
-	assert(ctx.zplane.numpoles == sz);
+	assert(ctx.zplane.numzeros == (int)sz);
+	assert(ctx.zplane.numpoles == (int)sz);
 	return sz + 1;
 }
 
-double dsp::iir::design(unsigned order, unsigned type, const double* fc, 
-	std::complex<double> z[], std::complex<double> p[], 
+double dsp::iir::design(unsigned order, unsigned type, const double* fc,
+	std::complex<double> z[], std::complex<double> p[],
 	const double* cheb_rip, const double* zero_freq, unsigned pole_mask)
 {
-	mkfilter::context ctx;
-	memset(&ctx, 0, sizeof(ctx));
+	mkfilter::context ctx = {};
 	unsigned sz = init_mkfilter(ctx, order, type, fc, cheb_rip, zero_freq, pole_mask);
 
 	mkfilter::design(ctx, sz);
 
 	assert(ctx.splane.numzeros <= (int)sz);
 	assert(ctx.splane.numpoles <= (int)sz);
-	assert(ctx.zplane.numzeros == sz);
-	assert(ctx.zplane.numpoles == sz);
+	assert(ctx.zplane.numzeros == (int)sz);
+	assert(ctx.zplane.numpoles == (int)sz);
 	std::copy(ctx.zplane.zeros, ctx.zplane.zeros + sz, z);
 	std::copy(ctx.zplane.poles, ctx.zplane.poles + sz, p);
 	return 1/gain(ctx);
@@ -146,8 +144,7 @@ double dsp::iir::design(unsigned order, unsigned type, const double* fc,
 DSPXX_API unsigned dsp::iir::sos_design(unsigned order, unsigned type, const double* fc,
 	double num[], double den[], const double* cheb_rip, const double* zero_freq, unsigned pole_mask)
 {
-	mkfilter::context ctx;
-	memset(&ctx, 0, sizeof(ctx));
+	mkfilter::context ctx = {};
 	unsigned sz = init_mkfilter(ctx, order, type, fc, cheb_rip, zero_freq, pole_mask);
 
 	if (NULL == num || NULL == den)
@@ -157,8 +154,8 @@ DSPXX_API unsigned dsp::iir::sos_design(unsigned order, unsigned type, const dou
 
 	assert(ctx.splane.numzeros <= (int)sz);
 	assert(ctx.splane.numpoles <= (int)sz);
-	assert(ctx.zplane.numzeros == sz);
-	assert(ctx.zplane.numpoles == sz);
+	assert(ctx.zplane.numzeros == (int)sz);
+	assert(ctx.zplane.numpoles == (int)sz);
 
 	double k = 1/gain(ctx);
 	return zp2sos(ctx.zplane.numzeros, ctx.zplane.zeros, ctx.zplane.numpoles, ctx.zplane.poles, k, num, den);
