@@ -77,7 +77,7 @@ byte_stream::position_saver::~position_saver() noexcept(false) {
     try {
         stream.seek(pos, SEEK_SET);
     } catch (...) {
-        if (!std::uncaught_exception()) {
+        if (0 == std::uncaught_exceptions()) {
             throw;
         }
     }
