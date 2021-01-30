@@ -1,7 +1,5 @@
 project(dsp++-test)
 
-find_package(GTest REQUIRED CONFIG)
-
 set(SOURCES
     execution_timer.cpp
     utility.cpp
