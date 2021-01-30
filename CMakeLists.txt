@@ -1,20 +1,13 @@
-cmake_minimum_required(VERSION 3.2)
-
-set(DSPXX_PROJECT_VARS)
-if(NOT CMAKE_VERSION VERSION_LESS 3.11)
-    set(DSPXX_PROJECT_VARS
-        DESCRIPTION "Digital Signal Processing library written in modern C++"
-        HOMEPAGE_URL https://github.com/andrzejc/dspxx
-    )
-endif()
+cmake_minimum_required(VERSION 3.11)
 
 project(dsp++
     VERSION 0.1.0
-    ${DSPXX_PROJECT_VARS}
+    DESCRIPTION "Digital Signal Processing library written in modern C++"
+    HOMEPAGE_URL https://github.com/andrzejc/dspxx
     LANGUAGES CXX
 )
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/deps/build-scripts/cmake")
+list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_LIST_DIR}/deps/build-scripts/cmake")
 
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 option(BUILD_TESTING "Build testing code" ON)
