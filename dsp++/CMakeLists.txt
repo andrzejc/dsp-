@@ -123,6 +123,13 @@ target_compile_definitions(dsp++
         $<$<NOT:$<BOOL:${DSPXX_LAME_ENABLED}>>:DSPXX_LAME_DISABLED>
         $<$<NOT:$<BOOL:${DSPXX_FDK_AAC_ENABLED}>>:DSPXX_FDK_AAC_DISABLED>
 )
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(dsp++
+        PRIVATE
+            # warning: multi-character character constant (used in mp3 tags)
+            -Wno-multichar
+    )
+endif()
 set_target_properties(dsp++ PROPERTIES
     VERSION "${PROJECT_VERSION}"
     CXX_VISIBILITY_PRESET hidden
