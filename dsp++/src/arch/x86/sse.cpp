@@ -119,7 +119,7 @@ void dsp::simd::detail::x86_sse_mulcf(std::complex<float>* res_c, const std::com
 	const float* b = reinterpret_cast<const float*>(b_c);
 
 	__m128 x0, x1, x2, x3, x4;
-	float alignas(16) mul[] = {-1.0f, 1.0f, -1.0f, 1.0f};
+	alignas(16) float mul[] = {-1.0f, 1.0f, -1.0f, 1.0f};
 	size_t n = len / 2; // each complex has 2 floats, so divide by 2 not 4
 	x4 = _mm_load_ps(mul);
 	for (size_t i = 0; i < n; ++i, a += 4, b += 4, res += 4) {
@@ -145,7 +145,7 @@ std::complex<float> dsp::simd::detail::x86_sse_dotcf(const std::complex<float>* 
 	const float* a = reinterpret_cast<const float*>(a_c);
 	const float* b = reinterpret_cast<const float*>(b_c);
 	__m128 x0, x1, x2, x3, x4, x5;
-	float alignas(16) mul[] = {-1.0f, 1.0f, -1.0f, 1.0f};
+	alignas(16) float mul[] = {-1.0f, 1.0f, -1.0f, 1.0f};
 	size_t n = len / 2; // each complex has 2 floats, so divide by 2 not 4
 	x5 = _mm_set1_ps(0.f); // write zeros to result
 	x4 = _mm_load_ps(mul);
