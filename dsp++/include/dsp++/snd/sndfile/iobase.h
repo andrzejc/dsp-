@@ -58,7 +58,7 @@ public:
      * @param fmt optional format object used as hint for reader when the file type
      * doesn't include the necessary information (e.g. when reading raw files) and
      * mandatory when opening file for writing.
-     * @param native_info alternatively to dsp::snd::format, use native (SF_INFO)
+     * @param native_info alternatively to dsp::snd::stream_format, use native (SF_INFO)
      * object to pass file format information.
      * @throw sndfile::error when libsndfile is unable to open the file.
      */
@@ -71,7 +71,7 @@ public:
      * @param fmt optional format object used as hint for reader when the file type
      * doesn't include the necessary information (e.g. when reading raw files) and
      * mandatory when opening file for writing.
-     * @param native_info alternatively to dsp::snd::format, use native (SF_INFO)
+     * @param native_info alternatively to dsp::snd::stream_format, use native (SF_INFO)
      * object to pass file format information.
      * @throw sndfile::error when libsndfile is unable to open the file.
      */
@@ -86,7 +86,7 @@ public:
      * @param fmt optional file_format object used as hint for reader when the file type
      * doesn't include the necessary information (e.g. when reading raw files) and
      * mandatory when opening file for writing.
-     * @param native_info alternatively to dsp::snd::format, use native (SF_INFO)
+     * @param native_info alternatively to dsp::snd::stream_format, use native (SF_INFO)
      * object to pass file format information.
      * @throw sndfile::error when libsndfile is unable to open the file.
      */

@@ -70,7 +70,7 @@ public:
 	unsigned block_size() const;
 	unsigned channel_count() const;
 
-	void fill_format(dsp::snd::format& f) const;
+	void fill_format(dsp::snd::stream_format& f) const;
 
 	void set_crossover_frequency(unsigned index, float frequency);
 	float crossover_frequency(unsigned index) const;
