@@ -1,4 +1,4 @@
-project(dsp++-test)
+project(dsp++-test CXX)
 
 set(SOURCES
     execution_timer.cpp
@@ -37,11 +37,12 @@ target_link_libraries(dsp++-test
         GTest::gmock_main
 )
 
-install(TARGETS dsp++-test DESTINATION bin)
-if (MSVC)
-    install(FILES $<TARGET_PDB_FILE:dsp++-test> DESTINATION lib OPTIONAL)
+if(DSPXX_INSTALL)
+    install(TARGETS dsp++-test DESTINATION bin)
+    if (MSVC)
+        install(FILES $<TARGET_PDB_FILE:dsp++-test> DESTINATION lib OPTIONAL)
+    endif()
 endif()
-
 
 macro(dsp_test name)
     add_test(NAME "${name}"

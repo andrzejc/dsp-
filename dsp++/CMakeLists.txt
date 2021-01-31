@@ -1,7 +1,7 @@
 project(libdsp++
     ${DSPXX_PROJECT_VARS}
     VERSION "${PROJECT_VERSION}"
-    LANGUAGES CXX
+    LANGUAGES CXX C
 )
 
 find_package(Boost REQUIRED)
@@ -137,16 +137,18 @@ set_target_properties(dsp++ PROPERTIES
 
 export(TARGETS dsp++ FILE dsp++-exports.cmake)
 
-install(TARGETS dsp++ EXPORT dsp++ DESTINATION lib)
-install(DIRECTORY include/dsp++ DESTINATION include)
-install(DIRECTORY "${PROJECT_BINARY_DIR}/include/dsp++" DESTINATION include)
-if(WIN32)
-    install(EXPORT dsp++ DESTINATION "dsp++-${PROJECT_VERSION}/cmake" FILE dsp++-config.cmake)
-else()
-    install(EXPORT dsp++ DESTINATION "share/dsp++-${PROJECT_VERSION}/cmake" FILE dsp++-config.cmake)
-endif()
-if(MSVC AND BUILD_SHARED_LIBS)
-    install(FILES $<TARGET_PDB_FILE:dsp++> DESTINATION lib OPTIONAL)
+if(DSPXX_INSTALL)
+    install(TARGETS dsp++ EXPORT dsp++ DESTINATION lib)
+    install(DIRECTORY include/dsp++ DESTINATION include)
+    install(DIRECTORY "${PROJECT_BINARY_DIR}/include/dsp++" DESTINATION include)
+    if(WIN32)
+        install(EXPORT dsp++ DESTINATION "dsp++-${PROJECT_VERSION}/cmake" FILE dsp++-config.cmake)
+    else()
+        install(EXPORT dsp++ DESTINATION "share/dsp++-${PROJECT_VERSION}/cmake" FILE dsp++-config.cmake)
+    endif()
+    if(MSVC AND BUILD_SHARED_LIBS)
+        install(FILES $<TARGET_PDB_FILE:dsp++> DESTINATION lib OPTIONAL)
+    endif()
 endif()
 
 if(DSPXX_BUILD_DOCS)

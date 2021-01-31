@@ -3,22 +3,24 @@ cmake_minimum_required(VERSION 3.11)
 project(dsp++
     VERSION 0.1.0
     DESCRIPTION "Digital Signal Processing library written in modern C++"
-    HOMEPAGE_URL https://github.com/andrzejc/dspxx
-    LANGUAGES CXX
+    HOMEPAGE_URL "https://github.com/andrzejc/dspxx"
+    LANGUAGES CXX C
 )
 
 list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_LIST_DIR}/deps/build-scripts/cmake")
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
-    # Only if building standalone, otherwise let parent project control this
-    option(BUILD_SHARED_LIBS "Build shared libraries" ON)
-    option(BUILD_TESTING "Build testing code" ON)
+    set(DSPXX_TOPLEVEL_PROJECT ON)
 endif()
 
 option(DSPXX_BUILD_DEMOS "Build example/demo code" OFF)
+if(DSPXX_TOPLEVEL_PROJECT)
+    option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+    option(BUILD_TESTING "Build testing code" ON)
+    option(DSPXX_INSTALL "Create installable build" ON)
+endif()
 
 set(CMAKE_CXX_STANDARD 17)
-# set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(MSVC)
     add_definitions(
@@ -75,8 +77,10 @@ if(WIN32)
 else()
     set(DSPXX_DOC_PREFIX "share/doc/${PROJECT_NAME}-${PROJECT_VERSION}")
 endif()
-install(FILES README.md DESTINATION "${DSPXX_DOC_PREFIX}")
-install(FILES LICENSE.txt DESTINATION "${DSPXX_DOC_PREFIX}")
+if(DSPXX_INSTALL)
+    install(FILES README.md DESTINATION "${DSPXX_DOC_PREFIX}")
+    install(FILES LICENSE.txt DESTINATION "${DSPXX_DOC_PREFIX}")
+endif()
 
 add_subdirectory(dsp++)
 

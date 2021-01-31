@@ -50,7 +50,9 @@ doxygen_add_docs(dsp++-docs
 )
 add_custom_target(docs DEPENDS dsp++-docs)
 
-install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/"
-    DESTINATION "${DSPXX_DOC_PREFIX}"
-    OPTIONAL
-)
+if(DSPXX_INSTALL)
+    install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/"
+        DESTINATION "${DSPXX_DOC_PREFIX}"
+        OPTIONAL
+    )
+endif()
