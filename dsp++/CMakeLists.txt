@@ -4,6 +4,8 @@ project(libdsp++
     LANGUAGES CXX C
 )
 
+include(SetupSidecarDll)
+
 find_package(Boost REQUIRED)
 find_package(Doxygen)
 find_package(FFTW3 COMPONENTS libfftw3 libfftw3f libfftw3l)
@@ -142,6 +144,7 @@ gather_sidecar_dlls(DSPXX_DLL_DIRS DSPXX_DLL_PATHS
 set_target_properties(dsp++ PROPERTIES
     VERSION "${PROJECT_VERSION}"
     CXX_VISIBILITY_PRESET hidden
+    DLL_DIRECTORIES "${DSPXX_DLL_DIRS}"
     DLL_PATHS "${DSPXX_DLL_PATHS}"
 )
 
