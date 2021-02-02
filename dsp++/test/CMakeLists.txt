@@ -54,15 +54,11 @@ DSPXX_TEST_DATA=$<SHELL_PATH:${CMAKE_CURRENT_SOURCE_DIR}/data>;\
 ASAN_OPTIONS=detect_container_overflow=0"
     )
     if(WIN32)
-        string(REPLACE ";" "\\;" escaped_path "$ENV{PATH}")
+        file(TO_NATIVE_PATH "${DSPXX_DLL_DIRS}" native_paths)
+        string(REPLACE ";" "\\;" escaped_paths 
+            "$ENV{PATH};$<SHELL_PATH:$<TARGET_FILE_DIR:dsp++>>;$<SHELL_PATH:$<TARGET_FILE_DIR:GTest::gmock>>;${native_paths}")
         set_property(TEST "${name}" APPEND PROPERTY
-            ENVIRONMENT "\
-PATH=${escaped_path}\\;\
-$<SHELL_PATH:$<TARGET_LINKER_FILE_DIR:dsp++>>\\;\
-$<SHELL_PATH:$<TARGET_PROPERTY:Sndfile::libsndfile,DLL_DIRECTORY>>\\;\
-$<SHELL_PATH:$<TARGET_PROPERTY:Mpg123::libmpg123,DLL_DIRECTORY>>\\;\
-$<SHELL_PATH:$<TARGET_PROPERTY:LAME::libmp3lame,DLL_DIRECTORY>>\\;\
-$<SHELL_PATH:$<TARGET_PROPERTY:FFTW3::libfftw3,DLL_DIRECTORY>>"
+            ENVIRONMENT "PATH=${escaped_paths}"
         )
     endif()
 endmacro()

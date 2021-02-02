@@ -130,15 +130,32 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
             -Wno-multichar
     )
 endif()
+gather_sidecar_dlls(DSPXX_DLL_DIRS DSPXX_DLL_PATHS
+    Sndfile::libsndfile
+    FFTW3::libfftw3
+    FFTW3::libfftw3f
+    FFTW3::libfftw3l
+    Mpg123::libmpg123
+    LAME::libmp3lame
+    FdkAac::libfdk-aac
+)
 set_target_properties(dsp++ PROPERTIES
     VERSION "${PROJECT_VERSION}"
     CXX_VISIBILITY_PRESET hidden
+    DLL_PATHS "${DSPXX_DLL_PATHS}"
 )
 
 export(TARGETS dsp++ FILE dsp++-exports.cmake)
 
 if(DSPXX_INSTALL)
-    install(TARGETS dsp++ EXPORT dsp++ DESTINATION lib)
+    install(TARGETS dsp++ EXPORT dsp++
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+    )
+    if(WIN32 AND DSPXX_DLL_PATHS)
+        install(FILES ${DSPXX_DLL_PATHS} DESTINATION bin)
+    endif()
     install(DIRECTORY include/dsp++ DESTINATION include)
     install(DIRECTORY "${PROJECT_BINARY_DIR}/include/dsp++" DESTINATION include)
     if(WIN32)
@@ -146,7 +163,7 @@ if(DSPXX_INSTALL)
     else()
         install(EXPORT dsp++ DESTINATION "share/dsp++-${PROJECT_VERSION}/cmake" FILE dsp++-config.cmake)
     endif()
-    if(MSVC AND BUILD_SHARED_LIBS)
+    if(MSVC)
         install(FILES $<TARGET_PDB_FILE:dsp++> DESTINATION lib OPTIONAL)
     endif()
 endif()
