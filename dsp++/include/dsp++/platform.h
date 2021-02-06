@@ -4,6 +4,7 @@
  * @todo Compile-time detection of ARM targets and their variants.
  */
 #pragma once
+#include <dsp++/export.h>
 
 #ifndef DOXYGEN_RUNNING
 // All the tested macros are listed on
@@ -34,6 +35,9 @@
 # define DSPXX_ARCH_FAMILY_ARM
 #elif defined(__thumb__) || defined(_M_ARMT)
 # define DSPXX_ARCH_THUMB
+# define DSPXX_ARCH_FAMILY_ARM
+#elif defined(__aarch64__)
+# define DSPXX_ARCH_ARM64
 # define DSPXX_ARCH_FAMILY_ARM
 #else
 # error "Unsupported processor architecture, tweak dsp++/platform.h to detect it."
@@ -68,6 +72,7 @@
 
 #if defined(__ANDROID__)
 # define DSPXX_OS_ANDROID
+# define DSPXX_ENDIAN_LITTLE
 #endif
 
 #if defined(__amigaos__) || defined(AMIGA)

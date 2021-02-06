@@ -190,7 +190,7 @@ static byte_order::label platform_test() {
     std::memcpy(buf, &i, 2);
     return (buf[0] != 0)
         ? byte_order::little_endian
-        : dsp::snd::byte_order::big_endian;
+        : dsp::byte_order::big_endian;
 }
 }
 

@@ -1,5 +1,6 @@
 #include <dsp++/flt/fir_design.h>
 #include <stdexcept>
+#include <new>
 #include "remez/remez.h"
 
 bool dsp::fir::pm::design(unsigned order, unsigned band_count, double freqs[], const double amps[],

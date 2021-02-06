@@ -28,6 +28,7 @@
 #include <sys/types.h>
 
 #ifdef DSPXX_OS_FAMILY_UNIX
+  #include <stdio.h>
   #include <unistd.h>
 #endif
 
@@ -45,6 +46,10 @@
     #define ftello ftell
     #define fseeko fseek
   #endif
+#elif defined(__ANDROID_API__) && (__ANDROID_API__ < 24)
+  using doff_t = long;
+  #define ftello ftell
+  #define fseeko fseek
 #else // !_WIN32
   using doff_t = off_t;
 #endif

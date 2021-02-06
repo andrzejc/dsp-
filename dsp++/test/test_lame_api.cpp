@@ -62,6 +62,7 @@ TEST(lame_api, writer_throws_on_unsupported_fs) {
     EXPECT_NO_THROW(f.open(tmp.name, {48000, 2, file_type::label::mpeg}));
 }
 
+#ifndef DSPXX_MPG123_DISABLED
 TEST(lame_api, writer_creates_readable_abr_file) {
     file_format source_format;
     sndfile::reader source;
@@ -160,6 +161,7 @@ TEST(lame_api, writer_creates_readable_properties) {
     EXPECT_EQ(*r.property("disk_count"), "3");
     EXPECT_EQ(*r.property("DISCOGS_RELEASE_ID"), "foo");
 }
+#endif
 
 }}}
 

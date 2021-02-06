@@ -60,6 +60,11 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_COMPILER_IS_GNUCXX)
     endif()
 endif()
 
+if(ANDROID)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsigned-char")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsigned-char")
+endif()
+
 if(BUILD_TESTING)
     find_package(GTest CONFIG QUIET)
     if(NOT GTest_FOUND)

@@ -76,7 +76,7 @@ if(TARGET_PLATFORM_X86)
         )
 endif()
 # ARM - specific
-if(TARGET_PLATFORM_ARM)
+if(TARGET_PLATFORM_ARM OR TARGET_PLATFORM_ARM64)
     list(APPEND SOURCES
         src/arch/arm/cpu_arm.cpp
         )
