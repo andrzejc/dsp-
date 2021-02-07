@@ -2,14 +2,14 @@ set -e -o pipefail
 trap 'set +e +o pipefail +x' EXIT RETURN
 set -x
 
-export ANDROID_SDK="${ANDROID_SDK:-${HOME}/Android/Sdk}"
-"${ANDROID_SDK}/cmdline-tools/latest/bin/sdkmanager" --install --channel=1 \
+export ANDROID_SDK_ROOT="${ANDROID_SDK_ROOT:-${HOME}/Android/Sdk}"
+"${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager" --install --channel=1 \
     'cmake;3.18.1'
 
 function sdk_component_path() {
     local component="$1"
-    echo -n "${ANDROID_SDK}/"
-    "${ANDROID_SDK}/cmdline-tools/latest/bin/sdkmanager" --list_installed | \
+    echo -n "${ANDROID_SDK_ROOT}/"
+    "${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager" --list_installed | \
         grep "${component}" | \
         tail -n1 | \
         awk -F\| '{ gsub(/[ ]+/, "", $4); print $4 }'
