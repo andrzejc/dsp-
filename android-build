@@ -8,25 +8,10 @@ NDK="${NDK:-${HOME}/Android/Sdk/ndk/22.0.7026061}"
 API="${API:-21}"
 CMAKE="${CMAKE:-${NDK}/../../cmake/3.18.1/bin/cmake}"
 
-BOOST_PATH="${BOOST_PATH:-${HOME}/android-deps/boost-1.74.0}"
-ICU4C_PATH="${ICU4C_PATH:-${HOME}/android-deps/icu4c-68_2}"
-FFTW3_PATH="${FFTW3_PATH:-${HOME}/android-deps/fftw-3.3.9}"
-SNDFILE_PATH="${SNDFILE_PATH:-${HOME}/android-deps/libsndfile-1.0.31}"
-LAME_PATH="${LAME_PATH:-${HOME}/android-deps/lame-3.100}"
-MPG123_PATH="${MPG123_PATH:-${HOME}/android-deps/mpg123-1.26.4}"
-
 function build_single_abi {
     mkdir -p build
     pushd build
     rm -rf CMake*
-    local roots
-    [[ -z "${BOOST_PATH:-}" ]] || roots+=";${BOOST_PATH}/${ABI}"
-    [[ -z "${ICU4C_PATH:-}" ]] || roots+=";${ICU4C_PATH}/${ABI}"
-    [[ -z "${FFTW3_PATH:-}" ]] || roots+=";${FFTW3_PATH}/${ABI}"
-    [[ -z "${SNDFILE_PATH:-}" ]] || roots+=";${SNDFILE_PATH}/${ABI}"
-    [[ -z "${LAME_PATH:-}" ]] || roots+=";${LAME_PATH}/${ABI}"
-    [[ -z "${MPG123_PATH:-}" ]] || roots+=";${MPG123_PATH}/${ABI}"
-
     "${CMAKE}" \
         -GNinja \
         -DCMAKE_TOOLCHAIN_FILE="${NDK}/build/cmake/android.toolchain.cmake" \
@@ -35,8 +20,7 @@ function build_single_abi {
         -DANDROID_ARM_NEON=ON \
         "-DANDROID_CCACHE=$(which ccache)" \
         "-DANDROID_CPP_FEATURES=rtti exceptions" \
-        "-DCMAKE_FIND_ROOT_PATH=${roots}" \
-        -DCMAKE_BUILD_TYPE=Release \
+        ${BUILT_DEPS_DIR:+"-DCMAKE_FIND_ROOT_PATH=${BUILT_DEPS_DIR}/${ABI}"} \
         "$@" \
         "${THIS_DIR}"
     "${CMAKE}" --build .
