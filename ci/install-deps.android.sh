@@ -1,3 +1,22 @@
+set -e -o pipefail
+trap 'set +e +o pipefail +x' EXIT RETURN
+set -x
+
+export ANDROID_SDK="${ANDROID_SDK:-${HOME}/Android/Sdk}"
+"${ANDROID_SDK}/cmdline-tools/latest/bin/sdkmanager" --install --channel=1 \
+    'cmake;3.18.1'
+
+function sdk_component_path() {
+    local component="$1"
+    echo -n "${ANDROID_SDK}/"
+    "${ANDROID_SDK}/cmdline-tools/latest/bin/sdkmanager" --list_installed | \
+        grep "${component}" | \
+        tail -n1 | \
+        awk -F\| '{ gsub(/[ ]+/, "", $4); print $4 }'
+}
+
+export NDK=$( sdk_component_path ndk)
+export CMAKE=$( sdk_component_path 'cmake;3.18.1' )/bin/cmake
 
 mkdir -p built-deps
 export BUILT_DEPS_DIR=$( cd built-deps && pwd )
