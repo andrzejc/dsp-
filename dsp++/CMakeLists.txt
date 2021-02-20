@@ -21,6 +21,12 @@ option(DSPXX_MPG123_ENABLED "Enable the use and support for libmpg123 mp3 decodi
 option(DSPXX_LAME_ENABLED "Enable the use and support for libmp3lame mp3 encoding?" ${LAME_FOUND})
 option(DSPXX_FDK_AAC_ENABLED "Enable the use and support for AAC with libfdk-aac?" ${FdkAac_FOUND})
 option(DSPXX_BUILD_DOCS "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
+if(DSPXX_LIBSNDFILE_ENABLED AND ANDROID)
+    find_package(FLAC)
+    find_package(Ogg)
+    find_package(Vorbis)
+    find_package(Opus)
+endif()
 
 set(SOURCES
     src/csv.cpp
@@ -104,6 +110,11 @@ target_link_libraries(dsp++
         Boost::boost
     PRIVATE
         $<$<BOOL:${DSPXX_LIBSNDFILE_ENABLED}>:Sndfile::libsndfile>
+        $<$<BOOL:${FLAC_FOUND}>:FLAC::libFLAC>
+        $<$<BOOL:${Ogg_FOUND}>:Ogg::libogg>
+        $<$<BOOL:${Vorbis_FOUND}>:Vorbis::libvorbis>
+        $<$<BOOL:${Vorbis_FOUND}>:Vorbis::libvorbisenc>
+        $<$<BOOL:${Opus_FOUND}>:Opus::libopus>
         $<$<BOOL:${DSPXX_FFTW3_ENABLED}>:FFTW3::libfftw3>
         $<$<BOOL:${DSPXX_FFTW3_ENABLED}>:FFTW3::libfftw3f>
         $<$<BOOL:${DSPXX_FFTW3_ENABLED}>:FFTW3::libfftw3l>
