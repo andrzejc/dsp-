@@ -111,10 +111,10 @@ target_link_libraries(dsp++
     PRIVATE
         $<$<BOOL:${DSPXX_LIBSNDFILE_ENABLED}>:Sndfile::libsndfile>
         $<$<BOOL:${FLAC_FOUND}>:FLAC::libFLAC>
-        $<$<BOOL:${Ogg_FOUND}>:Ogg::libogg>
         $<$<BOOL:${Vorbis_FOUND}>:Vorbis::libvorbis>
         $<$<BOOL:${Vorbis_FOUND}>:Vorbis::libvorbisenc>
         $<$<BOOL:${Opus_FOUND}>:Opus::libopus>
+        $<$<BOOL:${Ogg_FOUND}>:Ogg::libogg>
         $<$<BOOL:${DSPXX_FFTW3_ENABLED}>:FFTW3::libfftw3>
         $<$<BOOL:${DSPXX_FFTW3_ENABLED}>:FFTW3::libfftw3f>
         $<$<BOOL:${DSPXX_FFTW3_ENABLED}>:FFTW3::libfftw3l>
