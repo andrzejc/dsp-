@@ -160,6 +160,22 @@ typename dsp::remove_complex<T>::type norm_rms(const T* a, const T* b, size_t le
 	return sqrt(res / len);
 }
 
+template<class InputIterator>
+inline typename dsp::remove_complex<typename std::iterator_traits<InputIterator>::value_type>::type
+        norm_rms(InputIterator begin, InputIterator end)
+{
+	typedef typename std::iterator_traits<InputIterator>::value_type T;
+	typedef typename dsp::remove_complex<typename std::iterator_traits<InputIterator>::value_type>::type R;
+	using namespace std;
+	R res = R();
+	std::size_t len = 0;
+	while (begin != end) {
+		auto m = error<norm::abs>(*begin++, T{});
+		res += m * m;
+		++len;
+	}
+	return sqrt(res / len);
+}
 }
 
 #endif /* DSP_NORM_H_INCLUDED */
