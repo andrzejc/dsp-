@@ -199,6 +199,14 @@
 # define DSPXX_OS_FAMILY_POSIX
 #endif
 
+#if !defined(DSPXX_ENDIAN_LITTLE) && !defined(DSPXX_ENDIAN_BIG) && defined(__BYTE_ORDER__)
+# if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#  define DSPXX_ENDIAN_LITTLE
+# elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#  define DSPXX_ENDIAN_BIG
+# endif
+#endif
+
 #else // For Doxygen run define & comment all of the above
 
 //! Android Platform, include <android/api-level.h> and check __ANDROID_API__ for api level

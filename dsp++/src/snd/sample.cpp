@@ -179,7 +179,7 @@ inline void write_sample_as_float(const layout& sl, Float in, void* data) {
     }
 }
 
-}
+}}}
 
 #if !defined(DSPXX_ENDIAN_LITTLE) && !defined(DSPXX_ENDIAN_BIG)
 
@@ -197,6 +197,8 @@ static byte_order::label platform_test() {
 const byte_order::label byte_order::platform = platform_test();
 
 #endif
+
+namespace snd { namespace sample {
 
 void layout::read_float(const void* data, float& out) const {
     read_sample_as_float(*this, data, out);
