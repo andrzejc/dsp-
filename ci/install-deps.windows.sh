@@ -1,4 +1,4 @@
-choco install \
+choco install --no-progress \
     openssl.light \
     doxygen.install
 
